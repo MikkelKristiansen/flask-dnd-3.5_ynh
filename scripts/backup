@@ -1,14 +1,8 @@
 #!/bin/bash
-source _common.sh
+source "$(dirname "$0")/_common.sh"
 source /usr/share/yunohost/helpers
 
-ynh_script_progression "Backing up nginx configuration..."
-ynh_backup_conf_nginx
-
-ynh_script_progression "Backing up systemd configuration..."
-ynh_backup_conf_systemd
-
-ynh_script_progression "Backing up application files..."
+ynh_script_progression "Backing up app files..."
 ynh_backup "$install_dir"
 
 ynh_script_progression "Backing up data..."

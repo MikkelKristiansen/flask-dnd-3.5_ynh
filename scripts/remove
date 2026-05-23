@@ -1,5 +1,5 @@
 #!/bin/bash
-source _common.sh
+source "$(dirname "$0")/_common.sh"
 source /usr/share/yunohost/helpers
 
 ynh_script_progression "Stopping and removing service..."
