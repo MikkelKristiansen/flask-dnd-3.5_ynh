@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ char.name }}</title>
+<style>
+:root {
+  --bg:#403932; --surface:#4a4139; --card:#554c43; --accent:#DAC597;
+  --text:#ede7d5; --muted:#a5a195; --border:#6b5f53;
+  --red:#b5432c; --green:#7d9635; --blue:#7096ae; --yellow:#d49c28;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
+     font-size:16px;padding-bottom:5rem;}
+
+/* ── Header ── */
+.header{background:var(--surface);border-bottom:2px solid var(--accent);padding:.8rem 1rem;}
+.header-top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.4rem;}
+.char-name{font-size:1.4rem;color:var(--accent);font-weight:bold;}
+.char-sub{color:var(--muted);font-size:.85rem;}
+
+/* HP bar + controls */
+.hp-control{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;}
+.hp-btn{background:var(--card);border:1px solid var(--border);color:var(--text);
+        font-size:1.2rem;width:2.2rem;height:2.2rem;border-radius:4px;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;transition:.15s;}
+.hp-btn:active{background:var(--accent);color:#000;}
+.hp-value{font-size:1rem;min-width:5rem;text-align:center;
+          background:var(--card);border:1px solid var(--border);
+          border-radius:4px;padding:.3rem .5rem;}
+#hp-num{color:var(--accent);font-weight:bold;}
+.hp-num-dead{color:var(--red)!important;}
+.bar-group{flex:1;min-width:120px;}
+.bar-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;
+           margin-bottom:.2rem;display:flex;justify-content:space-between;}
+.bar-track{background:#0a0a1a;border-radius:4px;height:10px;
+           border:1px solid var(--border);overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .3s;}
+.hp-fill{background:var(--red);}
+.xp-fill{background:var(--green);}
+.xp-ready{background:var(--accent);animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* Conditions strip */
+.conditions-strip{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;}
+.cond-badge{background:var(--red);color:#fff;border-radius:12px;font-size:.75rem;
+            padding:.2rem .5rem;display:flex;align-items:center;gap:.3rem;cursor:help;}
+.cond-remove{background:none;border:none;color:#fff;font-size:.85rem;cursor:pointer;
+             padding:0 .1rem;line-height:1;opacity:.8;}
+.cond-remove:hover{opacity:1;}
+.no-conditions{color:var(--muted);font-size:.8rem;font-style:italic;}
+.cond-add-btn{background:var(--card);border:1px solid var(--border);color:var(--accent);
+              font-size:1rem;width:1.8rem;height:1.8rem;border-radius:50%;cursor:pointer;
+              display:flex;align-items:center;justify-content:center;}
+.cond-picker{display:none;background:var(--surface);border:1px solid var(--border);
+             border-radius:6px;padding:.4rem;margin-top:.3rem;width:100%;}
+.cond-picker select{width:100%;background:var(--card);border:1px solid var(--border);
+                    color:var(--text);font-family:Georgia,serif;padding:.3rem;border-radius:4px;}
+.cond-picker button{margin-top:.3rem;width:100%;background:var(--accent);border:none;
+                    color:#000;font-family:Georgia,serif;padding:.4rem;border-radius:4px;cursor:pointer;}
+
+/* ── Tabs ── */
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
+.tab-btn{flex:1;min-width:80px;background:none;border:none;border-bottom:3px solid transparent;
+         color:var(--muted);font-family:Georgia,serif;font-size:.85rem;padding:.7rem .5rem;
+         cursor:pointer;text-align:center;transition:.2s;white-space:nowrap;}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-panel{display:none;padding:1rem;}
+.tab-panel.active{display:block;}
+
+/* ── Layout helpers ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:6px;
+         padding:.8rem;margin-bottom:.8rem;}
+.section-title{color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;
+               margin-bottom:.6rem;border-bottom:1px solid var(--border);padding-bottom:.3rem;}
+.stat-row{display:flex;justify-content:space-between;padding:.3rem 0;
+          border-bottom:1px solid var(--border);font-size:.9rem;}
+.stat-row:last-child{border-bottom:none;}
+.stat-label{color:var(--muted);}
+.stat-val{font-weight:bold;color:var(--accent);}
+
+/* Ability boxes */
+.ability-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem;}
+.ability-box{background:var(--card);border-radius:6px;text-align:center;
+             padding:.5rem .2rem;border:1px solid var(--border);}
+.ability-abbr{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.ability-score{font-size:1.3rem;font-weight:bold;line-height:1.1;}
+.ability-mod{font-size:.85rem;color:var(--accent);}
+
+/* Attacks */
+.attack-row{display:grid;grid-template-columns:1fr auto auto auto;gap:.5rem;
+            align-items:center;padding:.3rem 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.attack-row:last-child{border-bottom:none;}
+.attack-bonus{color:var(--accent);font-weight:bold;text-align:right;}
+.attack-dmg{color:var(--red);font-weight:bold;}
+.attack-type{color:var(--muted);font-size:.75rem;}
+
+/* Skills */
+.skill-row{display:flex;justify-content:space-between;align-items:baseline;
+           padding:.3rem 0;border-bottom:1px solid var(--border);font-size:.85rem;cursor:pointer;}
+.skill-row:last-child{border-bottom:none;}
+.skill-row:hover .skill-name{color:var(--accent);}
+.skill-ability{color:var(--muted);font-size:.75rem;margin-left:.3rem;}
+.skill-ranks{color:var(--muted);font-size:.8rem;}
+.skill-total{color:var(--accent);font-weight:bold;min-width:2.5rem;text-align:right;}
+
+/* Feats */
+.feat-item{padding:.4rem 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.feat-item:last-child{border-bottom:none;}
+.feat-item:hover .feat-name{text-decoration:underline;}
+.feat-name{color:var(--accent);font-size:.9rem;}
+.feat-benefit{color:var(--muted);font-size:.8rem;margin-top:.2rem;}
+
+/* Spells */
+.spell-level-header{color:var(--accent);font-size:.8rem;text-transform:uppercase;
+                    letter-spacing:1px;margin:.6rem 0 .3rem;
+                    display:flex;justify-content:space-between;align-items:center;}
+.slot-pips{display:flex;gap:3px;}
+.pip{width:10px;height:10px;border-radius:50%;border:1px solid var(--accent);}
+.pip.used{background:var(--muted);border-color:var(--muted);}
+.pip.free{background:var(--accent);}
+.spell-row{display:flex;justify-content:space-between;align-items:center;
+           padding:.35rem .4rem;border-radius:4px;border-bottom:1px solid var(--border);
+           font-size:.85rem;cursor:pointer;transition:background .15s;}
+.spell-row:last-child{border-bottom:none;}
+.spell-row:hover{background:var(--card);}
+.spell-row.used{opacity:.55;}
+.spell-name{color:var(--text);}
+.spell-school{color:var(--muted);font-size:.75rem;}
+.spell-status{font-size:.8rem;padding:.15rem .5rem;border-radius:10px;}
+.spell-status.free{background:var(--green);color:#fff;}
+.spell-status.used{background:var(--muted);color:#fff;}
+
+/* Inventory */
+.inv-row{display:grid;grid-template-columns:1fr auto auto auto;gap:.5rem;
+         align-items:center;padding:.25rem 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.inv-row:last-child{border-bottom:none;}
+.inv-qty{color:var(--muted);font-size:.8rem;text-align:right;}
+.inv-weight{color:var(--accent);font-size:.8rem;min-width:3.5rem;text-align:right;}
+.inv-notes{color:var(--muted);font-size:.75rem;grid-column:1/-1;padding-left:.5rem;}
+.inv-remove{background:none;border:none;color:var(--muted);cursor:pointer;
+            font-size:1rem;padding:0 .2rem;line-height:1;}
+.inv-remove:hover{color:var(--red);}
+.inv-editable{cursor:pointer;transition:color .15s;}
+.inv-editable:hover{color:var(--accent);text-decoration:underline dotted;}
+.enc-badge{padding:.2rem .7rem;border-radius:12px;font-size:.8rem;font-weight:bold;}
+.enc-Light{background:var(--green);color:#fff;}
+.enc-Medium{background:var(--yellow);color:#000;}
+.enc-Heavy{background:var(--red);color:#fff;}
+.enc-Overloaded{background:#6c0000;color:#fff;}
+.form-input{background:var(--card);border:1px solid var(--border);color:var(--text);
+            font-family:Georgia,serif;font-size:.85rem;padding:.35rem .5rem;border-radius:4px;width:100%;}
+.form-input:focus{outline:none;border-color:var(--accent);}
+.add-grid{display:grid;grid-template-columns:1fr 4.5rem 3rem;gap:.4rem;margin-bottom:.4rem;}
+.add-btn{background:var(--accent);border:none;color:#000;font-family:Georgia,serif;
+         font-size:.85rem;padding:.35rem .8rem;border-radius:4px;cursor:pointer;white-space:nowrap;}
+
+/* Gold */
+.gold-row{display:flex;gap:1rem;flex-wrap:wrap;}
+.gold-item{color:var(--muted);font-size:.85rem;}
+.gold-item span{color:var(--accent);font-weight:bold;}
+
+/* ── Dice bar (fixed bottom) ── */
+.dice-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);
+          border-top:1px solid var(--border);padding:.5rem 1rem;
+          display:flex;gap:.5rem;align-items:center;z-index:100;}
+.dice-input{flex:1;background:var(--card);border:1px solid var(--border);color:var(--text);
+            font-family:Georgia,serif;font-size:.9rem;padding:.4rem .6rem;border-radius:4px;}
+.dice-roll-btn{background:var(--accent);border:none;color:#000;font-family:Georgia,serif;
+               font-size:.9rem;padding:.4rem .9rem;border-radius:4px;cursor:pointer;
+               white-space:nowrap;}
+.dice-result{font-size:.85rem;min-width:5rem;text-align:center;color:var(--text);}
+.dice-result .total{font-size:1.2rem;font-weight:bold;color:var(--accent);}
+.dice-result .detail{color:var(--muted);font-size:.75rem;}
+
+/* ── Level-up modal ── */
+.lu-section{margin-bottom:.8rem;padding-bottom:.8rem;border-bottom:1px solid var(--border);}
+.lu-section:last-of-type{border-bottom:none;margin-bottom:0;}
+.lu-sh{color:var(--accent);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem;}
+.lu-roll-btn{background:var(--card);border:1px solid var(--accent);color:var(--accent);
+             font-family:Georgia,serif;font-size:.85rem;padding:.3rem .7rem;border-radius:4px;cursor:pointer;}
+.lu-roll-btn:active{background:var(--accent);color:#000;}
+.lu-num{background:var(--card);border:1px solid var(--border);color:var(--text);
+        font-family:Georgia,serif;width:3.5rem;padding:.3rem .4rem;border-radius:4px;font-size:.85rem;text-align:center;}
+.lu-num:focus{outline:none;border-color:var(--accent);}
+.lu-select{background:var(--card);border:1px solid var(--border);color:var(--text);
+           font-family:Georgia,serif;font-size:.82rem;padding:.3rem;border-radius:4px;width:100%;}
+.lu-skill-row{display:flex;justify-content:space-between;align-items:center;
+              padding:.25rem 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.lu-skill-row:last-child{border-bottom:none;}
+.lu-pm{background:none;border:1px solid var(--border);color:var(--text);
+       width:1.6rem;height:1.6rem;border-radius:3px;cursor:pointer;line-height:1;font-size:1rem;}
+.lu-pm:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
+.lu-pm:disabled{opacity:.3;cursor:default;}
+.lu-ab-btn{background:var(--card);border:1px solid var(--border);color:var(--text);
+           font-family:Georgia,serif;font-size:.82rem;padding:.35rem .6rem;border-radius:4px;cursor:pointer;}
+.lu-ab-btn.selected{background:var(--accent);color:#000;border-color:var(--accent);}
+
+/* ── Preparation modal ── */
+.prep-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);
+              z-index:300;align-items:flex-start;justify-content:center;
+              padding:1rem;overflow-y:auto;}
+.prep-overlay.open{display:flex;}
+.prep-modal{background:var(--surface);border:1px solid var(--accent);border-radius:8px;
+            width:100%;max-width:520px;padding:1.2rem;margin:auto;}
+.prep-modal-title{color:var(--accent);font-size:1.1rem;margin-bottom:.3rem;
+                  display:flex;justify-content:space-between;align-items:center;}
+.prep-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;}
+.prep-desc{color:var(--muted);font-size:.8rem;margin-bottom:1rem;}
+.prep-level-block{margin-bottom:1rem;}
+.prep-level-header{display:flex;justify-content:space-between;align-items:center;
+                   color:var(--accent);font-size:.8rem;text-transform:uppercase;
+                   letter-spacing:1px;margin-bottom:.4rem;}
+.prep-slots-display{display:flex;gap:3px;}
+.prep-spell-grid{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.4rem;}
+.prep-spell-chip{background:var(--card);border:1px solid var(--border);border-radius:16px;
+                 color:var(--text);font-family:Georgia,serif;font-size:.8rem;
+                 padding:.25rem .7rem;cursor:pointer;transition:.15s;position:relative;}
+.prep-spell-chip:hover{border-color:var(--accent);}
+.prep-spell-chip.selected{background:var(--accent);color:#000;border-color:var(--accent);}
+.prep-spell-chip .chip-count{background:#000;color:var(--accent);border-radius:50%;
+                              font-size:.65rem;padding:0 .25rem;margin-left:.3rem;}
+.prep-selected-list{color:var(--muted);font-size:.75rem;min-height:1.2rem;font-style:italic;}
+.prep-save-btn{width:100%;background:var(--green);border:none;color:#fff;
+               font-family:Georgia,serif;font-size:1rem;padding:.6rem;
+               border-radius:6px;cursor:pointer;margin-top:.5rem;}
+.prep-save-btn:active{opacity:.8;}
+
+/* ── Spell tooltip (prep hover) ── */
+#spell-tooltip{display:none;position:fixed;z-index:500;max-width:280px;
+  background:var(--card);border:1px solid var(--accent);border-radius:6px;
+  padding:.5rem .75rem;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.55);}
+.tt-name{color:var(--accent);font-size:.8rem;font-weight:bold;margin-bottom:.2rem;}
+.tt-meta{color:var(--muted);font-size:.72rem;margin-bottom:.35rem;}
+.tt-desc{color:var(--text);font-size:.78rem;line-height:1.45;}
+
+/* ── Detail modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+               z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--accent);border-radius:8px;
+       max-width:480px;width:100%;max-height:80vh;overflow-y:auto;padding:1.2rem;}
+.modal-title{color:var(--accent);font-size:1.1rem;margin-bottom:.4rem;}
+.modal-subtitle{color:var(--muted);font-size:.8rem;margin-bottom:.8rem;}
+.modal-body{color:var(--text);font-size:.85rem;line-height:1.5;}
+.modal-close{float:right;background:none;border:none;color:var(--muted);
+             font-size:1.2rem;cursor:pointer;padding:0 .2rem;}
+.modal-row{display:flex;justify-content:space-between;padding:.2rem 0;
+           border-bottom:1px solid var(--border);font-size:.85rem;}
+.modal-row:last-child{border-bottom:none;}
+.modal-key{color:var(--muted);}
+.modal-val{color:var(--text);text-align:right;max-width:65%;}
+</style>
+</head>
+<body>
+
+{# ── Jinja2 data for JS ── #}
+{% set spells_used_json = {} %}
+{% for lvl, entries in spell_data.items() %}
+  {% set _ = spells_used_json.update({lvl|string: entries|selectattr("used")|map(attribute="id")|list}) %}
+{% endfor %}
+
+<!-- ── Header ── -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="char-name">{{ char.name }}</div>
+      <div class="char-sub">{{ char.race }} {{ char.cls }}, Level {{ char.level }}{% if char.alignment %} · {{ char.alignment }}{% endif %}</div>
+    </div>
+    <a href="/" style="color:var(--muted);font-size:.8rem;text-decoration:none;">← Alle</a>
+  </div>
+
+  <!-- HP controls -->
+  <div class="hp-control">
+    <button class="hp-btn" onclick="hpChange(-1)" title="-1 HP">−</button>
+    <button class="hp-btn" onclick="hpChange(-5)" title="-5 HP" style="font-size:.8rem">−5</button>
+    <div class="hp-value">❤ <span id="hp-num">{{ char.hp_current }}</span> / {{ char.hp_max }}</div>
+    <button class="hp-btn" onclick="hpChange(+5)" title="+5 HP" style="font-size:.8rem">+5</button>
+    <button class="hp-btn" onclick="hpChange(+1)" title="+1 HP">+</button>
+    <div class="bar-group" style="margin-left:.5rem">
+      <div class="bar-track">
+        <div id="hp-bar" class="bar-fill hp-fill"
+             style="width:{{ [[char.hp_current * 100 // char.hp_max if char.hp_max > 0 else 0, 0]|max, 100]|min }}%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- XP bar -->
+  {% if xp_info.next %}
+  <div style="margin-top:.5rem">
+    <div class="bar-label">
+      <span>XP
+        <button id="xp-levelup-btn" onclick="openLevelUpModal()"
+                style="background:var(--accent);border:none;color:#000;font-family:Georgia,serif;
+                       font-size:.75rem;padding:.15rem .5rem;border-radius:4px;cursor:pointer;
+                       animation:pulse 1.2s infinite;margin-left:.3rem;
+                       display:{% if xp_info.ready %}inline{% else %}none{% endif %}">
+          🔔 Level up!
+        </button>
+      </span>
+      <span id="xp-text">{{ xp_info.xp }} / {{ xp_info.next }}</span>
+    </div>
+    <div class="bar-track">
+      <div id="xp-bar" class="bar-fill {% if xp_info.ready %}xp-ready{% else %}xp-fill{% endif %}"
+           style="width:{{ xp_info.pct }}%"></div>
+    </div>
+    <div style="display:flex;gap:.4rem;align-items:center;margin-top:.35rem">
+      <input id="xp-input" type="number" min="0" placeholder="XP"
+             class="lu-num" style="width:5.5rem"
+             onkeydown="if(event.key==='Enter')addXp()">
+      <button onclick="addXp()"
+              style="background:var(--card);border:1px solid var(--border);color:var(--accent);
+                     font-family:Georgia,serif;font-size:.78rem;padding:.25rem .6rem;
+                     border-radius:4px;cursor:pointer">+ Tilføj XP</button>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Conditions -->
+  <div id="conditions-strip" class="conditions-strip">
+    {% for cid, cond in condition_data %}
+      <span class="cond-badge"
+            onclick="showDetail('condition','{{ cid }}')"
+            title="{{ cond.summary if cond else '' }}">
+        {{ cond.name if cond else cid }}
+        <button class="cond-remove" onclick="event.stopPropagation();removeCondition('{{ cid }}')" title="Fjern">×</button>
+      </span>
+    {% else %}
+      <span class="no-conditions" id="no-cond-msg">Ingen aktive conditions</span>
+    {% endfor %}
+    <button class="cond-add-btn" onclick="toggleCondPicker()" title="Tilføj condition">+</button>
+  </div>
+  <div class="cond-picker" id="cond-picker">
+    <select id="cond-select">
+      <option value="">— vælg condition —</option>
+      {% for cond in all_conditions %}
+      <option value="{{ cond.id }}">{{ cond.name }} — {{ cond.summary }}</option>
+      {% endfor %}
+    </select>
+    <button onclick="addCondition()">Tilføj</button>
+  </div>
+</div>
+
+<!-- ── Tabs ── -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('oversigt',this)">Oversigt</button>
+  <button class="tab-btn" onclick="showTab('skills',this)">Skills & Feats</button>
+  <button class="tab-btn" onclick="showTab('spells',this)">Trylleformler</button>
+  <button class="tab-btn" onclick="showTab('udstyr',this)">Udstyr</button>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- Tab 1: Oversigt                               -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-oversigt" class="tab-panel active">
+
+  <div class="section">
+    <div class="section-title">Evnescores</div>
+    <div class="ability-grid">
+      {% for abbr, score, mod in abilities %}
+      <div class="ability-box">
+        <div class="ability-abbr">{{ abbr }}</div>
+        <div class="ability-score">{{ score }}</div>
+        <div class="ability-mod">{{ "%+d"|format(mod) }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="section">
+      <div class="section-title">Saves</div>
+      {% for sname, val in saves.items() %}
+      <div class="stat-row">
+        <span class="stat-label">{{ sname }}</span>
+        <span class="stat-val">{{ "%+d"|format(val) }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="section">
+      <div class="section-title">Kamp</div>
+      {% set co = char.combat %}
+      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ co.get("ac","—") }}</span></div>
+      <div class="stat-row"><span class="stat-label">Touch</span><span class="stat-val">{{ co.get("touch_ac","—") }}</span></div>
+      <div class="stat-row"><span class="stat-label">FF</span><span class="stat-val">{{ co.get("flat_footed_ac","—") }}</span></div>
+      <div class="stat-row"><span class="stat-label">Init</span><span class="stat-val">{{ "%+d"|format(co.get("initiative",0)) }}</span></div>
+      <div class="stat-row"><span class="stat-label">BAB</span><span class="stat-val">{{ "%+d"|format(co.get("bab",0)) }}</span></div>
+      <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ co.get("speed",30) }} ft</span></div>
+    </div>
+  </div>
+
+  {% if char.attacks %}
+  <div class="section">
+    <div class="section-title">Angreb</div>
+    {% for atk in char.attacks %}
+    <div class="attack-row">
+      <span>{{ atk.name }}</span>
+      <span class="attack-bonus">{{ "%+d"|format(atk.attack_bonus) }}</span>
+      <span class="attack-dmg">{{ atk.damage }}</span>
+      <span class="attack-type">{{ atk.type }}{% if atk.range %} · {{ atk.range }}{% endif %}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if char.class_features %}
+  <div class="section">
+    <div class="section-title">Klasseevner</div>
+    {% for key, val in char.class_features.items() %}
+    <div class="stat-row">
+      <span class="stat-label" style="text-transform:capitalize">{{ key|replace("_"," ") }}</span>
+      <span style="color:var(--muted);font-size:.8rem;text-align:right;max-width:65%">{{ val }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if char.companion %}
+  <div class="section">
+    <div class="section-title">Dyreledsager — {{ char.companion.name }} ({{ char.companion.type }})</div>
+    {% set cp = char.companion %}
+    <div class="stat-row"><span class="stat-label">HP</span><span class="stat-val">{{ cp.hp.current }}/{{ cp.hp.max }}</span></div>
+    <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ cp.ac }}</span></div>
+    <div class="stat-row"><span class="stat-label">Bid</span><span class="stat-val" style="font-size:.8rem">{{ cp.attack_bite }}</span></div>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- Tab 2: Skills & Feats                         -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-skills" class="tab-panel">
+
+  <div class="section">
+    <div class="section-title">Skills <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for detaljer)</span></div>
+    {% for item in skill_data %}
+    {% set s = item.skill %}
+    {% set defn = item.defn %}
+    <div class="skill-row" onclick="showDetail('skill','{{ s.id }}')">
+      <span>
+        <span class="skill-name">{{ defn.name if defn else s.id }}</span>
+        <span class="skill-ability">({{ defn.ability|upper if defn else "?" }})</span>
+      </span>
+      <span style="display:flex;align-items:baseline;gap:.8rem">
+        <span class="skill-ranks">{{ s.ranks|int }} ranks</span>
+        <span class="skill-total">{{ "%+d"|format(item.total) }}</span>
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Feats <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for detaljer)</span></div>
+    {% for fid, feat in feat_data %}
+    <div class="feat-item" onclick="showDetail('feat','{{ fid }}')">
+      <div class="feat-name">{{ feat.name if feat else fid }}</div>
+      {% if feat and feat.benefit %}
+      <div class="feat-benefit">{{ feat.benefit|truncate(90) }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- Tab 3: Trylleformler                          -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-spells" class="tab-panel">
+
+  {% if spell_data %}
+  <div class="section" id="prepared-section">
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem">
+      <span>Forberedte trylleformler</span>
+      <span style="display:flex;gap:.4rem">
+        <button onclick="newDay()"
+                style="background:var(--card);border:1px solid var(--border);color:var(--text);
+                       font-family:Georgia,serif;font-size:.75rem;padding:.25rem .6rem;
+                       border-radius:4px;cursor:pointer;white-space:nowrap">
+          🌅 Ny dag
+        </button>
+        <button onclick="openPrepModal()"
+                style="background:var(--accent);border:none;color:#000;
+                       font-family:Georgia,serif;font-size:.75rem;padding:.25rem .6rem;
+                       border-radius:4px;cursor:pointer;white-space:nowrap">
+          📖 Forbered
+        </button>
+      </span>
+    </div>
+    <p style="color:var(--muted);font-size:.75rem;margin-bottom:.5rem;font-style:italic">
+      Klik en spell for beskrivelse · klik <strong style="color:var(--text)">Ledig/Brugt</strong> for at markere
+    </p>
+    {% for lvl in spell_data|sort %}
+    {% set total_slots = slots.get(lvl, 0) %}
+    {% set entries = spell_data[lvl] %}
+    {% set used_count = entries|selectattr("used")|list|length %}
+    <div class="spell-level-header">
+      <span>Level {{ lvl }}&nbsp;<span style="color:var(--muted);font-size:.75rem">{{ total_slots - used_count }}/{{ total_slots }}</span></span>
+      <span class="slot-pips" id="pips-{{ lvl }}">
+        {% for i in range(total_slots) %}
+        <span class="pip {% if i < used_count %}used{% else %}free{% endif %}"></span>
+        {% endfor %}
+      </span>
+    </div>
+    {% for entry in entries %}
+    <div class="spell-row {% if entry.used %}used{% endif %}"
+         id="spell-{{ lvl }}-{{ entry.id }}"
+         onclick="showDetail('spell','{{ entry.id }}')">
+      <span>
+        <span class="spell-name">{{ entry.spell.name if entry.spell else entry.id }}</span>
+        {% if entry.spell %}<span class="spell-school">&nbsp;·&nbsp;{{ entry.spell.school }}</span>{% endif %}
+      </span>
+      <span class="spell-status {% if entry.used %}used{% else %}free{% endif %}"
+            onclick="event.stopPropagation();toggleSpell({{ lvl }},'{{ entry.id }}',{{ 'true' if entry.used else 'false' }})">
+        {{ "Brugt" if entry.used else "Ledig" }}
+      </span>
+    </div>
+    {% endfor %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;
+              padding:1.2rem;text-align:center;margin-bottom:.8rem">
+    <p style="color:var(--muted);margin-bottom:.8rem">Ingen forberedte trylleformler endnu.</p>
+    <button onclick="openPrepModal()"
+            style="background:var(--accent);border:none;color:#000;
+                   font-family:Georgia,serif;font-size:.95rem;padding:.6rem 1.5rem;
+                   border-radius:6px;cursor:pointer">
+      📖 Forbered spells til i dag
+    </button>
+  </div>
+  {% endif %}
+
+  {% if slots %}
+  <div class="section">
+    <div class="section-title">Spell slots (inkl. WIS-bonus)</div>
+    {% for lvl, total in slots.items() %}
+    {% set used_count = spell_data.get(lvl, [])|selectattr("used")|list|length %}
+    <div class="stat-row">
+      <span class="stat-label">Level {{ lvl }}</span>
+      <span class="stat-val" id="slots-{{ lvl }}">{{ total - used_count }} / {{ total }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- Tab 4: Udstyr                                 -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-udstyr" class="tab-panel">
+
+  <div class="section">
+    <div class="section-title">Inventory</div>
+    <div id="inv-list"></div>
+    <div id="inv-totals" style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border);
+                display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--muted);font-size:.85rem">Total bærevægt</span>
+      <span>
+        <strong id="total-weight" style="color:var(--accent)"></strong>
+        &nbsp;<span id="enc-badge" class="enc-badge"></span>
+      </span>
+    </div>
+    <div id="enc-consequences" style="display:none;margin-top:.5rem;padding:.5rem;
+         background:rgba(192,57,43,.12);border-radius:4px;border:1px solid rgba(192,57,43,.4)"></div>
+    <div id="enc-limits-text" style="color:var(--muted);font-size:.75rem;margin-top:.4rem"></div>
+
+    <div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)">
+      <div style="color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Tilføj genstand</div>
+      <div class="add-grid">
+        <input class="form-input" id="add-name" type="text" placeholder="Navn"
+               onkeydown="if(event.key==='Enter')addItem()">
+        <input class="form-input" id="add-weight" type="number" placeholder="lbs" min="0" step="0.1" value="0">
+        <input class="form-input" id="add-qty" type="number" placeholder="×" min="1" value="1">
+      </div>
+      <div style="display:flex;gap:.4rem">
+        <input class="form-input" id="add-notes" type="text" placeholder="Noter (valgfri)"
+               onkeydown="if(event.key==='Enter')addItem()">
+        <button class="add-btn" onclick="addItem()">+ Tilføj</button>
+      </div>
+    </div>
+  </div>
+
+  {% if char.gold %}
+  <div class="section">
+    <div class="section-title">Guld</div>
+    <div class="gold-row">
+      {% for coin in ["pp","gp","sp","cp"] %}
+      {% if char.gold.get(coin,0) %}
+      <span class="gold-item"><span>{{ char.gold[coin] }}</span> {{ coin }}</span>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- ── Dice bar ── -->
+<div class="dice-bar">
+  <input class="dice-input" id="dice-expr" type="text" value="1d20"
+         placeholder="1d20+4" onkeydown="if(event.key==='Enter')rollDice()">
+  <button class="dice-roll-btn" onclick="rollDice()">⚄ Rul</button>
+  <div class="dice-result" id="dice-result"></div>
+</div>
+
+<!-- ── Level-up modal ── -->
+<div class="prep-overlay" id="lu-overlay" onclick="closeLuIfOutside(event)">
+  <div class="prep-modal">
+    <div class="prep-modal-title">
+      <span>⬆ Level Up — <span id="lu-title"></span></span>
+      <button class="prep-close" onclick="closeLu()">✕</button>
+    </div>
+
+    <div class="lu-section">
+      <div class="lu-sh">HP (d<span id="lu-hd"></span> + CON <span id="lu-con"></span>)</div>
+      <div style="display:flex;align-items:center;gap:.7rem;margin:.4rem 0">
+        <button class="lu-roll-btn" onclick="rollLuHp()">⚄ Rul</button>
+        <span id="lu-roll-result" style="color:var(--muted);font-size:.88rem"></span>
+      </div>
+      <div style="font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:.5rem">
+        Manuelt:
+        <input id="lu-hp-manual" class="lu-num" type="number" min="1" oninput="setLuHpManual(this.value)">
+        <span id="lu-hp-total" style="color:var(--accent);font-weight:bold"></span>
+      </div>
+    </div>
+
+    <div class="lu-section">
+      <div class="lu-sh" id="lu-sp-header">Skill Points</div>
+      <div id="lu-skill-rows"></div>
+      <div style="display:flex;gap:.4rem;margin-top:.5rem;align-items:center">
+        <select id="lu-new-skill-sel" class="lu-select" style="flex:1"></select>
+        <button onclick="addNewLuSkill()" style="background:var(--card);border:1px solid var(--border);
+                color:var(--accent);font-family:Georgia,serif;padding:.3rem .6rem;border-radius:4px;cursor:pointer">+</button>
+      </div>
+    </div>
+
+    <div class="lu-section" id="lu-feat-sec" style="display:none">
+      <div class="lu-sh">Feat (niveau <span id="lu-feat-lvl"></span>)</div>
+      <input type="text" class="form-input" id="lu-feat-search" placeholder="Søg feat…"
+             oninput="filterLuFeats()" style="margin-bottom:.4rem">
+      <select id="lu-feat-sel" class="lu-select" size="5" onchange="pickLuFeat(this.value)"></select>
+      <div id="lu-feat-info" style="color:var(--muted);font-size:.78rem;margin-top:.4rem;line-height:1.4"></div>
+    </div>
+
+    <div class="lu-section" id="lu-ab-sec" style="display:none">
+      <div class="lu-sh">Ability Score Boost (+1)</div>
+      <div id="lu-ab-btns" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem"></div>
+    </div>
+
+    <div class="lu-section" id="lu-features-sec" style="display:none">
+      <div class="lu-sh">Nye klassefeatures</div>
+      <div id="lu-features-list" style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-top:.3rem"></div>
+    </div>
+
+    <div id="lu-warning" style="color:var(--red);font-size:.8rem;min-height:1.2rem;margin-bottom:.3rem"></div>
+    <button class="prep-save-btn" onclick="confirmLevelUp()">⬆ Gem level-up</button>
+  </div>
+</div>
+
+<!-- ── Preparation modal ── -->
+<div class="prep-overlay" id="prep-overlay" onclick="closePrepIfOutside(event)">
+  <div class="prep-modal">
+    <div class="prep-modal-title">
+      <span>📖 Forbered trylleformler</span>
+      <button class="prep-close" onclick="document.getElementById('prep-overlay').classList.remove('open');hideSpellTooltip()">✕</button>
+    </div>
+    <p class="prep-desc">Vælg hvilke spells der er forberedt til i dag. Klik en spell for at tilføje/fjerne. Samme spell kan tilføjes flere gange.</p>
+    <div id="prep-levels"></div>
+    <button class="prep-save-btn" onclick="savePrepared()">Gem forberedelse</button>
+  </div>
+</div>
+
+<!-- ── Spell tooltip ── -->
+<div id="spell-tooltip"></div>
+
+<!-- ── Detail modal ── -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="document.getElementById('modal-overlay').classList.remove('open')">✕</button>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-subtitle" id="modal-subtitle"></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ── JavaScript ── -->
+<script>
+const CHAR = "{{ name }}";
+const HP_MAX = {{ char.hp_max }};
+let hpCurrent = {{ char.hp_current }};
+
+// Spell used state: {level: [spell_id, ...]}
+let spellsUsed = {{ char.spells_used|tojson }};
+// Normalize keys to integers in JS
+spellsUsed = Object.fromEntries(Object.entries(spellsUsed).map(([k,v]) => [parseInt(k), v]));
+
+// Slot totals from server
+const slotTotals = {{ slots|tojson }};
+
+// Conditions
+let conditions = {{ char.conditions|tojson }};
+
+// All conditions lookup for name display
+const allConditions = {};
+{% for cond in all_conditions %}
+allConditions["{{ cond.id }}"] = { name: "{{ cond.name }}", summary: {{ cond.summary|tojson }} };
+{% endfor %}
+
+// ── Inventory state ───────────────────────────────────────────────────────
+let inventoryData = {{ inventory_json|tojson }};
+let currentWeight = {{ weight }};
+let currentEnc    = {{ enc|tojson }};
+let encLimits     = {{ enc_limits|tojson }};
+const baseSpeed   = {{ base_speed }};
+
+// ── Tab switching ──────────────────────────────────────────────────────────
+function showTab(name, btn) {
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  btn.classList.add("active");
+}
+
+// ── HP ────────────────────────────────────────────────────────────────────
+function hpChange(delta) {
+  fetch("/api/hp", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, delta})
+  })
+  .then(r => r.json())
+  .then(data => {
+    hpCurrent = data.hp_current;
+    document.getElementById("hp-num").textContent = hpCurrent;
+    const el = document.getElementById("hp-num");
+    el.className = hpCurrent <= 0 ? "hp-num-dead" : "";
+    const pct = Math.max(0, Math.min(100, Math.round(hpCurrent * 100 / HP_MAX)));
+    document.getElementById("hp-bar").style.width = pct + "%";
+  });
+}
+
+// ── Conditions ────────────────────────────────────────────────────────────
+function toggleCondPicker() {
+  const p = document.getElementById("cond-picker");
+  p.style.display = p.style.display === "block" ? "none" : "block";
+}
+
+function addCondition() {
+  const sel = document.getElementById("cond-select");
+  const id = sel.value;
+  if (!id) return;
+  fetch("/api/conditions", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, condition_id: id, action: "add"})
+  })
+  .then(r => r.json())
+  .then(data => {
+    conditions = data.conditions;
+    renderConditions();
+    document.getElementById("cond-picker").style.display = "none";
+    sel.value = "";
+  });
+}
+
+function removeCondition(id) {
+  fetch("/api/conditions", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, condition_id: id, action: "remove"})
+  })
+  .then(r => r.json())
+  .then(data => {
+    conditions = data.conditions;
+    renderConditions();
+  });
+}
+
+function renderConditions() {
+  const strip = document.getElementById("conditions-strip");
+  const addBtn = strip.querySelector(".cond-add-btn");
+  // Remove old badges
+  strip.querySelectorAll(".cond-badge, .no-conditions").forEach(el => el.remove());
+  if (conditions.length === 0) {
+    const msg = document.createElement("span");
+    msg.className = "no-conditions";
+    msg.textContent = "Ingen aktive conditions";
+    strip.insertBefore(msg, addBtn);
+  } else {
+    conditions.forEach(cid => {
+      const info = allConditions[cid] || {name: cid, summary: ""};
+      const badge = document.createElement("span");
+      badge.className = "cond-badge";
+      badge.title = info.summary;
+      badge.onclick = () => showDetail("condition", cid);
+      badge.innerHTML = `${info.name} <button class="cond-remove" title="Fjern">×</button>`;
+      badge.querySelector(".cond-remove").onclick = (e) => { e.stopPropagation(); removeCondition(cid); };
+      strip.insertBefore(badge, addBtn);
+    });
+  }
+}
+
+// ── Spells ────────────────────────────────────────────────────────────────
+function toggleSpell(level, spellId, currentlyUsed) {
+  const newUsed = !currentlyUsed;
+  fetch("/api/spells", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, level, spell_id: spellId, used: newUsed})
+  })
+  .then(r => r.json())
+  .then(data => {
+    // Update local state
+    spellsUsed = Object.fromEntries(Object.entries(data.spells_used).map(([k,v]) => [parseInt(k), v]));
+    updateSpellDisplay(level);
+  });
+}
+
+function updateSpellDisplay(level) {
+  const usedAtLevel = spellsUsed[level] || [];
+  // Update each spell row
+  document.querySelectorAll(`[id^="spell-${level}-"]`).forEach(row => {
+    const sid = row.id.replace(`spell-${level}-`, "");
+    const isUsed = usedAtLevel.includes(sid);
+    row.className = "spell-row" + (isUsed ? " used" : "");
+    // Row click = show detail (unchanged)
+    row.onclick = () => showDetail("spell", sid);
+    // Status badge click = toggle
+    const statusEl = row.querySelector(".spell-status");
+    if (statusEl) {
+      statusEl.textContent = isUsed ? "Brugt" : "Ledig";
+      statusEl.className = "spell-status " + (isUsed ? "used" : "free");
+      statusEl.onclick = (e) => { e.stopPropagation(); toggleSpell(level, sid, isUsed); };
+    }
+  });
+  // Update pip display
+  updatePips(level);
+  // Update slot counter
+  const total = slotTotals[level] || 0;
+  const usedCount = usedAtLevel.length;
+  const slotEl = document.getElementById("slots-" + level);
+  if (slotEl) slotEl.textContent = (total - usedCount) + " / " + total;
+}
+
+function updatePips(level) {
+  const pipsEl = document.getElementById("pips-" + level);
+  if (!pipsEl) return;
+  const usedAtLevel = spellsUsed[level] || [];
+  const usedCount = usedAtLevel.length;
+  const total = slotTotals[level] || 0;
+  let html = "";
+  for (let i = 0; i < total; i++) {
+    html += `<span class="pip ${i < usedCount ? "used" : "free"}"></span>`;
+  }
+  pipsEl.innerHTML = html;
+}
+
+// ── Dice roller ───────────────────────────────────────────────────────────
+function rollDice() {
+  const expr = document.getElementById("dice-expr").value.trim() || "1d20";
+  fetch("/api/roll/" + encodeURIComponent(expr))
+  .then(r => r.json())
+  .then(data => {
+    const el = document.getElementById("dice-result");
+    if (data.error) {
+      el.innerHTML = `<span style="color:var(--red)">${data.error}</span>`;
+      return;
+    }
+    const rollStr = data.rolls.join("+");
+    const modStr = data.modifier !== 0 ? (data.modifier > 0 ? "+" + data.modifier : data.modifier) : "";
+    el.innerHTML = `<span class="total">${data.total}</span><br><span class="detail">[${rollStr}]${modStr}</span>`;
+  });
+}
+
+// ── Detail popup ──────────────────────────────────────────────────────────
+function showDetail(dtype, did) {
+  fetch(`/api/detail/${dtype}/${did}`)
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) return;
+    const title = document.getElementById("modal-title");
+    const subtitle = document.getElementById("modal-subtitle");
+    const body = document.getElementById("modal-body");
+
+    if (dtype === "spell") {
+      title.textContent = data.name;
+      subtitle.textContent = data.school || "";
+      body.innerHTML = `
+        ${row("Cast time", data.cast_time)}
+        ${row("Range", data.range)}
+        ${row("Target", data.target)}
+        ${row("Duration", data.duration)}
+        ${row("Save", data.save)}
+        ${row("SR", data.spell_resistance)}
+        <p style="margin-top:.7rem;line-height:1.5">${data.description || ""}</p>`;
+    } else if (dtype === "skill") {
+      title.textContent = data.name;
+      subtitle.textContent = `Ability: ${(data.ability||"").toUpperCase()} · ${data.trained_only ? "Trained only" : "Untrained"}`;
+      body.innerHTML = "";
+    } else if (dtype === "feat") {
+      title.textContent = data.name;
+      subtitle.textContent = `${data.type || ""}${data.prerequisites ? " · Kræver: " + data.prerequisites : ""}`;
+      body.innerHTML = `<p>${data.benefit || ""}</p>
+        ${data.normal ? `<p style="margin-top:.5rem;color:var(--muted)"><em>Normal: ${data.normal}</em></p>` : ""}
+        ${data.special ? `<p style="margin-top:.5rem;color:var(--muted)"><em>Special: ${data.special}</em></p>` : ""}`;
+    } else if (dtype === "condition") {
+      title.textContent = data.name;
+      subtitle.textContent = data.summary || "";
+      body.innerHTML = `<p style="line-height:1.5">${data.description || ""}</p>`;
+    }
+
+    document.getElementById("modal-overlay").classList.add("open");
+  });
+}
+
+function row(label, val) {
+  if (!val) return "";
+  return `<div class="modal-row"><span class="modal-key">${label}</span><span class="modal-val">${val}</span></div>`;
+}
+
+function closeModal(event) {
+  if (event.target === document.getElementById("modal-overlay"))
+    document.getElementById("modal-overlay").classList.remove("open");
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    document.getElementById("modal-overlay").classList.remove("open");
+    document.getElementById("prep-overlay").classList.remove("open");
+    closeLu();
+    hideSpellTooltip();
+  }
+});
+
+// ── Spell preparation data (from server) ──────────────────────────────────
+// availableSpells: {level: [{id, name, school, ...}, ...]}
+const availableSpells = {{ available_spells|tojson }};
+// currentPrepared: mutable copy of spells_prepared
+let currentPrepared = {{ char.spells_prepared|tojson }};
+currentPrepared = Object.fromEntries(
+  Object.entries(currentPrepared).map(([k, v]) => [parseInt(k), v])
+);
+
+// ── XP ────────────────────────────────────────────────────────────────────
+function addXp() {
+  const input = document.getElementById("xp-input");
+  const delta = parseInt(input.value) || 0;
+  if (delta === 0) return;
+  fetch("/api/xp", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, delta})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) return;
+    const info = data.xp_info;
+    const textEl = document.getElementById("xp-text");
+    if (textEl) textEl.textContent = `${info.xp} / ${info.next ?? "MAX"}`;
+    const bar = document.getElementById("xp-bar");
+    if (bar) {
+      bar.style.width = info.pct + "%";
+      bar.className = "bar-fill " + (info.ready ? "xp-ready" : "xp-fill");
+    }
+    const btn = document.getElementById("xp-levelup-btn");
+    if (btn) btn.style.display = info.ready ? "inline" : "none";
+    input.value = "";
+    input.focus();
+  });
+}
+
+// ── Spell tooltip ─────────────────────────────────────────────────────────
+const spellLookup = {};
+Object.values(availableSpells).forEach(arr => arr.forEach(s => { spellLookup[s.id] = s; }));
+
+function truncDesc(desc, max) {
+  if (!desc || desc.length <= max) return desc || "";
+  const cut = desc.slice(0, max);
+  const dot = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
+  return (dot > max * 0.5 ? desc.slice(0, dot + 1) : cut.replace(/\s\S+$/, "")) + " …";
+}
+
+function showSpellTooltip(spell, chipEl) {
+  const tt = document.getElementById("spell-tooltip");
+  const meta = [spell.school, spell.cast_time].filter(Boolean).join(" · ");
+  tt.innerHTML =
+    `<div class="tt-name">${escHtml(spell.name)}</div>` +
+    (meta ? `<div class="tt-meta">${escHtml(meta)}</div>` : "") +
+    `<div class="tt-desc">${escHtml(truncDesc(spell.description, 200))}</div>`;
+
+  const r = chipEl.getBoundingClientRect();
+  const tw = 280, gap = 8;
+  let left = Math.min(r.left, window.innerWidth - tw - 10);
+  let top  = r.bottom + gap;
+  // flip above chip if too close to bottom
+  if (top + 130 > window.innerHeight) top = r.top - 130 - gap;
+  tt.style.left = left + "px";
+  tt.style.top  = top  + "px";
+  tt.style.display = "block";
+}
+
+function hideSpellTooltip() {
+  document.getElementById("spell-tooltip").style.display = "none";
+}
+
+// ── Ny dag ────────────────────────────────────────────────────────────────
+function newDay() {
+  if (!confirm("Nulstil alle brugte spells? (Forberedelse bevares)")) return;
+  fetch("/api/newday", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR})
+  })
+  .then(r => r.json())
+  .then(() => {
+    // Clear all spell usage visually
+    spellsUsed = {};
+    document.querySelectorAll(".spell-row").forEach(row => {
+      row.classList.remove("used");
+      const status = row.querySelector(".spell-status");
+      if (status) { status.textContent = "Ledig"; status.className = "spell-status free"; }
+    });
+    Object.keys(slotTotals).forEach(lvl => updatePips(parseInt(lvl)));
+    // Update slot counters
+    Object.entries(slotTotals).forEach(([lvl, total]) => {
+      const el = document.getElementById("slots-" + lvl);
+      if (el) el.textContent = total + " / " + total;
+    });
+  });
+}
+
+// ── Preparation modal ─────────────────────────────────────────────────────
+// newPrepared tracks the in-progress selection: {level: [spell_id, ...]}
+let newPrepared = {};
+
+function openPrepModal() {
+  // Deep copy currentPrepared as starting point
+  newPrepared = {};
+  Object.entries(currentPrepared).forEach(([lvl, ids]) => {
+    newPrepared[parseInt(lvl)] = [...ids];
+  });
+
+  renderPrepModal();
+  document.getElementById("prep-overlay").classList.add("open");
+}
+
+function renderPrepModal() {
+  const container = document.getElementById("prep-levels");
+  container.innerHTML = "";
+
+  // Only show levels where character has slots
+  const levelNums = Object.keys(slotTotals).map(Number).sort((a, b) => a - b);
+
+  levelNums.forEach(lvl => {
+    const total = slotTotals[lvl];
+    const prepared = newPrepared[lvl] || [];
+    const spellsAtLevel = availableSpells[lvl] || [];
+    if (spellsAtLevel.length === 0 && lvl > 0) return;
+
+    const block = document.createElement("div");
+    block.className = "prep-level-block";
+
+    // Header with slot pips
+    const header = document.createElement("div");
+    header.className = "prep-level-header";
+    let pipsHtml = '<span class="prep-slots-display">';
+    for (let i = 0; i < total; i++) {
+      pipsHtml += `<span class="pip ${i < prepared.length ? "free" : "pip" }" style="border-color:${i < prepared.length ? "var(--accent)" : "var(--muted)"}; background:${i < prepared.length ? "var(--accent)" : "transparent"}"></span>`;
+    }
+    pipsHtml += "</span>";
+    header.innerHTML = `<span>Level ${lvl} — ${prepared.length}/${total} slots</span>${pipsHtml}`;
+    block.appendChild(header);
+
+    // Spell chips
+    const grid = document.createElement("div");
+    grid.className = "prep-spell-grid";
+
+    spellsAtLevel.sort((a, b) => a.name.localeCompare(b.name)).forEach(spell => {
+      const count = prepared.filter(id => id === spell.id).length;
+      const chip = document.createElement("button");
+      chip.className = "prep-spell-chip" + (count > 0 ? " selected" : "");
+      chip.innerHTML = spell.name + (count > 1 ? `<span class="chip-count">${count}</span>` : "");
+      chip.onclick = () => togglePrepSpell(lvl, spell.id, total);
+      if (spell.description) {
+        chip.addEventListener("mouseenter", () => showSpellTooltip(spell, chip));
+        chip.addEventListener("mouseleave", hideSpellTooltip);
+      }
+      grid.appendChild(chip);
+    });
+    block.appendChild(grid);
+
+    // Selected list
+    const sel = document.createElement("div");
+    sel.className = "prep-selected-list";
+    sel.textContent = prepared.length > 0
+      ? "Forberedt: " + prepared.map(id => {
+          const sp = (availableSpells[lvl] || []).find(s => s.id === id);
+          return sp ? sp.name : id;
+        }).join(", ")
+      : "Ingen forberedt endnu";
+    block.appendChild(sel);
+
+    container.appendChild(block);
+  });
+}
+
+function togglePrepSpell(lvl, spellId, maxSlots) {
+  if (!newPrepared[lvl]) newPrepared[lvl] = [];
+  const arr = newPrepared[lvl];
+  const idx = arr.indexOf(spellId);
+  if (idx !== -1) {
+    // Remove one occurrence
+    arr.splice(idx, 1);
+  } else if (arr.length < maxSlots) {
+    // Add (if slot available)
+    arr.push(spellId);
+  }
+  renderPrepModal();
+}
+
+function savePrepared() {
+  fetch("/api/prepare", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, prepared_spells: newPrepared})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.ok) return;
+    // Update state
+    currentPrepared = Object.fromEntries(
+      Object.entries(data.prepared_spells).map(([k, v]) => [parseInt(k), v])
+    );
+    spellsUsed = {};
+    document.getElementById("prep-overlay").classList.remove("open");
+    // Reload page to show new preparation
+    window.location.reload();
+  });
+}
+
+function closePrepIfOutside(event) {
+  if (event.target === document.getElementById("prep-overlay")) {
+    document.getElementById("prep-overlay").classList.remove("open");
+    hideSpellTooltip();
+  }
+}
+
+// ── Inventory ─────────────────────────────────────────────────────────────
+function escHtml(s) {
+  const d = document.createElement("div");
+  d.appendChild(document.createTextNode(String(s)));
+  return d.innerHTML;
+}
+
+function calcEncSpeed(base) {
+  const sq = Math.floor(base / 5);
+  return Math.max(5, (sq - Math.floor(sq / 3)) * 5);
+}
+
+function renderInventory() {
+  const list = document.getElementById("inv-list");
+  if (inventoryData.length === 0) {
+    list.innerHTML = '<p style="color:var(--muted);font-size:.85rem;font-style:italic;padding:.3rem 0">Tom rygsæk</p>';
+    return;
+  }
+  list.innerHTML = "";
+  inventoryData.forEach((item, idx) => {
+    const row = document.createElement("div");
+    row.className = "inv-row";
+    const tw = (item.weight * item.qty).toFixed(1);
+    let html =
+      `<span>${escHtml(item.name)}</span>
+       <span class="inv-qty inv-editable" onclick="editInvField(this,${idx},'qty')" title="Klik for at redigere antal">×${item.qty}</span>
+       <span class="inv-weight inv-editable" onclick="editInvField(this,${idx},'weight')" title="Klik for at redigere vægt">${tw} lbs</span>
+       <button class="inv-remove" onclick="removeItem(${idx})" title="Fjern">×</button>`;
+    if (item.notes) html += `<span class="inv-notes">${escHtml(item.notes)}</span>`;
+    row.innerHTML = html;
+    list.appendChild(row);
+  });
+}
+
+function editInvField(span, idx, field) {
+  const item = inventoryData[idx];
+  const input = document.createElement("input");
+  input.type  = "number";
+  input.value = field === "qty" ? item.qty : item.weight;
+  input.min   = field === "qty" ? "1" : "0";
+  if (field === "weight") input.step = "0.1";
+  input.style.cssText =
+    "background:var(--card);border:1px solid var(--accent);color:var(--text);" +
+    "font-family:Georgia,serif;width:4.5rem;padding:.2rem .3rem;border-radius:3px;" +
+    "font-size:.82rem;text-align:center;";
+  span.replaceWith(input);
+  input.focus(); input.select();
+
+  function save() {
+    const val = field === "qty"
+      ? Math.max(1, parseInt(input.value) || 1)
+      : Math.max(0, parseFloat(input.value) || 0);
+    fetch("/api/inventory", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({char: CHAR, action: "update", index: idx, [field]: val})
+    })
+    .then(r => r.json())
+    .then(data => { if (!data.error) updateInventoryDisplay(data); });
+  }
+  input.addEventListener("blur", save);
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter")  input.blur();
+    if (e.key === "Escape") renderInventory();
+  });
+}
+
+function renderEncConsequences(enc) {
+  const el = document.getElementById("enc-consequences");
+  if (enc === "Light") { el.style.display = "none"; return; }
+  el.style.display = "block";
+  const maxDex  = enc === "Medium" ? "+3" : (enc === "Heavy" ? "+1" : "+0");
+  const chkPen  = enc === "Medium" ? "−3" : "−6";
+  const speed   = enc === "Overloaded" ? 5 : calcEncSpeed(baseSpeed);
+  const run     = (enc === "Heavy" || enc === "Overloaded") ? "×3" : "×4";
+  el.innerHTML = `
+    <div style="font-size:.72rem;color:var(--red);font-weight:bold;margin-bottom:.3rem;
+                text-transform:uppercase;letter-spacing:1px">Enc. konsekvenser (${enc})</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.25rem;font-size:.8rem">
+      <span style="color:var(--muted)">Max DEX</span><span>${maxDex}</span>
+      <span style="color:var(--muted)">Check</span><span>${chkPen}</span>
+      <span style="color:var(--muted)">Hastighed</span><span>${speed} ft</span>
+      <span style="color:var(--muted)">Løb</span><span>${run}</span>
+    </div>`;
+}
+
+function updateInventoryDisplay(data) {
+  inventoryData = data.inventory;
+  currentWeight = data.weight;
+  currentEnc    = data.enc;
+  encLimits     = data.enc_limits;
+
+  renderInventory();
+
+  document.getElementById("total-weight").textContent = currentWeight.toFixed(1) + " lbs";
+  const badge = document.getElementById("enc-badge");
+  badge.className = "enc-badge enc-" + currentEnc;
+  badge.textContent = currentEnc;
+
+  document.getElementById("enc-limits-text").textContent =
+    `Light ≤ ${Math.round(encLimits.light)} lbs · Medium ≤ ${Math.round(encLimits.medium)} lbs · Heavy ≤ ${Math.round(encLimits.heavy)} lbs`;
+
+  renderEncConsequences(currentEnc);
+}
+
+function removeItem(idx) {
+  fetch("/api/inventory", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "remove", index: idx})
+  })
+  .then(r => r.json())
+  .then(data => { if (!data.error) updateInventoryDisplay(data); });
+}
+
+function addItem() {
+  const nameEl = document.getElementById("add-name");
+  const name   = nameEl.value.trim();
+  if (!name) { nameEl.focus(); return; }
+  const weight = parseFloat(document.getElementById("add-weight").value) || 0;
+  const qty    = parseInt(document.getElementById("add-qty").value)    || 1;
+  const notes  = document.getElementById("add-notes").value.trim();
+
+  fetch("/api/inventory", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "add", name, weight, qty, notes})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) return;
+    updateInventoryDisplay(data);
+    nameEl.value = "";
+    document.getElementById("add-weight").value = "0";
+    document.getElementById("add-qty").value    = "1";
+    document.getElementById("add-notes").value  = "";
+    nameEl.focus();
+  });
+}
+
+// ── Level-up ───────────────────────────────────────────────────────────────
+const luBase       = {{ levelup_info|tojson }};
+const allFeats     = {{ all_feats_json|tojson }};
+const allSkillsDB  = {{ all_skills_json|tojson }};
+const clsSkillSet  = new Set({{ cls_skills_json|tojson }});
+const charFeatIds  = new Set({{ char.feats|tojson }});
+const abScores     = { str:{{ char.ability_scores.str }}, dex:{{ char.ability_scores.dex }},
+                       con:{{ char.ability_scores.con }}, int:{{ char.ability_scores.int }},
+                       wis:{{ char.ability_scores.wis }}, cha:{{ char.ability_scores.cha }} };
+
+// Current skill ranks map — mutable for the modal session
+const baseRanks = {};
+{% for item in skill_data %}baseRanks["{{ item.skill.id }}"] = {{ item.skill.ranks }};
+{% endfor %}
+
+let luHpRoll      = 0;
+let luSkillDeltas = {};   // {id: delta float}
+let luFeat        = null;
+let luAbBoost     = null;
+let luShownSkills = [];   // ordered list of skill IDs shown in modal
+
+function rpc(sid)  { return clsSkillSet.has(sid) ? 1.0 : 0.5; }
+function maxR(sid) { const n = luBase.new_level; return clsSkillSet.has(sid) ? n+3 : Math.floor((n+3)/2); }
+
+function luSPUsed() {
+  return Object.entries(luSkillDeltas).reduce((acc,[sid,d]) =>
+    acc + (d > 0 ? Math.round(d / rpc(sid)) : 0), 0);
+}
+
+function openLevelUpModal() {
+  luHpRoll = 0; luSkillDeltas = {}; luFeat = null; luAbBoost = null;
+  luShownSkills = Object.keys(baseRanks);
+  document.getElementById("lu-hp-manual").value = "";
+  renderLuModal();
+  document.getElementById("lu-overlay").classList.add("open");
+}
+
+function renderLuModal() {
+  const nl = luBase.new_level;
+  document.getElementById("lu-title").textContent =
+    `{{ char.cls }} ${luBase.current_level} → ${nl}`;
+  document.getElementById("lu-hd").textContent  = luBase.hit_die;
+  document.getElementById("lu-con").textContent = (luBase.con_modifier >= 0 ? "+" : "") + luBase.con_modifier;
+
+  updateLuHpDisplay();
+  updateLuSpHeader();
+  renderLuSkills();
+  renderNewSkillSel();
+
+  const featSec = document.getElementById("lu-feat-sec");
+  featSec.style.display = luBase.feat_level ? "block" : "none";
+  if (luBase.feat_level) {
+    document.getElementById("lu-feat-lvl").textContent = nl;
+    filterLuFeats();
+  }
+
+  const abSec = document.getElementById("lu-ab-sec");
+  abSec.style.display = luBase.ability_level ? "block" : "none";
+  if (luBase.ability_level) renderLuAbBtns();
+
+  const ftSec = document.getElementById("lu-features-sec");
+  if (luBase.new_features && luBase.new_features.length) {
+    ftSec.style.display = "block";
+    document.getElementById("lu-features-list").innerHTML =
+      luBase.new_features.map(f => `• ${escHtml(f)}`).join("<br>");
+  } else {
+    ftSec.style.display = "none";
+  }
+  document.getElementById("lu-warning").textContent = "";
+}
+
+function updateLuHpDisplay() {
+  const el = document.getElementById("lu-hp-total");
+  if (luHpRoll > 0) {
+    const gained = Math.max(1, luHpRoll + luBase.con_modifier);
+    el.textContent = `= +${gained} HP`;
+  } else {
+    el.textContent = "";
+  }
+}
+
+function updateLuSpHeader() {
+  const left = luBase.skill_points - luSPUsed();
+  document.getElementById("lu-sp-header").textContent =
+    `Skill Points — ${left} / ${luBase.skill_points} tilbage`;
+}
+
+function rollLuHp() {
+  fetch(`/api/roll/1d${luBase.hit_die}`)
+  .then(r => r.json())
+  .then(d => {
+    luHpRoll = d.rolls[0];
+    document.getElementById("lu-hp-manual").value = luHpRoll;
+    document.getElementById("lu-roll-result").textContent = `Rullede: ${luHpRoll}`;
+    updateLuHpDisplay();
+  });
+}
+
+function setLuHpManual(val) {
+  const n = parseInt(val);
+  if (n >= 1) { luHpRoll = n; updateLuHpDisplay(); }
+}
+
+function renderLuSkills() {
+  const cont = document.getElementById("lu-skill-rows");
+  cont.innerHTML = "";
+  luShownSkills.forEach(sid => {
+    const base  = baseRanks[sid] || 0;
+    const delta = luSkillDeltas[sid] || 0;
+    const total = base + delta;
+    const mx    = maxR(sid);
+    const isCC  = !clsSkillSet.has(sid);
+    const info  = allSkillsDB.find(s => s.id === sid);
+    const name  = info ? info.name : sid;
+    const spLeft = luBase.skill_points - luSPUsed();
+    const canAdd = total < mx && spLeft >= 1;
+    const canSub = delta > 0;
+
+    const row = document.createElement("div");
+    row.className = "lu-skill-row";
+    row.innerHTML =
+      `<span>${escHtml(name)}${isCC ? '<span style="color:var(--muted);font-size:.72rem"> CC</span>' : ""}</span>
+       <span style="display:flex;align-items:center;gap:.35rem">
+         <button class="lu-pm" onclick="adjLuSkill('${sid}',-${rpc(sid)})" ${canSub?"":"disabled"}>−</button>
+         <span style="min-width:3.2rem;text-align:center;font-size:.83rem">
+           ${base}${delta?`<span style="color:var(--green)"> +${delta}</span>`:""}
+         </span>
+         <button class="lu-pm" onclick="adjLuSkill('${sid}',${rpc(sid)})" ${canAdd?"":"disabled"}>+</button>
+         <span style="color:var(--muted);font-size:.72rem;min-width:2rem">/${mx}</span>
+       </span>`;
+    cont.appendChild(row);
+  });
+}
+
+function adjLuSkill(sid, d) {
+  const base  = baseRanks[sid] || 0;
+  const cur   = luSkillDeltas[sid] || 0;
+  const next  = Math.round((cur + d) * 10) / 10;
+  if (next < 0) return;
+  if (base + next > maxR(sid)) return;
+  // SP check
+  const costCur  = cur  > 0 ? Math.round(cur  / rpc(sid)) : 0;
+  const costNext = next > 0 ? Math.round(next / rpc(sid)) : 0;
+  if (luSPUsed() - costCur + costNext > luBase.skill_points) return;
+  if (next === 0) delete luSkillDeltas[sid]; else luSkillDeltas[sid] = next;
+  updateLuSpHeader();
+  renderLuSkills();
+}
+
+function renderNewSkillSel() {
+  const sel = document.getElementById("lu-new-skill-sel");
+  const shown = new Set(luShownSkills);
+  sel.innerHTML = '<option value="">— tilføj ny skill —</option>';
+  const cls  = allSkillsDB.filter(s => clsSkillSet.has(s.id) && !shown.has(s.id));
+  const xcls = allSkillsDB.filter(s => !clsSkillSet.has(s.id) && !shown.has(s.id));
+  [[cls,"Klasseskills"],[xcls,"Krydsklasse"]].forEach(([arr,label]) => {
+    if (!arr.length) return;
+    const og = document.createElement("optgroup");
+    og.label = label;
+    arr.forEach(s => { og.innerHTML += `<option value="${s.id}">${escHtml(s.name)}</option>`; });
+    sel.appendChild(og);
+  });
+}
+
+function addNewLuSkill() {
+  const sel = document.getElementById("lu-new-skill-sel");
+  const sid = sel.value;
+  if (!sid || luShownSkills.includes(sid)) return;
+  baseRanks[sid] = 0;
+  luShownSkills.push(sid);
+  sel.value = "";
+  renderLuSkills();
+  renderNewSkillSel();
+}
+
+function filterLuFeats() {
+  const q   = (document.getElementById("lu-feat-search").value || "").toLowerCase();
+  const sel = document.getElementById("lu-feat-sel");
+  sel.innerHTML = "";
+  allFeats.filter(f => !charFeatIds.has(f.id) &&
+    (f.name.toLowerCase().includes(q) || (f.prerequisites||"").toLowerCase().includes(q)))
+  .forEach(f => {
+    const opt = document.createElement("option");
+    opt.value = f.id;
+    opt.textContent = f.name + (f.prerequisites ? ` · kræver: ${f.prerequisites}` : "");
+    if (f.id === luFeat) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  if (luFeat) showLuFeatInfo(luFeat);
+}
+
+function pickLuFeat(fid) {
+  luFeat = fid || null;
+  showLuFeatInfo(fid);
+}
+
+function showLuFeatInfo(fid) {
+  const f = allFeats.find(f => f.id === fid);
+  const el = document.getElementById("lu-feat-info");
+  if (f) {
+    el.innerHTML = (f.prerequisites ? `<em>Kræver: ${escHtml(f.prerequisites)}</em><br>` : "") +
+      escHtml(f.benefit || "");
+  } else {
+    el.innerHTML = "";
+  }
+}
+
+function renderLuAbBtns() {
+  const cont = document.getElementById("lu-ab-btns");
+  cont.innerHTML = "";
+  [["str","STR"],["dex","DEX"],["con","CON"],["int","INT"],["wis","WIS"],["cha","CHA"]]
+  .forEach(([key,label]) => {
+    const btn = document.createElement("button");
+    btn.className = "lu-ab-btn" + (luAbBoost === key ? " selected" : "");
+    btn.textContent = `${label} ${abScores[key]} → ${abScores[key]+1}`;
+    btn.onclick = () => { luAbBoost = luAbBoost === key ? null : key; renderLuAbBtns(); };
+    cont.appendChild(btn);
+  });
+}
+
+function confirmLevelUp() {
+  const warn = document.getElementById("lu-warning");
+  warn.textContent = "";
+  if (luHpRoll <= 0) { warn.textContent = "⚠ Rul eller angiv HP-stigning først."; return; }
+  fetch("/api/levelup", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, hp_roll: luHpRoll,
+      skill_deltas: luSkillDeltas, new_feat: luFeat, ability_boost: luAbBoost})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) window.location.reload(); else warn.textContent = d.error || "Fejl"; });
+}
+
+function closeLu() { document.getElementById("lu-overlay").classList.remove("open"); }
+function closeLuIfOutside(e) { if (e.target===document.getElementById("lu-overlay")) closeLu(); }
+
+// Initial inventory render
+updateInventoryDisplay({
+  inventory:  inventoryData,
+  weight:     currentWeight,
+  enc:        currentEnc,
+  enc_limits: encLimits,
+});
+</script>
+</body>
+</html>

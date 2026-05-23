@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D&D 3.5 — Karakterer</title>
+<style>
+:root {
+  --bg:#403932; --surface:#4a4139; --card:#554c43; --accent:#DAC597;
+  --text:#ede7d5; --muted:#a5a195; --border:#6b5f53;
+  --red:#b5432c; --green:#7d9635; --yellow:#d49c28;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
+     min-height:100vh;display:flex;flex-direction:column;align-items:center;
+     padding:2rem 1rem;}
+h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
+
+.char-list{display:flex;flex-direction:column;gap:.9rem;width:100%;max-width:520px;}
+
+.char-card{background:var(--surface);border:1px solid var(--border);
+           border-radius:8px;padding:1rem 1.2rem;text-decoration:none;
+           color:var(--text);display:block;transition:border-color .2s;}
+.char-card:hover{border-color:var(--accent);}
+.char-card.dead{border-color:var(--red);opacity:.75;}
+
+.card-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem;}
+.char-name{font-size:1.15rem;color:var(--accent);font-weight:bold;}
+.char-sub{color:var(--muted);font-size:.82rem;margin-top:.15rem;}
+
+.hp-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem;}
+.hp-nums{font-size:.85rem;white-space:nowrap;min-width:5.5rem;}
+.hp-nums .cur{font-weight:bold;}
+.hp-nums.ok .cur{color:var(--accent);}
+.hp-nums.hurt .cur{color:var(--yellow);}
+.hp-nums.dead .cur{color:var(--red);}
+.mini-track{flex:1;background:#2a2420;border-radius:3px;height:7px;
+            border:1px solid var(--border);overflow:hidden;}
+.mini-fill{height:100%;border-radius:3px;transition:width .3s;}
+.fill-ok{background:var(--green);}
+.fill-hurt{background:var(--yellow);}
+.fill-dead{background:var(--red);}
+
+.badge-row{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;}
+.badge{border-radius:10px;font-size:.72rem;padding:.15rem .5rem;font-weight:bold;}
+.badge-enc-Medium{background:var(--yellow);color:#000;}
+.badge-enc-Heavy{background:var(--red);color:#fff;}
+.badge-enc-Overloaded{background:#6c0000;color:#fff;}
+.badge-cond{background:var(--red);color:#fff;}
+.badge-xp{background:var(--accent);color:#000;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+.empty{color:var(--muted);font-style:italic;}
+</style>
+</head>
+<body>
+<h1>⚔ D&D 3.5</h1>
+<div class="char-list">
+  {% for c in chars %}
+  {% set hp_cls = "dead" if c.dead else ("hurt" if c.hp_pct < 50 else "ok") %}
+  {% set fill_cls = "fill-dead" if c.dead else ("fill-hurt" if c.hp_pct < 50 else "fill-ok") %}
+  <a class="char-card{% if c.dead %} dead{% endif %}" href="/karakter/{{ c.slug }}">
+
+    <div class="card-top">
+      <div>
+        <div class="char-name">{{ c.name }}</div>
+        <div class="char-sub">{{ c.race }} {{ c.cls }} · Niv. {{ c.level }}</div>
+      </div>
+    </div>
+
+    <div class="hp-row">
+      <div class="hp-nums {{ hp_cls }}">
+        ❤ <span class="cur">{{ c.hp_current }}</span> / {{ c.hp_max }}
+      </div>
+      <div class="mini-track">
+        <div class="mini-fill {{ fill_cls }}" style="width:{{ c.hp_pct }}%"></div>
+      </div>
+    </div>
+
+    <div class="badge-row">
+      {% if c.enc in ["Medium","Heavy","Overloaded"] %}
+        <span class="badge badge-enc-{{ c.enc }}">{{ c.enc }}</span>
+      {% endif %}
+      {% if c.xp_ready %}
+        <span class="badge badge-xp">⬆ Level up!</span>
+      {% endif %}
+      {% for cid in c.conditions[:3] %}
+        <span class="badge badge-cond">{{ cid|replace("_"," ")|title }}</span>
+      {% endfor %}
+      {% if c.conditions|length > 3 %}
+        <span class="badge badge-cond">+{{ c.conditions|length - 3 }}</span>
+      {% endif %}
+    </div>
+
+  </a>
+  {% else %}
+  <p class="empty">Ingen karakterer fundet i characters/</p>
+  {% endfor %}
+</div>
+</body>
+</html>

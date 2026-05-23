@@ -1,0 +1,55 @@
+packaging_format = 2
+
+id = "flask_dnd"
+name = "D&D 3.5 Character Sheet"
+description.en = "Tablet-first web app for managing D&D 3.5 character sheets"
+description.da = "Tablet-first webapp til håndtering af D&D 3.5 karakterark"
+
+version = "1.0~ynh1"
+
+maintainers = ["MikkelKristiansen"]
+
+[upstream]
+license = "AGPL-3.0-only"
+website = "https://github.com/MikkelKristiansen/flask-dnd-3.5"
+code = "https://github.com/MikkelKristiansen/flask-dnd-3.5"
+
+[integration]
+yunohost = ">= 11.2"
+helpers_version = "2.1"
+architectures = "all"
+multi_instance = false
+ldap = false
+sso = false
+disk = "50M"
+ram.build = "100M"
+ram.runtime = "50M"
+
+[install]
+
+[install.domain]
+type = "domain"
+
+[install.path]
+type = "path"
+default = "/dnd"
+
+[install.init_main_permission]
+type = "group"
+default = "visitors"
+
+[resources]
+
+[resources.sources]
+
+[resources.system_user]
+
+[resources.install_dir]
+
+[resources.data_dir]
+
+[resources.ports]
+main.default = 8764
+
+[resources.permissions]
+main.url = "/"

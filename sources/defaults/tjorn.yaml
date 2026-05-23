@@ -1,0 +1,206 @@
+# Tjørn Birkerod — Gnome Druid 2, Neutral Good
+name: Tjørn Birkerod
+race: Gnome
+class: Druid
+level: 3
+alignment: Neutral Good
+deity: Silvanus
+size: small
+
+experience_points: 3000
+
+hp:
+  current: 27
+  max: 27
+
+ability_scores:
+  str: 9
+  dex: 12
+  con: 15
+  int: 11
+  wis: 15
+  cha: 10
+
+saves:
+  fortitude: 3   # base — CON-modifier tilføjes automatisk
+  reflex: 0      # base — DEX-modifier tilføjes automatisk
+  will: 3        # base — WIS-modifier tilføjes automatisk
+
+combat:
+  ac: 15              # MWK Studded Leather +3, DEX +1, size +1
+  touch_ac: 12
+  flat_footed_ac: 14
+  initiative: 1
+  bab: 1
+  speed: 20
+  grapple: -1
+
+attacks:
+- name: Quarterstaff
+  attack_bonus: 1
+  damage: 1d4-1
+  crit: x2
+  type: Bludgeoning
+- name: Sling
+  attack_bonus: 3
+  damage: 1d3-1
+  crit: x2
+  type: Bludgeoning
+  range: 50 ft
+- name: Produce Flame (melee touch)
+  attack_bonus: 1
+  damage: 1d6+1
+  crit: x2
+  type: Fire
+- name: Produce Flame (ranged touch)
+  attack_bonus: 3
+  damage: 1d6+1
+  crit: x2
+  type: Fire
+  range: 25 ft
+
+skills:
+- id: concentration
+  ranks: 5.0
+  misc: 0
+- id: handle_animal
+  ranks: 5.0
+  misc: 0
+- id: heal
+  ranks: 4.0
+  misc: 0
+- id: knowledge_nature
+  ranks: 5.0
+  misc: 2
+- id: knowledge_local
+  ranks: 2.0
+  misc: 0
+- id: listen
+  ranks: 0.0
+  misc: 2
+- id: profession_herbalist
+  ranks: 4.0
+  misc: 0
+- id: ride
+  ranks: 4.0
+  misc: 0
+- id: survival
+  ranks: 5.0
+  misc: 2
+feats:
+- spell_focus_conjuration
+- augment_summoning
+conditions: []
+spells_prepared:
+  0:
+  - detect_magic
+  - guidance
+  - light
+  - purify_food_drink
+  1:
+  - entangle
+  - produce_flame
+  - cure_light_wounds
+spells_used: {}
+inventory:
+- name: Masterwork Studded Leather Armor
+  weight: 10.0
+  qty: 1
+  notes: +3 AC, 0 armor check penalty
+- name: Quarterstaff
+  weight: 2.0
+  qty: 1
+  notes: ''
+- name: Sling
+  weight: 0.0
+  qty: 1
+  notes: ''
+- name: Sling bullets (10)
+  weight: 2.5
+  qty: 1
+  notes: ''
+- name: Healer's Kit
+  weight: 0.5
+  qty: 1
+  notes: 10 uses, +2 Heal
+- name: Holly and mistletoe
+  weight: 0.0
+  qty: 1
+  notes: spellcasting focus
+- name: Backpack
+  weight: 1.0
+  qty: 1
+  notes: ''
+- name: Rations
+  weight: 0.5
+  qty: 5
+  notes: 5 days
+- name: Waterskin
+  weight: 0.5
+  qty: 1
+  notes: full
+- name: tanglebag
+  weight: 0.0
+  qty: 1
+  notes: ''
+gold:
+  pp: 0
+  gp: 45
+  sp: 12
+  cp: 3
+
+companion:
+  name: Varg
+  type: Wolf
+  ac: 13
+  hp:
+    current: 13
+    max: 13
+  attack_bite: +3 to hit, 1d6+3
+  trip: Str check +1 (provokes no AoO)
+  speed: 40
+  tricks:
+  - Attack
+  - Come
+  - Seek
+  - Stay
+  - Down
+  - Guard
+  - Heel
+  special:
+  - Link (+4 Handle Animal med Tjørn)
+  - Share Spells
+
+class_features:
+  nature_sense: +2 Knowledge (Nature) og Survival
+  wild_empathy: 1d20 + 2 (level) + 0 (CHA) — Diplomacy mod dyr
+  woodland_stride: Bevæger sig normalt igennem naturligt svært terræn
+  spontaneous_casting: Kan ofre forberedt spell → Summon Nature's Ally (1 fuld runde)
+  animal_companion: Varg (Wolf)
+
+gnome_racial:
+  stat_mods: +2 CON, -2 STR
+  size: Small
+  size_bonuses: +1 AC, +1 angreb, +4 Hide
+  low_light_vision: true
+  illusion_save_bonus: 2
+  illusion_dc_bonus: 1
+  attack_bonus_vs: Kobolder og goblinoids +1
+  dodge_ac_vs: Giant-type monstre +4
+  listen_bonus: 2
+  spell_like_abilities:
+  - Speak with Animals (gravende dyr) — 1/dag
+  - Dancing Lights — 1/dag
+  - Ghost Sound — 1/dag
+  - Prestidigitation — 1/dag
+
+notes: |
+  Tjørn er fra gnom-landsbyen Gravelwood i Arn Forest.
+  Bærer Grumles (grævling) klo i en læderrem om halsen.
+  Moren Edna er druide i Silverwood på den anden side af floden.
+  Deity ændret fra Obad-Hai til Silvanus (jf. booklet).
+
+  DM-bonus (session 2): +2 Know. (Nature), +1 Know. (Local/Silver Marches),
+  +2 Prof. (Herbalist) — for hjælp til præstinde Silefrey ved Riverrest.
+
+  Level 3 plan: +1 Survival, +2 Concentration, +1 Spot. Feat: Augment Summoning.

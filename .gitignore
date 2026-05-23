@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+srd35.db
+sources/srd35.db

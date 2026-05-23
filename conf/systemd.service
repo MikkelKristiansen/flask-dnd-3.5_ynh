@@ -1,0 +1,25 @@
+[Unit]
+Description=D&D 3.5 Flask character sheet (__APP__)
+After=network.target
+
+[Service]
+Type=simple
+User=__APP__
+Group=__APP__
+WorkingDirectory=__INSTALL_DIR__
+
+Environment="DND_CHARACTERS_DIR=__DATA_DIR__/characters"
+Environment="DND_DB_PATH=__DATA_DIR__/srd35.db"
+
+ExecStart=__INSTALL_DIR__/venv/bin/gunicorn \
+    --workers 2 \
+    --bind 127.0.0.1:__PORT__ \
+    --access-logfile /var/log/__APP__/access.log \
+    --error-logfile /var/log/__APP__/error.log \
+    app:app
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

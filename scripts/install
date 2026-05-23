@@ -1,0 +1,43 @@
+#!/bin/bash
+source _common.sh
+source /usr/share/yunohost/helpers
+
+ynh_script_progression "Installing application files..."
+cp -r "$YNH_APP_BASEDIR/sources/." "$install_dir/"
+
+ynh_script_progression "Creating Python virtual environment..."
+python3 -m venv "$install_dir/venv"
+"$install_dir/venv/bin/pip" install --quiet --upgrade pip
+"$install_dir/venv/bin/pip" install --quiet -r "$install_dir/requirements.txt"
+
+ynh_script_progression "Initialising data directory..."
+mkdir -p "$data_dir/characters"
+chown -R "$app:$app" "$data_dir"
+
+# Copy sample character on first install if the directory is empty
+if [ -z "$(ls -A "$data_dir/characters")" ]; then
+    cp "$install_dir/defaults/"*.yaml "$data_dir/characters/" 2>/dev/null || true
+fi
+
+ynh_script_progression "Seeding database..."
+DND_DB_PATH="$data_dir/srd35.db" \
+    "$install_dir/venv/bin/python" "$install_dir/importer.py"
+
+chown "$app:$app" "$data_dir/srd35.db"
+
+ynh_script_progression "Configuring log directory..."
+mkdir -p "/var/log/$app"
+chown "$app:$app" "/var/log/$app"
+
+ynh_script_progression "Configuring nginx..."
+ynh_config_add_nginx
+
+ynh_script_progression "Configuring systemd service..."
+ynh_config_add_systemd
+
+yunohost service add "$app" --description="D&D 3.5 character sheet" --log="/var/log/$app/error.log"
+
+ynh_script_progression "Starting service..."
+ynh_systemctl start "$app.service"
+
+ynh_script_progression "Installation complete!"
