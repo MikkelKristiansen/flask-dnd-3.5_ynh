@@ -1066,7 +1066,9 @@ function showDetail(dtype, did) {
     } else if (dtype === "skill") {
       title.textContent = data.name;
       subtitle.textContent = `Ability: ${(data.ability||"").toUpperCase()} · ${data.trained_only ? "Trained only" : "Untrained"}`;
-      body.innerHTML = "";
+      body.innerHTML = data.description
+        ? `<p style="line-height:1.6">${escHtml(data.description)}</p>`
+        : "";
     } else if (dtype === "feat") {
       title.textContent = data.name;
       subtitle.textContent = `${data.type || ""}${data.prerequisites ? " · Kræver: " + data.prerequisites : ""}`;
