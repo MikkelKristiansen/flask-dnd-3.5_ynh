@@ -232,6 +232,28 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
                border-radius:6px;cursor:pointer;margin-top:.5rem;}
 .prep-save-btn:active{opacity:.8;}
 
+/* ── Notes ── */
+.notes-view{font-size:.9rem;line-height:1.7;min-height:3rem;}
+.notes-view h3{color:var(--accent);font-size:1rem;margin:.6rem 0 .2rem;font-family:Georgia,serif;}
+.notes-view h4{color:var(--accent);font-size:.88rem;margin:.45rem 0 .15rem;font-family:Georgia,serif;}
+.notes-view ul{padding-left:1.3rem;margin:.2rem 0;}
+.notes-view li{margin:.1rem 0;}
+.notes-view hr{border:none;border-top:1px solid var(--border);margin:.6rem 0;}
+.notes-view strong{color:var(--text);font-weight:bold;}
+.notes-edit-btn{float:right;background:transparent;border:1px solid var(--border);
+                color:var(--muted);font-family:Georgia,serif;font-size:.75rem;
+                padding:.15rem .5rem;border-radius:4px;cursor:pointer;}
+.notes-edit-btn:hover{color:var(--accent);border-color:var(--accent);}
+.notes-textarea{width:100%;background:var(--card);border:1px solid var(--border);
+                color:var(--text);font-family:monospace;font-size:.85rem;line-height:1.5;
+                padding:.6rem;border-radius:4px;resize:vertical;min-height:220px;
+                margin-top:.5rem;box-sizing:border-box;}
+.notes-action-row{display:flex;gap:.5rem;margin-top:.4rem;}
+.notes-save-btn{background:var(--green);border:none;color:#fff;
+                font-family:Georgia,serif;padding:.4rem .9rem;border-radius:4px;cursor:pointer;}
+.notes-cancel-btn{background:var(--card);border:1px solid var(--border);color:var(--text);
+                  font-family:Georgia,serif;padding:.4rem .9rem;border-radius:4px;cursor:pointer;}
+
 /* ── Spell tooltip (prep hover) ── */
 #spell-tooltip{display:none;position:fixed;z-index:500;max-width:280px;
   background:var(--card);border:1px solid var(--accent);border-radius:6px;
@@ -353,6 +375,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   <button class="tab-btn" onclick="showTab('skills',this)">Skills & Feats</button>
   <button class="tab-btn" onclick="showTab('spells',this)">Trylleformler</button>
   <button class="tab-btn" onclick="showTab('udstyr',this)">Udstyr</button>
+  <button class="tab-btn" onclick="showTab('noter',this)">Noter</button>
 </div>
 
 <!-- ══════════════════════════════════════════════ -->
@@ -602,6 +625,24 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   </div>
   {% endif %}
 
+</div>
+
+<!-- ── Notes tab ── -->
+<div id="tab-noter" class="tab-panel">
+  <div class="section">
+    <div class="section-title">
+      Noter
+      <button class="notes-edit-btn" id="notes-edit-btn" onclick="toggleNotesEdit()">✎ Rediger</button>
+    </div>
+    <div class="notes-view" id="notes-view"></div>
+    <div id="notes-edit-area" style="display:none">
+      <textarea class="notes-textarea" id="notes-textarea" rows="14"></textarea>
+      <div class="notes-action-row">
+        <button class="notes-save-btn" onclick="saveNotes()">Gem</button>
+        <button class="notes-cancel-btn" onclick="cancelNotesEdit()">Annuller</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ── Dice bar ── -->
@@ -1544,6 +1585,67 @@ updateInventoryDisplay({
   enc:        currentEnc,
   enc_limits: encLimits,
 });
+
+// ── Markdown renderer ──────────────────────────────────────────────────────
+function renderMd(raw) {
+  if (!raw || !raw.trim())
+    return '<em style="color:var(--muted)">Ingen noter endnu — tryk ✎ Rediger</em>';
+  const out = [];
+  let inList = false;
+  for (const line of raw.split('\n')) {
+    let l = escHtml(line)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>');
+    if (/^#{1,4} /.test(line)) {
+      if (inList) { out.push('</ul>'); inList = false; }
+      const depth = line.match(/^(#{1,4})/)[1].length;
+      out.push(`<${depth <= 2 ? 'h3' : 'h4'}>${l.replace(/^#{1,4} /, '')}</${depth <= 2 ? 'h3' : 'h4'}>`);
+    } else if (/^- /.test(line)) {
+      if (!inList) { out.push('<ul>'); inList = true; }
+      out.push(`<li>${l.slice(2)}</li>`);
+    } else if (/^-{3,}$/.test(line.trim())) {
+      if (inList) { out.push('</ul>'); inList = false; }
+      out.push('<hr>');
+    } else if (line.trim() === '') {
+      if (inList) { out.push('</ul>'); inList = false; }
+      out.push('<br>');
+    } else {
+      if (inList) { out.push('</ul>'); inList = false; }
+      out.push(l + '<br>');
+    }
+  }
+  if (inList) out.push('</ul>');
+  return out.join('');
+}
+
+// ── Notes ─────────────────────────────────────────────────────────────────
+let _notesRaw = {{ char.notes | tojson }};
+document.getElementById('notes-view').innerHTML = renderMd(_notesRaw);
+
+function toggleNotesEdit() {
+  document.getElementById('notes-textarea').value = _notesRaw;
+  document.getElementById('notes-view').style.display = 'none';
+  document.getElementById('notes-edit-area').style.display = 'block';
+  document.getElementById('notes-edit-btn').style.display = 'none';
+}
+function cancelNotesEdit() {
+  document.getElementById('notes-view').style.display = 'block';
+  document.getElementById('notes-edit-area').style.display = 'none';
+  document.getElementById('notes-edit-btn').style.display = '';
+}
+async function saveNotes() {
+  const text = document.getElementById('notes-textarea').value;
+  const r = await fetch(BASE + '/api/notes', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({char: CHAR, notes: text}),
+  });
+  if (r.ok) {
+    _notesRaw = text;
+    document.getElementById('notes-view').innerHTML = renderMd(_notesRaw);
+    cancelNotesEdit();
+  }
+}
 </script>
 </body>
 </html>

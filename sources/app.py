@@ -377,6 +377,18 @@ def api_newday():
     return jsonify({"ok": True})
 
 
+@app.route("/api/notes", methods=["POST"])
+def api_notes():
+    data  = request.get_json()
+    slug  = data.get("char")
+    notes = str(data.get("notes", ""))
+    path  = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char_module.save_character(str(path), {"notes": notes})
+    return jsonify({"ok": True})
+
+
 @app.route("/api/detail/<dtype>/<did>")
 def api_detail(dtype, did):
     lookup = {"spell": db.get_spell, "skill": db.get_skill,

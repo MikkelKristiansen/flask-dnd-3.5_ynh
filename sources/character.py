@@ -258,6 +258,9 @@ def save_character(path: str, updates: dict) -> None:
     if "experience_points" in updates:
         data["experience_points"] = int(updates["experience_points"])
 
+    if "notes" in updates:
+        data["notes"] = str(updates["notes"])
+
     if "level" in updates:
         data["level"] = int(updates["level"])
 
