@@ -161,6 +161,13 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .gold-row{display:flex;gap:1rem;flex-wrap:wrap;}
 .gold-item{color:var(--muted);font-size:.85rem;}
 .gold-item span{color:var(--accent);font-weight:bold;}
+.gold-val{color:var(--accent);font-weight:bold;cursor:pointer;border-bottom:1px dotted var(--accent);}
+.gold-val:hover{opacity:.8;}
+
+/* Roll tap — clickable values that pre-fill the dice bar */
+.roll-tap{cursor:pointer;transition:color .1s;}
+.roll-tap:hover{color:var(--accent);}
+.roll-tap:active{opacity:.6;}
 
 /* ── Dice bar (fixed bottom) ── */
 .dice-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);
@@ -293,7 +300,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   <div class="header-top">
     <div>
       <div class="char-name">{{ char.name }}</div>
-      <div class="char-sub">{{ char.race }} {{ char.cls }}, Level {{ char.level }}{% if char.alignment %} · {{ char.alignment }}{% endif %}</div>
+      <div class="char-sub">{{ char.race }} {{ char.cls }}, Level {{ char.level }}{% if char.alignment %} · {{ char.alignment }}{% endif %}{% if char.deity %} · {{ char.deity }}{% endif %}</div>
     </div>
     <a href="{{ url_for('index') }}" style="color:var(--muted);font-size:.8rem;text-decoration:none;">← Alle</a>
   </div>
@@ -398,9 +405,9 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 
   <div class="grid2">
     <div class="section">
-      <div class="section-title">Saves</div>
+      <div class="section-title">Saves <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for at slå)</span></div>
       {% for sname, val in saves.items() %}
-      <div class="stat-row">
+      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(val) }}','{{ sname }} Save')" title="Slå {{ sname }} Save">
         <span class="stat-label">{{ sname }}</span>
         <span class="stat-val">{{ "%+d"|format(val) }}</span>
       </div>
@@ -420,12 +427,16 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 
   {% if char.attacks %}
   <div class="section">
-    <div class="section-title">Angreb</div>
+    <div class="section-title">Angreb <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik bonus/skade for at slå)</span></div>
     {% for atk in char.attacks %}
     <div class="attack-row">
       <span>{{ atk.name }}</span>
-      <span class="attack-bonus">{{ "%+d"|format(atk.attack_bonus) }}</span>
-      <span class="attack-dmg">{{ atk.damage }}</span>
+      <span class="attack-bonus roll-tap"
+            onclick="quickRoll('1d20{{ "%+d"|format(atk.attack_bonus) }}','{{ atk.name }} angreb')"
+            title="Slå angrebsbonus">{{ "%+d"|format(atk.attack_bonus) }}</span>
+      <span class="attack-dmg roll-tap"
+            onclick="quickRoll('{{ atk.damage }}','{{ atk.name }} skade')"
+            title="Slå skade">{{ atk.damage }}</span>
       <span class="attack-type">{{ atk.type }}{% if atk.range %} · {{ atk.range }}{% endif %}</span>
     </div>
     {% endfor %}
@@ -444,11 +455,30 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   </div>
   {% endif %}
 
-  {% if char.companion %}
+  {% if char.gnome_racial %}
   <div class="section">
-    <div class="section-title">Dyreledsager — {{ char.companion.name }} ({{ char.companion.type }})</div>
-    {% set cp = char.companion %}
-    <div class="stat-row"><span class="stat-label">HP</span><span class="stat-val">{{ cp.hp.current }}/{{ cp.hp.max }}</span></div>
+    <div class="section-title">Raceevner</div>
+    {% for key, val in char.gnome_racial.items() %}
+    <div class="stat-row">
+      <span class="stat-label" style="text-transform:capitalize">{{ key|replace("_"," ") }}</span>
+      <span style="color:var(--muted);font-size:.8rem;text-align:right;max-width:65%">{{ val }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if char.companion %}
+  {% set cp = char.companion %}
+  <div class="section">
+    <div class="section-title">Dyreledsager — {{ cp.name }} ({{ cp.type }})</div>
+    <div class="stat-row">
+      <span class="stat-label">HP</span>
+      <span style="display:flex;align-items:center;gap:.4rem">
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjCompHp(-1)">−</button>
+        <span class="stat-val" id="comp-hp-val">{{ cp.hp.current }}/{{ cp.hp.max }}</span>
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjCompHp(+1)">+</button>
+      </span>
+    </div>
     <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ cp.ac }}</span></div>
     <div class="stat-row"><span class="stat-label">Bid</span><span class="stat-val" style="font-size:.8rem">{{ cp.attack_bite }}</span></div>
   </div>
@@ -462,7 +492,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 <div id="tab-skills" class="tab-panel">
 
   <div class="section">
-    <div class="section-title">Skills <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for detaljer)</span></div>
+    <div class="section-title">Skills <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik navn for detaljer · klik total for at slå)</span></div>
     {% for item in skill_data %}
     {% set s = item.skill %}
     {% set defn = item.defn %}
@@ -473,7 +503,9 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       </span>
       <span style="display:flex;align-items:baseline;gap:.8rem">
         <span class="skill-ranks">{{ s.ranks|int }} ranks</span>
-        <span class="skill-total">{{ "%+d"|format(item.total) }}</span>
+        <span class="skill-total roll-tap"
+              onclick="event.stopPropagation();quickRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }}')"
+              title="Slå {{ defn.name if defn else s.id }}">{{ "%+d"|format(item.total) }}</span>
       </span>
     </div>
     {% endfor %}
@@ -612,14 +644,16 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     </div>
   </div>
 
-  {% if char.gold %}
+  {% if char.gold is defined %}
   <div class="section">
-    <div class="section-title">Guld</div>
-    <div class="gold-row">
+    <div class="section-title">Guld <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for at redigere)</span></div>
+    <div class="gold-row" id="gold-row">
       {% for coin in ["pp","gp","sp","cp"] %}
-      {% if char.gold.get(coin,0) %}
-      <span class="gold-item"><span>{{ char.gold[coin] }}</span> {{ coin }}</span>
-      {% endif %}
+      <span class="gold-item" id="gold-item-{{ coin }}">
+        <span class="gold-val" id="gold-val-{{ coin }}"
+              onclick="editGold('{{ coin }}')"
+              title="Klik for at redigere">{{ char.gold.get(coin,0) }}</span> {{ coin }}
+      </span>
       {% endfor %}
     </div>
   </div>
@@ -756,6 +790,27 @@ const allConditions = {};
 {% for cond in all_conditions %}
 allConditions["{{ cond.id }}"] = { name: "{{ cond.name }}", summary: {{ cond.summary|tojson }} };
 {% endfor %}
+
+// ── Companion HP ──────────────────────────────────────────────────────────
+{% if char.companion %}
+let compHpCurrent = {{ char.companion.get('hp', {}).get('current', 0) }};
+const compHpMax   = {{ char.companion.get('hp', {}).get('max', 0) }};
+
+function adjCompHp(delta) {
+  fetch(BASE + "/api/companion_hp", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, delta})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) return;
+    compHpCurrent = data.hp_current;
+    const el = document.getElementById("comp-hp-val");
+    if (el) el.textContent = compHpCurrent + "/" + data.hp_max;
+  });
+}
+{% endif %}
 
 // ── Inventory state ───────────────────────────────────────────────────────
 let inventoryData = {{ inventory_json|tojson }};
@@ -923,9 +978,73 @@ function rollDice() {
   });
 }
 
+function quickRoll(expr, label) {
+  const inp = document.getElementById("dice-expr");
+  inp.value = expr;
+  rollDice();
+  if (label) {
+    const el = document.getElementById("dice-result");
+    // Prepend label after result renders (next microtask)
+    setTimeout(() => {
+      el.innerHTML = `<span style="color:var(--muted);font-size:.72rem">${escHtml(label)}</span><br>` + el.innerHTML;
+    }, 80);
+  }
+}
+
+// ── Gold ──────────────────────────────────────────────────────────────────
+function editGold(coin) {
+  const valEl = document.getElementById("gold-val-" + coin);
+  if (!valEl) return;
+  const current = parseInt(valEl.textContent) || 0;
+  const input = document.createElement("input");
+  input.type  = "number";
+  input.value = current;
+  input.min   = "0";
+  input.style.cssText =
+    "background:var(--card);border:1px solid var(--accent);color:var(--text);" +
+    "font-family:Georgia,serif;width:4.5rem;padding:.2rem .3rem;border-radius:3px;" +
+    "font-size:.85rem;text-align:center;font-weight:bold;";
+  valEl.replaceWith(input);
+  input.focus(); input.select();
+
+  function save() {
+    const newVal = Math.max(0, parseInt(input.value) || 0);
+    fetch(BASE + "/api/gold", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({char: CHAR, coin, value: newVal})
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) return;
+      // Rebuild the gold val span
+      const span = document.createElement("span");
+      span.className = "gold-val";
+      span.id = "gold-val-" + coin;
+      span.title = "Klik for at redigere";
+      span.textContent = data.gold[coin] ?? newVal;
+      span.onclick = () => editGold(coin);
+      input.replaceWith(span);
+    });
+  }
+  input.addEventListener("blur", save);
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter")  input.blur();
+    if (e.key === "Escape") {
+      const span = document.createElement("span");
+      span.className = "gold-val";
+      span.id = "gold-val-" + coin;
+      span.title = "Klik for at redigere";
+      span.textContent = current;
+      span.onclick = () => editGold(coin);
+      input.replaceWith(span);
+    }
+  });
+}
+
 // ── Detail popup ──────────────────────────────────────────────────────────
 function showDetail(dtype, did) {
-  fetch(`/api/detail/${dtype}/${did}`)
+  fetch(BASE + `/api/detail/${dtype}/${did}`)
   .then(r => r.json())
   .then(data => {
     if (data.error) return;

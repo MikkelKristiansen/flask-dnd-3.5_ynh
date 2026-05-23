@@ -108,6 +108,8 @@ class Character:
     size: str = "medium"
     companion: dict = field(default_factory=dict)
     class_features: dict = field(default_factory=dict)
+    deity: str = ""
+    gnome_racial: dict = field(default_factory=dict)
 
 
 def validate_character_data(data: object) -> None:
@@ -214,6 +216,8 @@ def load_character(path: str) -> Character:
         size=str(data.get("size", "medium")).lower(),
         companion=dict(data.get("companion") or {}),
         class_features=dict(data.get("class_features") or {}),
+        deity=str(data.get("deity") or ""),
+        gnome_racial=dict(data.get("gnome_racial") or {}),
     )
 
 
@@ -260,6 +264,14 @@ def save_character(path: str, updates: dict) -> None:
 
     if "notes" in updates:
         data["notes"] = str(updates["notes"])
+
+    if "companion_hp_current" in updates:
+        comp = data.get("companion")
+        if isinstance(comp, dict) and isinstance(comp.get("hp"), dict):
+            comp["hp"]["current"] = int(updates["companion_hp_current"])
+
+    if "gold" in updates:
+        data["gold"] = dict(updates["gold"])
 
     if "level" in updates:
         data["level"] = int(updates["level"])

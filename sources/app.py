@@ -377,6 +377,41 @@ def api_newday():
     return jsonify({"ok": True})
 
 
+@app.route("/api/companion_hp", methods=["POST"])
+def api_companion_hp():
+    data  = request.get_json()
+    slug  = data.get("char")
+    delta = int(data.get("delta", 0))
+    path  = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char = char_module.load_character(str(path))
+    comp = char.companion
+    if not comp:
+        return jsonify({"error": "no companion"}), 400
+    hp_max = (comp.get("hp") or {}).get("max", 0)
+    hp_cur = (comp.get("hp") or {}).get("current", 0)
+    new_hp = max(-9, min(hp_max, hp_cur + delta))
+    char_module.save_character(str(path), {"companion_hp_current": new_hp})
+    return jsonify({"hp_current": new_hp, "hp_max": hp_max})
+
+
+@app.route("/api/gold", methods=["POST"])
+def api_gold():
+    data = request.get_json()
+    slug = data.get("char")
+    coin = data.get("coin")
+    val  = int(data.get("value", 0))
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char = char_module.load_character(str(path))
+    gold = dict(char.gold)
+    gold[coin] = max(0, val)
+    char_module.save_character(str(path), {"gold": gold})
+    return jsonify({"gold": gold})
+
+
 @app.route("/api/notes", methods=["POST"])
 def api_notes():
     data  = request.get_json()
