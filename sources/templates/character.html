@@ -269,7 +269,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       <div class="char-name">{{ char.name }}</div>
       <div class="char-sub">{{ char.race }} {{ char.cls }}, Level {{ char.level }}{% if char.alignment %} · {{ char.alignment }}{% endif %}</div>
     </div>
-    <a href="/" style="color:var(--muted);font-size:.8rem;text-decoration:none;">← Alle</a>
+    <a href="{{ url_for('index') }}" style="color:var(--muted);font-size:.8rem;text-decoration:none;">← Alle</a>
   </div>
 
   <!-- HP controls -->
@@ -690,6 +690,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 
 <!-- ── JavaScript ── -->
 <script>
+const BASE = "{{ request.script_root }}";
 const CHAR = "{{ name }}";
 const HP_MAX = {{ char.hp_max }};
 let hpCurrent = {{ char.hp_current }};
@@ -728,7 +729,7 @@ function showTab(name, btn) {
 
 // ── HP ────────────────────────────────────────────────────────────────────
 function hpChange(delta) {
-  fetch("/api/hp", {
+  fetch(BASE + "/api/hp", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, delta})
@@ -754,7 +755,7 @@ function addCondition() {
   const sel = document.getElementById("cond-select");
   const id = sel.value;
   if (!id) return;
-  fetch("/api/conditions", {
+  fetch(BASE + "/api/conditions", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, condition_id: id, action: "add"})
@@ -769,7 +770,7 @@ function addCondition() {
 }
 
 function removeCondition(id) {
-  fetch("/api/conditions", {
+  fetch(BASE + "/api/conditions", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, condition_id: id, action: "remove"})
@@ -808,7 +809,7 @@ function renderConditions() {
 // ── Spells ────────────────────────────────────────────────────────────────
 function toggleSpell(level, spellId, currentlyUsed) {
   const newUsed = !currentlyUsed;
-  fetch("/api/spells", {
+  fetch(BASE + "/api/spells", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, level, spell_id: spellId, used: newUsed})
@@ -863,7 +864,7 @@ function updatePips(level) {
 // ── Dice roller ───────────────────────────────────────────────────────────
 function rollDice() {
   const expr = document.getElementById("dice-expr").value.trim() || "1d20";
-  fetch("/api/roll/" + encodeURIComponent(expr))
+  fetch(BASE + "/api/roll/" + encodeURIComponent(expr))
   .then(r => r.json())
   .then(data => {
     const el = document.getElementById("dice-result");
@@ -951,7 +952,7 @@ function addXp() {
   const input = document.getElementById("xp-input");
   const delta = parseInt(input.value) || 0;
   if (delta === 0) return;
-  fetch("/api/xp", {
+  fetch(BASE + "/api/xp", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, delta})
@@ -1011,7 +1012,7 @@ function hideSpellTooltip() {
 // ── Ny dag ────────────────────────────────────────────────────────────────
 function newDay() {
   if (!confirm("Nulstil alle brugte spells? (Forberedelse bevares)")) return;
-  fetch("/api/newday", {
+  fetch(BASE + "/api/newday", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR})
@@ -1124,7 +1125,7 @@ function togglePrepSpell(lvl, spellId, maxSlots) {
 }
 
 function savePrepared() {
-  fetch("/api/prepare", {
+  fetch(BASE + "/api/prepare", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, prepared_spells: newPrepared})
@@ -1202,7 +1203,7 @@ function editInvField(span, idx, field) {
     const val = field === "qty"
       ? Math.max(1, parseInt(input.value) || 1)
       : Math.max(0, parseFloat(input.value) || 0);
-    fetch("/api/inventory", {
+    fetch(BASE + "/api/inventory", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({char: CHAR, action: "update", index: idx, [field]: val})
@@ -1256,7 +1257,7 @@ function updateInventoryDisplay(data) {
 }
 
 function removeItem(idx) {
-  fetch("/api/inventory", {
+  fetch(BASE + "/api/inventory", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, action: "remove", index: idx})
@@ -1273,7 +1274,7 @@ function addItem() {
   const qty    = parseInt(document.getElementById("add-qty").value)    || 1;
   const notes  = document.getElementById("add-notes").value.trim();
 
-  fetch("/api/inventory", {
+  fetch(BASE + "/api/inventory", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, action: "add", name, weight, qty, notes})
@@ -1514,7 +1515,7 @@ function confirmLevelUp() {
   const warn = document.getElementById("lu-warning");
   warn.textContent = "";
   if (luHpRoll <= 0) { warn.textContent = "⚠ Rul eller angiv HP-stigning først."; return; }
-  fetch("/api/levelup", {
+  fetch(BASE + "/api/levelup", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, hp_roll: luHpRoll,

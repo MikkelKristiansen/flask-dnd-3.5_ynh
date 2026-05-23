@@ -3,12 +3,14 @@ import os
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, render_template, request
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 import character as char_module
 import db
 import dice as dice_module
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
 CHARACTERS_DIR = Path(os.environ.get("DND_CHARACTERS_DIR",
                                      str(Path(__file__).parent / "characters")))
 

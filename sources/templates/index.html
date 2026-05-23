@@ -59,7 +59,7 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
   {% for c in chars %}
   {% set hp_cls = "dead" if c.dead else ("hurt" if c.hp_pct < 50 else "ok") %}
   {% set fill_cls = "fill-dead" if c.dead else ("fill-hurt" if c.hp_pct < 50 else "fill-ok") %}
-  <a class="char-card{% if c.dead %} dead{% endif %}" href="/karakter/{{ c.slug }}">
+  <a class="char-card{% if c.dead %} dead{% endif %}" href="{{ url_for('karakter', name=c.slug) }}">
 
     <div class="card-top">
       <div>
