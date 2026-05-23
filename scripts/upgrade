@@ -22,7 +22,6 @@ ynh_config_add_nginx
 
 ynh_script_progression "Reconfiguring systemd..."
 ynh_config_add_systemd
-ynh_systemctl --action=daemon-reload
 
 ynh_script_progression "Starting service..."
 ynh_systemctl --action=start --service="$app.service"
