@@ -3,7 +3,7 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 ynh_script_progression "Stopping service..."
-ynh_systemctl stop "$app.service"
+ynh_systemctl --action=stop --service="$app.service"
 
 ynh_script_progression "Updating application files..."
 cp -r "$YNH_APP_BASEDIR/sources/." "$install_dir/"
@@ -22,9 +22,9 @@ ynh_config_add_nginx
 
 ynh_script_progression "Reconfiguring systemd..."
 ynh_config_add_systemd
-ynh_systemctl daemon-reload "$app"
+ynh_systemctl --action=daemon-reload
 
 ynh_script_progression "Starting service..."
-ynh_systemctl start "$app.service"
+ynh_systemctl --action=start --service="$app.service"
 
 ynh_script_progression "Upgrade complete!"

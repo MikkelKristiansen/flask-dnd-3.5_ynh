@@ -21,6 +21,6 @@ mkdir -p "/var/log/$app"
 chown "$app:$app" "/var/log/$app"
 
 ynh_script_progression "Starting service..."
-ynh_systemctl start "$app.service"
+ynh_systemctl --action=start --service="$app.service"
 
 ynh_script_progression "Restore complete!"
