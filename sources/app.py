@@ -70,9 +70,11 @@ def karakter(name):
         "Will":      char_module.save_total(char.saves.get("will",      0), ab.wis),
     }
 
+    synergy_bonuses = char_module.compute_synergy_bonuses(char.skills)
     skill_data = [
         {"skill": s, "defn": db.get_skill(s.id),
-         "total": char_module.skill_total(s, ab, db)}
+         "total": char_module.skill_total(s, ab, db, synergy_bonuses.get(s.id, 0)),
+         "synergy": synergy_bonuses.get(s.id, 0)}
         for s in char.skills
     ]
     feat_data  = [(fid, db.get_feat(fid)) for fid in char.feats]

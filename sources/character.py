@@ -312,14 +312,55 @@ def save_character(path: str, updates: dict) -> None:
 # Beregninger
 # ---------------------------------------------------------------------------
 
-def skill_total(skill: Skill, ability_scores: AbilityScores, db) -> int:
+# ---------------------------------------------------------------------------
+# D&D 3.5 SRD skill synergies — aktiveres ved ≥5 ranks i kildefærdighed
+# ---------------------------------------------------------------------------
+SKILL_SYNERGIES: dict[str, list[tuple[str, int]]] = {
+    "bluff":                   [("diplomacy", 2), ("intimidate", 2), ("sleight_of_hand", 2)],
+    "decipher_script":         [("use_magic_device", 2)],
+    "escape_artist":           [("use_rope", 2)],
+    "handle_animal":           [("ride", 2)],
+    "jump":                    [("tumble", 2)],
+    "knowledge_arcana":        [("spellcraft", 2)],
+    "knowledge_dungeoneering": [("survival", 2)],
+    "knowledge_geography":     [("survival", 2)],
+    "knowledge_local":         [("gather_information", 2)],
+    "knowledge_nature":        [("survival", 2), ("handle_animal", 2)],
+    "knowledge_nobility":      [("diplomacy", 2)],
+    "knowledge_planes":        [("survival", 2)],
+    "sense_motive":            [("diplomacy", 2)],
+    "spellcraft":              [("use_magic_device", 2)],
+    "survival":                [("knowledge_nature", 2)],
+    "tumble":                  [("balance", 2), ("jump", 2)],
+    "use_magic_device":        [("spellcraft", 2)],
+    "use_rope":                [("climb", 2), ("escape_artist", 2)],
+}
+SYNERGY_THRESHOLD = 5
+
+
+def compute_synergy_bonuses(skills: list[Skill]) -> dict[str, int]:
+    """Beregn synergi-bonusser fra skills med ≥5 ranks (SRD 3.5 s. 65).
+
+    Returnerer {skill_id: samlet_synergibonus} for alle skills der modtager bonus.
+    """
+    rank_map = {s.id: int(s.ranks) for s in skills}
+    bonuses: dict[str, int] = {}
+    for source_id, targets in SKILL_SYNERGIES.items():
+        if rank_map.get(source_id, 0) >= SYNERGY_THRESHOLD:
+            for target_id, bonus in targets:
+                bonuses[target_id] = bonuses.get(target_id, 0) + bonus
+    return bonuses
+
+
+def skill_total(skill: Skill, ability_scores: AbilityScores, db,
+                synergy_bonus: int = 0) -> int:
     skill_def = db.get_skill(skill.id)
     if skill_def is None:
-        return int(skill.ranks) + skill.misc
+        return int(skill.ranks) + skill.misc + synergy_bonus
     ability = skill_def["ability"]
     if ability == "none":
-        return int(skill.ranks) + skill.misc
-    return int(skill.ranks) + ability_scores.modifier(ability) + skill.misc
+        return int(skill.ranks) + skill.misc + synergy_bonus
+    return int(skill.ranks) + ability_scores.modifier(ability) + skill.misc + synergy_bonus
 
 
 def save_total(base: int, ability_score: int) -> int:
