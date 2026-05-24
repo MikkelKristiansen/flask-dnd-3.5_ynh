@@ -192,7 +192,7 @@ def api_hp():
         return jsonify({"error": "not found"}), 404
 
     char = char_module.load_character(str(path))
-    new_hp = max(-9, min(char.hp_max, char.hp_current + delta))
+    new_hp = max(-20, min(char.hp_max, char.hp_current + delta))
     char_module.save_character(str(path), {"hp_current": new_hp})
     return jsonify({"hp_current": new_hp, "hp_max": char.hp_max})
 

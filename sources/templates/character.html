@@ -36,8 +36,11 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
            margin-bottom:.2rem;display:flex;justify-content:space-between;}
 .bar-track{background:rgba(0,0,0,.15);border-radius:4px;height:10px;
            border:1px solid var(--border);overflow:hidden;}
-.bar-fill{height:100%;border-radius:4px;transition:width .3s;}
-.hp-fill{background:var(--red);}
+.bar-fill{height:100%;border-radius:4px;transition:width .3s, background .5s;}
+.hp-fill{background:hsl(120,55%,38%);}  /* startfarve — JS overtager straks */
+@keyframes hp-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hp-bar-dying{animation:hp-pulse 1.1s ease-in-out infinite;}
+#hp-status{font-size:.72rem;font-weight:bold;letter-spacing:.5px;margin-left:.2rem;}
 .xp-fill{background:var(--green);}
 .xp-ready{background:var(--accent);animation:pulse 1.2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
@@ -309,7 +312,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   <div class="hp-control">
     <button class="hp-btn" onclick="hpChange(-1)" title="-1 HP">−</button>
     <button class="hp-btn" onclick="hpChange(-5)" title="-5 HP" style="font-size:.8rem">−5</button>
-    <div class="hp-value">❤ <span id="hp-num">{{ char.hp_current }}</span> / {{ char.hp_max }}</div>
+    <div class="hp-value">❤ <span id="hp-num">{{ char.hp_current }}</span> / {{ char.hp_max }}<span id="hp-status"></span></div>
     <button class="hp-btn" onclick="hpChange(+5)" title="+5 HP" style="font-size:.8rem">+5</button>
     <button class="hp-btn" onclick="hpChange(+1)" title="+1 HP">+</button>
     <div class="bar-group" style="margin-left:.5rem">
@@ -860,6 +863,46 @@ function showTab(name, btn) {
 }
 
 // ── HP ────────────────────────────────────────────────────────────────────
+function hpBarColor(pct) {
+  // 80-100% → grøn, ned til 0% → rød via HSL
+  if (pct >= 80) return "hsl(120,55%,38%)";
+  const hue = Math.round(pct * 1.5); // 80→120 (grøn), 0→0 (rød)
+  return `hsl(${hue},70%,38%)`;
+}
+
+function updateHpDisplay(hp) {
+  const numEl    = document.getElementById("hp-num");
+  const barEl    = document.getElementById("hp-bar");
+  const statusEl = document.getElementById("hp-status");
+
+  numEl.textContent = hp;
+
+  const pct = HP_MAX > 0 ? Math.max(0, Math.min(100, Math.round(hp * 100 / HP_MAX))) : 0;
+  barEl.style.width      = pct + "%";
+  barEl.style.background = hpBarColor(pct);
+
+  if (hp <= -10) {
+    numEl.className = "hp-num-dead";
+    statusEl.textContent  = " ☠ Død";
+    statusEl.style.color  = "var(--red)";
+    barEl.classList.remove("hp-bar-dying");
+  } else if (hp < 0) {
+    numEl.className = "hp-num-dead";
+    statusEl.textContent  = " 🩸 Døende";
+    statusEl.style.color  = "var(--red)";
+    barEl.classList.add("hp-bar-dying");
+  } else if (hp === 0) {
+    numEl.className = "hp-num-dead";
+    statusEl.textContent  = " 💫 Besvimede";
+    statusEl.style.color  = "var(--yellow)";
+    barEl.classList.remove("hp-bar-dying");
+  } else {
+    numEl.className       = "";
+    statusEl.textContent  = "";
+    barEl.classList.remove("hp-bar-dying");
+  }
+}
+
 function hpChange(delta) {
   fetch(BASE + "/api/hp", {
     method: "POST",
@@ -869,13 +912,12 @@ function hpChange(delta) {
   .then(r => r.json())
   .then(data => {
     hpCurrent = data.hp_current;
-    document.getElementById("hp-num").textContent = hpCurrent;
-    const el = document.getElementById("hp-num");
-    el.className = hpCurrent <= 0 ? "hp-num-dead" : "";
-    const pct = Math.max(0, Math.min(100, Math.round(hpCurrent * 100 / HP_MAX)));
-    document.getElementById("hp-bar").style.width = pct + "%";
+    updateHpDisplay(hpCurrent);
   });
 }
+
+// Sæt korrekt startfarve og status ved sideload
+updateHpDisplay(hpCurrent);
 
 // ── Conditions ────────────────────────────────────────────────────────────
 function toggleCondPicker() {
