@@ -2,12 +2,12 @@
 name: Tjørn Birkerod
 race: Gnome
 class: Druid
-level: 3
+level: 2
 alignment: Neutral Good
 deity: Silvanus
 size: small
 
-experience_points: 3000
+experience_points: 17
 
 hp:
   current: 27
@@ -61,7 +61,7 @@ attacks:
 
 skills:
 - id: concentration
-  ranks: 5.0
+  ranks: 3.0
   misc: 0
 - id: handle_animal
   ranks: 5.0
@@ -85,11 +85,10 @@ skills:
   ranks: 4.0
   misc: 0
 - id: survival
-  ranks: 5.0
+  ranks: 4.0
   misc: 2
 feats:
 - spell_focus_conjuration
-- augment_summoning
 conditions: []
 spells_prepared:
   0:
