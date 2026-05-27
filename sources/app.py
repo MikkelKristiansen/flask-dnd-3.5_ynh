@@ -1,6 +1,5 @@
 """D&D 3.5 Flask-app — tablet-first karakterark."""
 import os
-import subprocess
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, render_template, request
@@ -23,14 +22,10 @@ def _char_path(slug: str) -> Path:
 # ── Pages ──────────────────────────────────────────────────────────────────
 
 def _last_updated() -> str:
+    import datetime
     try:
-        ts = subprocess.check_output(
-            ["git", "log", "-1", "--format=%cd", "--date=format:%d. %b %Y, %H:%M"],
-            cwd=Path(__file__).parent,
-            stderr=subprocess.DEVNULL,
-            text=True,
-        ).strip()
-        return ts or "ukendt"
+        mtime = Path(__file__).stat().st_mtime
+        return datetime.datetime.fromtimestamp(mtime).strftime("%-d. %b %Y, %H:%M")
     except Exception:
         return "ukendt"
 
