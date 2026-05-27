@@ -186,10 +186,17 @@ def load_character(path: str) -> Character:
     for k, v in (data.get("spells_prepared") or {}).items():
         spells_prepared[int(k)] = list(v) if v else []
 
-    spells_used: dict[int, list[str]] = {}
+    spells_used: dict[int, list[int]] = {}
     for k, v in (data.get("spells_used") or {}).items():
         if v:
-            spells_used[int(k)] = list(v)
+            indices = []
+            for item in v:
+                try:
+                    indices.append(int(item))
+                except (ValueError, TypeError):
+                    pass
+            if indices:
+                spells_used[int(k)] = indices
 
     conditions = list(data.get("conditions") or [])
 

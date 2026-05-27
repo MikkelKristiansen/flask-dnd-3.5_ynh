@@ -401,6 +401,191 @@ SPELLS: list[dict] = [
             "It attacks your opponents to the best of its ability."
         ),
     },
+    {
+        "id": "calm_animals",
+        "name": "Calm Animals",
+        "level_druid": 1, "level_cleric": None, "level_wizard": None,
+        "school": "Enchantment (Compulsion)",
+        "cast_time": "1 standard action",
+        "range": "Close (25 ft + 5 ft/2 levels)",
+        "target": "Animals within 30 ft of each other",
+        "duration": "1 min./level",
+        "save": "Will negates",
+        "spell_resistance": "Yes",
+        "description": (
+            "This spell soothes and quiets animals, rendering them docile and "
+            "harmless. The total Hit Dice of animals you can affect is 2d4 + your "
+            "caster level. Only animals (creatures with the animal type) can be "
+            "affected. If the spell is successful, the animals cease hostile action "
+            "and become docile for the duration."
+        ),
+    },
+    {
+        "id": "charm_animal",
+        "name": "Charm Animal",
+        "level_druid": 1, "level_cleric": None, "level_wizard": None,
+        "school": "Enchantment (Charm)",
+        "cast_time": "1 standard action",
+        "range": "Close (25 ft + 5 ft/2 levels)",
+        "target": "One animal",
+        "duration": "1 hour/level",
+        "save": "Will negates",
+        "spell_resistance": "Yes",
+        "description": (
+            "This spell makes an animal regard you as its trusted friend and ally. "
+            "If the creature is currently being threatened or attacked by you or your "
+            "allies, it receives a +5 bonus on its saving throw. The spell does not "
+            "enable you to control the charmed animal as if it were an automaton; "
+            "it perceives your words and actions in the most favorable way."
+        ),
+    },
+    {
+        "id": "detect_animals_plants",
+        "name": "Detect Animals or Plants",
+        "level_druid": 1, "level_cleric": None, "level_wizard": None,
+        "school": "Divination",
+        "cast_time": "1 standard action",
+        "range": "Long (400 ft + 40 ft/level)",
+        "target": "Cone-shaped emanation",
+        "duration": "Concentration, up to 10 min./level",
+        "save": "None",
+        "spell_resistance": "No",
+        "description": (
+            "You can detect a particular kind of animal or plant in a cone emanating "
+            "out from you. You must think of a specific kind of animal or plant when "
+            "using the spell. The amount of information revealed depends on how long "
+            "you study a particular area: 1st round, presence or absence; 2nd round, "
+            "number and location of the strongest aura; 3rd round, exact number and "
+            "locations of all such creatures."
+        ),
+    },
+    {
+        "id": "detect_snares_pits",
+        "name": "Detect Snares and Pits",
+        "level_druid": 1, "level_cleric": None, "level_wizard": None,
+        "school": "Divination",
+        "cast_time": "1 standard action",
+        "range": "60 ft",
+        "target": "Cone-shaped emanation",
+        "duration": "Concentration, up to 10 min./level",
+        "save": "None",
+        "spell_resistance": "No",
+        "description": (
+            "You can detect simple pits, deadfalls, and snares as well as magical "
+            "traps constructed to harm those who enter an area. The spell does not "
+            "detect complex mechanical traps. It detects traps set to harm those in "
+            "the area of the spell. Rangers and druids can identify the type and "
+            "location of each trap on a successful Wilderness Lore or Survival check."
+        ),
+    },
+    {
+        "id": "endure_elements",
+        "name": "Endure Elements",
+        "level_druid": 1, "level_cleric": 1, "level_wizard": 1,
+        "school": "Abjuration",
+        "cast_time": "1 standard action",
+        "range": "Touch",
+        "target": "Creature touched",
+        "duration": "24 hours",
+        "save": "Will negates (harmless)",
+        "spell_resistance": "Yes (harmless)",
+        "description": (
+            "A creature protected by endure elements suffers no harm from being in a "
+            "hot or cold environment. It can exist comfortably in conditions between "
+            "–50 and 140 degrees Fahrenheit without taking nonlethal damage. "
+            "The spell doesn't protect against fire or cold damage, only environmental "
+            "extremes."
+        ),
+    },
+    {
+        "id": "hide_from_animals",
+        "name": "Hide from Animals",
+        "level_druid": 1, "level_cleric": None, "level_wizard": None,
+        "school": "Abjuration",
+        "cast_time": "1 standard action",
+        "range": "Touch",
+        "target": "One creature/level touched",
+        "duration": "10 min./level",
+        "save": "Will negates (harmless)",
+        "spell_resistance": "Yes",
+        "description": (
+            "Animals cannot sense the warded creatures. Even extraordinary or "
+            "supernatural sensory capabilities such as blindsense, scent, and "
+            "tremorsense cannot detect or locate warded creatures. If a warded "
+            "creature touches an animal or attacks any creature, the spell ends "
+            "for that character."
+        ),
+    },
+    {
+        "id": "jump",
+        "name": "Jump",
+        "level_druid": 1, "level_cleric": None, "level_wizard": 1,
+        "school": "Transmutation",
+        "cast_time": "1 standard action",
+        "range": "Touch",
+        "target": "Creature touched",
+        "duration": "1 min./level",
+        "save": "Will negates (harmless)",
+        "spell_resistance": "Yes (harmless)",
+        "description": (
+            "The subject gets a bonus on Jump checks. The bonus is +10 (caster level "
+            "1–4), +20 (5th–9th), or +30 (10th+). The spell does not affect whether "
+            "the subject makes a running jump or a standing jump."
+        ),
+    },
+    {
+        "id": "magic_stone",
+        "name": "Magic Stone",
+        "level_druid": 1, "level_cleric": 1, "level_wizard": None,
+        "school": "Transmutation",
+        "cast_time": "1 standard action",
+        "range": "Touch",
+        "target": "Up to three pebbles touched",
+        "duration": "30 minutes or until discharged",
+        "save": "Will negates (harmless, object)",
+        "spell_resistance": "Yes (harmless, object)",
+        "description": (
+            "You transmute as many as three pebbles, which can be hurled or slung at "
+            "opponents. If hurled, they have a range increment of 20 feet. Each stone "
+            "that hits deals 1d6+1 points of bludgeoning damage. Against undead "
+            "creatures this damage is doubled."
+        ),
+    },
+    {
+        "id": "pass_without_trace",
+        "name": "Pass without Trace",
+        "level_druid": 1, "level_cleric": None, "level_wizard": None,
+        "school": "Transmutation",
+        "cast_time": "1 standard action",
+        "range": "Touch",
+        "target": "One creature/level touched",
+        "duration": "1 hour/level",
+        "save": "Will negates (harmless)",
+        "spell_resistance": "Yes (harmless)",
+        "description": (
+            "The subject or subjects can move through any type of terrain and leave "
+            "neither footprints nor scent. Tracking the subjects is impossible by "
+            "nonmagical means."
+        ),
+    },
+    {
+        "id": "shillelagh",
+        "name": "Shillelagh",
+        "level_druid": 1, "level_cleric": None, "level_wizard": None,
+        "school": "Transmutation",
+        "cast_time": "1 standard action",
+        "range": "Touch",
+        "target": "One touched club or quarterstaff",
+        "duration": "1 min./level",
+        "save": "Will negates (object)",
+        "spell_resistance": "Yes (object)",
+        "description": (
+            "Your own nonmagical club or quarterstaff becomes a +1 weapon and deals "
+            "damage as if it were two size categories larger (a Medium club deals 2d6; "
+            "a Medium quarterstaff deals 2d6/2d6). Only you can wield the weapon "
+            "effectively for the duration of the spell."
+        ),
+    },
     # ── Level 2 ────────────────────────────────────────────────────────────
     {
         "id": "barkskin",
@@ -571,6 +756,290 @@ SPELLS: list[dict] = [
             "This spell causes a touched animal to shrink by one size category. "
             "A Large animal becomes Medium, a Medium animal becomes Small, etc. "
             "The size change has all the normal effects."
+        ),
+    },
+    {
+        "id": "animal_messenger",
+        "name": "Animal Messenger",
+        "level_druid": 2, "level_cleric": None, "level_wizard": None,
+        "school": "Enchantment (Compulsion)",
+        "cast_time": "1 standard action",
+        "range": "Close (25 ft + 5 ft/2 levels)",
+        "target": "One Tiny animal",
+        "duration": "One day/level",
+        "save": "None",
+        "spell_resistance": "Yes",
+        "description": (
+            "You compel a Tiny animal to go to a spot you designate. The most "
+            "common use for this spell is to send a message to an associate. The "
+            "animal travels to the spot you designate at its normal movement rate. "
+            "You can attach a small item or note to the animal. The animal avoids "
+            "combat and dangerous situations."
+        ),
+    },
+    {
+        "id": "animal_trance",
+        "name": "Animal Trance",
+        "level_druid": 2, "level_cleric": None, "level_wizard": None,
+        "school": "Enchantment (Compulsion)",
+        "cast_time": "1 standard action",
+        "range": "Close (25 ft + 5 ft/2 levels)",
+        "target": "Animals or magical beasts with Intelligence 1 or 2",
+        "duration": "Concentration",
+        "save": "Will negates",
+        "spell_resistance": "Yes",
+        "description": (
+            "Your swaying motions and music (or singing, or chanting) compel animals "
+            "and magical beasts to do nothing but watch you. Only one animal or "
+            "magical beast can be fascinated at a time, with a maximum total of 2d6 "
+            "HD of creatures affected. The fascinated creature stands or sits quietly, "
+            "watching you for as long as you concentrate on the spell."
+        ),
+    },
+    {
+        "id": "chill_metal",
+        "name": "Chill Metal",
+        "level_druid": 2, "level_cleric": None, "level_wizard": None,
+        "school": "Transmutation",
+        "cast_time": "1 standard action",
+        "range": "Close (25 ft + 5 ft/2 levels)",
+        "target": "Metal equipment of one creature per two levels",
+        "duration": "7 rounds",
+        "save": "Will negates (object)",
+        "spell_resistance": "Yes (object)",
+        "description": (
+            "Chill metal makes metal extremely cold. Unattended, nonmagical metal "
+            "gets no saving throw. Chilled metal deals cold damage each round: "
+            "round 1 — 0; round 2 — 1d4; rounds 3–5 — 2d4; round 6 — 1d4; "
+            "round 7 — 0. A creature in contact with chilled metal can drop it "
+            "as a free action."
+        ),
+    },
+    {
+        "id": "delay_poison",
+        "name": "Delay Poison",
+        "level_druid": 2, "level_cleric": 2, "level_wizard": None,
+        "school": "Conjuration (Healing)",
+        "cast_time": "1 standard action",
+        "range": "Touch",
+        "target": "Creature touched",
+        "duration": "1 hour/level",
+        "save": "Fortitude negates (harmless)",
+        "spell_resistance": "Yes (harmless)",
+        "description": (
+            "The subject becomes temporarily immune to poison. Any poison in its "
+            "system or any poison to which it is exposed during the spell's duration "
+            "does not affect the subject until the spell's duration has expired. "
+            "Delay poison does not cure any damage that poison may have already done."
+        ),
+    },
+    {
+        "id": "fire_trap",
+        "name": "Fire Trap",
+        "level_druid": 2, "level_cleric": None, "level_wizard": 4,
+        "school": "Abjuration",
+        "cast_time": "10 minutes",
+        "range": "Touch",
+        "target": "Object touched",
+        "duration": "Permanent until discharged",
+        "save": "Reflex half",
+        "spell_resistance": "Yes",
+        "description": (
+            "Fire trap wards a chest or other closeable container. When someone "
+            "other than you opens the object, the trap explodes with a burst of "
+            "flame dealing 1d4 + 1/level points of fire damage (max +20). "
+            "The DC for the Reflex save is 10 + spell level + your Wis modifier. "
+            "This spell has a material component cost of 25 gp."
+        ),
+    },
+    {
+        "id": "flaming_sphere",
+        "name": "Flaming Sphere",
+        "level_druid": 2, "level_cleric": None, "level_wizard": 2,
+        "school": "Evocation",
+        "cast_time": "1 standard action",
+        "range": "Medium (100 ft + 10 ft/level)",
+        "target": "5-ft.-diameter sphere",
+        "duration": "1 round/level",
+        "save": "Reflex negates",
+        "spell_resistance": "Yes",
+        "description": (
+            "A burning globe of fire rolls in whichever direction you point and burns "
+            "those it strikes. It moves 30 feet per round. As part of this movement, "
+            "it can ascend or jump over walls. It rolls over barriers less than 4 feet "
+            "tall. The sphere deals 2d6 points of fire damage to any creature it "
+            "strikes. After rolling, the sphere can detonate on your command."
+        ),
+    },
+    {
+        "id": "fog_cloud",
+        "name": "Fog Cloud",
+        "level_druid": 2, "level_cleric": None, "level_wizard": 2,
+        "school": "Conjuration (Creation)",
+        "cast_time": "1 standard action",
+        "range": "Medium (100 ft + 10 ft/level)",
+        "target": "Fog spreads in 20-ft. radius, 20 ft. high",
+        "duration": "10 min./level",
+        "save": "None",
+        "spell_resistance": "No",
+        "description": (
+            "A bank of fog billows out from the point you designate. The fog obscures "
+            "all sight, including darkvision, beyond 5 feet. A creature within 5 feet "
+            "has concealment (20% miss chance). Creatures farther away have total "
+            "concealment (50% miss chance). A moderate wind disperses the fog in "
+            "4 rounds; a strong wind disperses it in 1 round."
+        ),
+    },
+    {
+        "id": "gust_of_wind",
+        "name": "Gust of Wind",
+        "level_druid": 2, "level_cleric": None, "level_wizard": 2,
+        "school": "Evocation",
+        "cast_time": "1 standard action",
+        "range": "60 ft",
+        "target": "Line-shaped gust of severe wind emanating from you",
+        "duration": "1 round",
+        "save": "Fortitude negates",
+        "spell_resistance": "Yes",
+        "description": (
+            "This spell creates a severe blast of air (approximately 50 mph) that "
+            "originates from you, affecting all creatures in its path. A Tiny or "
+            "smaller creature is knocked down and rolled 1d4×10 feet. A Small "
+            "creature is knocked down. A Medium creature is unable to move forward. "
+            "Larger creatures are unaffected. The gust also automatically extinguishes "
+            "unprotected flames and may extinguish protected flames."
+        ),
+    },
+    {
+        "id": "resist_energy",
+        "name": "Resist Energy",
+        "level_druid": 2, "level_cleric": 2, "level_wizard": 2,
+        "school": "Abjuration",
+        "cast_time": "1 standard action",
+        "range": "Touch",
+        "target": "Creature touched",
+        "duration": "10 min./level",
+        "save": "Fortitude negates (harmless)",
+        "spell_resistance": "Yes (harmless)",
+        "description": (
+            "This abjuration grants a creature limited protection from damage of "
+            "whichever one of five energy types you select: acid, cold, electricity, "
+            "fire, or sonic. The subject gains energy resistance 10 against the "
+            "energy type chosen, increasing to 20 at caster level 7th and 30 at "
+            "caster level 11th."
+        ),
+    },
+    {
+        "id": "soften_earth_stone",
+        "name": "Soften Earth and Stone",
+        "level_druid": 2, "level_cleric": None, "level_wizard": None,
+        "school": "Transmutation",
+        "cast_time": "1 standard action",
+        "range": "Close (25 ft + 5 ft/2 levels)",
+        "target": "10-ft. square/level; see text",
+        "duration": "Instantaneous",
+        "save": "None",
+        "spell_resistance": "No",
+        "description": (
+            "When this spell is cast, all natural, undressed earth or stone in the "
+            "spell's area is softened. Wet earth becomes thick mud. Dry earth becomes "
+            "loose sand or dirt. Hard stone becomes soft clay, easily molded or "
+            "shaped, crumbling if weight is placed on it. Any creature on a surface "
+            "of wet earth must make a DC 15 Reflex save or be mired down."
+        ),
+    },
+    {
+        "id": "spider_climb",
+        "name": "Spider Climb",
+        "level_druid": 2, "level_cleric": None, "level_wizard": 2,
+        "school": "Transmutation",
+        "cast_time": "1 standard action",
+        "range": "Touch",
+        "target": "Creature touched",
+        "duration": "10 min./level",
+        "save": "Will negates (harmless)",
+        "spell_resistance": "Yes (harmless)",
+        "description": (
+            "The subject can climb and travel on vertical surfaces or even traverse "
+            "ceilings as well as a spider does. The affected creature must have its "
+            "hands free to climb in this manner. The subject gains a climb speed of "
+            "20 feet; furthermore, it need not make Climb checks to traverse a "
+            "vertical or horizontal surface."
+        ),
+    },
+    {
+        "id": "summon_swarm",
+        "name": "Summon Swarm",
+        "level_druid": 2, "level_cleric": None, "level_wizard": 2,
+        "school": "Conjuration (Summoning)",
+        "cast_time": "1 round",
+        "range": "Close (25 ft + 5 ft/2 levels)",
+        "target": "One swarm of bats, rats, or spiders",
+        "duration": "Concentration + 2 rounds",
+        "save": "None",
+        "spell_resistance": "No",
+        "description": (
+            "You summon a swarm of bats, rats, or spiders (your choice), which "
+            "immediately fills the designated area. Any creature vulnerable to the "
+            "swarm type you choose takes damage equal to the swarm's attack each "
+            "round. The swarm attacks any creature within its area."
+        ),
+    },
+    {
+        "id": "tree_shape",
+        "name": "Tree Shape",
+        "level_druid": 2, "level_cleric": None, "level_wizard": None,
+        "school": "Transmutation",
+        "cast_time": "1 standard action",
+        "range": "Personal",
+        "target": "You",
+        "duration": "1 hour/level",
+        "save": "None",
+        "spell_resistance": "No",
+        "description": (
+            "By means of this spell, you are able to assume the form of a Large "
+            "living tree or shrub or a Large dead tree trunk with a small number of "
+            "limbs. The closest inspection cannot reveal that the tree in question "
+            "is actually a magically concealed creature. Your hit points and saving "
+            "throws are unchanged while in this form."
+        ),
+    },
+    {
+        "id": "warp_wood",
+        "name": "Warp Wood",
+        "level_druid": 2, "level_cleric": None, "level_wizard": None,
+        "school": "Transmutation",
+        "cast_time": "1 standard action",
+        "range": "Close (25 ft + 5 ft/2 levels)",
+        "target": "1 Small wooden object/level, all within 30 ft of each other",
+        "duration": "Instantaneous",
+        "save": "Will negates (object)",
+        "spell_resistance": "Yes (object)",
+        "description": (
+            "You cause wood to bend and warp, permanently destroying its straightness, "
+            "form, and strength. A warped door springs open (or shut) and cannot "
+            "easily be opened. Warped ranged weapons are useless. A warped melee "
+            "weapon causes a –4 penalty on attack rolls. You may warp as many as "
+            "1 Small or smaller objects per caster level; use the size modifiers from "
+            "the item's weight to determine how many 'objects' a larger item counts as."
+        ),
+    },
+    {
+        "id": "wood_shape",
+        "name": "Wood Shape",
+        "level_druid": 2, "level_cleric": None, "level_wizard": None,
+        "school": "Transmutation",
+        "cast_time": "1 standard action",
+        "range": "Touch",
+        "target": "One touched piece of wood no larger than 10 cu. ft. + 1 cu. ft./level",
+        "duration": "Instantaneous",
+        "save": "Will negates (object)",
+        "spell_resistance": "Yes (object)",
+        "description": (
+            "Wood shape enables you to form one existing piece of wood into any shape "
+            "that suits your purpose. While it is possible to make crude furniture, "
+            "doors, and so forth, fine detail isn't possible. There is a 30% chance "
+            "that any shape that includes moving parts simply doesn't work."
         ),
     },
     # ── Level 3 ────────────────────────────────────────────────────────────

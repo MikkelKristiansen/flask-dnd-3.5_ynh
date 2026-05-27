@@ -569,14 +569,15 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     </div>
     {% for entry in entries %}
     <div class="spell-row {% if entry.used %}used{% endif %}"
-         id="spell-{{ lvl }}-{{ entry.id }}"
+         id="spell-{{ lvl }}-{{ entry.index }}"
+         data-spell-id="{{ entry.id }}"
          onclick="showDetail('spell','{{ entry.id }}')">
       <span>
         <span class="spell-name">{{ entry.spell.name if entry.spell else entry.id }}</span>
         {% if entry.spell %}<span class="spell-school">&nbsp;·&nbsp;{{ entry.spell.school }}</span>{% endif %}
       </span>
       <span class="spell-status {% if entry.used %}used{% else %}free{% endif %}"
-            onclick="event.stopPropagation();toggleSpell({{ lvl }},'{{ entry.id }}',{{ 'true' if entry.used else 'false' }})">
+            onclick="event.stopPropagation();toggleSpell({{ lvl }},{{ entry.index }},{{ 'true' if entry.used else 'false' }})">
         {{ "Brugt" if entry.used else "Ledig" }}
       </span>
     </div>
@@ -981,16 +982,15 @@ function renderConditions() {
 }
 
 // ── Spells ────────────────────────────────────────────────────────────────
-function toggleSpell(level, spellId, currentlyUsed) {
+function toggleSpell(level, spellIndex, currentlyUsed) {
   const newUsed = !currentlyUsed;
   fetch(BASE + "/api/spells", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, level, spell_id: spellId, used: newUsed})
+    body: JSON.stringify({char: CHAR, level, spell_index: spellIndex, used: newUsed})
   })
   .then(r => r.json())
   .then(data => {
-    // Update local state
     spellsUsed = Object.fromEntries(Object.entries(data.spells_used).map(([k,v]) => [parseInt(k), v]));
     updateSpellDisplay(level);
   });
@@ -998,24 +998,20 @@ function toggleSpell(level, spellId, currentlyUsed) {
 
 function updateSpellDisplay(level) {
   const usedAtLevel = spellsUsed[level] || [];
-  // Update each spell row
   document.querySelectorAll(`[id^="spell-${level}-"]`).forEach(row => {
-    const sid = row.id.replace(`spell-${level}-`, "");
-    const isUsed = usedAtLevel.includes(sid);
+    const idx = parseInt(row.id.replace(`spell-${level}-`, ""));
+    const isUsed = usedAtLevel.includes(idx);
+    const sid = row.dataset.spellId;
     row.className = "spell-row" + (isUsed ? " used" : "");
-    // Row click = show detail (unchanged)
     row.onclick = () => showDetail("spell", sid);
-    // Status badge click = toggle
     const statusEl = row.querySelector(".spell-status");
     if (statusEl) {
       statusEl.textContent = isUsed ? "Brugt" : "Ledig";
       statusEl.className = "spell-status " + (isUsed ? "used" : "free");
-      statusEl.onclick = (e) => { e.stopPropagation(); toggleSpell(level, sid, isUsed); };
+      statusEl.onclick = (e) => { e.stopPropagation(); toggleSpell(level, idx, isUsed); };
     }
   });
-  // Update pip display
   updatePips(level);
-  // Update slot counter
   const total = slotTotals[level] || 0;
   const usedCount = usedAtLevel.length;
   const slotEl = document.getElementById("slots-" + level);

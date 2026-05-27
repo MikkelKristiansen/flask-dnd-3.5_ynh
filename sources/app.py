@@ -81,10 +81,10 @@ def karakter(name):
 
     spell_data: dict[int, list] = {}
     for lvl, spell_ids in char.spells_prepared.items():
-        used = char.spells_used.get(lvl, [])
+        used_indices = set(char.spells_used.get(lvl, []))
         spell_data[lvl] = [
-            {"id": sid, "spell": db.get_spell(sid), "used": sid in used}
-            for sid in spell_ids
+            {"id": sid, "index": i, "spell": db.get_spell(sid), "used": i in used_indices}
+            for i, sid in enumerate(spell_ids)
         ]
 
     condition_data  = [(cid, db.get_condition(cid)) for cid in char.conditions]
@@ -199,11 +199,11 @@ def api_hp():
 
 @app.route("/api/spells", methods=["POST"])
 def api_spells():
-    data     = request.get_json()
-    slug     = data.get("char")
-    level    = int(data.get("level"))
-    spell_id = data.get("spell_id")
-    mark_used = bool(data.get("used"))
+    data        = request.get_json()
+    slug        = data.get("char")
+    level       = int(data.get("level"))
+    spell_index = int(data.get("spell_index", 0))
+    mark_used   = bool(data.get("used"))
     path = _char_path(slug)
     if not path.exists():
         return jsonify({"error": "not found"}), 404
@@ -213,11 +213,11 @@ def api_spells():
 
     if mark_used:
         spells_used.setdefault(level, [])
-        if spell_id not in spells_used[level]:
-            spells_used[level].append(spell_id)
+        if spell_index not in spells_used[level]:
+            spells_used[level].append(spell_index)
     else:
-        if level in spells_used and spell_id in spells_used[level]:
-            spells_used[level].remove(spell_id)
+        if level in spells_used and spell_index in spells_used[level]:
+            spells_used[level].remove(spell_index)
 
     char_module.save_character(str(path), {"spells_used": spells_used})
     return jsonify({"spells_used": {str(k): v for k, v in spells_used.items()}})
