@@ -984,6 +984,14 @@ function renderConditions() {
 // ── Spells ────────────────────────────────────────────────────────────────
 function toggleSpell(level, spellIndex, currentlyUsed) {
   const newUsed = !currentlyUsed;
+  if (newUsed) {
+    const usedCount = (spellsUsed[level] || []).length;
+    const total = slotTotals[level] || 0;
+    if (usedCount >= total) {
+      alert("Ingen slots tilbage på level " + level + "!");
+      return;
+    }
+  }
   fetch(BASE + "/api/spells", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
