@@ -1363,13 +1363,13 @@ function renderPrepModal() {
 function togglePrepSpell(lvl, spellId, maxSlots) {
   if (!newPrepared[lvl]) newPrepared[lvl] = [];
   const arr = newPrepared[lvl];
-  const idx = arr.indexOf(spellId);
-  if (idx !== -1) {
-    // Remove one occurrence
-    arr.splice(idx, 1);
-  } else if (arr.length < maxSlots) {
-    // Add (if slot available)
+  if (arr.length < maxSlots) {
+    // Slots ledige → tilføj altid én kopi til
     arr.push(spellId);
+  } else {
+    // Alle slots fyldte → fjern én kopi af denne spell (giver plads til noget andet)
+    const idx = arr.lastIndexOf(spellId);
+    if (idx !== -1) arr.splice(idx, 1);
   }
   renderPrepModal();
 }
