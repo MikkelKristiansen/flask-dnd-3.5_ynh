@@ -51,6 +51,7 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 
 .empty{color:var(--muted);font-style:italic;}
+.version{color:var(--muted);font-size:.72rem;margin-top:2rem;text-align:center;}
 </style>
 </head>
 <body>
@@ -97,5 +98,6 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
   <p class="empty">Ingen karakterer fundet i characters/</p>
   {% endfor %}
 </div>
+<p class="version">Sidst opdateret: {{ last_updated }}</p>
 </body>
 </html>

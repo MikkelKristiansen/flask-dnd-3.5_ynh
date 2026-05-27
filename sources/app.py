@@ -1,5 +1,6 @@
 """D&D 3.5 Flask-app — tablet-first karakterark."""
 import os
+import subprocess
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, render_template, request
@@ -20,6 +21,19 @@ def _char_path(slug: str) -> Path:
 
 
 # ── Pages ──────────────────────────────────────────────────────────────────
+
+def _last_updated() -> str:
+    try:
+        ts = subprocess.check_output(
+            ["git", "log", "-1", "--format=%cd", "--date=format:%d. %b %Y, %H:%M"],
+            cwd=Path(__file__).parent,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        ).strip()
+        return ts or "ukendt"
+    except Exception:
+        return "ukendt"
+
 
 @app.route("/")
 def index():
@@ -52,7 +66,7 @@ def index():
                           "race": "", "cls": "", "level": "?",
                           "hp_current": 0, "hp_max": 0, "hp_pct": 0,
                           "dead": False, "conditions": [], "xp_ready": False, "enc": ""})
-    return render_template("index.html", chars=chars)
+    return render_template("index.html", chars=chars, last_updated=_last_updated())
 
 
 @app.route("/karakter/<name>")
