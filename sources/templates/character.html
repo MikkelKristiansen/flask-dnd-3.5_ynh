@@ -248,6 +248,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .prep-col{min-width:0;}
 .prep-col-title{color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;
                 margin-bottom:.5rem;padding-bottom:.3rem;border-bottom:2px solid var(--accent);}
+.prep-level-chevron{display:inline-block;transition:transform .2s;margin-right:.3rem;}
 .prep-avail-row{display:flex;justify-content:space-between;align-items:center;
                 padding:.3rem .4rem;border-radius:4px;cursor:pointer;
                 border-bottom:1px solid var(--border);font-size:.85rem;transition:background .12s;}
@@ -1316,6 +1317,19 @@ function newDay() {
 // ── Preparation modal ─────────────────────────────────────────────────────
 // newPrepared tracks the in-progress selection: {level: [spell_id, ...]}
 let newPrepared = {};
+const prepCollapsed = new Set();
+
+function togglePrepLevel(lvl) {
+  if (prepCollapsed.has(lvl)) prepCollapsed.delete(lvl);
+  else prepCollapsed.add(lvl);
+  const collapsed = prepCollapsed.has(lvl);
+  ["left", "right"].forEach(side => {
+    const body    = document.getElementById(`prep-lbody-${side}-${lvl}`);
+    const chevron = document.getElementById(`prep-chevron-${side}-${lvl}`);
+    if (body)    body.style.display         = collapsed ? "none" : "";
+    if (chevron) chevron.style.transform    = collapsed ? "rotate(-90deg)" : "";
+  });
+}
 
 function openPrepModal() {
   // Deep copy currentPrepared as starting point
@@ -1342,19 +1356,37 @@ function renderPrepModal() {
     const prepared = newPrepared[lvl] || [];
     const full     = prepared.length >= total;
 
+    const collapsed = prepCollapsed.has(lvl);
+
+    function makeHdr(side) {
+      const hdr = document.createElement("div");
+      hdr.className = "prep-level-header";
+      hdr.style.cursor = "pointer";
+      hdr.onclick = () => togglePrepLevel(lvl);
+      const chevron = document.createElement("span");
+      chevron.id = `prep-chevron-${side}-${lvl}`;
+      chevron.className = "prep-level-chevron";
+      chevron.textContent = "▾";
+      if (collapsed) chevron.style.transform = "rotate(-90deg)";
+      hdr.appendChild(chevron);
+      hdr.appendChild(document.createTextNode(`Level ${lvl} — ${prepared.length}/${total} slots`));
+      return hdr;
+    }
+
     // ── Venstre kolonne: tilgængelige spells ──
     const lBlock = document.createElement("div");
     lBlock.className = "prep-level-block";
-    const lHdr = document.createElement("div");
-    lHdr.className = "prep-level-header";
-    lHdr.textContent = `Level ${lvl} — ${prepared.length}/${total} slots`;
-    lBlock.appendChild(lHdr);
+    lBlock.appendChild(makeHdr("left"));
+
+    const lBody = document.createElement("div");
+    lBody.id = `prep-lbody-left-${lvl}`;
+    if (collapsed) lBody.style.display = "none";
 
     if (spellsAtLevel.length === 0) {
       const empty = document.createElement("div");
       empty.style.cssText = "color:var(--muted);font-size:.8rem;font-style:italic;padding:.3rem 0";
       empty.textContent = "Ingen spells tilgængelige";
-      lBlock.appendChild(empty);
+      lBody.appendChild(empty);
     } else {
       spellsAtLevel.forEach(spell => {
         const row = document.createElement("div");
@@ -1367,18 +1399,20 @@ function renderPrepModal() {
           row.addEventListener("mouseenter", () => showSpellTooltip(spell, row));
           row.addEventListener("mouseleave", hideSpellTooltip);
         }
-        lBlock.appendChild(row);
+        lBody.appendChild(row);
       });
     }
+    lBlock.appendChild(lBody);
     left.appendChild(lBlock);
 
     // ── Højre kolonne: forberedte slots ──
     const rBlock = document.createElement("div");
     rBlock.className = "prep-level-block";
-    const rHdr = document.createElement("div");
-    rHdr.className = "prep-level-header";
-    rHdr.textContent = `Level ${lvl} — ${prepared.length}/${total} slots`;
-    rBlock.appendChild(rHdr);
+    rBlock.appendChild(makeHdr("right"));
+
+    const rBody = document.createElement("div");
+    rBody.id = `prep-lbody-right-${lvl}`;
+    if (collapsed) rBody.style.display = "none";
 
     for (let i = 0; i < total; i++) {
       const slotRow = document.createElement("div");
@@ -1409,8 +1443,9 @@ function renderPrepModal() {
         ph.textContent = "── ledig slot ──";
         slotRow.appendChild(ph);
       }
-      rBlock.appendChild(slotRow);
+      rBody.appendChild(slotRow);
     }
+    rBlock.appendChild(rBody);
     right.appendChild(rBlock);
   });
 }
