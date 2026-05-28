@@ -225,6 +225,97 @@ SPELLS: list[dict] = [
             "The subject gains 1 temporary hit point."
         ),
     },
+    {
+        "id": "create_water",
+        "name": "Create Water",
+        "level_druid": 0, "level_cleric": 0, "level_wizard": None,
+        "school": "Conjuration (Creation)",
+        "cast_time": "1 standard action",
+        "range": "Close (25 ft + 5 ft/2 levels)",
+        "target": "Up to 2 gallons of water/level",
+        "duration": "Instantaneous",
+        "save": "None",
+        "spell_resistance": "No",
+        "description": (
+            "This spell generates wholesome, drinkable water, just like clean "
+            "rain water. Water can be created in an area as small as will contain "
+            "the liquid, or in an area three times as large (possibly creating "
+            "a downpour if created in the air)."
+        ),
+    },
+    {
+        "id": "cure_minor_wounds",
+        "name": "Cure Minor Wounds",
+        "level_druid": 0, "level_cleric": 0, "level_wizard": None,
+        "school": "Conjuration (Healing)",
+        "cast_time": "1 standard action",
+        "range": "Touch",
+        "target": "Creature touched",
+        "duration": "Instantaneous",
+        "save": "Will half (harmless)",
+        "spell_resistance": "Yes (harmless)",
+        "description": (
+            "When laying your hand upon a living creature, you channel positive "
+            "energy that cures 1 point of damage."
+        ),
+    },
+    {
+        "id": "detect_poison",
+        "name": "Detect Poison",
+        "level_druid": 0, "level_cleric": 0, "level_wizard": None,
+        "school": "Divination",
+        "cast_time": "1 standard action",
+        "range": "Close (25 ft + 5 ft/2 levels)",
+        "target": "One creature, one object, or a 5-ft. cube",
+        "duration": "Instantaneous",
+        "save": "None",
+        "spell_resistance": "No",
+        "description": (
+            "You determine whether a creature, object, or area has been poisoned "
+            "or is poisonous. You can determine the exact type of poison with a "
+            "DC 20 Wisdom check. A character with the Craft (alchemy) skill may "
+            "try a DC 20 Craft (alchemy) check if the Wisdom check fails."
+        ),
+    },
+    {
+        "id": "mending",
+        "name": "Mending",
+        "level_druid": 0, "level_cleric": 0, "level_wizard": 0,
+        "school": "Transmutation",
+        "cast_time": "1 standard action",
+        "range": "10 ft",
+        "target": "One object of up to 1 lb.",
+        "duration": "Instantaneous",
+        "save": "Will negates (harmless, object)",
+        "spell_resistance": "Yes (harmless, object)",
+        "description": (
+            "Mending repairs small breaks or tears in objects. It will weld broken "
+            "metallic objects such as a ring, a chain link, or a medallion, leaving "
+            "only a thin scar. Ceramic or wooden objects with multiple breaks can be "
+            "invisibly rejoined. A hole in a leather sack or a wineskin is completely "
+            "healed over. This spell doesn't restore magic to a damaged magic item."
+        ),
+    },
+    {
+        "id": "read_magic",
+        "name": "Read Magic",
+        "level_druid": 0, "level_cleric": 0, "level_wizard": 0,
+        "school": "Divination",
+        "cast_time": "1 standard action",
+        "range": "Personal",
+        "target": "You",
+        "duration": "10 min./level",
+        "save": "None",
+        "spell_resistance": "No",
+        "description": (
+            "By means of read magic, you can decipher magical inscriptions on "
+            "objects — books, scrolls, weapons, and the like — that would otherwise "
+            "be unintelligible. Once the spell is cast and you have read the magical "
+            "inscription, you are thereafter able to read that particular writing "
+            "without recourse to read magic. You can read at the rate of one page "
+            "(250 words) per minute."
+        ),
+    },
     # ── Level 1 ────────────────────────────────────────────────────────────
     {
         "id": "entangle",
