@@ -12,8 +12,8 @@ ynh_script_progression "Updating Python dependencies..."
 "$install_dir/venv/bin/pip" install --quiet --upgrade pip
 "$install_dir/venv/bin/pip" install --quiet -r "$install_dir/requirements.txt"
 
-ynh_script_progression "Installing database..."
-cp "$install_dir/srd35.db" "$data_dir/srd35.db"
+ynh_script_progression "Regenerating database..."
+DND_DB_PATH="$data_dir/srd35.db" "$install_dir/venv/bin/python" "$install_dir/importer.py"
 chown "$app:$app" "$data_dir/srd35.db"
 
 ynh_script_progression "Reconfiguring nginx..."
