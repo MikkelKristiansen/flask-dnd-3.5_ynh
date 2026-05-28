@@ -214,7 +214,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
               padding:1rem;overflow-y:auto;}
 .prep-overlay.open{display:flex;}
 .prep-modal{background:var(--surface);border:1px solid var(--accent);border-radius:8px;
-            width:100%;max-width:520px;padding:1.2rem;margin:auto;}
+            width:100%;max-width:760px;padding:1.2rem;margin:auto;}
 .prep-modal-title{color:var(--accent);font-size:1.1rem;margin-bottom:.3rem;
                   display:flex;justify-content:space-between;align-items:center;}
 .prep-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;}
@@ -241,6 +241,34 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
                font-family:Georgia,serif;font-size:1rem;padding:.6rem;
                border-radius:6px;cursor:pointer;margin-top:.5rem;}
 .prep-save-btn:active{opacity:.8;}
+
+/* ── Prep modal — two-column layout ── */
+.prep-cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:580px){.prep-cols{grid-template-columns:1fr;}}
+.prep-col{min-width:0;}
+.prep-col-title{color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;
+                margin-bottom:.5rem;padding-bottom:.3rem;border-bottom:2px solid var(--accent);}
+.prep-avail-row{display:flex;justify-content:space-between;align-items:center;
+                padding:.3rem .4rem;border-radius:4px;cursor:pointer;
+                border-bottom:1px solid var(--border);font-size:.85rem;transition:background .12s;}
+.prep-avail-row:last-child{border-bottom:none;}
+.prep-avail-row:hover:not(.prep-avail-full){background:var(--card);}
+.prep-avail-full{opacity:.38;cursor:default;}
+.prep-avail-name{color:var(--text);}
+.prep-avail-school{color:var(--muted);font-size:.72rem;margin-left:.5rem;flex-shrink:0;}
+.prep-slot-row{display:flex;justify-content:space-between;align-items:center;
+               padding:.3rem .4rem;border-bottom:1px solid var(--border);font-size:.85rem;min-height:2rem;}
+.prep-slot-row:last-child{border-bottom:none;}
+.prep-slot-empty{opacity:.4;}
+.prep-slot-placeholder{color:var(--muted);font-style:italic;font-size:.82rem;}
+.prep-slot-name{color:var(--text);}
+.prep-slot-remove{background:none;border:none;color:var(--muted);cursor:pointer;
+                  font-size:1.1rem;padding:0 .2rem;line-height:1;flex-shrink:0;}
+.prep-slot-remove:hover{color:var(--red);}
+.prep-newday-btn{background:var(--card);border:1px solid var(--border);color:var(--text);
+                 font-family:Georgia,serif;font-size:.9rem;padding:.5rem .8rem;
+                 border-radius:6px;cursor:pointer;white-space:nowrap;}
+.prep-newday-btn:hover{border-color:var(--accent);color:var(--accent);}
 
 /* ── Notes ── */
 .notes-view{font-size:.9rem;line-height:1.7;min-height:3rem;}
@@ -751,9 +779,14 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       <span>📖 Forbered trylleformler</span>
       <button class="prep-close" onclick="document.getElementById('prep-overlay').classList.remove('open');hideSpellTooltip()">✕</button>
     </div>
-    <p class="prep-desc">Vælg hvilke spells der er forberedt til i dag. Klik en spell for at tilføje/fjerne. Samme spell kan tilføjes flere gange.</p>
-    <div id="prep-levels"></div>
-    <button class="prep-save-btn" onclick="savePrepared()">Gem forberedelse</button>
+    <div class="prep-cols">
+      <div class="prep-col" id="prep-left"></div>
+      <div class="prep-col" id="prep-right"></div>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-top:.8rem">
+      <button class="prep-newday-btn" onclick="prepNewDay()">🌅 Ny dag</button>
+      <button class="prep-save-btn" style="flex:1" onclick="savePrepared()">Gem forberedelse</button>
+    </div>
   </div>
 </div>
 
@@ -1296,81 +1329,107 @@ function openPrepModal() {
 }
 
 function renderPrepModal() {
-  const container = document.getElementById("prep-levels");
-  container.innerHTML = "";
-
-  // Only show levels where character has slots
+  const left  = document.getElementById("prep-left");
+  const right = document.getElementById("prep-right");
   const levelNums = Object.keys(slotTotals).map(Number).sort((a, b) => a - b);
 
+  left.innerHTML  = '<div class="prep-col-title">Tilgængelige spells</div>';
+  right.innerHTML = '<div class="prep-col-title">Forberedte spells</div>';
+
   levelNums.forEach(lvl => {
-    const total = slotTotals[lvl];
+    const spellsAtLevel = (availableSpells[lvl] || []).slice().sort((a, b) => a.name.localeCompare(b.name));
+    const total    = slotTotals[lvl] || 0;
     const prepared = newPrepared[lvl] || [];
-    const spellsAtLevel = availableSpells[lvl] || [];
-    if (spellsAtLevel.length === 0 && lvl > 0) return;
+    const full     = prepared.length >= total;
 
-    const block = document.createElement("div");
-    block.className = "prep-level-block";
+    // ── Venstre kolonne: tilgængelige spells ──
+    const lBlock = document.createElement("div");
+    lBlock.className = "prep-level-block";
+    const lHdr = document.createElement("div");
+    lHdr.className = "prep-level-header";
+    lHdr.textContent = `Level ${lvl} — ${prepared.length}/${total} slots`;
+    lBlock.appendChild(lHdr);
 
-    // Header with slot pips
-    const header = document.createElement("div");
-    header.className = "prep-level-header";
-    let pipsHtml = '<span class="prep-slots-display">';
-    for (let i = 0; i < total; i++) {
-      pipsHtml += `<span class="pip ${i < prepared.length ? "free" : "pip" }" style="border-color:${i < prepared.length ? "var(--accent)" : "var(--muted)"}; background:${i < prepared.length ? "var(--accent)" : "transparent"}"></span>`;
+    if (spellsAtLevel.length === 0) {
+      const empty = document.createElement("div");
+      empty.style.cssText = "color:var(--muted);font-size:.8rem;font-style:italic;padding:.3rem 0";
+      empty.textContent = "Ingen spells tilgængelige";
+      lBlock.appendChild(empty);
+    } else {
+      spellsAtLevel.forEach(spell => {
+        const row = document.createElement("div");
+        row.className = "prep-avail-row" + (full ? " prep-avail-full" : "");
+        row.innerHTML =
+          `<span class="prep-avail-name">${escHtml(spell.name)}</span>` +
+          `<span class="prep-avail-school">${escHtml(spell.school || "")}</span>`;
+        if (!full) row.onclick = () => addPrepSpell(lvl, spell.id);
+        if (spell.description) {
+          row.addEventListener("mouseenter", () => showSpellTooltip(spell, row));
+          row.addEventListener("mouseleave", hideSpellTooltip);
+        }
+        lBlock.appendChild(row);
+      });
     }
-    pipsHtml += "</span>";
-    header.innerHTML = `<span>Level ${lvl} — ${prepared.length}/${total} slots</span>${pipsHtml}`;
-    block.appendChild(header);
+    left.appendChild(lBlock);
 
-    // Spell chips
-    const grid = document.createElement("div");
-    grid.className = "prep-spell-grid";
+    // ── Højre kolonne: forberedte slots ──
+    const rBlock = document.createElement("div");
+    rBlock.className = "prep-level-block";
+    const rHdr = document.createElement("div");
+    rHdr.className = "prep-level-header";
+    rHdr.textContent = `Level ${lvl} — ${prepared.length}/${total} slots`;
+    rBlock.appendChild(rHdr);
 
-    spellsAtLevel.sort((a, b) => a.name.localeCompare(b.name)).forEach(spell => {
-      const count = prepared.filter(id => id === spell.id).length;
-      const chip = document.createElement("button");
-      chip.className = "prep-spell-chip" + (count > 0 ? " selected" : "");
-      chip.innerHTML = spell.name + (count > 1 ? `<span class="chip-count">${count}</span>` : "");
-      chip.onclick = () => togglePrepSpell(lvl, spell.id, total);
-      if (spell.description) {
-        const infoBtn = document.createElement("span");
-        infoBtn.className = "chip-info";
-        infoBtn.textContent = "ℹ";
-        infoBtn.onclick = (e) => { e.stopPropagation(); showDetail("spell", spell.id); };
-        chip.appendChild(infoBtn);
-        chip.addEventListener("mouseenter", () => showSpellTooltip(spell, chip));
-        chip.addEventListener("mouseleave", hideSpellTooltip);
+    for (let i = 0; i < total; i++) {
+      const slotRow = document.createElement("div");
+      const spellId = prepared[i];
+      if (spellId) {
+        const sp = (availableSpells[lvl] || []).find(s => s.id === spellId);
+        slotRow.className = "prep-slot-row prep-slot-filled";
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "prep-slot-name";
+        nameSpan.textContent = sp ? sp.name : spellId;
+        if (sp && sp.description) {
+          nameSpan.style.cursor = "help";
+          nameSpan.addEventListener("mouseenter", () => showSpellTooltip(sp, nameSpan));
+          nameSpan.addEventListener("mouseleave", hideSpellTooltip);
+        }
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "prep-slot-remove";
+        removeBtn.textContent = "×";
+        removeBtn.title = "Fjern";
+        const capturedIdx = i;
+        removeBtn.onclick = () => removePrepSpell(lvl, capturedIdx);
+        slotRow.appendChild(nameSpan);
+        slotRow.appendChild(removeBtn);
+      } else {
+        slotRow.className = "prep-slot-row prep-slot-empty";
+        const ph = document.createElement("span");
+        ph.className = "prep-slot-placeholder";
+        ph.textContent = "── ledig slot ──";
+        slotRow.appendChild(ph);
       }
-      grid.appendChild(chip);
-    });
-    block.appendChild(grid);
-
-    // Selected list
-    const sel = document.createElement("div");
-    sel.className = "prep-selected-list";
-    sel.textContent = prepared.length > 0
-      ? "Forberedt: " + prepared.map(id => {
-          const sp = (availableSpells[lvl] || []).find(s => s.id === id);
-          return sp ? sp.name : id;
-        }).join(", ")
-      : "Ingen forberedt endnu";
-    block.appendChild(sel);
-
-    container.appendChild(block);
+      rBlock.appendChild(slotRow);
+    }
+    right.appendChild(rBlock);
   });
 }
 
-function togglePrepSpell(lvl, spellId, maxSlots) {
+function addPrepSpell(lvl, spellId) {
   if (!newPrepared[lvl]) newPrepared[lvl] = [];
-  const arr = newPrepared[lvl];
-  if (arr.length < maxSlots) {
-    // Slots ledige → tilføj altid én kopi til
-    arr.push(spellId);
-  } else {
-    // Alle slots fyldte → fjern én kopi af denne spell (giver plads til noget andet)
-    const idx = arr.lastIndexOf(spellId);
-    if (idx !== -1) arr.splice(idx, 1);
-  }
+  if (newPrepared[lvl].length >= (slotTotals[lvl] || 0)) return;
+  newPrepared[lvl].push(spellId);
+  renderPrepModal();
+}
+
+function removePrepSpell(lvl, idx) {
+  if (!newPrepared[lvl]) return;
+  newPrepared[lvl].splice(idx, 1);
+  renderPrepModal();
+}
+
+function prepNewDay() {
+  newPrepared = {};
   renderPrepModal();
 }
 
