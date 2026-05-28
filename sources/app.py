@@ -1,5 +1,6 @@
 """D&D 3.5 Flask-app — tablet-first karakterark."""
 import os
+import re
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, render_template, request
@@ -158,12 +159,25 @@ def karakter(name):
     sla_data = []
     for sla in char.gnome_racial.get("spell_like_abilities", []):
         if isinstance(sla, dict) and sla.get("id"):
-            sla_data.append({
-                "id":    sla["id"],
-                "note":  sla.get("note", ""),
-                "freq":  sla.get("freq", ""),
-                "spell": db.get_spell(sla["id"]),
-            })
+            spell_id = sla["id"]
+            note     = sla.get("note", "")
+            freq     = sla.get("freq", "")
+        elif isinstance(sla, str):
+            # Legacy format: "Speak with Animals (gravende dyr) — 1/dag"
+            parts    = sla.split(" — ", 1)
+            freq     = parts[1].strip() if len(parts) > 1 else ""
+            name_part = parts[0].strip()
+            m = re.match(r"^(.+?)\s*\((.+?)\)$", name_part)
+            clean_name, note = (m.group(1).strip(), m.group(2).strip()) if m else (name_part, "")
+            spell_id = re.sub(r"[^a-z0-9]+", "_", clean_name.lower()).strip("_")
+        else:
+            continue
+        sla_data.append({
+            "id":    spell_id,
+            "note":  note,
+            "freq":  freq,
+            "spell": db.get_spell(spell_id),
+        })
 
     # Druid spells grouped by level — for preparation modal
     cls_lower = char.cls.lower()
