@@ -271,6 +271,10 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
                  border-radius:6px;cursor:pointer;white-space:nowrap;}
 .prep-newday-btn:hover{border-color:var(--accent);color:var(--accent);}
 
+/* ── Spell-like abilities ── */
+.sla-entry{color:var(--muted);font-size:.8rem;cursor:pointer;display:block;padding:.1rem 0;}
+.sla-entry:hover{color:var(--accent);text-decoration:underline dotted;}
+
 /* ── Notes ── */
 .notes-view{font-size:.9rem;line-height:1.7;min-height:3rem;}
 .notes-view h3{color:var(--accent);font-size:1rem;margin:.6rem 0 .2rem;font-family:Georgia,serif;}
@@ -491,10 +495,26 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   <div class="section">
     <div class="section-title">Raceevner</div>
     {% for key, val in char.gnome_racial.items() %}
+    {% if key == "spell_like_abilities" %}
+    <div class="stat-row" style="flex-direction:column;align-items:flex-start;gap:.1rem">
+      <span class="stat-label" style="margin-bottom:.2rem">Spell-like abilities
+        <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for beskrivelse)</span>
+      </span>
+      {% for sla in sla_data %}
+      <span class="sla-entry"
+            onclick="showDetail('spell','{{ sla.id }}')"
+            onmouseenter="showSlaTooltip(event,'{{ sla.id }}')"
+            onmouseleave="hideSpellTooltip()">
+        {{ sla.spell.name if sla.spell else sla.id }}{% if sla.note %} <em>({{ sla.note }})</em>{% endif %} — {{ sla.freq }}
+      </span>
+      {% endfor %}
+    </div>
+    {% else %}
     <div class="stat-row">
       <span class="stat-label" style="text-transform:capitalize">{{ key|replace("_"," ") }}</span>
       <span style="color:var(--muted);font-size:.8rem;text-align:right;max-width:65%">{{ val }}</span>
     </div>
+    {% endif %}
     {% endfor %}
   </div>
   {% endif %}
@@ -1257,6 +1277,15 @@ function addXp() {
 // ── Spell tooltip ─────────────────────────────────────────────────────────
 const spellLookup = {};
 Object.values(availableSpells).forEach(arr => arr.forEach(s => { spellLookup[s.id] = s; }));
+
+// Spell-like abilities — preloaded from server
+const slaSpells = {{ sla_data|tojson }};
+slaSpells.forEach(e => { if (e.spell) spellLookup[e.id] = e.spell; });
+
+function showSlaTooltip(event, spellId) {
+  const entry = slaSpells.find(e => e.id === spellId);
+  if (entry && entry.spell) showSpellTooltip(entry.spell, event.currentTarget);
+}
 
 function truncDesc(desc, max) {
   if (!desc || desc.length <= max) return desc || "";

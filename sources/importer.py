@@ -316,6 +316,65 @@ SPELLS: list[dict] = [
             "(250 words) per minute."
         ),
     },
+    # ── Wizard/Sorcerer cantrips (also gnome SLAs) ───────────────────────────
+    {
+        "id": "dancing_lights",
+        "name": "Dancing Lights",
+        "level_druid": None, "level_cleric": None, "level_wizard": 0,
+        "school": "Evocation",
+        "cast_time": "1 standard action",
+        "range": "Medium (100 ft + 10 ft/level)",
+        "target": "Up to four lights, within a 10-ft.-radius area",
+        "duration": "1 minute (D)",
+        "save": "None",
+        "spell_resistance": "No",
+        "description": (
+            "You create up to four lights that resemble lanterns or torches, "
+            "or up to four glowing spheres of light, or one faintly glowing "
+            "humanoid shape. The lights must stay within a 10-foot-radius area "
+            "relative to each other but otherwise move as you desire, up to "
+            "100 feet per round. A light winks out if it exceeds the spell's range."
+        ),
+    },
+    {
+        "id": "ghost_sound",
+        "name": "Ghost Sound",
+        "level_druid": None, "level_cleric": None, "level_wizard": 0,
+        "school": "Illusion (Figment)",
+        "cast_time": "1 standard action",
+        "range": "Close (25 ft + 5 ft/2 levels)",
+        "target": "Illusory sounds",
+        "duration": "1 round/level (D)",
+        "save": "Will disbelief (if interacted with)",
+        "spell_resistance": "No",
+        "description": (
+            "Ghost sound allows you to create a volume of sound that rises, "
+            "recedes, approaches, or remains at a fixed place. You choose what "
+            "type of sound when casting. Volume equals up to four humans per "
+            "caster level (max 20). Virtually any type of sound can be produced "
+            "within the volume limit."
+        ),
+    },
+    {
+        "id": "prestidigitation",
+        "name": "Prestidigitation",
+        "level_druid": None, "level_cleric": None, "level_wizard": 0,
+        "school": "Universal",
+        "cast_time": "1 standard action",
+        "range": "10 ft",
+        "target": "See text",
+        "duration": "1 hour",
+        "save": "See text",
+        "spell_resistance": "No",
+        "description": (
+            "Minor tricks for practice. For 1 hour you can: slowly lift 1 lb. "
+            "of material; color, clean, or soil items in a 1-ft. cube each round; "
+            "chill, warm, or flavor 1 lb. of nonliving material. Cannot deal "
+            "damage or affect spellcaster concentration. Created objects look "
+            "crude and are extremely fragile — cannot be used as tools, weapons, "
+            "or spell components."
+        ),
+    },
     # ── Level 1 ────────────────────────────────────────────────────────────
     {
         "id": "entangle",

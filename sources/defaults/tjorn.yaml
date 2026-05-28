@@ -189,10 +189,15 @@ gnome_racial:
   dodge_ac_vs: Giant-type monstre +4
   listen_bonus: 2
   spell_like_abilities:
-  - Speak with Animals (gravende dyr) — 1/dag
-  - Dancing Lights — 1/dag
-  - Ghost Sound — 1/dag
-  - Prestidigitation — 1/dag
+  - id: speak_with_animals
+    note: gravende dyr
+    freq: 1/dag
+  - id: dancing_lights
+    freq: 1/dag
+  - id: ghost_sound
+    freq: 1/dag
+  - id: prestidigitation
+    freq: 1/dag
 
 notes: |
   Tjørn er fra gnom-landsbyen Gravelwood i Arn Forest.

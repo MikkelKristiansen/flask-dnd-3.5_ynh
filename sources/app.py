@@ -154,6 +154,17 @@ def karakter(name):
     ]
     cls_skills_json = sorted(char_module.class_skills(char.cls))
 
+    # Gnome spell-like abilities with DB lookup
+    sla_data = []
+    for sla in char.gnome_racial.get("spell_like_abilities", []):
+        if isinstance(sla, dict) and sla.get("id"):
+            sla_data.append({
+                "id":    sla["id"],
+                "note":  sla.get("note", ""),
+                "freq":  sla.get("freq", ""),
+                "spell": db.get_spell(sla["id"]),
+            })
+
     # Druid spells grouped by level — for preparation modal
     cls_lower = char.cls.lower()
     all_cls_spells = db.search_spells(class_filter=cls_lower)
@@ -182,6 +193,7 @@ def karakter(name):
         base_speed=base_speed,
         inventory_json=inventory_json,
         available_spells=available_spells,
+        sla_data=sla_data,
         levelup_info=levelup_info,
         all_feats_json=all_feats_json,
         all_skills_json=all_skills_json,
