@@ -57,7 +57,7 @@ attacks:
   damage: 1d6+1
   crit: x2
   type: Fire
-  range: 25 ft
+  range: 120 ft
 
 skills:
 - id: concentration
