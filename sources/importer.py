@@ -2142,10 +2142,11 @@ import json
 
 DRUID_LEVELS: list[dict] = [
     # level, hd, skill_pts, bab, fort, ref, will, 0-9 spells per day, features
+    # Spell slots from PHB Table 3-8 (spells_0 = orisons, verified against book)
     {
         "level": 1, "hd": "d8", "skill_points": 4, "bab": 0,
         "fort": 2, "ref": 0, "will": 2,
-        "spells_0": 3, "spells_1": 2, "spells_2": 0, "spells_3": 0,
+        "spells_0": 3, "spells_1": 1, "spells_2": 0, "spells_3": 0,
         "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps([
@@ -2158,7 +2159,7 @@ DRUID_LEVELS: list[dict] = [
     {
         "level": 2, "hd": "d8", "skill_points": 4, "bab": 1,
         "fort": 3, "ref": 0, "will": 3,
-        "spells_0": 4, "spells_1": 3, "spells_2": 0, "spells_3": 0,
+        "spells_0": 4, "spells_1": 2, "spells_2": 0, "spells_3": 0,
         "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps(["Woodland Stride"]),
@@ -2166,7 +2167,7 @@ DRUID_LEVELS: list[dict] = [
     {
         "level": 3, "hd": "d8", "skill_points": 4, "bab": 2,
         "fort": 3, "ref": 1, "will": 3,
-        "spells_0": 4, "spells_1": 3, "spells_2": 2, "spells_3": 0,
+        "spells_0": 4, "spells_1": 2, "spells_2": 1, "spells_3": 0,
         "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps(["Trackless Step"]),
@@ -2174,7 +2175,7 @@ DRUID_LEVELS: list[dict] = [
     {
         "level": 4, "hd": "d8", "skill_points": 4, "bab": 3,
         "fort": 4, "ref": 1, "will": 4,
-        "spells_0": 5, "spells_1": 4, "spells_2": 3, "spells_3": 0,
+        "spells_0": 5, "spells_1": 3, "spells_2": 2, "spells_3": 0,
         "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps(["Resist Nature's Lure (+4 saves vs. fey & nature spells)"]),
@@ -2182,7 +2183,7 @@ DRUID_LEVELS: list[dict] = [
     {
         "level": 5, "hd": "d8", "skill_points": 4, "bab": 3,
         "fort": 4, "ref": 1, "will": 4,
-        "spells_0": 5, "spells_1": 4, "spells_2": 3, "spells_3": 2,
+        "spells_0": 5, "spells_1": 3, "spells_2": 2, "spells_3": 1,
         "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps(["Wild Shape 1/day (Small or Medium animal)"]),
@@ -2190,7 +2191,7 @@ DRUID_LEVELS: list[dict] = [
     {
         "level": 6, "hd": "d8", "skill_points": 4, "bab": 4,
         "fort": 5, "ref": 2, "will": 5,
-        "spells_0": 5, "spells_1": 4, "spells_2": 4, "spells_3": 3,
+        "spells_0": 5, "spells_1": 3, "spells_2": 3, "spells_3": 2,
         "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps(["Wild Shape 2/day", "Wild Shape (Large)"]),
@@ -2198,16 +2199,16 @@ DRUID_LEVELS: list[dict] = [
     {
         "level": 7, "hd": "d8", "skill_points": 4, "bab": 5,
         "fort": 5, "ref": 2, "will": 5,
-        "spells_0": 6, "spells_1": 5, "spells_2": 4, "spells_3": 3,
-        "spells_4": 2, "spells_5": 0, "spells_6": 0, "spells_7": 0,
+        "spells_0": 6, "spells_1": 4, "spells_2": 3, "spells_3": 2,
+        "spells_4": 1, "spells_5": 0, "spells_6": 0, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps([]),
     },
     {
         "level": 8, "hd": "d8", "skill_points": 4, "bab": 6,
         "fort": 6, "ref": 2, "will": 6,
-        "spells_0": 6, "spells_1": 5, "spells_2": 4, "spells_3": 4,
-        "spells_4": 3, "spells_5": 0, "spells_6": 0, "spells_7": 0,
+        "spells_0": 6, "spells_1": 4, "spells_2": 3, "spells_3": 3,
+        "spells_4": 2, "spells_5": 0, "spells_6": 0, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps([
             "Wild Shape 3/day",
@@ -2218,16 +2219,16 @@ DRUID_LEVELS: list[dict] = [
     {
         "level": 9, "hd": "d8", "skill_points": 4, "bab": 6,
         "fort": 6, "ref": 3, "will": 6,
-        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 4,
-        "spells_4": 3, "spells_5": 2, "spells_6": 0, "spells_7": 0,
+        "spells_0": 6, "spells_1": 4, "spells_2": 4, "spells_3": 3,
+        "spells_4": 2, "spells_5": 1, "spells_6": 0, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps(["Venom Immunity (immune to all poisons)"]),
     },
     {
         "level": 10, "hd": "d8", "skill_points": 4, "bab": 7,
         "fort": 7, "ref": 3, "will": 7,
-        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 4,
-        "spells_4": 4, "spells_5": 3, "spells_6": 0, "spells_7": 0,
+        "spells_0": 6, "spells_1": 4, "spells_2": 4, "spells_3": 3,
+        "spells_4": 3, "spells_5": 2, "spells_6": 0, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps([
             "Wild Shape 4/day",
@@ -2238,16 +2239,16 @@ DRUID_LEVELS: list[dict] = [
     {
         "level": 11, "hd": "d8", "skill_points": 4, "bab": 8,
         "fort": 7, "ref": 3, "will": 7,
-        "spells_0": 6, "spells_1": 6, "spells_2": 5, "spells_3": 5,
-        "spells_4": 4, "spells_5": 3, "spells_6": 2, "spells_7": 0,
+        "spells_0": 6, "spells_1": 5, "spells_2": 4, "spells_3": 4,
+        "spells_4": 3, "spells_5": 2, "spells_6": 1, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps([]),
     },
     {
         "level": 12, "hd": "d8", "skill_points": 4, "bab": 9,
         "fort": 8, "ref": 4, "will": 8,
-        "spells_0": 6, "spells_1": 6, "spells_2": 5, "spells_3": 5,
-        "spells_4": 4, "spells_5": 4, "spells_6": 3, "spells_7": 0,
+        "spells_0": 6, "spells_1": 5, "spells_2": 4, "spells_3": 4,
+        "spells_4": 3, "spells_5": 3, "spells_6": 2, "spells_7": 0,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps([
             "Wild Shape 5/day",
@@ -2258,16 +2259,16 @@ DRUID_LEVELS: list[dict] = [
     {
         "level": 13, "hd": "d8", "skill_points": 4, "bab": 9,
         "fort": 8, "ref": 4, "will": 8,
-        "spells_0": 6, "spells_1": 6, "spells_2": 6, "spells_3": 5,
-        "spells_4": 5, "spells_5": 4, "spells_6": 3, "spells_7": 2,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 4,
+        "spells_4": 4, "spells_5": 3, "spells_6": 2, "spells_7": 1,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps([]),
     },
     {
         "level": 14, "hd": "d8", "skill_points": 4, "bab": 10,
         "fort": 9, "ref": 4, "will": 9,
-        "spells_0": 6, "spells_1": 6, "spells_2": 6, "spells_3": 5,
-        "spells_4": 5, "spells_5": 4, "spells_6": 4, "spells_7": 3,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 4,
+        "spells_4": 4, "spells_5": 3, "spells_6": 3, "spells_7": 2,
         "spells_8": 0, "spells_9": 0,
         "features": json.dumps([
             "Wild Shape 6/day",
@@ -2278,17 +2279,17 @@ DRUID_LEVELS: list[dict] = [
     {
         "level": 15, "hd": "d8", "skill_points": 4, "bab": 11,
         "fort": 9, "ref": 5, "will": 9,
-        "spells_0": 6, "spells_1": 6, "spells_2": 6, "spells_3": 6,
-        "spells_4": 5, "spells_5": 5, "spells_6": 4, "spells_7": 3,
-        "spells_8": 2, "spells_9": 0,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 4, "spells_5": 4, "spells_6": 3, "spells_7": 2,
+        "spells_8": 1, "spells_9": 0,
         "features": json.dumps([]),
     },
     {
         "level": 16, "hd": "d8", "skill_points": 4, "bab": 12,
         "fort": 10, "ref": 5, "will": 10,
-        "spells_0": 6, "spells_1": 6, "spells_2": 6, "spells_3": 6,
-        "spells_4": 5, "spells_5": 5, "spells_6": 4, "spells_7": 4,
-        "spells_8": 3, "spells_9": 0,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 4, "spells_5": 4, "spells_6": 3, "spells_7": 3,
+        "spells_8": 2, "spells_9": 0,
         "features": json.dumps([
             "Wild Shape 7/day",
             "Wild Shape (Elemental 4/day)",
@@ -2297,33 +2298,33 @@ DRUID_LEVELS: list[dict] = [
     {
         "level": 17, "hd": "d8", "skill_points": 4, "bab": 12,
         "fort": 10, "ref": 5, "will": 10,
-        "spells_0": 6, "spells_1": 6, "spells_2": 6, "spells_3": 6,
-        "spells_4": 6, "spells_5": 5, "spells_6": 5, "spells_7": 4,
-        "spells_8": 3, "spells_9": 2,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 5, "spells_5": 4, "spells_6": 4, "spells_7": 3,
+        "spells_8": 2, "spells_9": 1,
         "features": json.dumps([]),
     },
     {
         "level": 18, "hd": "d8", "skill_points": 4, "bab": 13,
         "fort": 11, "ref": 6, "will": 11,
-        "spells_0": 6, "spells_1": 6, "spells_2": 6, "spells_3": 6,
-        "spells_4": 6, "spells_5": 5, "spells_6": 5, "spells_7": 4,
-        "spells_8": 4, "spells_9": 3,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 5, "spells_5": 4, "spells_6": 4, "spells_7": 3,
+        "spells_8": 3, "spells_9": 2,
         "features": json.dumps(["Wild Shape 8/day"]),
     },
     {
         "level": 19, "hd": "d8", "skill_points": 4, "bab": 14,
         "fort": 11, "ref": 6, "will": 11,
-        "spells_0": 6, "spells_1": 6, "spells_2": 6, "spells_3": 6,
-        "spells_4": 6, "spells_5": 6, "spells_6": 5, "spells_7": 5,
-        "spells_8": 4, "spells_9": 4,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 5, "spells_5": 5, "spells_6": 4, "spells_7": 4,
+        "spells_8": 3, "spells_9": 3,
         "features": json.dumps([]),
     },
     {
         "level": 20, "hd": "d8", "skill_points": 4, "bab": 15,
         "fort": 12, "ref": 6, "will": 12,
-        "spells_0": 6, "spells_1": 6, "spells_2": 6, "spells_3": 6,
-        "spells_4": 6, "spells_5": 6, "spells_6": 5, "spells_7": 5,
-        "spells_8": 5, "spells_9": 5,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 5, "spells_5": 5, "spells_6": 4, "spells_7": 4,
+        "spells_8": 4, "spells_9": 4,
         "features": json.dumps(["A Thousand Faces", "Wild Shape (Huge Elemental)"]),
     },
 ]
