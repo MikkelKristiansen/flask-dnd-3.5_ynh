@@ -109,7 +109,12 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .skill-ranks{color:var(--muted);font-size:.8rem;}
 .skill-total{color:var(--accent);font-weight:bold;min-width:2.5rem;text-align:right;}
 .skill-row.untrained .skill-name{color:var(--muted);}
-.skill-row.unusable{opacity:.55;}
+.skill-row.unusable{opacity:.55;display:none;}
+.skills-section.show-unusable .skill-row.unusable{display:flex;}
+.skill-toggle{background:var(--card);border:1px solid var(--border);color:var(--muted);
+              font-family:Georgia,serif;font-size:.7rem;padding:.15rem .5rem;
+              border-radius:4px;cursor:pointer;white-space:nowrap;}
+.skill-toggle:hover{color:var(--text);}
 .skill-trained{color:var(--muted);font-size:.7rem;margin-left:.3rem;}
 .skill-na{color:var(--muted);font-style:italic;font-weight:normal;min-width:2.5rem;text-align:right;}
 
@@ -139,6 +144,15 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .spell-status{font-size:.8rem;padding:.15rem .5rem;border-radius:10px;}
 .spell-status.free{background:var(--green);color:#fff;}
 .spell-status.used{background:var(--muted);color:#fff;}
+.spell-subtabs{display:flex;gap:.4rem;margin-bottom:.8rem;}
+.spell-subtab{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);
+              font-family:Georgia,serif;font-size:.85rem;padding:.4rem .6rem;
+              border-radius:6px;cursor:pointer;transition:all .15s;}
+.spell-subtab:hover{color:var(--text);}
+.spell-subtab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.spell-view{display:none;}
+.spell-view.active{display:block;}
+.spell-prepared-badge{font-size:.7rem;color:var(--green);margin-left:.4rem;}
 
 /* Inventory */
 .inv-row{display:grid;grid-template-columns:1fr auto auto auto;gap:.5rem;
@@ -570,8 +584,15 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 <!-- ══════════════════════════════════════════════ -->
 <div id="tab-skills" class="tab-panel">
 
-  <div class="section">
-    <div class="section-title">Skills <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik navn for detaljer · klik total for at slå · ▲ = trænet kun)</span></div>
+  {% set hidden_count = skill_data|rejectattr('usable')|list|length %}
+  <div class="section skills-section" id="skills-section">
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem">
+      <span>Skills <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik navn for detaljer · klik total for at slå · ▲ = trænet kun)</span></span>
+      {% if hidden_count > 0 %}
+      <button class="skill-toggle" id="skill-toggle-btn" onclick="toggleUnusableSkills()"
+              title="Vis/skjul trænet-kun skills uden ranks">+ {{ hidden_count }} trænet-kun</button>
+      {% endif %}
+    </div>
     {% for item in skill_data %}
     {% set s = item.skill %}
     {% set defn = item.defn %}
@@ -613,6 +634,15 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 <!-- Tab 3: Trylleformler                          -->
 <!-- ══════════════════════════════════════════════ -->
 <div id="tab-spells" class="tab-panel">
+
+  {% if slots %}
+  <div class="spell-subtabs">
+    <button class="spell-subtab active" id="spellsubtab-prepared" onclick="showSpellView('prepared', this)">📖 Forberedte</button>
+    <button class="spell-subtab" id="spellsubtab-available" onclick="showSpellView('available', this)">📚 Alle tilgængelige</button>
+  </div>
+  {% endif %}
+
+  <div id="spellview-prepared" class="spell-view active">
 
   {% if spell_data %}
   <div class="section" id="prepared-section">
@@ -690,6 +720,36 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     {% endfor %}
   </div>
   {% endif %}
+
+  </div><!-- /spellview-prepared -->
+
+  <div id="spellview-available" class="spell-view">
+    <div class="section">
+      <div class="section-title">Tilgængelige druide-formler
+        <span style="color:var(--muted);font-size:.7rem;font-style:italic">(qua dit level · klik for detaljer)</span>
+      </div>
+      {% if slots %}
+      {% for lvl in slots|sort %}
+      {% set prepared_ids = char.spells_prepared.get(lvl, []) %}
+      {% set lvl_spells = available_spells.get(lvl, [])|sort(attribute='name') %}
+      <div class="spell-level-header">
+        <span>Level {{ lvl }}&nbsp;<span style="color:var(--muted);font-size:.75rem">{{ lvl_spells|length }} formler</span></span>
+      </div>
+      {% for spell in lvl_spells %}
+      <div class="spell-row" onclick="showDetail('spell','{{ spell.id }}')">
+        <span>
+          <span class="spell-name">{{ spell.name }}</span>
+          <span class="spell-school">&nbsp;·&nbsp;{{ spell.school }}</span>
+          {% if spell.id in prepared_ids %}<span class="spell-prepared-badge" title="Forberedt i dag">✓ forberedt</span>{% endif %}
+        </span>
+      </div>
+      {% endfor %}
+      {% endfor %}
+      {% else %}
+      <p style="color:var(--muted);font-style:italic">Denne karakter har ingen spell slots.</p>
+      {% endif %}
+    </div>
+  </div>
 
 </div>
 
@@ -947,6 +1007,21 @@ function showTab(name, btn) {
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.getElementById("tab-" + name).classList.add("active");
   btn.classList.add("active");
+}
+
+function showSpellView(name, btn) {
+  document.querySelectorAll(".spell-view").forEach(v => v.classList.remove("active"));
+  document.querySelectorAll(".spell-subtab").forEach(b => b.classList.remove("active"));
+  document.getElementById("spellview-" + name).classList.add("active");
+  btn.classList.add("active");
+}
+
+function toggleUnusableSkills() {
+  const sec = document.getElementById("skills-section");
+  const btn = document.getElementById("skill-toggle-btn");
+  const shown = sec.classList.toggle("show-unusable");
+  const n = sec.querySelectorAll(".skill-row.unusable").length;
+  btn.textContent = (shown ? "− " : "+ ") + n + " trænet-kun";
 }
 
 // ── HP ────────────────────────────────────────────────────────────────────
