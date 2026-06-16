@@ -5,3 +5,6 @@ venv/
 .venv/
 LæsMigMikkel.md
 CLAUDE.md
+
+# Klonet OGL-kildemateriale (srd-v3.5-md) — kun til lokal import, ikke en del af appen
+rules/

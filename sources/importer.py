@@ -2,6 +2,11 @@
 
 Run:  python importer.py
 Idempotent — safe to run multiple times (drops and recreates tables).
+
+Spell text er Open Game Content fra System Reference Document v3.5,
+gengivet under Open Game License v1.0a. Kilde: olimot/srd-v3.5-md.
+'d20 System' og 'Wizards of the Coast' er varemærker tilhørende Wizards
+of the Coast og bruges ikke under OGL. Se OGL afsnit 15 for fuld attribution.
 """
 import os
 import sqlite3
@@ -31,6 +36,8 @@ CREATE TABLE spells (
     duration TEXT,
     save TEXT,
     spell_resistance TEXT,
+    components TEXT,
+    target_label TEXT,
     description TEXT
 );
 
@@ -90,1444 +97,1207 @@ CREATE TABLE druid_levels (
 # ---------------------------------------------------------------------------
 
 SPELLS: list[dict] = [
-    # ── Level 0 (orisons) ─────────────────────────────────────────────────
     {
-        "id": "detect_magic",
-        "name": "Detect Magic",
-        "level_druid": 0, "level_cleric": None, "level_wizard": 0,
-        "school": "Divination",
-        "cast_time": "1 standard action",
-        "range": "60 ft",
-        "target": "Cone-shaped emanation",
-        "duration": "Concentration, up to 1 min./level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "You detect magical auras. The amount of information revealed "
-            "depends on how long you study a particular area or subject."
-        ),
+        "id": 'animal_growth',
+        "name": 'Animal Growth',
+        "level_druid": 5, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Medium (100 ft. + 10 ft./level)',
+        "target_label": 'Targets',
+        "target": 'Up to one animal (Gargantuan or smaller) per two levels, no two of which can be more than 30 ft. apart',
+        "duration": '1 min./level',
+        "save": 'Fortitude negates',
+        "spell_resistance": 'Yes',
+        "description": 'A number of animals grow to twice their normal size and eight times their normal weight. This alteration changes each animal’s size category to the next largest, grants it a +8 size bonus to Strength and a +4 size bonus to Constitution (and thus an extra 2 hit points per HD), and imposes a –2 size penalty to Dexterity. The creature’s existing natural armor bonus increases by 2. The size change also affects the animal’s modifier to AC and attack rolls and its base damage. The animal’s space and reach change as appropriate to the new size, but its speed does not change.\n\nThe spell also grants each subject damage reduction 10/magic and a +4 resistance bonus on saving throws. If insufficient room is available for the desired growth, the creature attains the maximum possible size and may make a Strength check (using its increased Strength) to burst any enclosures in the process. If it fails, it is constrained without harm by the materials enclosing it— the spell cannot be used to crush a creature by increasing its size.\n\nAll equipment worn or carried by an animal is similarly enlarged by the spell, though this change has no effect on the magical properties of any such equipment.\n\nAny enlarged item that leaves the enlarged creature’s possession instantly returns to its normal size.\n\nThe spell gives no means of command or influence over the enlarged animals.\n\nMultiple magical effects that increase size do not stack.',
     },
     {
-        "id": "guidance",
-        "name": "Guidance",
-        "level_druid": 0, "level_cleric": 0, "level_wizard": None,
-        "school": "Divination",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "1 minute or until discharged",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes",
-        "description": (
-            "This spell imbues the subject with a touch of divine guidance. "
-            "The creature gets a +1 competence bonus on a single attack roll, "
-            "saving throw, or skill check. It must choose to use the bonus "
-            "before making the roll to which it applies."
-        ),
+        "id": 'animal_messenger',
+        "name": 'Animal Messenger',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Enchantment (Compulsion) [Mind-Affecting]',
+        "components": 'V, S, M',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Target',
+        "target": 'One Tiny animal',
+        "duration": 'One day/level',
+        "save": 'None; see text',
+        "spell_resistance": 'Yes',
+        "description": 'You compel a Tiny animal to go to a spot you designate. The most common use for this spell is to get an animal to carry a message to your allies. The animal cannot be one tamed or trained by someone else, including such creatures as familiars and animal companions.\n\nUsing some type of food desirable to the animal as a lure, you call the animal to you. It advances and awaits your bidding. You can mentally impress on the animal a certain place well known to you or an obvious landmark. The directions must be simple, because the animal depends on your knowledge and can’t find a destination on its own. You can attach some small item or note to the messenger. The animal then goes to the designated location and waits there until the duration of the spell expires, whereupon it resumes its normal activities.\n\nDuring this period of waiting, the messenger allows others to approach it and remove any scroll or token it carries. The intended recipient gains no special ability to communicate with the animal or read any attached message (if it’s written in a language he or she doesn’t know, for example).\n\n_Material Component:_ A morsel of food the animal likes.',
     },
     {
-        "id": "light",
-        "name": "Light",
-        "level_druid": 0, "level_cleric": 0, "level_wizard": 0,
-        "school": "Evocation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Object touched",
-        "duration": "10 min./level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "This spell causes an object to glow like a torch, shedding bright "
-            "light in a 20-foot radius (and dim light for an additional 20 feet) "
-            "from the point you touch."
-        ),
+        "id": 'animal_trance',
+        "name": 'Animal Trance',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Enchantment (Compulsion) [Mind-Affecting, Sonic]',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Targets',
+        "target": 'Animals or magical beasts with Intelligence 1 or 2',
+        "duration": 'Concentration',
+        "save": 'Will negates; see text',
+        "spell_resistance": 'Yes',
+        "description": 'Your swaying motions and music (or singing, or chanting) compel animals and magical beasts to do nothing but watch you. Only a creature with an Intelligence score of 1 or 2 can be fascinated by this spell. Roll 2d6 to determine the total number of HD worth of creatures that you fascinate. The closest targets are selected first until no more targets within range can be affected.\n\nA magical beast, a dire animal, or an animal trained to attack or guard is allowed a saving throw; an animal not trained to attack or guard is not.',
     },
     {
-        "id": "purify_food_drink",
-        "name": "Purify Food and Drink",
-        "level_druid": 0, "level_cleric": 0, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "10 ft",
-        "target": "1 cu. ft./level of contaminated food and water",
-        "duration": "Instantaneous",
-        "save": "Will negates (object)",
-        "spell_resistance": "No",
-        "description": (
-            "This spell makes spoiled, rotten, diseased, poisonous, or otherwise "
-            "contaminated food and water pure and suitable for eating and drinking. "
-            "This spell does not prevent subsequent natural decay or spoilage."
-        ),
+        "id": 'awaken',
+        "name": 'Awaken',
+        "level_druid": 5, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF, XP',
+        "cast_time": '24 hours',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Animal or tree touched',
+        "duration": 'Instantaneous',
+        "save": 'Will negates',
+        "spell_resistance": 'Yes',
+        "description": 'You awaken a tree or animal to humanlike sentience. To succeed, you must make a Will save (DC 10 + the animal’s current HD, or the HD the tree will have once awakened).\n\nThe _awakened_ animal or tree is friendly toward you. You have no special empathy or connection with a creature you awaken, although it serves you in specific tasks or endeavors if you communicate your desires to it.\n\nAn _awakened_ tree has characteristics as if it were an animated object, except that it gains the plant type and its Intelligence, Wisdom, and Charisma scores are each 3d6. An _awakened_ plant gains the ability to move its limbs, roots, vines, creepers, and so forth, and it has senses similar to a human’s.\n\nAn _awakened_ animal gets 3d6 Intelligence, +1d3 Charisma, and +2 HD. Its type becomes magical beast (augmented animal). An awakened animal can’t serve as an animal companion, familiar, or special mount.\n\nAn _awakened_ tree or animal can speak one language that you know, plus one additional language that you know per point of Intelligence bonus (if any).\n\n_XP Cost:_ 250 XP.',
     },
     {
-        "id": "flare",
-        "name": "Flare",
-        "level_druid": 0, "level_cleric": None, "level_wizard": 0,
-        "school": "Evocation",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "One creature",
-        "duration": "Instantaneous",
-        "save": "Fortitude negates",
-        "spell_resistance": "Yes",
-        "description": (
-            "This cantrip creates a burst of light. If you cause the flash to "
-            "appear in front of a single creature, that creature must succeed on "
-            "a Fortitude saving throw or be dazzled for 1 minute."
-        ),
+        "id": 'barkskin',
+        "name": 'Barkskin',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Living creature touched',
+        "duration": '10 min./level',
+        "save": 'None',
+        "spell_resistance": 'Yes (harmless)',
+        "description": '_Barkskin_ toughens a creature’s skin. The effect grants a +2 enhancement bonus to the creature’s existing natural armor bonus. This enhancement bonus increases by 1 for every three caster levels above 3rd, to a maximum of +5 at caster level 12th.\n\nThe enhancement bonus provided by _barkskin_ stacks with the target’s natural armor bonus, but not with other enhancement bonuses to natural armor. A creature without natural armor has an effective natural armor bonus of +0.',
     },
     {
-        "id": "know_direction",
-        "name": "Know Direction",
-        "level_druid": 0, "level_cleric": None, "level_wizard": None,
-        "school": "Divination",
-        "cast_time": "1 standard action",
-        "range": "Personal",
-        "target": "You",
-        "duration": "Instantaneous",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "You instantly know the direction of north from your current position. "
-            "The spell is effective in any environment in which 'north' exists, "
-            "but it may not work in extraplanar settings."
-        ),
-    },
-    {
-        "id": "resistance",
-        "name": "Resistance",
-        "level_druid": 0, "level_cleric": 0, "level_wizard": 0,
-        "school": "Abjuration",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "1 minute",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes",
-        "description": (
-            "You imbue the subject with magical energy that protects it from harm, "
-            "granting it a +1 resistance bonus on saving throws."
-        ),
-    },
-    {
-        "id": "virtue",
-        "name": "Virtue",
-        "level_druid": 0, "level_cleric": 0, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "1 minute",
-        "save": "Fortitude negates (harmless)",
-        "spell_resistance": "Yes",
-        "description": (
-            "With a touch, you infuse a creature with a surge of strength. "
-            "The subject gains 1 temporary hit point."
-        ),
-    },
-    {
-        "id": "create_water",
-        "name": "Create Water",
-        "level_druid": 0, "level_cleric": 0, "level_wizard": None,
-        "school": "Conjuration (Creation)",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "Up to 2 gallons of water/level",
-        "duration": "Instantaneous",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "This spell generates wholesome, drinkable water, just like clean "
-            "rain water. Water can be created in an area as small as will contain "
-            "the liquid, or in an area three times as large (possibly creating "
-            "a downpour if created in the air)."
-        ),
-    },
-    {
-        "id": "cure_minor_wounds",
-        "name": "Cure Minor Wounds",
-        "level_druid": 0, "level_cleric": 0, "level_wizard": None,
-        "school": "Conjuration (Healing)",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "Instantaneous",
-        "save": "Will half (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "When laying your hand upon a living creature, you channel positive "
-            "energy that cures 1 point of damage."
-        ),
-    },
-    {
-        "id": "detect_poison",
-        "name": "Detect Poison",
-        "level_druid": 0, "level_cleric": 0, "level_wizard": None,
-        "school": "Divination",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "One creature, one object, or a 5-ft. cube",
-        "duration": "Instantaneous",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "You determine whether a creature, object, or area has been poisoned "
-            "or is poisonous. You can determine the exact type of poison with a "
-            "DC 20 Wisdom check. A character with the Craft (alchemy) skill may "
-            "try a DC 20 Craft (alchemy) check if the Wisdom check fails."
-        ),
-    },
-    {
-        "id": "mending",
-        "name": "Mending",
-        "level_druid": 0, "level_cleric": 0, "level_wizard": 0,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "10 ft",
-        "target": "One object of up to 1 lb.",
-        "duration": "Instantaneous",
-        "save": "Will negates (harmless, object)",
-        "spell_resistance": "Yes (harmless, object)",
-        "description": (
-            "Mending repairs small breaks or tears in objects. It will weld broken "
-            "metallic objects such as a ring, a chain link, or a medallion, leaving "
-            "only a thin scar. Ceramic or wooden objects with multiple breaks can be "
-            "invisibly rejoined. A hole in a leather sack or a wineskin is completely "
-            "healed over. This spell doesn't restore magic to a damaged magic item."
-        ),
-    },
-    {
-        "id": "read_magic",
-        "name": "Read Magic",
-        "level_druid": 0, "level_cleric": 0, "level_wizard": 0,
-        "school": "Divination",
-        "cast_time": "1 standard action",
-        "range": "Personal",
-        "target": "You",
-        "duration": "10 min./level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "By means of read magic, you can decipher magical inscriptions on "
-            "objects — books, scrolls, weapons, and the like — that would otherwise "
-            "be unintelligible. Once the spell is cast and you have read the magical "
-            "inscription, you are thereafter able to read that particular writing "
-            "without recourse to read magic. You can read at the rate of one page "
-            "(250 words) per minute."
-        ),
-    },
-    # ── Wizard/Sorcerer cantrips (also gnome SLAs) ───────────────────────────
-    {
-        "id": "dancing_lights",
-        "name": "Dancing Lights",
-        "level_druid": None, "level_cleric": None, "level_wizard": 0,
-        "school": "Evocation",
-        "cast_time": "1 standard action",
-        "range": "Medium (100 ft + 10 ft/level)",
-        "target": "Up to four lights, within a 10-ft.-radius area",
-        "duration": "1 minute (D)",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "You create up to four lights that resemble lanterns or torches, "
-            "or up to four glowing spheres of light, or one faintly glowing "
-            "humanoid shape. The lights must stay within a 10-foot-radius area "
-            "relative to each other but otherwise move as you desire, up to "
-            "100 feet per round. A light winks out if it exceeds the spell's range."
-        ),
-    },
-    {
-        "id": "ghost_sound",
-        "name": "Ghost Sound",
-        "level_druid": None, "level_cleric": None, "level_wizard": 0,
-        "school": "Illusion (Figment)",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "Illusory sounds",
-        "duration": "1 round/level (D)",
-        "save": "Will disbelief (if interacted with)",
-        "spell_resistance": "No",
-        "description": (
-            "Ghost sound allows you to create a volume of sound that rises, "
-            "recedes, approaches, or remains at a fixed place. You choose what "
-            "type of sound when casting. Volume equals up to four humans per "
-            "caster level (max 20). Virtually any type of sound can be produced "
-            "within the volume limit."
-        ),
-    },
-    {
-        "id": "prestidigitation",
-        "name": "Prestidigitation",
-        "level_druid": None, "level_cleric": None, "level_wizard": 0,
-        "school": "Universal",
-        "cast_time": "1 standard action",
-        "range": "10 ft",
-        "target": "See text",
-        "duration": "1 hour",
-        "save": "See text",
-        "spell_resistance": "No",
-        "description": (
-            "Minor tricks for practice. For 1 hour you can: slowly lift 1 lb. "
-            "of material; color, clean, or soil items in a 1-ft. cube each round; "
-            "chill, warm, or flavor 1 lb. of nonliving material. Cannot deal "
-            "damage or affect spellcaster concentration. Created objects look "
-            "crude and are extremely fragile — cannot be used as tools, weapons, "
-            "or spell components."
-        ),
-    },
-    # ── Level 1 ────────────────────────────────────────────────────────────
-    {
-        "id": "entangle",
-        "name": "Entangle",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Long (400 ft + 40 ft/level)",
-        "target": "Plants in a 40-ft.-radius spread",
-        "duration": "1 min./level",
-        "save": "Reflex partial",
-        "spell_resistance": "No",
-        "description": (
-            "Grasses, weeds, bushes, and even trees wrap, twist, and entwine about "
-            "creatures in the area of effect, holding them fast. Any creature in the "
-            "area when the spell is cast must make a Reflex saving throw. Those who "
-            "fail are entangled. A creature that enters the spell's area of effect "
-            "must also make a Reflex saving throw."
-        ),
-    },
-    {
-        "id": "faerie_fire",
-        "name": "Faerie Fire",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Evocation",
-        "cast_time": "1 standard action",
-        "range": "Long (400 ft + 40 ft/level)",
-        "target": "Creatures and objects within a 5-ft.-radius burst",
-        "duration": "1 min./level",
-        "save": "None",
-        "spell_resistance": "Yes",
-        "description": (
-            "A pale glow surrounds and outlines the subjects. Outlined subjects "
-            "shed light as candles. Outlined creatures do not benefit from the "
-            "concealment normally provided by darkness, blur, displacement, "
-            "or invisibility."
-        ),
-    },
-    {
-        "id": "speak_with_animals",
-        "name": "Speak with Animals",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Divination",
-        "cast_time": "1 standard action",
-        "range": "Personal",
-        "target": "You",
-        "duration": "1 min./level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "You can comprehend and communicate with animals. You are able to ask "
-            "questions of and receive answers from animals, although the spell "
-            "doesn't make them more friendly or cooperative than normal."
-        ),
-    },
-    {
-        "id": "cure_light_wounds",
-        "name": "Cure Light Wounds",
-        "level_druid": 1, "level_cleric": 1, "level_wizard": None,
-        "school": "Conjuration (Healing)",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "Instantaneous",
-        "save": "Will half (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "When laying your hand upon a living creature, you channel positive "
-            "energy that cures 1d8 points of damage +1 point per caster level "
-            "(maximum +5)."
-        ),
-    },
-    {
-        "id": "goodberry",
-        "name": "Goodberry",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "2d4 fresh berries touched",
-        "duration": "One day/level",
-        "save": "None",
-        "spell_resistance": "Yes",
-        "description": (
-            "Casting goodberry upon a handful of freshly picked berries makes 2d4 "
-            "of them magical. Each magical berry provides nourishment as if it were "
-            "a normal meal. A harmed creature that eats a goodberry recovers 1 hit "
-            "point (no more than 8 hit points per 24 hours)."
-        ),
-    },
-    {
-        "id": "longstrider",
-        "name": "Longstrider",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Personal",
-        "target": "You",
-        "duration": "1 hour/level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "This spell increases your base land speed by 10 feet. "
-            "It has no effect on other modes of movement."
-        ),
-    },
-    {
-        "id": "magic_fang",
-        "name": "Magic Fang",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Living creature touched",
-        "duration": "1 min./level",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "Magic fang gives one natural weapon of the subject a +1 enhancement "
-            "bonus on attack and damage rolls. The spell can affect a slam attack, "
-            "fist, bite, or other natural weapon."
-        ),
-    },
-    {
-        "id": "obscuring_mist",
-        "name": "Obscuring Mist",
-        "level_druid": 1, "level_cleric": 1, "level_wizard": 1,
-        "school": "Conjuration (Creation)",
-        "cast_time": "1 standard action",
-        "range": "20 ft",
-        "target": "Cloud spreads in 20-ft. radius from you",
-        "duration": "1 min./level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "A misty vapor arises around you. The vapor obscures all sight, "
-            "including darkvision, beyond 5 feet. A creature 5 feet away has "
-            "concealment (20% miss chance). Creatures farther away have total "
-            "concealment (50% miss chance)."
-        ),
-    },
-    {
-        "id": "produce_flame",
-        "name": "Produce Flame",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Evocation",
-        "cast_time": "1 standard action",
-        "range": "0 ft",
-        "target": "Flame in your palm",
-        "duration": "1 min./level",
-        "save": "None",
-        "spell_resistance": "Yes",
-        "description": (
-            "Flames as bright as a torch appear in your open hand. In addition to "
-            "providing illumination, the flames can be hurled or used to touch "
-            "enemies. A strike with a melee touch attack deals 1d6 + 1/level "
-            "(max +5) points of fire damage."
-        ),
-    },
-    {
-        "id": "summon_natures_ally_i",
-        "name": "Summon Nature's Ally I",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Conjuration (Summoning)",
-        "cast_time": "1 round",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "One summoned creature",
-        "duration": "1 round/level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "This spell summons a nature creature to fight on your behalf. "
-            "It appears where you designate and acts immediately, on your turn. "
-            "It attacks your opponents to the best of its ability."
-        ),
-    },
-    {
-        "id": "calm_animals",
-        "name": "Calm Animals",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Enchantment (Compulsion)",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "Animals within 30 ft of each other",
-        "duration": "1 min./level",
-        "save": "Will negates",
-        "spell_resistance": "Yes",
-        "description": (
-            "This spell soothes and quiets animals, rendering them docile and "
-            "harmless. The total Hit Dice of animals you can affect is 2d4 + your "
-            "caster level. Only animals (creatures with the animal type) can be "
-            "affected. If the spell is successful, the animals cease hostile action "
-            "and become docile for the duration."
-        ),
-    },
-    {
-        "id": "charm_animal",
-        "name": "Charm Animal",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Enchantment (Charm)",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "One animal",
-        "duration": "1 hour/level",
-        "save": "Will negates",
-        "spell_resistance": "Yes",
-        "description": (
-            "This spell makes an animal regard you as its trusted friend and ally. "
-            "If the creature is currently being threatened or attacked by you or your "
-            "allies, it receives a +5 bonus on its saving throw. The spell does not "
-            "enable you to control the charmed animal as if it were an automaton; "
-            "it perceives your words and actions in the most favorable way."
-        ),
-    },
-    {
-        "id": "detect_animals_plants",
-        "name": "Detect Animals or Plants",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Divination",
-        "cast_time": "1 standard action",
-        "range": "Long (400 ft + 40 ft/level)",
-        "target": "Cone-shaped emanation",
-        "duration": "Concentration, up to 10 min./level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "You can detect a particular kind of animal or plant in a cone emanating "
-            "out from you. You must think of a specific kind of animal or plant when "
-            "using the spell. The amount of information revealed depends on how long "
-            "you study a particular area: 1st round, presence or absence; 2nd round, "
-            "number and location of the strongest aura; 3rd round, exact number and "
-            "locations of all such creatures."
-        ),
-    },
-    {
-        "id": "detect_snares_pits",
-        "name": "Detect Snares and Pits",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Divination",
-        "cast_time": "1 standard action",
-        "range": "60 ft",
-        "target": "Cone-shaped emanation",
-        "duration": "Concentration, up to 10 min./level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "You can detect simple pits, deadfalls, and snares as well as magical "
-            "traps constructed to harm those who enter an area. The spell does not "
-            "detect complex mechanical traps. It detects traps set to harm those in "
-            "the area of the spell. Rangers and druids can identify the type and "
-            "location of each trap on a successful Wilderness Lore or Survival check."
-        ),
-    },
-    {
-        "id": "endure_elements",
-        "name": "Endure Elements",
-        "level_druid": 1, "level_cleric": 1, "level_wizard": 1,
-        "school": "Abjuration",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "24 hours",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "A creature protected by endure elements suffers no harm from being in a "
-            "hot or cold environment. It can exist comfortably in conditions between "
-            "–50 and 140 degrees Fahrenheit without taking nonlethal damage. "
-            "The spell doesn't protect against fire or cold damage, only environmental "
-            "extremes."
-        ),
-    },
-    {
-        "id": "hide_from_animals",
-        "name": "Hide from Animals",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Abjuration",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "One creature/level touched",
-        "duration": "10 min./level",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes",
-        "description": (
-            "Animals cannot sense the warded creatures. Even extraordinary or "
-            "supernatural sensory capabilities such as blindsense, scent, and "
-            "tremorsense cannot detect or locate warded creatures. If a warded "
-            "creature touches an animal or attacks any creature, the spell ends "
-            "for that character."
-        ),
-    },
-    {
-        "id": "jump",
-        "name": "Jump",
-        "level_druid": 1, "level_cleric": None, "level_wizard": 1,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "1 min./level",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "The subject gets a bonus on Jump checks. The bonus is +10 (caster level "
-            "1–4), +20 (5th–9th), or +30 (10th+). The spell does not affect whether "
-            "the subject makes a running jump or a standing jump."
-        ),
-    },
-    {
-        "id": "magic_stone",
-        "name": "Magic Stone",
-        "level_druid": 1, "level_cleric": 1, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Up to three pebbles touched",
-        "duration": "30 minutes or until discharged",
-        "save": "Will negates (harmless, object)",
-        "spell_resistance": "Yes (harmless, object)",
-        "description": (
-            "You transmute as many as three pebbles, which can be hurled or slung at "
-            "opponents. If hurled, they have a range increment of 20 feet. Each stone "
-            "that hits deals 1d6+1 points of bludgeoning damage. Against undead "
-            "creatures this damage is doubled."
-        ),
-    },
-    {
-        "id": "pass_without_trace",
-        "name": "Pass without Trace",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "One creature/level touched",
-        "duration": "1 hour/level",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "The subject or subjects can move through any type of terrain and leave "
-            "neither footprints nor scent. Tracking the subjects is impossible by "
-            "nonmagical means."
-        ),
-    },
-    {
-        "id": "shillelagh",
-        "name": "Shillelagh",
-        "level_druid": 1, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "One touched club or quarterstaff",
-        "duration": "1 min./level",
-        "save": "Will negates (object)",
-        "spell_resistance": "Yes (object)",
-        "description": (
-            "Your own nonmagical club or quarterstaff becomes a +1 weapon and deals "
-            "damage as if it were two size categories larger (a Medium club deals 2d6; "
-            "a Medium quarterstaff deals 2d6/2d6). Only you can wield the weapon "
-            "effectively for the duration of the spell."
-        ),
-    },
-    # ── Level 2 ────────────────────────────────────────────────────────────
-    {
-        "id": "barkskin",
-        "name": "Barkskin",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Living creature touched",
-        "duration": "10 min./level",
-        "save": "None",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "Barkskin toughens a creature's skin. The effect grants a +2 enhancement "
-            "bonus to the creature's existing natural armor bonus. This enhancement "
-            "bonus increases by 1 for every three caster levels above 3rd, "
-            "to a maximum of +5 at 12th level."
-        ),
-    },
-    {
-        "id": "summon_natures_ally_ii",
-        "name": "Summon Nature's Ally II",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Conjuration (Summoning)",
-        "cast_time": "1 round",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "One summoned creature",
-        "duration": "1 round/level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "This spell summons a more powerful nature creature to fight on your "
-            "behalf. It appears where you designate and acts immediately, on your "
-            "turn. The creature remains for 1 round per caster level."
-        ),
-    },
-    {
-        "id": "bear_endurance",
+        "id": 'bear_endurance',
         "name": "Bear's Endurance",
-        "level_druid": 2, "level_cleric": 2, "level_wizard": 2,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "1 min./level",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "The affected creature gains greater vitality and stamina. The spell "
-            "grants the subject a +4 enhancement bonus to Constitution, which adds "
-            "the usual benefits to hit points, Fortitude saving throws, and so on."
-        ),
+        "level_druid": 2, "level_cleric": 2, "level_wizard": 2, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 min./level',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes',
+        "description": 'The affected creature gains greater vitality and stamina. The spell grants the subject a +4 enhancement bonus to Constitution, which adds the usual benefits to hit points, Fortitude saves, Constitution checks, and so forth.\n\nHit points gained by a temporary increase in Constitution score are not temporary hit points. They go away when the subject’s Constitution drops back to normal. They are not lost first as temporary hit points are.',
     },
     {
-        "id": "bull_strength",
+        "id": 'bull_strength',
         "name": "Bull's Strength",
-        "level_druid": 2, "level_cleric": 2, "level_wizard": 2,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "1 min./level",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "The subject becomes stronger. The spell grants a +4 enhancement bonus "
-            "to Strength, adding the usual benefits to melee attack rolls, melee "
-            "damage rolls, and other uses of the Strength modifier."
-        ),
+        "level_druid": 2, "level_cleric": 2, "level_wizard": 2, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 min./level',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'The subject becomes stronger. The spell grants a +4 enhancement bonus to Strength, adding the usual benefits to melee attack rolls, melee damage rolls, and other uses of the Strength modifier.\n\n_Arcane Material Component:_ A few hairs, or a pinch of dung, from a bull.',
     },
     {
-        "id": "cat_grace",
+        "id": 'call_lightning',
+        "name": 'Call Lightning',
+        "level_druid": 3, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Electricity]',
+        "components": 'V, S',
+        "cast_time": '1 round',
+        "range": 'Medium (100 ft. + 10 ft./level)',
+        "target_label": 'Effect',
+        "target": 'One or more 30-ft.-long vertical lines of lightning',
+        "duration": '1 min./level',
+        "save": 'Reflex half',
+        "spell_resistance": 'Yes',
+        "description": 'Immediately upon completion of the spell, and once per round thereafter, you may call down a 5-foot-wide, 30-foot-long, vertical bolt of lightning that deals 3d6 points of electricity damage. The bolt of lightning flashes down in a vertical stroke at whatever target point you choose within the spell’s range (measured from your position at the time). Any creature in the target square or in the path of the bolt is affected.\n\nYou need not call a bolt of lightning immediately; other actions, even spellcasting, can be performed. However, each round after the first you may use a standard action (concentrating on the spell) to call a bolt. You may call a total number of bolts equal to your caster level (maximum 10 bolts).\n\nIf you are outdoors and in a stormy area—a rain shower, clouds and wind, hot and cloudy conditions, or even a tornado (including a whirlwind formed by a djinni or an air elemental of at least Large size)—each bolt deals 3d10 points of electricity damage instead of 3d6.\n\nThis spell functions indoors or underground but not underwater.',
+    },
+    {
+        "id": 'calm_animals',
+        "name": 'Calm Animals',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Enchantment (Compulsion) [Mind-Affecting]',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Targets',
+        "target": 'Animals within 30 ft. of each other',
+        "duration": '1 min./level',
+        "save": 'Will negates; see text',
+        "spell_resistance": 'Yes',
+        "description": 'This spell soothes and quiets animals, rendering them docile and harmless. Only ordinary animals (those with Intelligence scores of 1 or 2) can be affected by this spell. All the subjects must be of the same kind, and no two may be more than 30 feet apart. The maximum number of Hit Dice of animals you can affect is equal to 2d4 + caster level. A dire animal or an animal trained to attack or guard is allowed a saving throw; other animals are not.\n\nThe affected creatures remain where they are and do not attack or flee. They are not helpless and defend themselves normally if attacked. Any threat breaks the spell on the threatened creatures.',
+    },
+    {
+        "id": 'cat_grace',
         "name": "Cat's Grace",
-        "level_druid": 2, "level_cleric": None, "level_wizard": 2,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "1 min./level",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "The transmuted creature becomes more graceful, agile, and coordinated. "
-            "The spell grants a +4 enhancement bonus to Dexterity, adding the usual "
-            "benefits to AC, Reflex saving throws, and other uses of the DEX modifier."
-        ),
+        "level_druid": 2, "level_cleric": None, "level_wizard": 2, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, M',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 min./level',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes',
+        "description": 'The transmuted creature becomes more graceful, agile, and coordinated. The spell grants a +4 enhancement bonus to Dexterity, adding the usual benefits to AC, Reflex saves, and other uses of the Dexterity modifier.\n\n_Material Component:_ A pinch of cat fur.',
     },
     {
-        "id": "flame_blade",
-        "name": "Flame Blade",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Evocation",
-        "cast_time": "1 standard action",
-        "range": "0 ft",
-        "target": "Sword-like beam",
-        "duration": "1 min./level",
-        "save": "None",
-        "spell_resistance": "Yes",
-        "description": (
-            "A 3-foot-long, blazing beam of red-hot fire springs forth from your "
-            "hand. Attacks with the flame blade are melee touch attacks. "
-            "The blade deals 1d8 fire damage +1 per two caster levels (max +10)."
-        ),
+        "id": 'charm_animal',
+        "name": 'Charm Animal',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Enchantment (Charm) [Mind-Affecting]',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Target',
+        "target": 'One animal',
+        "duration": '1 hour/level',
+        "save": 'Will negates',
+        "spell_resistance": 'Yes',
+        "description": 'This spell functions like _charm person_, except that it affects a creature of the animal type.',
     },
     {
-        "id": "heat_metal",
-        "name": "Heat Metal",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "Metal equipment of one creature per two levels",
-        "duration": "7 rounds",
-        "save": "Will negates (object)",
-        "spell_resistance": "Yes (object)",
-        "description": (
-            "Heat metal makes metal extremely warm. Unattended, nonmagical metal "
-            "gets no saving throw. An item in a creature's possession uses the "
-            "creature's saving throw bonus unless its own bonus is higher."
-        ),
+        "id": 'chill_metal',
+        "name": 'Chill Metal',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation [Cold]',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Target',
+        "target": 'Metal equipment of one creature per two levels, no two of which can be more than 30 ft. apart; or 25 lb. of metal/level, none of which can be more than 30 ft. away from any of the rest',
+        "duration": '7 rounds',
+        "save": 'Will negates (object)',
+        "spell_resistance": 'Yes (object)',
+        "description": '_Chill metal_ makes metal extremely cold. Unattended, nonmagical metal gets no saving throw. Magical metal is allowed a saving throw against the spell. An item in a creature’s possession uses the creature’s saving throw bonus unless its own is higher.\n\nA creature takes cold damage if its equipment is chilled. It takes full damage if its armor is affected or if it is holding, touching, wearing, or carrying metal weighing one-fifth of its weight. The creature takes minimum damage (1 point or 2 points; see the table) if it’s not wearing metal armor and the metal that it’s carrying weighs less than one-fifth of its weight.\n\nOn the first round of the spell, the metal becomes chilly and uncomfortable to touch but deals no damage. The same effect also occurs on the last round of the spell’s duration. During the second (and also the next-to-last) round, icy coldness causes pain and damage. In the third, fourth, and fifth rounds, the metal is freezing cold, causing more damage, as shown on the table below.\n\n<table data-debug="no-caption" class="half-width-table"><tbody><tr><th>Round</th><th>Metal Temperature</th><th>Damage</th></tr><tr><td>1</td><td>Cold</td><td>None</td></tr><tr><td>2</td><td>Icy</td><td>1d4 points</td></tr><tr><td>3–5</td><td>Freezing</td><td>2d4 points</td></tr><tr><td>6</td><td>Icy</td><td>1d4 points</td></tr><tr><td>7</td><td>Cold</td><td>None</td></tr></tbody></table>\n\nAny heat intense enough to damage the creature negates cold damage from the spell (and vice versa) on a point-for-point basis. Underwater, _chill metal_ deals no damage, but ice immediately forms around the affected metal, making it more buoyant.\n\n_Chill metal_ counters and dispels _heat metal_.',
     },
     {
-        "id": "hold_animal",
-        "name": "Hold Animal",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Enchantment (Compulsion)",
-        "cast_time": "1 standard action",
-        "range": "Medium (100 ft + 10 ft/level)",
-        "target": "One animal",
-        "duration": "1 round/level",
-        "save": "Will negates",
-        "spell_resistance": "Yes",
-        "description": (
-            "The subject becomes paralyzed and freezes in place. It is aware and "
-            "breathes normally but cannot take any actions, even speech. "
-            "A winged creature who is held cannot flap its wings and falls."
-        ),
+        "id": 'commune_nature',
+        "name": 'Commune with Nature',
+        "level_druid": 5, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '10 minutes',
+        "range": 'Personal',
+        "target_label": 'Target',
+        "target": 'You',
+        "duration": 'Instantaneous',
+        "save": None,
+        "spell_resistance": None,
+        "description": 'You become one with nature, attaining knowledge of the surrounding territory. You instantly gain knowledge of as many as three facts from among the following subjects: the ground or terrain, plants, minerals, bodies of water, people, general animal population, presence of woodland creatures, presence of powerful unnatural creatures, or even the general state of the natural setting.\n\nIn outdoor settings, the spell operates in a radius of 1 mile per caster level. In natural underground settings—caves, caverns, and the like—the radius is limited to 100 feet per caster level. The spell does not function where nature has been replaced by construction or settlement, such as in dungeons and towns.',
     },
     {
-        "id": "owl_wisdom",
+        "id": 'create_water',
+        "name": 'Create Water',
+        "level_druid": 0, "level_cleric": 0, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Creation) [Water]',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Effect',
+        "target": 'Up to 2 gallons of water/level',
+        "duration": 'Instantaneous',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'This spell generates wholesome, drinkable water, just like clean rain water. Water can be created in an area as small as will actually contain the liquid, or in an area three times as large—possibly creating a downpour or filling many small receptacles.\n\n_Note:_ Conjuration spells can’t create substances or objects within a creature. Water weighs about 8 pounds per gallon. One cubic foot of water contains roughly 8 gallons and weighs about 60 pounds.',
+    },
+    {
+        "id": 'cure_critical_wounds',
+        "name": 'Cure Critical Wounds',
+        "level_druid": 5, "level_cleric": 4, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Healing)',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": 'Instantaneous',
+        "save": 'Will half (harmless); see text',
+        "spell_resistance": 'Yes (harmless); see text',
+        "description": 'This spell functions like _cure light wounds_, except that it cures 4d8 points of damage +1 point per caster level (maximum +20).',
+    },
+    {
+        "id": 'cure_light_wounds',
+        "name": 'Cure Light Wounds',
+        "level_druid": 1, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Healing)',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": 'Instantaneous',
+        "save": 'Will half (harmless); see text',
+        "spell_resistance": 'Yes (harmless); see text',
+        "description": 'When laying your hand upon a living creature, you channel positive energy that cures 1d8 points of damage +1 point per caster level (maximum +5).\n\nSince undead are powered by negative energy, this spell deals damage to them instead of curing their wounds. An undead creature can apply spell resistance, and can attempt a Will save to take half damage.',
+    },
+    {
+        "id": 'cure_minor_wounds',
+        "name": 'Cure Minor Wounds',
+        "level_druid": 0, "level_cleric": 0, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Healing)',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": 'Instantaneous',
+        "save": 'Will half (harmless); see text',
+        "spell_resistance": 'Yes (harmless); see text',
+        "description": 'This spell functions like _cure light wounds_, except that it cures only 1 point of damage.',
+    },
+    {
+        "id": 'cure_moderate_wounds',
+        "name": 'Cure Moderate Wounds',
+        "level_druid": 3, "level_cleric": 2, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Healing)',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": 'Instantaneous',
+        "save": 'Will half (harmless); see text',
+        "spell_resistance": 'Yes (harmless); see text',
+        "description": 'This spell functions like _cure light wounds_, except that it cures 2d8 points of damage +1 point per caster level (maximum +10).',
+    },
+    {
+        "id": 'dancing_lights',
+        "name": 'Dancing Lights',
+        "level_druid": None, "level_cleric": None, "level_wizard": 0, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Light]',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Medium (100 ft. + 10 ft./level)',
+        "target_label": 'Effect',
+        "target": 'Up to four lights, all within a 10- ft.-radius area',
+        "duration": '1 minute (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'Depending on the version selected, you create up to four lights that resemble lanterns or torches (and cast that amount of light), or up to four glowing spheres of light (which look like will-o’-wisps), or one faintly glowing, vaguely humanoid shape. The _dancing lights_ must stay within a 10-foot-radius area in relation to each other but otherwise move as you desire (no concentration required): forward or back, up or down, straight or turning corners, or the like. The lights can move up to 100 feet per round. A light winks out if the distance between you and it exceeds the spell’s range.\n\n_Dancing lights_ can be made permanent with a _permanency_ spell.',
+    },
+    {
+        "id": 'delay_poison',
+        "name": 'Delay Poison',
+        "level_druid": 2, "level_cleric": 2, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Healing)',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 hour/level',
+        "save": 'Fortitude negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'The subject becomes temporarily immune to poison. Any poison in its system or any poison to which it is exposed during the spell’s duration does not affect the subject until the spell’s duration has expired. _Delay poison_ does not cure any damage that poison may have already done.',
+    },
+    {
+        "id": 'detect_animals_plants',
+        "name": 'Detect Animals or Plants',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Long (400 ft. + 40 ft./level)',
+        "target_label": 'Area',
+        "target": 'Cone-shaped emanation',
+        "duration": 'Concentration, up to 10 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'You can detect a particular kind of animal or plant in a cone emanating out from you in whatever direction you face. You must think of a kind of animal or plant when using the spell, but you can change the animal or plant kind each round. The amount of information revealed depends on how long you search a particular area or focus on a specific kind of animal or plant.\n\n_1st Round:_ Presence or absence of that kind of animal or plant in the area.\n\n_2nd Round:_ Number of individuals of the specified kind in the area, and the condition of the healthiest specimen.\n\n_3rd Round:_ The condition (see below) and location of each individual present. If an animal or plant is outside your line of sight, then you discern its direction but not its exact location.\n\n_Conditions:_ For purposes of this spell, the categories of condition are as follows:\n\nNormal: Has at least 90% of full normal hit points, free of disease.\n\nFair: 30% to 90% of full normal hit points remaining.\n\nPoor: Less than 30% of full normal hit points remaining, afflicted with a disease, or suffering from a debilitating injury.\n\nWeak: 0 or fewer hit points remaining, afflicted with a disease in the terminal stage, or crippled.\n\nIf a creature falls into more than one category, the spell indicates the weaker of the two.\n\nEach round you can turn to detect a kind of animal or plant in a new area. The spell can penetrate barriers, but 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt blocks it.',
+    },
+    {
+        "id": 'detect_magic',
+        "name": 'Detect Magic',
+        "level_druid": 0, "level_cleric": None, "level_wizard": 0, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '60 ft.',
+        "target_label": 'Area',
+        "target": 'Cone-shaped emanation',
+        "duration": 'Concentration, up to 1 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'You detect magical auras. The amount of information revealed depends on how long you study a particular area or subject.\n\n_1st Round:_ Presence or absence of magical auras.\n\n_2nd Round:_ Number of different magical auras and the power of the most potent aura.\n\n_3rd Round:_ The strength and location of each aura. If the items or creatures bearing the auras are in line of sight, you can make Spellcraft skill checks to determine the school of magic involved in each. (Make one check per aura; DC 15 + spell level, or 15 + half caster level for a nonspell effect.)\n\nMagical areas, multiple types of magic, or strong local magical emanations may distort or conceal weaker auras.\n\n_Aura Strength:_ An aura’s power depends on a spell’s functioning spell level or an item’s caster level. If an aura falls into more than one category, _detect magic_ indicates the stronger of the two.\n\n<table data-debug="no-caption" class="half-width-table"><tbody><tr><td></td><th colspan="4" class="middle-line">Aura Power</th></tr><tr><th>Spell or Object</th><th>Faint</th><th>Moderate</th><th>Strong</th><th>Overwhelming</th></tr><tr><td>Functioning spell (spell level)</td><td>3rd or lower</td><td>4th–6th</td><td>7th–9th</td><td>10th+ (deity-level)</td></tr><tr><td>Magic item (caster level)</td><td>5th or lower</td><td>6th–11th</td><td>12th–20th</td><td>21st+ (artifact)</td></tr></tbody></table>\n\n_Lingering Aura:_ A magical aura lingers after its original source dissipates (in the case of a spell) or is destroyed (in the case of a magic item). If _detect magic_ is cast and directed at such a location, the spell indicates an aura strength of dim (even weaker than a faint aura). How long the aura lingers at this dim level depends on its original power:\n\n<table data-debug="no-caption" class="half-width-table"><tbody><tr><th>Original Strength</th><th>Duration of Lingering Aura</th></tr><tr><td>Faint</td><td>1d6 rounds</td></tr><tr><td>Moderate</td><td>1d6 minutes</td></tr><tr><td>Strong</td><td>1d6x10 minutes</td></tr><tr><td>Overwhelming</td><td>1d6 days</td></tr></tbody></table>\n\nOutsiders and elementals are not magical in themselves, but if they are summoned, the conjuration spell registers.\n\nEach round, you can turn to detect magic in a new area. The spell can penetrate barriers, but 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt blocks it.\n\n_Detect magic_ can be made permanent with a _permanency_ spell.',
+    },
+    {
+        "id": 'detect_poison',
+        "name": 'Detect Poison',
+        "level_druid": 0, "level_cleric": 0, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": None,
+        "target": None,
+        "duration": 'Instantaneous',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'You determine whether a creature, object, or area has been poisoned or is poisonous. You can determine the exact type of poison with a DC 20 Wisdom check. A character with the Craft (alchemy) skill may try a DC 20 Craft (alchemy) check if the Wisdom check fails, or may try the Craft (alchemy) check prior to the Wisdom check.\n\nThe spell can penetrate barriers, but 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt blocks it.',
+    },
+    {
+        "id": 'detect_snares_pits',
+        "name": 'Detect Snares and Pits',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '60 ft.',
+        "target_label": 'Area',
+        "target": 'Cone-shaped emanation',
+        "duration": 'Concentration, up to 10 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'You can detect simple pits, deadfalls, and snares as well as mechanical traps constructed of natural materials. The spell does not detect complex traps, including trapdoor traps.\n\n_Detect snares and pits_ does detect certain natural hazards—quicksand (a snare), a sinkhole (a pit), or unsafe walls of natural rock (a deadfall). However, it does not reveal other potentially dangerous conditions. The spell does not detect magic traps (except those that operate by pit, deadfall, or snaring; see the spell _snare_), nor mechanically complex ones, nor those that have been rendered safe or inactive.\n\nThe amount of information revealed depends on how long you study a particular area.\n\n_1st Round:_ Presence or absence of hazards.\n\n_2nd Round:_ Number of hazards and the location of each. If a hazard is outside your line of sight, then you discern its direction but not its exact location.\n\n_Each Additional Round:_ The general type and trigger for one particular hazard closely examined by you.\n\nEach round, you can turn to detect snares and pits in a new area. The spell can penetrate barriers, but 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt blocks it.',
+    },
+    {
+        "id": 'endure_elements',
+        "name": 'Endure Elements',
+        "level_druid": 1, "level_cleric": 1, "level_wizard": 1, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '24 hours',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'A creature protected by _endure elements_ suffers no harm from being in a hot or cold environment. It can exist comfortably in conditions between –50 and 140 degrees Fahrenheit without having to make Fortitude saves). The creature’s equipment is likewise protected.\n\n_Endure elements_ doesn’t provide any protection from fire or cold damage, nor does it protect against other environmental hazards such as smoke, lack of air, and so forth.',
+    },
+    {
+        "id": 'entangle',
+        "name": 'Entangle',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Long (400 ft. + 40 ft./level)',
+        "target_label": 'Area',
+        "target": 'Plants in a 40-ft.-radius spread',
+        "duration": '1 min./level (D)',
+        "save": 'Reflex partial; see text',
+        "spell_resistance": 'No',
+        "description": 'Grasses, weeds, bushes, and even trees wrap, twist, and entwine about creatures in the area or those that enter the area, holding them fast and causing them to become entangled. The creature can break free and move half its normal speed by using a full-round action to make a DC 20 Strength check or a DC 20 Escape Artist check. A creature that succeeds on a Reflex save is not entangled but can still move at only half speed through the area. Each round on your turn, the plants once again attempt to entangle all creatures that have avoided or escaped entanglement.\n\n_Note:_ The effects of the spell may be altered somewhat, based on the nature of the entangling plants.',
+    },
+    {
+        "id": 'faerie_fire',
+        "name": 'Faerie Fire',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Light]',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Long (400 ft. + 40 ft./level)',
+        "target_label": 'Area',
+        "target": 'Creatures and objects within a 5-ft.-radius burst',
+        "duration": '1 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'Yes',
+        "description": 'A pale glow surrounds and outlines the subjects. Outlined subjects shed light as candles. Outlined creatures do not benefit from the concealment normally provided by darkness (though a 2nd-level or higher magical _darkness_ effect functions normally), _blur_, displacement, invisibility, or similar effects. The light is too dim to have any special effect on undead or dark-dwelling creatures vulnerable to light. The _faerie fire_ can be blue, green, or violet, according to your choice at the time of casting. The _faerie fire_ does not cause any harm to the objects or creatures thus outlined.',
+    },
+    {
+        "id": 'fire_trap',
+        "name": 'Fire Trap',
+        "level_druid": 2, "level_cleric": None, "level_wizard": 4, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration [Fire]',
+        "components": 'V, S, M',
+        "cast_time": '10 minutes',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Object touched',
+        "duration": 'Permanent until discharged (D)',
+        "save": 'Reflex half; see text',
+        "spell_resistance": 'Yes',
+        "description": '_Fire trap_ creates a fiery explosion when an intruder opens the item that the trap protects. A _fire trap_ can ward any object that can be opened and closed.\n\nWhen casting _fire trap,_ you select a point on the object as the spell’s center. When someone other than you opens the object, a fiery explosion fills the area within a 5-foot radius around the spell’s center. The flames deal 1d4 points of fire damage +1 point per caster level (maximum +20). The item protected by the trap is not harmed by this explosion.\n\nA _fire trapped_ item cannot have a second closure or warding spell placed on it.\n\nA _knock_ spell does not bypass a _fire trap_. An unsuccessful _dispel magic_ spell does not detonate the spell.\n\nUnderwater, this ward deals half damage and creates a large cloud of steam.\n\nYou can use the _fire trapped_ object without discharging it, as can any individual to whom the object was specifically attuned when cast. Attuning a _fire trapped_ object to an individual usually involves setting a password that you can share with friends.\n\n_Note:_ Magic traps such as _fire trap_ are hard to detect and disable. A rogue (only) can use the Search skill to find a _fire trap_ and Disable Device to thwart it. The DC in each case is 25 + spell level (DC 27 for a druid’s _fire trap_ or DC 29 for the arcane version).\n\n_Material Component:_ A half-pound of gold dust (cost 25 gp) sprinkled on the warded object.',
+    },
+    {
+        "id": 'flame_blade',
+        "name": 'Flame Blade',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Fire]',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": '0 ft.',
+        "target_label": 'Effect',
+        "target": 'Sword-like beam',
+        "duration": '1 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'Yes',
+        "description": 'A 3-foot-long, blazing beam of red-hot fire springs forth from your hand. You wield this bladelike beam as if it were a scimitar. Attacks with the _flame blade_ are melee touch attacks. The blade deals 1d8 points of fire damage +1 point per two caster levels (maximum +10). Since the blade is immaterial, your Strength modifier does not apply to the damage. A _flame blade_ can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n\nThe spell does not function underwater.',
+    },
+    {
+        "id": 'flame_strike',
+        "name": 'Flame Strike',
+        "level_druid": 4, "level_cleric": 5, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Fire]',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Medium (100 ft. + 10 ft./level)',
+        "target_label": 'Area',
+        "target": 'Cylinder (10-ft. radius, 40 ft. high)',
+        "duration": 'Instantaneous',
+        "save": 'Reflex half',
+        "spell_resistance": 'Yes',
+        "description": 'A _flame strike_ produces a vertical column of divine fire roaring downward. The spell deals 1d6 points of damage per caster level (maximum 15d6). Half the damage is fire damage, but the other half results directly from divine power and is therefore not subject to being reduced by resistance to fire-based attacks.',
+    },
+    {
+        "id": 'flaming_sphere',
+        "name": 'Flaming Sphere',
+        "level_druid": 2, "level_cleric": None, "level_wizard": 2, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Fire]',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Medium (100 ft. + 10 ft./level)',
+        "target_label": 'Effect',
+        "target": '5-ft.-diameter sphere',
+        "duration": '1 round/level',
+        "save": 'Reflex negates',
+        "spell_resistance": 'Yes',
+        "description": 'A burning globe of fire rolls in whichever direction you point and burns those it strikes. It moves 30 feet per round. As part of this movement, it can ascend or jump up to 30 feet to strike a target. If it enters a space with a creature, it stops moving for the round and deals 2d6 points of fire damage to that creature, though a successful Reflex save negates that damage. A _flaming sphere_ rolls over barriers less than 4 feet tall. It ignites flammable substances it touches and illuminates the same area as a torch would.\n\nThe sphere moves as long as you actively direct it (a move action for you); otherwise, it merely stays at rest and burns. It can be extinguished by any means that would put out a normal fire of its size. The surface of the sphere has a spongy, yielding consistency and so does not cause damage except by its flame. It cannot push aside unwilling creatures or batter down large obstacles. A _flaming sphere_ winks out if it exceeds the spell’s range.\n\n_Arcane Material Component:_ A bit of tallow, a pinch of brimstone, and a dusting of powdered iron.',
+    },
+    {
+        "id": 'flare',
+        "name": 'Flare',
+        "level_druid": 0, "level_cleric": None, "level_wizard": 0, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Light]',
+        "components": 'V',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Effect',
+        "target": 'Burst of light',
+        "duration": 'Instantaneous',
+        "save": 'Fortitude negates',
+        "spell_resistance": 'Yes',
+        "description": 'This cantrip creates a burst of light. If you cause the light to burst directly in front of a single creature, that creature is dazzled for 1 minute unless it makes a successful Fortitude save. Sightless creatures, as well as creatures already dazzled, are not affected by _flare_.',
+    },
+    {
+        "id": 'fog_cloud',
+        "name": 'Fog Cloud',
+        "level_druid": 2, "level_cleric": None, "level_wizard": 2, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Creation)',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Medium (100 ft. + 10 ft. level)',
+        "target_label": 'Effect',
+        "target": 'Fog spreads in 20-ft. radius, 20 ft. high',
+        "duration": '10 min./level',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'A bank of fog billows out from the point you designate. The fog obscures all sight, including darkvision, beyond 5 feet. A creature within 5 feet has concealment (attacks have a 20% miss chance). Creatures farther away have total concealment (50% miss chance, and the attacker can’t use sight to locate the target).\n\nA moderate wind (11+ mph) disperses the fog in 4 rounds; a strong wind (21+ mph) disperses the fog in 1 round.\n\nThe spell does not function underwater.',
+    },
+    {
+        "id": 'freedom_movement',
+        "name": 'Freedom of Movement',
+        "level_druid": 4, "level_cleric": 4, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration',
+        "components": 'V, S, M, DF',
+        "cast_time": '1 standard action',
+        "range": 'Personal or touch',
+        "target_label": 'Target',
+        "target": 'You or creature touched',
+        "duration": '10 min./level',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'This spell enables you or a creature you touch to move and attack normally for the duration of the spell, even under the influence of magic that usually impedes movement, such as paralysis, _solid fog_, _slow_, and _web_. The subject automatically succeeds on any grapple check made to resist a grapple attempt, as well as on grapple checks or Escape Artist checks made to escape a grapple or a pin.\n\nThe spell also allows the subject to move and attack normally while underwater, even with slashing weapons such as axes and swords or with bludgeoning weapons such as flails, hammers, and maces, provided that the weapon is wielded in the hand rather than hurled. The _freedom of movement_ spell does not, however, allow water breathing.\n\n_Material Component:_ A leather thong, bound around the arm or a similar appendage.',
+    },
+    {
+        "id": 'ghost_sound',
+        "name": 'Ghost Sound',
+        "level_druid": None, "level_cleric": None, "level_wizard": 0, "level_ranger": None, "level_paladin": None,
+        "school": 'Illusion (Figment)',
+        "components": 'V, S, M',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Effect',
+        "target": 'Illusory sounds',
+        "duration": '1 round/level (D)',
+        "save": 'Will disbelief (if interacted with)',
+        "spell_resistance": 'No',
+        "description": '_Ghost sound_ allows you to create a volume of sound that rises, recedes, approaches, or remains at a fixed place. You choose what type of sound _ghost sound_ creates when casting it and cannot thereafter change the sound’s basic character.\n\nThe volume of sound created depends on your level. You can produce as much noise as four normal humans per caster level (maximum twenty humans). Thus, talking, singing, shouting, walking, marching, or running sounds can be created. The noise a _ghost sound_ spell produces can be virtually any type of sound within the volume limit. A horde of rats running and squeaking is about the same volume as eight humans running and shouting. A roaring lion is equal to the noise from sixteen humans, while a roaring dire tiger is equal to the noise from twenty humans.\n\n_Ghost sound_ can enhance the effectiveness of a _silent image_ spell.\n\n_Ghost sound_ can be made permanent with a _permanency_ spell.\n\n_Material Component:_ A bit of wool or a small lump of wax.',
+    },
+    {
+        "id": 'goodberry',
+        "name": 'Goodberry',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Targets',
+        "target": '2d4 fresh berries touched',
+        "duration": 'One day/level',
+        "save": 'None',
+        "spell_resistance": 'Yes',
+        "description": 'Casting _goodberry_ upon a handful of freshly picked berries makes 2d4 of them magical. You (as well as any other druid of 3rd or higher level) can immediately discern which berries are affected. Each transmuted berry provides nourishment as if it were a normal meal for a Medium creature. The berry also cures 1 point of damage when eaten, subject to a maximum of 8 points of such curing in any 24-hour period.',
+    },
+    {
+        "id": 'guidance',
+        "name": 'Guidance',
+        "level_druid": 0, "level_cleric": 0, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 minute or until discharged',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes',
+        "description": 'This spell imbues the subject with a touch of divine guidance. The creature gets a +1 competence bonus on a single attack roll, saving throw, or skill check. It must choose to use the bonus before making the roll to which it applies.',
+    },
+    {
+        "id": 'gust_of_wind',
+        "name": 'Gust of Wind',
+        "level_druid": 2, "level_cleric": None, "level_wizard": 2, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Air]',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '60 ft.',
+        "target_label": 'Effect',
+        "target": 'Line-shaped gust of severe wind emanating out from you to the extreme of the range',
+        "duration": '1 round',
+        "save": 'Fortitude negates',
+        "spell_resistance": 'Yes',
+        "description": 'This spell creates a severe blast of air (approximately 50 mph) that originates from you, affecting all creatures in its path.\n\nA Tiny or smaller creature on the ground is knocked down and rolled 1d4x10 feet, taking 1d4 points of nonlethal damage per 10 feet. If flying, a Tiny or smaller creature is blown back 2d6x10 feet and takes 2d6 points of nonlethal damage due to battering and buffeting.\n\nSmall creatures are knocked prone by the force of the wind, or if flying are blown back 1d6x10 feet.\n\nMedium creatures are unable to move forward against the force of the wind, or if flying are blown back 1d6x5 feet.\n\nLarge or larger creatures may move normally within a _gust of wind_ effect.\n\nA _gust of wind_ can’t move a creature beyond the limit of its range.\n\nAny creature, regardless of size, takes a –4 penalty on ranged attacks and Listen checks in the area of a _gust of wind_.\n\nThe force of the _gust_ automatically extinguishes candles, torches, and similar unprotected flames. It causes protected flames, such as those of lanterns, to dance wildly and has a 50% chance to extinguish those lights.\n\nIn addition to the effects noted, a _gust of wind_ can do anything that a sudden blast of wind would be expected to do. It can create a stinging spray of sand or dust, fan a large fire, overturn delicate awnings or hangings, heel over a small boat, and blow gases or vapors to the edge of its range.\n\n_Gust of wind_ can be made permanent with a _permanency_ spell.',
+    },
+    {
+        "id": 'heat_metal',
+        "name": 'Heat Metal',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation [Fire]',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Target',
+        "target": 'Metal equipment of one creature per two levels, no two of which can be more than 30 ft. apart; or 25 lb. of metal/level, all of which must be within a 30-ft. circle',
+        "duration": '7 rounds',
+        "save": 'Will negates (object)',
+        "spell_resistance": 'Yes (object)',
+        "description": '_Heat metal_ makes metal extremely warm. Unattended, nonmagical metal gets no saving throw. Magical metal is allowed a saving throw against the spell. An item in a creature’s possession uses the creature’s saving throw bonus unless its own is higher.\n\nA creature takes fire damage if its equipment is heated. It takes full damage if its armor is affected or if it is holding, touching, wearing, or carrying metal weighing one-fifth of its weight. The creature takes minimum damage (1 point or 2 points; see the table) if it’s not wearing metal armor and the metal that it’s carrying weighs less than one-fifth of its weight.\n\nOn the first round of the spell, the metal becomes warm and uncomfortable to touch but deals no damage. The same effect also occurs on the last round of the spell’s duration. During the second (and also the next-to-last) round, intense heat causes pain and damage. In the third, fourth, and fifth rounds, the metal is searing hot, causing more damage, as shown on the table below.\n\n<table data-debug="no-caption" class="half-width-table"><tbody><tr><th>Round</th><th>Metal Temperature</th><th>Damage</th></tr><tr><td>1</td><td>Warm</td><td>None</td></tr><tr><td>2</td><td>Hot</td><td>1d4 points</td></tr><tr><td>3–5</td><td>Searing</td><td>2d4 points</td></tr><tr><td>6</td><td>Hot</td><td>1d4 points</td></tr><tr><td>7</td><td>Warm</td><td>None</td></tr></tbody></table>\n\nAny cold intense enough to damage the creature negates fire damage from the spell (and vice versa) on a point-for-point basis. If cast underwater, _heat metal_ deals half damage and boils the surrounding water.\n\n_Heat metal_ counters and dispels _chill metal_.',
+    },
+    {
+        "id": 'hide_from_animals',
+        "name": 'Hide from Animals',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration',
+        "components": 'S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Targets',
+        "target": 'One creature touched/level',
+        "duration": '10 min./level (D)',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes',
+        "description": 'Animals cannot see, hear, or smell the warded creatures. Even extraordinary or supernatural sensory capabilities, such as blindsense, blindsight, scent, and tremorsense, cannot detect or locate warded creatures. Animals simply act as though the warded creatures are not there. If a warded character touches an animal or attacks any creature, even with a spell, the spell ends for all recipients.',
+    },
+    {
+        "id": 'hold_animal',
+        "name": 'Hold Animal',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Enchantment (Compulsion) [Mind-Affecting]',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Medium (100 ft. + 10 ft./level)',
+        "target_label": 'Target',
+        "target": 'One animal',
+        "duration": '1 round/level (D); see text',
+        "save": 'Will negates; see text',
+        "spell_resistance": 'Yes',
+        "description": 'This spell functions like _hold person,_ except that it affects an animal instead of a humanoid.',
+    },
+    {
+        "id": 'ice_storm',
+        "name": 'Ice Storm',
+        "level_druid": 4, "level_cleric": None, "level_wizard": 4, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Cold]',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Long (400 ft. + 40 ft./level)',
+        "target_label": 'Area',
+        "target": 'Cylinder (20-ft. radius, 40 ft. high)',
+        "duration": '1 full round',
+        "save": 'None',
+        "spell_resistance": 'Yes',
+        "description": 'Great magical hailstones pound down for 1 full round, dealing 3d6 points of bludgeoning damage and 2d6 points of cold damage to every creature in the area. A –4 penalty applies to each Listen check made within the _ice storm_’s effect, and all land movement within its area is at half speed. At the end of the duration, the hail disappears, leaving no aftereffects (other than the damage dealt).\n\n_Arcane Material Component:_ A pinch of dust and a few drops of water.',
+    },
+    {
+        "id": 'jump',
+        "name": 'Jump',
+        "level_druid": 1, "level_cleric": None, "level_wizard": 1, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, M',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 min./level (D)',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes',
+        "description": 'The subject gets a +10 enhancement bonus on Jump checks. The enhancement bonus increases to +20 at caster level 5th, and to +30 (the maximum) at caster level 9th.\n\n_Material Component:_ A grasshopper’s hind leg, which you break when the spell is cast.',
+    },
+    {
+        "id": 'know_direction',
+        "name": 'Know Direction',
+        "level_druid": 0, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Personal',
+        "target_label": 'Target',
+        "target": 'You',
+        "duration": 'Instantaneous',
+        "save": None,
+        "spell_resistance": None,
+        "description": 'You instantly know the direction of north from your current position. The spell is effective in any environment in which “north” exists, but it may not work in extraplanar settings. Your knowledge of north is correct at the moment of casting, but you can get lost again within moments if you don’t find some external reference point to help you keep track of direction.',
+    },
+    {
+        "id": 'light',
+        "name": 'Light',
+        "level_druid": 0, "level_cleric": 0, "level_wizard": 0, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Light]',
+        "components": 'V, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Object touched',
+        "duration": '10 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'This spell causes an object to glow like a torch, shedding bright light in a 20-foot radius (and dim light for an additional 20 feet) from the point you touch. The effect is immobile, but it can be cast on a movable object. Light taken into an area of magical _darkness_ does not function.\n\nA light spell (one with the light descriptor) counters and dispels a darkness spell (one with the darkness descriptor) of an equal or lower level.\n\n_Arcane Material Component:_ A firefly or a piece of phosphorescent moss.',
+    },
+    {
+        "id": 'longstrider',
+        "name": 'Longstrider',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, M',
+        "cast_time": '1 standard action',
+        "range": 'Personal',
+        "target_label": 'Target',
+        "target": 'You',
+        "duration": '1 hour/level (D)',
+        "save": None,
+        "spell_resistance": None,
+        "description": 'This spell increases your base land speed by 10 feet. (This adjustment counts as an enhancement bonus.) It has no effect on other modes of movement, such as burrow, climb, fly, or swim.\n\n_Material Component:_ A pinch of dirt.',
+    },
+    {
+        "id": 'magic_fang',
+        "name": 'Magic Fang',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Living creature touched',
+        "duration": '1 min./level',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": '_Magic fang_ gives one natural weapon of the subject a +1 enhancement bonus on attack and damage rolls. The spell can affect a slam attack, fist, bite, or other natural weapon. (The spell does not change an unarmed strike’s damage from nonlethal damage to lethal damage.)\n\n_Magic fang_ can be made permanent with a _permanency_ spell.',
+    },
+    {
+        "id": 'magic_stone',
+        "name": 'Magic Stone',
+        "level_druid": 1, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Targets',
+        "target": 'Up to three pebbles touched',
+        "duration": '30 minutes or until discharged',
+        "save": 'Will negates (harmless, object)',
+        "spell_resistance": 'Yes (harmless, object)',
+        "description": 'You transmute as many as three pebbles, which can be no larger than sling bullets, so that they strike with great force when thrown or slung. If hurled, they have a range increment of 20 feet. If slung, treat them as sling bullets (range increment 50 feet). The spell gives them a +1 enhancement bonus on attack and damage rolls. The user of the stones makes a normal ranged attack. Each stone that hits deals 1d6+1 points of damage (including the spell’s enhancement bonus), or 2d6+2 points against undead.',
+    },
+    {
+        "id": 'mending',
+        "name": 'Mending',
+        "level_druid": 0, "level_cleric": 0, "level_wizard": 0, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '10 ft.',
+        "target_label": 'Target',
+        "target": 'One object of up to 1 lb.',
+        "duration": 'Instantaneous',
+        "save": 'Will negates (harmless, object)',
+        "spell_resistance": 'Yes (harmless, object)',
+        "description": '_Mending_ repairs small breaks or tears in objects (but not warps, such as might be caused by a _warp wood_ spell). It will weld broken metallic objects such as a ring, a chain link, a medallion, or a slender dagger, providing but one break exists.\n\nCeramic or wooden objects with multiple breaks can be invisibly rejoined to be as strong as new. A hole in a leather sack or a wineskin is completely healed over by _mending._ The spell can repair a magic item, but the item’s magical abilities are not restored. The spell cannot mend broken magic rods, staffs, or wands, nor does it affect creatures (including constructs).',
+    },
+    {
+        "id": 'obscuring_mist',
+        "name": 'Obscuring Mist',
+        "level_druid": 1, "level_cleric": 1, "level_wizard": 1, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Creation)',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '20 ft.',
+        "target_label": 'Effect',
+        "target": 'Cloud spreads in 20-ft. radius from you, 20 ft. high',
+        "duration": '1 min./level',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'A misty vapor arises around you. It is stationary once created. The vapor obscures all sight, including darkvision, beyond 5 feet. A creature 5 feet away has concealment (attacks have a 20% miss chance). Creatures farther away have total concealment (50% miss chance, and the attacker cannot use sight to locate the target).\n\nA moderate wind (11+ mph), such as from a _gust of wind_ spell, disperses the fog in 4 rounds. A strong wind (21+ mph) disperses the fog in 1 round. A _fireball, flame strike_, or similar spell burns away the fog in the explosive or fiery spell’s area. A _wall of fire_ burns away the fog in the area into which it deals damage.\n\nThis spell does not function underwater.',
+    },
+    {
+        "id": 'owl_wisdom',
         "name": "Owl's Wisdom",
-        "level_druid": 2, "level_cleric": 2, "level_wizard": 2,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "1 min./level",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "The transmuted creature becomes wiser. The spell grants a +4 "
-            "enhancement bonus to Wisdom, adding the usual benefits to "
-            "Wisdom-based skills and Will saving throws."
-        ),
+        "level_druid": 2, "level_cleric": 2, "level_wizard": 2, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 min./level',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes',
+        "description": 'The transmuted creature becomes wiser. The spell grants a +4 enhancement bonus to Wisdom, adding the usual benefit to Wisdom-related skills. Clerics, druids, paladins, and rangers (and other Wisdom-based spellcasters) who receive _owl’s wisdom_ do not gain any additional bonus spells for the increased Wisdom, but the save DCs for their spells increase.\n\n_Arcane Material Component:_ A few feathers, or a pinch of droppings, from an owl.',
     },
     {
-        "id": "reduce_animal",
-        "name": "Reduce Animal",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "One willing animal of Small, Medium, Large, or Huge size",
-        "duration": "1 hour/level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "This spell causes a touched animal to shrink by one size category. "
-            "A Large animal becomes Medium, a Medium animal becomes Small, etc. "
-            "The size change has all the normal effects."
-        ),
+        "id": 'pass_without_trace',
+        "name": 'Pass without Trace',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Targets',
+        "target": 'One creature/level touched',
+        "duration": '1 hour/level (D)',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'The subject or subjects can move through any type of terrain and leave neither footprints nor scent. Tracking the subjects is impossible by nonmagical means.',
     },
     {
-        "id": "animal_messenger",
-        "name": "Animal Messenger",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Enchantment (Compulsion)",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "One Tiny animal",
-        "duration": "One day/level",
-        "save": "None",
-        "spell_resistance": "Yes",
-        "description": (
-            "You compel a Tiny animal to go to a spot you designate. The most "
-            "common use for this spell is to send a message to an associate. The "
-            "animal travels to the spot you designate at its normal movement rate. "
-            "You can attach a small item or note to the animal. The animal avoids "
-            "combat and dangerous situations."
-        ),
+        "id": 'plant_growth',
+        "name": 'Plant Growth',
+        "level_druid": 3, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'See text',
+        "target_label": None,
+        "target": None,
+        "duration": 'Instantaneous',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": '_Plant growth_ has different effects depending on the version chosen.\n\n_Overgrowth:_ This effect causes normal vegetation (grasses, briars, bushes, creepers, thistles, trees, vines) within long range (400 feet + 40 feet per caster level) to become thick and overgrown. The plants entwine to form a thicket or jungle that creatures must hack or force a way through. Speed drops to 5 feet, or 10 feet for Large or larger creatures. The area must have brush and trees in it for this spell to take effect.\n\nAt your option, the area can be a 100-foot-radius circle, a 150-foot-radius semicircle, or a 200-foot-radius quarter circle.\n\nYou may designate places within the area that are not affected.\n\n_Enrichment:_ This effect targets plants within a range of one-half mile, raising their potential productivity over the course of the next year to one-third above normal.\n\n_Plant growth_ counters _diminish plants_.\n\nThis spell has no effect on plant creatures.',
     },
     {
-        "id": "animal_trance",
-        "name": "Animal Trance",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Enchantment (Compulsion)",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "Animals or magical beasts with Intelligence 1 or 2",
-        "duration": "Concentration",
-        "save": "Will negates",
-        "spell_resistance": "Yes",
-        "description": (
-            "Your swaying motions and music (or singing, or chanting) compel animals "
-            "and magical beasts to do nothing but watch you. Only one animal or "
-            "magical beast can be fascinated at a time, with a maximum total of 2d6 "
-            "HD of creatures affected. The fascinated creature stands or sits quietly, "
-            "watching you for as long as you concentrate on the spell."
-        ),
+        "id": 'poison',
+        "name": 'Poison',
+        "level_druid": 3, "level_cleric": 4, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Necromancy',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Living creature touched',
+        "duration": 'Instantaneous; see text',
+        "save": 'Fortitude negates; see text',
+        "spell_resistance": 'Yes',
+        "description": 'Calling upon the venomous powers of natural predators, you infect the subject with a horrible poison by making a successful melee touch attack. The poison deals 1d10 points of temporary Constitution damage immediately and another 1d10 points of temporary Constitution damage 1 minute later. Each instance of damage can be negated by a Fortitude save (DC 10 + 1/2 your caster level + your Wis modifier).',
     },
     {
-        "id": "chill_metal",
-        "name": "Chill Metal",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "Metal equipment of one creature per two levels",
-        "duration": "7 rounds",
-        "save": "Will negates (object)",
-        "spell_resistance": "Yes (object)",
-        "description": (
-            "Chill metal makes metal extremely cold. Unattended, nonmagical metal "
-            "gets no saving throw. Chilled metal deals cold damage each round: "
-            "round 1 — 0; round 2 — 1d4; rounds 3–5 — 2d4; round 6 — 1d4; "
-            "round 7 — 0. A creature in contact with chilled metal can drop it "
-            "as a free action."
-        ),
+        "id": 'prestidigitation',
+        "name": 'Prestidigitation',
+        "level_druid": None, "level_cleric": None, "level_wizard": 0, "level_ranger": None, "level_paladin": None,
+        "school": 'Universal',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '10 ft.',
+        "target_label": None,
+        "target": None,
+        "duration": '1 hour',
+        "save": 'See text',
+        "spell_resistance": 'No',
+        "description": 'Prestidigitations are minor tricks that novice spellcasters use for practice. Once cast, a _prestidigitation_ spell enables you to perform simple magical effects for 1 hour. The effects are minor and have severe limitations. A prestidigitation can slowly lift 1 pound of material. It can color, clean, or soil items in a 1-foot cube each round. It can chill, warm, or flavor 1 pound of nonliving material. It cannot deal damage or affect the concentration of spellcasters. _Prestidigitation_ can create small objects, but they look crude and artificial. The materials created by a _prestidigitation_ spell are extremely fragile, and they cannot be used as tools, weapons, or spell components. Finally, a _prestidigitation_ lacks the power to duplicate any other spell effects. Any actual change to an object (beyond just moving, cleaning, or soiling it) persists only 1 hour.',
     },
     {
-        "id": "delay_poison",
-        "name": "Delay Poison",
-        "level_druid": 2, "level_cleric": 2, "level_wizard": None,
-        "school": "Conjuration (Healing)",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "1 hour/level",
-        "save": "Fortitude negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "The subject becomes temporarily immune to poison. Any poison in its "
-            "system or any poison to which it is exposed during the spell's duration "
-            "does not affect the subject until the spell's duration has expired. "
-            "Delay poison does not cure any damage that poison may have already done."
-        ),
+        "id": 'produce_flame',
+        "name": 'Produce Flame',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Fire]',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '0 ft.',
+        "target_label": 'Effect',
+        "target": 'Flame in your palm',
+        "duration": '1 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'Yes',
+        "description": 'Flames as bright as a torch appear in your open hand. The flames harm neither you nor your equipment.\n\nIn addition to providing illumination, the flames can be hurled or used to touch enemies. You can strike an opponent with a melee touch attack, dealing fire damage equal to 1d6 +1 point per caster level (maximum +5). Alternatively, you can hurl the flames up to 120 feet as a thrown weapon. When doing so, you attack with a ranged touch attack (with no range penalty) and deal the same damage as with the melee attack. No sooner do you hurl the flames than a new set appears in your hand. Each attack you make reduces the remaining duration by 1 minute. If an attack reduces the remaining duration to 0 minutes or less, the spell ends after the attack resolves.\n\nThis spell does not function underwater.',
     },
     {
-        "id": "fire_trap",
-        "name": "Fire Trap",
-        "level_druid": 2, "level_cleric": None, "level_wizard": 4,
-        "school": "Abjuration",
-        "cast_time": "10 minutes",
-        "range": "Touch",
-        "target": "Object touched",
-        "duration": "Permanent until discharged",
-        "save": "Reflex half",
-        "spell_resistance": "Yes",
-        "description": (
-            "Fire trap wards a chest or other closeable container. When someone "
-            "other than you opens the object, the trap explodes with a burst of "
-            "flame dealing 1d4 + 1/level points of fire damage (max +20). "
-            "The DC for the Reflex save is 10 + spell level + your Wis modifier. "
-            "This spell has a material component cost of 25 gp."
-        ),
+        "id": 'protection_energy',
+        "name": 'Protection from Energy',
+        "level_druid": 3, "level_cleric": 3, "level_wizard": 3, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '10 min./level or until discharged',
+        "save": 'Fortitude negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": '_Protection from energy_ grants temporary immunity to the type of energy you specify when you cast it (acid, cold, electricity, fire, or sonic). When the spell absorbs 12 points per caster level of energy damage (to a maximum of 120 points at 10th level), it is discharged.\n\n_Note: Protection from energy_ overlaps (and does not stack with) _resist energy._ If a character is warded by _protection from energy_ and _resist energy,_ the _protection_ spell absorbs damage until its power is exhausted.',
     },
     {
-        "id": "flaming_sphere",
-        "name": "Flaming Sphere",
-        "level_druid": 2, "level_cleric": None, "level_wizard": 2,
-        "school": "Evocation",
-        "cast_time": "1 standard action",
-        "range": "Medium (100 ft + 10 ft/level)",
-        "target": "5-ft.-diameter sphere",
-        "duration": "1 round/level",
-        "save": "Reflex negates",
-        "spell_resistance": "Yes",
-        "description": (
-            "A burning globe of fire rolls in whichever direction you point and burns "
-            "those it strikes. It moves 30 feet per round. As part of this movement, "
-            "it can ascend or jump over walls. It rolls over barriers less than 4 feet "
-            "tall. The sphere deals 2d6 points of fire damage to any creature it "
-            "strikes. After rolling, the sphere can detonate on your command."
-        ),
+        "id": 'purify_food_drink',
+        "name": 'Purify Food and Drink',
+        "level_druid": 0, "level_cleric": 0, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '10 ft.',
+        "target_label": 'Target',
+        "target": '1 cu. ft./level of contaminated food and water',
+        "duration": 'Instantaneous',
+        "save": 'Will negates (object)',
+        "spell_resistance": 'Yes (object)',
+        "description": 'This spell makes spoiled, rotten, poisonous, or otherwise contaminated food and water pure and suitable for eating and drinking. This spell does not prevent subsequent natural decay or spoilage. Unholy water and similar food and drink of significance is spoiled by _purify food and drink,_ but the spell has no effect on creatures of any type nor upon magic potions.\n\n_Note:_ Water weighs about 8 pounds per gallon. One cubic foot of water contains roughly 8 gallons and weighs about 60 pounds.',
     },
     {
-        "id": "fog_cloud",
-        "name": "Fog Cloud",
-        "level_druid": 2, "level_cleric": None, "level_wizard": 2,
-        "school": "Conjuration (Creation)",
-        "cast_time": "1 standard action",
-        "range": "Medium (100 ft + 10 ft/level)",
-        "target": "Fog spreads in 20-ft. radius, 20 ft. high",
-        "duration": "10 min./level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "A bank of fog billows out from the point you designate. The fog obscures "
-            "all sight, including darkvision, beyond 5 feet. A creature within 5 feet "
-            "has concealment (20% miss chance). Creatures farther away have total "
-            "concealment (50% miss chance). A moderate wind disperses the fog in "
-            "4 rounds; a strong wind disperses it in 1 round."
-        ),
+        "id": 'read_magic',
+        "name": 'Read Magic',
+        "level_druid": 0, "level_cleric": 0, "level_wizard": 0, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S, F',
+        "cast_time": '1 standard action',
+        "range": 'Personal',
+        "target_label": 'Target',
+        "target": 'You',
+        "duration": '10 min./level',
+        "save": None,
+        "spell_resistance": None,
+        "description": 'By means of _read magic,_ you can decipher magical inscriptions on objects—books, scrolls, weapons, and the like—that would otherwise be unintelligible. This deciphering does not normally invoke the magic contained in the writing, although it may do so in the case of a cursed scroll. Furthermore, once the spell is cast and you have read the magical inscription, you are thereafter able to read that particular writing without recourse to the use of _read magic._ You can read at the rate of one page (250 words) per minute. The spell allows you to identify a _glyph of warding_ with a DC 13 Spellcraft check, a _greater glyph of warding_ with a DC 16 Spellcraft check, or any _symbol_ spell with a Spellcraft check (DC 10 + spell level).\n\n_Read magic_ can be made permanent with a _permanency_ spell.\n\n_Focus:_ A clear crystal or mineral prism.',
     },
     {
-        "id": "gust_of_wind",
-        "name": "Gust of Wind",
-        "level_druid": 2, "level_cleric": None, "level_wizard": 2,
-        "school": "Evocation",
-        "cast_time": "1 standard action",
-        "range": "60 ft",
-        "target": "Line-shaped gust of severe wind emanating from you",
-        "duration": "1 round",
-        "save": "Fortitude negates",
-        "spell_resistance": "Yes",
-        "description": (
-            "This spell creates a severe blast of air (approximately 50 mph) that "
-            "originates from you, affecting all creatures in its path. A Tiny or "
-            "smaller creature is knocked down and rolled 1d4×10 feet. A Small "
-            "creature is knocked down. A Medium creature is unable to move forward. "
-            "Larger creatures are unaffected. The gust also automatically extinguishes "
-            "unprotected flames and may extinguish protected flames."
-        ),
+        "id": 'reduce_animal',
+        "name": 'Reduce Animal',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'One willing animal of Small, Medium, Large, or Huge size',
+        "duration": '1 hour/level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'This spell functions like _reduce person,_ except that it affects a single willing animal. Reduce the damage dealt by the animal’s natural attacks as appropriate for its new size.',
     },
     {
-        "id": "resist_energy",
-        "name": "Resist Energy",
-        "level_druid": 2, "level_cleric": 2, "level_wizard": 2,
-        "school": "Abjuration",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "10 min./level",
-        "save": "Fortitude negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "This abjuration grants a creature limited protection from damage of "
-            "whichever one of five energy types you select: acid, cold, electricity, "
-            "fire, or sonic. The subject gains energy resistance 10 against the "
-            "energy type chosen, increasing to 20 at caster level 7th and 30 at "
-            "caster level 11th."
-        ),
+        "id": 'reincarnate',
+        "name": 'Reincarnate',
+        "level_druid": 4, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, M, DF',
+        "cast_time": '10 minutes',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Dead creature touched',
+        "duration": 'Instantaneous',
+        "save": 'None; see text',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'With this spell, you bring back a dead creature in another body, provided that its death occurred no more than one week before the casting of the spell and the subject’s soul is free and willing to return. If the subject’s soul is not willing to return, the spell does not work; therefore, a subject that wants to return receives no saving throw.\n\nSince the dead creature is returning in a new body, all physical ills and afflictions are repaired. The condition of the remains is not a factor. So long as some small portion of the creature’s body still exists, it can be reincarnated, but the portion receiving the spell must have been part of the creature’s body at the time of death. The magic of the spell creates an entirely new young adult body for the soul to inhabit from the natural elements at hand. This process takes 1 hour to complete. When the body is ready, the subject is reincarnated.\n\nA reincarnated creature recalls the majority of its former life and form. It retains any class abilities, feats, or skill ranks it formerly possessed. Its class, base attack bonus, base save bonuses, and hit points are unchanged. Strength, Dexterity, and Constitution scores depend partly on the new body. First eliminate the subject’s racial adjustments (since it is no longer of his previous race) and then apply the adjustments found below to its remaining ability scores. The subject’s level (or Hit Dice) is reduced by 1. If the subject was 1st level, its new Constitution score is reduced by 2. (If this reduction would put its Con at 0 or lower, it can’t be reincarnated). This level/HD loss or Constitution loss cannot be repaired by any means.\n\nIt’s possible for the change in the subject’s ability scores to make it difficult for it to pursue its previous character class. If this is the case, the subject is well advised to become a multiclass character.\n\nFor a humanoid creature, the new incarnation is determined using the following table. For nonhumanoid creatures, a similar table of creatures of the same type should be created.\n\nA creature that has been turned into an undead creature or killed by a death effect can’t be returned to life by this spell. Constructs, elementals, outsiders, and undead creatures can’t be reincarnated. The spell cannot bring back a creature who has died of old age.\n\n<table data-debug="no-caption" class="half-width-table"><tbody><tr><th>d%</th><th>Incarnation</th><th>Str</th><th>Dex</th><th>Con</th></tr><tr><td>01</td><td>Bugbear</td><td>+4</td><td>+2</td><td>+2</td></tr><tr><td>02–13</td><td>Dwarf</td><td>+0</td><td>+0</td><td>+2</td></tr><tr><td>14–25</td><td>Elf</td><td>+0</td><td>+2</td><td>–2</td></tr><tr><td>26</td><td>Gnoll</td><td>+4</td><td>+0</td><td>+2</td></tr><tr><td>27–38</td><td>Gnome</td><td>–2</td><td>+0</td><td>+2</td></tr><tr><td>39–42</td><td>Goblin</td><td>–2</td><td>+2</td><td>+0</td></tr><tr><td>43–52</td><td>Half-elf</td><td>+0</td><td>+0</td><td>+0</td></tr><tr><td>53–62</td><td>Half-orc</td><td>+2</td><td>+0</td><td>+0</td></tr><tr><td>63–74</td><td>Halfling</td><td>–2</td><td>+2</td><td>+0</td></tr><tr><td>75–89</td><td>Human</td><td>+0</td><td>+0</td><td>+0</td></tr><tr><td>90–93</td><td>Kobold</td><td>–4</td><td>+2</td><td>–2</td></tr><tr><td>94</td><td>Lizardfolk</td><td>+2</td><td>+0</td><td>+2</td></tr><tr><td>95–98</td><td>Orc</td><td>+4</td><td>+0</td><td>+0</td></tr><tr><td>99</td><td>Troglodyte</td><td>+0</td><td>–2</td><td>+4</td></tr><tr><td>100</td><td>Other</td><td>?</td><td>?</td><td>?</td></tr></tbody></table>\n\nThe reincarnated creature gains all abilities associated with its new form, including forms of movement and speeds, natural armor, natural attacks, extraordinary abilities, and the like, but it doesn’t automatically speak the language of the new form.\n\nA _wish_ or a _miracle_ spell can restore a reincarnated character to his or her original form.\n\n_Material Component:_ Rare oils and unguents worth a total of least 1,000 gp, spread over the remains.',
     },
     {
-        "id": "soften_earth_stone",
-        "name": "Soften Earth and Stone",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "10-ft. square/level; see text",
-        "duration": "Instantaneous",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "When this spell is cast, all natural, undressed earth or stone in the "
-            "spell's area is softened. Wet earth becomes thick mud. Dry earth becomes "
-            "loose sand or dirt. Hard stone becomes soft clay, easily molded or "
-            "shaped, crumbling if weight is placed on it. Any creature on a surface "
-            "of wet earth must make a DC 15 Reflex save or be mired down."
-        ),
+        "id": 'resist_energy',
+        "name": 'Resist Energy',
+        "level_druid": 2, "level_cleric": 2, "level_wizard": 2, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '10 min./level',
+        "save": 'Fortitude negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'This abjuration grants a creature limited protection from damage of whichever one of five energy types you select: acid, cold, electricity, fire, or sonic. The subject gains energy resistance 10 against the energy type chosen, meaning that each time the creature is subjected to such damage (whether from a natural or magical source), that damage is reduced by 10 points before being applied to the creature’s hit points. The value of the energy resistance granted increases to 20 points at 7th level and to a maximum of 30 points at 11th level. The spell protects the recipient’s equipment as well.\n\n_Resist energy_ absorbs only damage. The subject could still suffer unfortunate side effects.\n\n_Note: Resist energy_ overlaps (and does not stack with) _protection from energy._ If a character is warded by _protection from energy_ and _resist energy,_ the _protection_ spell absorbs damage until its power is exhausted.',
     },
     {
-        "id": "spider_climb",
-        "name": "Spider Climb",
-        "level_druid": 2, "level_cleric": None, "level_wizard": 2,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "10 min./level",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "The subject can climb and travel on vertical surfaces or even traverse "
-            "ceilings as well as a spider does. The affected creature must have its "
-            "hands free to climb in this manner. The subject gains a climb speed of "
-            "20 feet; furthermore, it need not make Climb checks to traverse a "
-            "vertical or horizontal surface."
-        ),
+        "id": 'resistance',
+        "name": 'Resistance',
+        "level_druid": 0, "level_cleric": 0, "level_wizard": 0, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 minute',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'You imbue the subject with magical energy that protects it from harm, granting it a +1 resistance bonus on saves.\n\n_Resistance_ can be made permanent with a _permanency_ spell.\n\n_Arcane Material Component:_ A miniature cloak.',
     },
     {
-        "id": "summon_swarm",
-        "name": "Summon Swarm",
-        "level_druid": 2, "level_cleric": None, "level_wizard": 2,
-        "school": "Conjuration (Summoning)",
-        "cast_time": "1 round",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "One swarm of bats, rats, or spiders",
-        "duration": "Concentration + 2 rounds",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "You summon a swarm of bats, rats, or spiders (your choice), which "
-            "immediately fills the designated area. Any creature vulnerable to the "
-            "swarm type you choose takes damage equal to the swarm's attack each "
-            "round. The swarm attacks any creature within its area."
-        ),
+        "id": 'shillelagh',
+        "name": 'Shillelagh',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'One touched nonmagical oak club or quarterstaff',
+        "duration": '1 min./level',
+        "save": 'Will negates (object)',
+        "spell_resistance": 'Yes (object)',
+        "description": 'Your own nonmagical club or quarterstaff becomes a weapon with a +1 enhancement bonus on attack and damage rolls. (A quarterstaff gains this enhancement for both ends of the weapon.) It deals damage as if it were two size categories larger (a Small club or quarterstaff so transmuted deals 1d8 points of damage, a Medium 2d6, and a Large 3d6), +1 for its enhancement bonus. These effects only occur when the weapon is wielded by you. If you do not wield it, the weapon behaves as if unaffected by this spell.',
     },
     {
-        "id": "tree_shape",
-        "name": "Tree Shape",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Personal",
-        "target": "You",
-        "duration": "1 hour/level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "By means of this spell, you are able to assume the form of a Large "
-            "living tree or shrub or a Large dead tree trunk with a small number of "
-            "limbs. The closest inspection cannot reveal that the tree in question "
-            "is actually a magically concealed creature. Your hit points and saving "
-            "throws are unchanged while in this form."
-        ),
+        "id": 'sleet_storm',
+        "name": 'Sleet Storm',
+        "level_druid": 3, "level_cleric": None, "level_wizard": 3, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Creation) [Cold]',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Long (400 ft. + 40 ft./level)',
+        "target_label": 'Area',
+        "target": 'Cylinder (40-ft. radius, 20 ft. high)',
+        "duration": '1 round/level',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'Driving sleet blocks all sight (even darkvision) within it and causes the ground in the area to be icy. A creature can walk within or through the area of sleet at half normal speed with a DC 10 Balance check. Failure means it can’t move in that round, while failure by 5 or more means it falls (see the Balance skill for details).\n\nThe sleet extinguishes torches and small fires.\n\n_Arcane Material Component:_ A pinch of dust and a few drops of water.',
     },
     {
-        "id": "warp_wood",
-        "name": "Warp Wood",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "1 Small wooden object/level, all within 30 ft of each other",
-        "duration": "Instantaneous",
-        "save": "Will negates (object)",
-        "spell_resistance": "Yes (object)",
-        "description": (
-            "You cause wood to bend and warp, permanently destroying its straightness, "
-            "form, and strength. A warped door springs open (or shut) and cannot "
-            "easily be opened. Warped ranged weapons are useless. A warped melee "
-            "weapon causes a –4 penalty on attack rolls. You may warp as many as "
-            "1 Small or smaller objects per caster level; use the size modifiers from "
-            "the item's weight to determine how many 'objects' a larger item counts as."
-        ),
+        "id": 'soften_earth_stone',
+        "name": 'Soften Earth and Stone',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation [Earth]',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Area',
+        "target": '10-ft. square/level; see text',
+        "duration": 'Instantaneous',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'When this spell is cast, all natural, undressed earth or stone in the spell’s area is softened. Wet earth becomes thick mud, dry earth becomes loose sand or dirt, and stone becomes soft clay that is easily molded or chopped. You affect a 10-footsquare area to a depth of 1 to 4 feet, depending on the toughness or resilience of the ground at that spot. Magical, enchanted, dressed, or worked stone cannot be affected. Earth or stone creatures are not affected.\n\nA creature in mud must succeed on a Reflex save or be caught for 1d2 rounds and unable to move, attack, or cast spells. A creature that succeeds on its save can move through the mud at half speed, and it can’t run or charge.\n\nLoose dirt is not as troublesome as mud, but all creatures in the area can move at only half their normal speed and can’t run or charge over the surface.\n\nStone softened into clay does not hinder movement, but it does allow characters to cut, shape, or excavate areas they may not have been able to affect before.\n\nWhile _soften earth and stone_ does not affect dressed or worked stone, cavern ceilings or vertical surfaces such as cliff faces can be affected. Usually, this causes a moderate collapse or landslide as the loosened material peels away from the face of the wall or roof and falls.\n\nA moderate amount of structural damage can be dealt to a manufactured structure by softening the ground beneath it, causing it to settle. However, most well-built structures will only be damaged by this spell, not destroyed.',
     },
     {
-        "id": "wood_shape",
-        "name": "Wood Shape",
-        "level_druid": 2, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "One touched piece of wood no larger than 10 cu. ft. + 1 cu. ft./level",
-        "duration": "Instantaneous",
-        "save": "Will negates (object)",
-        "spell_resistance": "Yes (object)",
-        "description": (
-            "Wood shape enables you to form one existing piece of wood into any shape "
-            "that suits your purpose. While it is possible to make crude furniture, "
-            "doors, and so forth, fine detail isn't possible. There is a 30% chance "
-            "that any shape that includes moving parts simply doesn't work."
-        ),
-    },
-    # ── Level 3 ────────────────────────────────────────────────────────────
-    {
-        "id": "call_lightning",
-        "name": "Call Lightning",
-        "level_druid": 3, "level_cleric": None, "level_wizard": None,
-        "school": "Evocation",
-        "cast_time": "1 round",
-        "range": "Medium (100 ft + 10 ft/level)",
-        "target": "One or more 5-ft.-wide, 30-ft.-long vertical lines of lightning",
-        "duration": "1 min./level",
-        "save": "Reflex half",
-        "spell_resistance": "Yes",
-        "description": (
-            "Immediately upon completing the spell, and once per round thereafter, "
-            "you may call down a 5-foot-wide, 30-foot-long vertical bolt of "
-            "lightning that deals 3d6 points of electricity damage."
-        ),
+        "id": 'speak_with_animals',
+        "name": 'Speak with Animals',
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Personal',
+        "target_label": 'Target',
+        "target": 'You',
+        "duration": '1 min./level',
+        "save": None,
+        "spell_resistance": None,
+        "description": 'You can comprehend and communicate with animals. You are able to ask questions of and receive answers from animals, although the spell doesn’t make them any more friendly or cooperative than normal. Furthermore, wary and cunning animals are likely to be terse and evasive, while the more stupid ones make inane comments. If an animal is friendly toward you, it may do some favor or service for you.',
     },
     {
-        "id": "cure_moderate_wounds",
-        "name": "Cure Moderate Wounds",
-        "level_druid": 3, "level_cleric": 2, "level_wizard": None,
-        "school": "Conjuration (Healing)",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "Instantaneous",
-        "save": "Will half (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "When laying your hand upon a living creature, you channel positive "
-            "energy that cures 2d8 points of damage +1 point per caster level "
-            "(maximum +10)."
-        ),
+        "id": 'spider_climb',
+        "name": 'Spider Climb',
+        "level_druid": 2, "level_cleric": None, "level_wizard": 2, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, M',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '10 min./level',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'The subject can climb and travel on vertical surfaces or even traverse ceilings as well as a spider does. The affected creature must have its hands free to climb in this manner. The subject gains a climb speed of 20 feet; furthermore, it need not make Climb checks to traverse a vertical or horizontal surface (even upside down). A _spider climbing_ creature retains its Dexterity bonus to Armor Class (if any) while climbing, and opponents get no special bonus to their attacks against it. It cannot, however, use the run action while climbing.\n\n_Material Component:_ A drop of bitumen and a live spider, both of which must be eaten by the subject.',
     },
     {
-        "id": "plant_growth",
-        "name": "Plant Growth",
-        "level_druid": 3, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "See text",
-        "target": "See text",
-        "duration": "Instantaneous",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "Plant growth has different effects depending on the version chosen. "
-            "Overgrowth: Causes normal vegetation within long range (400 ft) to "
-            "become thick and overgrown. Enrichment: Raises plant productivity "
-            "within a half-mile to one third above normal."
-        ),
+        "id": 'spike_growth',
+        "name": 'Spike Growth',
+        "level_druid": 3, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Medium (100 ft. + 10 ft./level)',
+        "target_label": 'Area',
+        "target": 'One 20-ft. square/level',
+        "duration": '1 hour/level (D)',
+        "save": 'Reflex partial',
+        "spell_resistance": 'Yes',
+        "description": 'Any ground-covering vegetation in the spell’s area becomes very hard and sharply pointed without changing its appearance.\n\nIn areas of bare earth, roots and rootlets act in the same way. Typically, _spike growth_ can be cast in any outdoor setting except open water, ice, heavy snow, sandy desert, or bare stone. Any creature moving on foot into or through the spell’s area takes 1d4 points of piercing damage for each 5 feet of movement through the spiked area.\n\nAny creature that takes damage from this spell must also succeed on a Reflex save or suffer injuries to its feet and legs that slow its land speed by one-half. This speed penalty lasts for 24 hours or until the injured creature receives a _cure_ spell (which also restores lost hit points). Another character can remove the penalty by taking 10 minutes to dress the injuries and succeeding on a Heal check against the spell’s save DC.\n\n_Spike growth_ can’t be disabled with the Disable Device skill.\n\n_Note:_ Magic traps such as _spike growth_ are hard to detect. A rogue (only) can use the Search skill to find a _spike growth_. The DC is 25 + spell level, or DC 28 for _spike growth_ (or DC 27 for _spike growth_ cast by a ranger).',
     },
     {
-        "id": "poison",
-        "name": "Poison",
-        "level_druid": 3, "level_cleric": 4, "level_wizard": None,
-        "school": "Necromancy",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Living creature touched",
-        "duration": "Instantaneous; see text",
-        "save": "Fortitude negates",
-        "spell_resistance": "Yes",
-        "description": (
-            "Calling upon the venomous powers of natural predators, you infect the "
-            "subject with a horrible poison. The poison deals 1d10 points of "
-            "Constitution damage immediately and another 1d10 points 1 minute later."
-        ),
+        "id": 'stone_shape',
+        "name": 'Stone Shape',
+        "level_druid": 3, "level_cleric": 3, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation [Earth]',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Stone or stone object touched, up to 10 cu. ft. + 1 cu. ft./level',
+        "duration": 'Instantaneous',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'You can form an existing piece of stone into any shape that suits your purpose. While it’s possible to make crude coffers, doors, and so forth with _stone shape,_ fine detail isn’t possible. There is a 30% chance that any shape including moving parts simply doesn’t work.\n\n_Arcane Material Component:_ Soft clay, which must be worked into roughly the desired shape of the stone object and then touched to the stone while the verbal component is uttered.',
     },
     {
-        "id": "protection_energy",
-        "name": "Protection from Energy",
-        "level_druid": 3, "level_cleric": 3, "level_wizard": 3,
-        "school": "Abjuration",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "10 min./level or until discharged",
-        "save": "Fortitude negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "Protection from energy grants temporary immunity to the type of energy "
-            "you specify (acid, cold, electricity, fire, or sonic). "
-            "When the spell absorbs 12 points per caster level (maximum 120 points) "
-            "of energy damage, it is discharged."
-        ),
+        "id": 'summon_natures_ally_i',
+        "name": "Summon Nature's Ally I",
+        "level_druid": 1, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Summoning)',
+        "components": 'V, S, DF',
+        "cast_time": '1 round',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Effect',
+        "target": 'One summoned creature',
+        "duration": '1 round/level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'This spell summons a natural creature. It appears where you designate and acts immediately, on your turn. It attacks your opponents to the best of its ability. If you can communicate with the creature, you can direct it not to attack, to attack particular enemies, or to perform other actions.\n\nA summoned monster cannot summon or otherwise conjure another creature, nor can it use any teleportation or planar travel abilities. Creatures cannot be summoned into an environment that cannot support them.\n\nThe spell conjures one of the creatures from the 1st-level list on the accompanying Summon Nature’s Ally table. You choose which kind of creature to summon, and you can change that choice each time you cast the spell. All the creatures on the table are neutral unless otherwise noted.',
     },
     {
-        "id": "sleet_storm",
-        "name": "Sleet Storm",
-        "level_druid": 3, "level_cleric": None, "level_wizard": 3,
-        "school": "Conjuration (Creation)",
-        "cast_time": "1 standard action",
-        "range": "Long (400 ft + 40 ft/level)",
-        "target": "Cylinder (40-ft. radius, 20 ft. high)",
-        "duration": "1 round/level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "Driving sleet blocks all sight within it and causes the ground in the "
-            "area to be icy. A character moving through the area falls unless he "
-            "succeeds on a DC 10 Balance check for each square of movement."
-        ),
+        "id": 'summon_natures_ally_ii',
+        "name": "Summon Nature's Ally II",
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Summoning)',
+        "components": 'V, S, DF',
+        "cast_time": '1 round',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Effect',
+        "target": 'One or more creatures, no two of which can be more than 30 ft. apart',
+        "duration": '1 round/level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'This spell functions like _summon nature’s ally I,_ except that you can summon one 2nd-level creature or 1d3 1st-level creatures of the same kind.',
     },
     {
-        "id": "spike_growth",
-        "name": "Spike Growth",
-        "level_druid": 3, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Medium (100 ft + 10 ft/level)",
-        "target": "One 20-ft.-radius area",
-        "duration": "1 hour/level",
-        "save": "Reflex partial",
-        "spell_resistance": "Yes",
-        "description": (
-            "Any ground-covering vegetation in the spell's area becomes very "
-            "hard and sharply pointed without changing its appearance. "
-            "The spikes deal 1d4 points of piercing damage for each 5 feet of "
-            "movement through the area."
-        ),
-    },
-    {
-        "id": "stone_shape",
-        "name": "Stone Shape",
-        "level_druid": 3, "level_cleric": 3, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Stone or stone object touched, up to 10 cu. ft. + 1 cu. ft./level",
-        "duration": "Instantaneous",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "You can form an existing piece of stone into any shape that suits your "
-            "purpose. While it's possible to make crude coffers, doors, and so forth "
-            "with stone shape, fine detail isn't possible."
-        ),
-    },
-    {
-        "id": "summon_natures_ally_iii",
+        "id": 'summon_natures_ally_iii',
         "name": "Summon Nature's Ally III",
-        "level_druid": 3, "level_cleric": None, "level_wizard": None,
-        "school": "Conjuration (Summoning)",
-        "cast_time": "1 round",
-        "range": "Close (25 ft + 5 ft/2 levels)",
-        "target": "One summoned creature",
-        "duration": "1 round/level",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "This spell summons a more powerful nature creature to fight on your "
-            "behalf. It appears where you designate and acts immediately, on your turn."
-        ),
+        "level_druid": 3, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Summoning) [see text]',
+        "components": 'V, S, DF',
+        "cast_time": '1 round',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Effect',
+        "target": 'One or more creatures, no two of which can be more than 30 ft. apart',
+        "duration": '1 round/level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'This spell functions like _summon nature’s ally I,_ except that you can summon one 3rd-level creature, 1d3 2nd-level creatures of the same kind, or 1d4+1 1st-level creatures of the same kind.\n\nWhen you use a summoning spell to summon an air, chaotic, earth, evil, fire, good, lawful, or water creature, it is a spell of that type.',
     },
     {
-        "id": "water_breathing",
-        "name": "Water Breathing",
-        "level_druid": 3, "level_cleric": 3, "level_wizard": 3,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Living creatures touched",
-        "duration": "2 hours/level",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "The transmuted creatures can breathe water freely. Divide the duration "
-            "evenly among all the creatures you touch. The spell does not make "
-            "creatures unable to breathe air."
-        ),
+        "id": 'summon_swarm',
+        "name": 'Summon Swarm',
+        "level_druid": 2, "level_cleric": None, "level_wizard": 2, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Summoning)',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 round',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Effect',
+        "target": 'One swarm of bats, rats, or spiders',
+        "duration": 'Concentration + 2 rounds',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'You summon a swarm of bats, rats, or spiders (your choice), which attacks all other creatures within its area. (You may summon the swarm so that it shares the area of other creatures.) If no living creatures are within its area, the swarm attacks or pursues the nearest creature as best it can. The caster has no control over its target or direction of travel.\n\n_Arcane Material Component:_ A square of red cloth.',
     },
     {
-        "id": "wind_wall",
-        "name": "Wind Wall",
-        "level_druid": 3, "level_cleric": 3, "level_wizard": 3,
-        "school": "Evocation",
-        "cast_time": "1 standard action",
-        "range": "Medium (100 ft + 10 ft/level)",
-        "target": "Wall up to 10 ft./level long and 5 ft./level high (S)",
-        "duration": "1 round/level",
-        "save": "None; see text",
-        "spell_resistance": "Yes",
-        "description": (
-            "An invisible vertical curtain of wind appears, 2 feet thick. "
-            "Small flying creatures cannot pass through the wall. Arrows and bolts "
-            "are deflected upward and miss; other ranged weapons have a 30% miss chance."
-        ),
-    },
-    # ── Level 4 ────────────────────────────────────────────────────────────
-    {
-        "id": "flame_strike",
-        "name": "Flame Strike",
-        "level_druid": 4, "level_cleric": 5, "level_wizard": None,
-        "school": "Evocation",
-        "cast_time": "1 standard action",
-        "range": "Medium (100 ft + 10 ft/level)",
-        "target": "Cylinder (10-ft. radius, 40 ft. high)",
-        "duration": "Instantaneous",
-        "save": "Reflex half",
-        "spell_resistance": "Yes",
-        "description": (
-            "A flame strike produces a vertical column of divine fire dealing "
-            "1d6 points of damage per caster level (maximum 15d6). Half the damage "
-            "is fire damage, the other half is divine power not subject to fire "
-            "protection spells."
-        ),
+        "id": 'tree_shape',
+        "name": 'Tree Shape',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Personal',
+        "target_label": 'Target',
+        "target": 'You',
+        "duration": '1 hour/level (D)',
+        "save": None,
+        "spell_resistance": None,
+        "description": 'By means of this spell, you are able to assume the form of a Large living tree or shrub or a Large dead tree trunk with a small number of limbs. The closest inspection cannot reveal that the tree in question is actually a magically concealed creature. To all normal tests you are, in fact, a tree or shrub, although a _detect magic_ spell reveals a faint transmutation on the tree. While in tree form, you can observe all that transpires around you just as if you were in your normal form, and your hit points and save bonuses remain unaffected. You gain a +10 natural armor bonus to AC but have an effective Dexterity score of 0 and a speed of 0 feet. You are immune to critical hits while in tree form. All clothing and gear carried or worn changes with you.\n\nYou can dismiss _tree shape_ as a free action (instead of as a standard action).',
     },
     {
-        "id": "ice_storm",
-        "name": "Ice Storm",
-        "level_druid": 4, "level_cleric": None, "level_wizard": 4,
-        "school": "Evocation",
-        "cast_time": "1 standard action",
-        "range": "Long (400 ft + 40 ft/level)",
-        "target": "Cylinder (20-ft. radius, 40 ft. high)",
-        "duration": "1 full round",
-        "save": "None",
-        "spell_resistance": "Yes",
-        "description": (
-            "Great magical hailstones pound down, dealing 3d6 bludgeoning and 2d6 "
-            "cold damage to every creature in the area. The hail also causes the "
-            "ground in the area to be difficult terrain."
-        ),
+        "id": 'virtue',
+        "name": 'Virtue',
+        "level_druid": 0, "level_cleric": 0, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 min.',
+        "save": 'Fortitude negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'The subject gains 1 temporary hit point.',
     },
     {
-        "id": "freedom_movement",
-        "name": "Freedom of Movement",
-        "level_druid": 4, "level_cleric": 4, "level_wizard": None,
-        "school": "Abjuration",
-        "cast_time": "1 standard action",
-        "range": "Personal or touch",
-        "target": "You or creature touched",
-        "duration": "10 min./level",
-        "save": "Will negates (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "This spell enables you or a creature you touch to move and attack "
-            "normally for the duration of the spell, even under the influence of "
-            "magic that usually impedes movement, such as paralysis, solid fog, "
-            "slow, and web."
-        ),
+        "id": 'warp_wood',
+        "name": 'Warp Wood',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Target',
+        "target": '1 Small wooden object/level, all within a 20-ft. radius',
+        "duration": 'Instantaneous',
+        "save": 'Will negates (object)',
+        "spell_resistance": 'Yes (object)',
+        "description": 'You cause wood to bend and warp, permanently destroying its straightness, form, and strength. A warped door springs open (or becomes stuck, requiring a Strength check to open, at your option). A boat or ship springs a leak. Warped ranged weapons are useless. A warped melee weapon causes a –4 penalty on attack rolls.\n\nYou may warp one Small or smaller object or its equivalent per caster level. A Medium object counts as two Small objects, a Large object as four, a Huge object as eight, a Gargantuan object as sixteen, and a Colossal object as thirty-two.\n\nAlternatively, you can unwarp wood (effectively warping it back to normal) with this spell, straightening wood that has been warped by this spell or by other means. _Make whole_, on the other hand, does no good in repairing a warped item.\n\nYou can combine multiple consecutive _warp wood_ spells to warp (or unwarp) an object that is too large for you to warp with a single spell.\n\nUntil the object is completely warped, it suffers no ill effects.',
     },
     {
-        "id": "reincarnate",
-        "name": "Reincarnate",
-        "level_druid": 4, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "10 minutes",
-        "range": "Touch",
-        "target": "Dead creature touched",
-        "duration": "Instantaneous",
-        "save": "None",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "With this spell, you bring back a dead creature in another body, "
-            "provided that its death occurred no more than one week before the "
-            "casting of the spell and the subject's soul is free and willing to return."
-        ),
-    },
-    # ── Level 5 ────────────────────────────────────────────────────────────
-    {
-        "id": "animal_growth",
-        "name": "Animal Growth",
-        "level_druid": 5, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "1 standard action",
-        "range": "Medium (100 ft + 10 ft/level)",
-        "target": "Up to one animal per two levels",
-        "duration": "1 min./level",
-        "save": "Fortitude negates",
-        "spell_resistance": "Yes",
-        "description": (
-            "One animal per two levels doubles in size and eight times its normal "
-            "weight, changing size by one category. The animal gets +8 Strength and "
-            "+4 Constitution, but -2 Dexterity and -1 on attacks and AC."
-        ),
+        "id": 'water_breathing',
+        "name": 'Water Breathing',
+        "level_druid": 3, "level_cleric": 3, "level_wizard": 3, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Living creatures touched',
+        "duration": '2 hours/level; see text',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'The transmuted creatures can breathe water freely. Divide the duration evenly among all the creatures you touch.\n\nThe spell does not make creatures unable to breathe air.\n\n_Arcane Material Component:_ A short reed or piece of straw.',
     },
     {
-        "id": "commune_nature",
-        "name": "Commune with Nature",
-        "level_druid": 5, "level_cleric": None, "level_wizard": None,
-        "school": "Divination",
-        "cast_time": "10 minutes",
-        "range": "Personal",
-        "target": "You",
-        "duration": "Instantaneous",
-        "save": "None",
-        "spell_resistance": "No",
-        "description": (
-            "You become one with nature, sensing information about the land "
-            "around you. In natural settings, the spell operates in a radius of "
-            "1 mile per caster level."
-        ),
+        "id": 'wind_wall',
+        "name": 'Wind Wall',
+        "level_druid": 3, "level_cleric": 3, "level_wizard": 3, "level_ranger": None, "level_paladin": None,
+        "school": 'Evocation [Air]',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Medium (100 ft. + 10 ft./level)',
+        "target_label": 'Effect',
+        "target": 'Wall up to 10 ft./level long and 5 ft./level high (S)',
+        "duration": '1 round/level',
+        "save": 'None; see text',
+        "spell_resistance": 'Yes',
+        "description": 'An invisible vertical curtain of wind appears. It is 2 feet thick and of considerable strength. It is a roaring blast sufficient to blow away any bird smaller than an eagle, or tear papers and similar materials from unsuspecting hands. (A Reflex save allows a creature to maintain its grasp on an object.) Tiny and Small flying creatures cannot pass through the barrier. Loose materials and cloth garments fly upward when caught in a _wind wall._ Arrows and bolts are deflected upward and miss, while any other normal ranged weapon passing through the wall has a 30% miss chance. (A giant-thrown boulder, a siege engine projectile, and other massive ranged weapons are not affected.) Gases, most gaseous breath weapons, and creatures in gaseous form cannot pass through the wall (although it is no barrier to incorporeal creatures).\n\nWhile the wall must be vertical, you can shape it in any continuous path along the ground that you like. It is possible to create cylindrical or square wind walls to enclose specific points.\n\n_Arcane Material Component:_ A tiny fan and a feather of exotic origin.',
     },
     {
-        "id": "cure_critical_wounds",
-        "name": "Cure Critical Wounds",
-        "level_druid": 5, "level_cleric": 4, "level_wizard": None,
-        "school": "Conjuration (Healing)",
-        "cast_time": "1 standard action",
-        "range": "Touch",
-        "target": "Creature touched",
-        "duration": "Instantaneous",
-        "save": "Will half (harmless)",
-        "spell_resistance": "Yes (harmless)",
-        "description": (
-            "When laying your hand upon a living creature, you channel positive "
-            "energy that cures 4d8 points of damage +1 point per caster level "
-            "(maximum +20)."
-        ),
-    },
-    {
-        "id": "awaken",
-        "name": "Awaken",
-        "level_druid": 5, "level_cleric": None, "level_wizard": None,
-        "school": "Transmutation",
-        "cast_time": "24 hours",
-        "range": "Touch",
-        "target": "Animal or tree touched",
-        "duration": "Instantaneous",
-        "save": "Will negates",
-        "spell_resistance": "Yes",
-        "description": (
-            "You awaken a tree or animal to humanlike sentience. The awakened "
-            "animal or tree is friendly toward you. An awakened tree has "
-            "characteristics as a treant. An awakened animal gains 3d6 Intelligence "
-            "and +1d3 Charisma."
-        ),
+        "id": 'wood_shape',
+        "name": 'Wood Shape',
+        "level_druid": 2, "level_cleric": None, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'One touched piece of wood no larger than 10 cu. ft. + 1 cu. ft./level',
+        "duration": 'Instantaneous',
+        "save": 'Will negates (object)',
+        "spell_resistance": 'Yes (object)',
+        "description": '_Wood shape_ enables you to form one existing piece of wood into any shape that suits your purpose. While it is possible to make crude coffers, doors, and so forth, fine detail isn’t possible. There is a 30% chance that any shape that includes moving parts simply doesn’t work.',
     },
 ]
-
-# ---------------------------------------------------------------------------
-# Skill data
-# ---------------------------------------------------------------------------
 
 SKILLS: list[dict] = [
     {"id": "appraise",           "name": "Appraise",             "ability": "int", "trained_only": 0,
@@ -2336,10 +2106,12 @@ DRUID_LEVELS: list[dict] = [
 SPELL_INSERT = """
 INSERT OR REPLACE INTO spells
     (id, name, level_druid, level_cleric, level_wizard, level_ranger, level_paladin,
-     school, cast_time, range, target, duration, save, spell_resistance, description)
+     school, cast_time, range, target, target_label, duration, save, spell_resistance,
+     components, description)
 VALUES
     (:id, :name, :level_druid, :level_cleric, :level_wizard, :level_ranger, :level_paladin,
-     :school, :cast_time, :range, :target, :duration, :save, :spell_resistance, :description)
+     :school, :cast_time, :range, :target, :target_label, :duration, :save, :spell_resistance,
+     :components, :description)
 """
 
 FEAT_INSERT = """
@@ -2381,6 +2153,8 @@ def seed() -> None:
             "cast_time": spell.get("cast_time"),
             "range": spell.get("range"),
             "target": spell.get("target"),
+            "target_label": spell.get("target_label"),
+            "components": spell.get("components"),
             "duration": spell.get("duration"),
             "save": spell.get("save"),
             "spell_resistance": spell.get("spell_resistance"),
