@@ -108,6 +108,10 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .skill-ability{color:var(--muted);font-size:.75rem;margin-left:.3rem;}
 .skill-ranks{color:var(--muted);font-size:.8rem;}
 .skill-total{color:var(--accent);font-weight:bold;min-width:2.5rem;text-align:right;}
+.skill-row.untrained .skill-name{color:var(--muted);}
+.skill-row.unusable{opacity:.55;}
+.skill-trained{color:var(--muted);font-size:.7rem;margin-left:.3rem;}
+.skill-na{color:var(--muted);font-style:italic;font-weight:normal;min-width:2.5rem;text-align:right;}
 
 /* Feats */
 .feat-item{padding:.4rem 0;border-bottom:1px solid var(--border);cursor:pointer;}
@@ -532,7 +536,30 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       </span>
     </div>
     <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ cp.ac }}</span></div>
+    {% if cp.speed %}<div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ cp.speed }} ft</span></div>{% endif %}
     <div class="stat-row"><span class="stat-label">Bid</span><span class="stat-val" style="font-size:.8rem">{{ cp.attack_bite }}</span></div>
+
+    {% if cp.skills %}
+    <div style="margin-top:.6rem;color:var(--muted);font-size:.7rem;font-style:italic;text-transform:uppercase;letter-spacing:.05em">Skills <span style="text-transform:none">(klik total for at slå)</span></div>
+    {% for sk in cp.skills %}
+    <div class="stat-row">
+      <span class="stat-label">{{ sk.name }}{% if sk.note %}<span style="color:var(--muted);font-size:.7rem;font-style:italic">&nbsp;·&nbsp;{{ sk.note }}</span>{% endif %}</span>
+      <span class="stat-val roll-tap"
+            onclick="quickRoll('1d20{{ "%+d"|format(sk.total) }}','{{ sk.name }} (Varg)')"
+            title="Slå {{ sk.name }} for Varg">{{ "%+d"|format(sk.total) }}</span>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if cp.feats %}
+    <div style="margin-top:.6rem;color:var(--muted);font-size:.7rem;font-style:italic;text-transform:uppercase;letter-spacing:.05em">Feats</div>
+    <div class="stat-row"><span class="stat-val" style="font-size:.8rem">{{ cp.feats|join(', ') }}</span></div>
+    {% endif %}
+
+    {% if cp.tricks %}
+    <div style="margin-top:.6rem;color:var(--muted);font-size:.7rem;font-style:italic;text-transform:uppercase;letter-spacing:.05em">Tricks</div>
+    <div class="stat-row"><span class="stat-val" style="font-size:.8rem">{{ cp.tricks|join(', ') }}</span></div>
+    {% endif %}
   </div>
   {% endif %}
 
@@ -544,20 +571,25 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 <div id="tab-skills" class="tab-panel">
 
   <div class="section">
-    <div class="section-title">Skills <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik navn for detaljer · klik total for at slå)</span></div>
+    <div class="section-title">Skills <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik navn for detaljer · klik total for at slå · ▲ = trænet kun)</span></div>
     {% for item in skill_data %}
     {% set s = item.skill %}
     {% set defn = item.defn %}
-    <div class="skill-row" onclick="showDetail('skill','{{ s.id }}')">
+    <div class="skill-row{% if not item.ranked %} untrained{% endif %}{% if not item.usable %} unusable{% endif %}" onclick="showDetail('skill','{{ s.id }}')">
       <span>
         <span class="skill-name">{{ defn.name if defn else s.id }}</span>
         <span class="skill-ability">({{ defn.ability|upper if defn else "?" }})</span>
+        {% if item.trained_only %}<span class="skill-trained" title="Trænet kun — kan ikke bruges utrænet">▲</span>{% endif %}
       </span>
       <span style="display:flex;align-items:baseline;gap:.8rem">
         <span class="skill-ranks">{{ s.ranks|int }} ranks{% if item.synergy > 0 %}&nbsp;<span style="color:var(--green);font-size:.7rem" title="Synergibonus fra andre skills">+{{ item.synergy }}⟳</span>{% endif %}</span>
+        {% if item.usable %}
         <span class="skill-total roll-tap"
               onclick="event.stopPropagation();quickRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }}')"
-              title="Slå {{ defn.name if defn else s.id }}{% if item.synergy > 0 %} (inkl. +{{ item.synergy }} synergi){% endif %}">{{ "%+d"|format(item.total) }}</span>
+              title="Slå {{ defn.name if defn else s.id }}{% if item.synergy > 0 %} (inkl. +{{ item.synergy }} synergi){% endif %}{% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.total) }}</span>
+        {% else %}
+        <span class="skill-na" title="Trænet kun — Tjørn har ingen ranks, så denne kan ikke bruges utrænet">—</span>
+        {% endif %}
       </span>
     </div>
     {% endfor %}

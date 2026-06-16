@@ -81,12 +81,23 @@ def karakter(name):
     }
 
     synergy_bonuses = char_module.compute_synergy_bonuses(char.skills)
-    skill_data = [
-        {"skill": s, "defn": db.get_skill(s.id),
-         "total": char_module.skill_total(s, ab, db, synergy_bonuses.get(s.id, 0)),
-         "synergy": synergy_bonuses.get(s.id, 0)}
-        for s in char.skills
-    ]
+    char_skill_map = {s.id: s for s in char.skills}
+    skill_data = []
+    for defn in db.get_all_skills():
+        s = char_skill_map.get(defn["id"]) or char_module.Skill(id=defn["id"], ranks=0.0)
+        synergy = synergy_bonuses.get(s.id, 0)
+        ranked = int(s.ranks) > 0
+        trained_only = bool(defn.get("trained_only"))
+        skill_data.append({
+            "skill": s, "defn": defn,
+            "total": char_module.skill_total(s, ab, db, synergy),
+            "synergy": synergy,
+            "ranked": ranked,
+            "trained_only": trained_only,
+            # Utrænet kan kun bruges hvis skill'en ikke er trained-only,
+            # eller hvis Tjørn faktisk har ranks i den.
+            "usable": ranked or not trained_only,
+        })
     feat_data  = [(fid, db.get_feat(fid)) for fid in char.feats]
 
     spell_data: dict[int, list] = {}
