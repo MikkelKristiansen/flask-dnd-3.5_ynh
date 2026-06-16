@@ -433,6 +433,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 <!-- ── Tabs ── -->
 <div class="tabs">
   <button class="tab-btn active" onclick="showTab('oversigt',this)">Oversigt</button>
+  {% if char.companion %}<button class="tab-btn" onclick="showTab('companion',this)">🐾 {{ char.companion.name }}</button>{% endif %}
   <button class="tab-btn" onclick="showTab('skills',this)">Skills & Feats</button>
   <button class="tab-btn" onclick="showTab('spells',this)">Trylleformler</button>
   <button class="tab-btn" onclick="showTab('udstyr',this)">Udstyr</button>
@@ -537,10 +538,17 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   </div>
   {% endif %}
 
-  {% if char.companion %}
-  {% set cp = char.companion %}
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- Tab: Dyreledsager (companion)                 -->
+<!-- ══════════════════════════════════════════════ -->
+{% if char.companion %}
+{% set cp = char.companion %}
+<div id="tab-companion" class="tab-panel">
+
   <div class="section">
-    <div class="section-title">Dyreledsager — {{ cp.name }} ({{ cp.type }})</div>
+    <div class="section-title">{{ cp.name }}{% if cp.type %} — {{ cp.type }}{% endif %}</div>
     <div class="stat-row">
       <span class="stat-label">HP</span>
       <span style="display:flex;align-items:center;gap:.4rem">
@@ -549,35 +557,47 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
         <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjCompHp(+1)">+</button>
       </span>
     </div>
-    <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ cp.ac }}</span></div>
+    {% if cp.ac is defined %}<div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ cp.ac }}</span></div>{% endif %}
     {% if cp.speed %}<div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ cp.speed }} ft</span></div>{% endif %}
-    <div class="stat-row"><span class="stat-label">Bid</span><span class="stat-val" style="font-size:.8rem">{{ cp.attack_bite }}</span></div>
+    {% if cp.attack_bite %}<div class="stat-row"><span class="stat-label">Bid</span><span class="stat-val" style="font-size:.8rem">{{ cp.attack_bite }}</span></div>{% endif %}
+    {% if cp.trip %}<div class="stat-row"><span class="stat-label">Trip</span><span class="stat-val" style="font-size:.8rem">{{ cp.trip }}</span></div>{% endif %}
+  </div>
 
-    {% if cp.skills %}
-    <div style="margin-top:.6rem;color:var(--muted);font-size:.7rem;font-style:italic;text-transform:uppercase;letter-spacing:.05em">Skills <span style="text-transform:none">(klik total for at slå)</span></div>
+  {% if cp.skills %}
+  <div class="section">
+    <div class="section-title">Skills <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik modifier for at slå)</span></div>
     {% for sk in cp.skills %}
-    <div class="stat-row">
-      <span class="stat-label">{{ sk.name }}{% if sk.note %}<span style="color:var(--muted);font-size:.7rem;font-style:italic">&nbsp;·&nbsp;{{ sk.note }}</span>{% endif %}</span>
-      <span class="stat-val roll-tap"
-            onclick="quickRoll('1d20{{ "%+d"|format(sk.total) }}','{{ sk.name }} (Varg)')"
-            title="Slå {{ sk.name }} for Varg">{{ "%+d"|format(sk.total) }}</span>
+    <div class="skill-row" style="cursor:default">
+      <span>
+        <span class="skill-name">{{ sk.name }}</span>
+        {% if sk.note %}<span class="skill-ability" style="font-style:italic">{{ sk.note }}</span>{% endif %}
+      </span>
+      <span class="skill-total roll-tap"
+            onclick="quickRoll('1d20{{ "%+d"|format(sk.total) }}','{{ sk.name }} ({{ cp.name }})')"
+            title="Slå {{ sk.name }} for {{ cp.name }}">{{ "%+d"|format(sk.total) }}</span>
     </div>
     {% endfor %}
-    {% endif %}
+  </div>
+  {% endif %}
 
+  {% if cp.feats or cp.tricks or cp.special %}
+  <div class="section">
+    <div class="section-title">Evner</div>
     {% if cp.feats %}
-    <div style="margin-top:.6rem;color:var(--muted);font-size:.7rem;font-style:italic;text-transform:uppercase;letter-spacing:.05em">Feats</div>
-    <div class="stat-row"><span class="stat-val" style="font-size:.8rem">{{ cp.feats|join(', ') }}</span></div>
+    <div class="stat-row"><span class="stat-label">Feats</span><span class="stat-val" style="font-size:.8rem;text-align:right">{{ cp.feats|join(', ') }}</span></div>
     {% endif %}
-
+    {% if cp.special %}
+    <div class="stat-row"><span class="stat-label">Special</span><span class="stat-val" style="font-size:.8rem;text-align:right">{{ cp.special|join(', ') }}</span></div>
+    {% endif %}
     {% if cp.tricks %}
     <div style="margin-top:.6rem;color:var(--muted);font-size:.7rem;font-style:italic;text-transform:uppercase;letter-spacing:.05em">Tricks</div>
-    <div class="stat-row"><span class="stat-val" style="font-size:.8rem">{{ cp.tricks|join(', ') }}</span></div>
+    <div style="font-size:.85rem;margin-top:.2rem">{{ cp.tricks|join(', ') }}</div>
     {% endif %}
   </div>
   {% endif %}
 
 </div>
+{% endif %}
 
 <!-- ══════════════════════════════════════════════ -->
 <!-- Tab 2: Skills & Feats                         -->
