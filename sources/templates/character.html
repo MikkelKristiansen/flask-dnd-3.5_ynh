@@ -339,6 +339,8 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .modal-row:last-child{border-bottom:none;}
 .modal-key{color:var(--muted);}
 .modal-val{color:var(--text);text-align:right;max-width:65%;}
+.cond-link{color:var(--accent);border-bottom:1px dotted var(--accent);cursor:pointer;font-weight:600;}
+.cond-link:hover{background:var(--card);}
 </style>
 </head>
 <body>
@@ -524,7 +526,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
             onclick="showDetail('spell','{{ sla.id }}')"
             onmouseenter="showSlaTooltip(event,'{{ sla.id }}')"
             onmouseleave="hideSpellTooltip()">
-        {{ sla.spell.name if sla.spell else sla.id }}{% if sla.note %} <em>({{ sla.note }})</em>{% endif %} — {{ sla.freq }}
+        {{ sla.spell.name if sla.spell else sla.id }}{% if sla.note %} <em>({{ sla.note }})</em>{% endif %} — {{ sla.freq }}{% if sla.save_dc %} <span style="color:var(--accent);font-size:.72rem" title="Save DC monstre skal slå: {{ sla.save_text }}">· DC {{ sla.save_dc }}</span>{% endif %}
       </span>
       {% endfor %}
     </div>
@@ -625,9 +627,18 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       <span style="display:flex;align-items:baseline;gap:.8rem">
         <span class="skill-ranks">{{ s.ranks|int }} ranks{% if item.synergy > 0 %}&nbsp;<span style="color:var(--green);font-size:.7rem" title="Synergibonus fra andre skills">+{{ item.synergy }}⟳</span>{% endif %}</span>
         {% if item.usable %}
+        {% if item.synergy > 0 %}
+        <span class="skill-total roll-tap"
+              onclick="event.stopPropagation();quickRoll('1d20{{ "%+d"|format(item.base_total) }}','{{ defn.name if defn else s.id }}')"
+              title="Slå {{ defn.name if defn else s.id }} (uden synergi){% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.base_total) }}</span>
+        <span class="skill-total roll-tap" style="color:var(--green);font-size:.82rem"
+              onclick="event.stopPropagation();quickRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }} (m. synergi)')"
+              title="Slå {{ defn.name if defn else s.id }} inkl. +{{ item.synergy }} situationsbestemt synergi">{{ "%+d"|format(item.total) }}⟳</span>
+        {% else %}
         <span class="skill-total roll-tap"
               onclick="event.stopPropagation();quickRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }}')"
-              title="Slå {{ defn.name if defn else s.id }}{% if item.synergy > 0 %} (inkl. +{{ item.synergy }} synergi){% endif %}{% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.total) }}</span>
+              title="Slå {{ defn.name if defn else s.id }}{% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.total) }}</span>
+        {% endif %}
         {% else %}
         <span class="skill-na" title="Trænet kun — Tjørn har ingen ranks, så denne kan ikke bruges utrænet">—</span>
         {% endif %}
@@ -993,6 +1004,59 @@ const allConditions = {};
 allConditions["{{ cond.id }}"] = { name: "{{ cond.name }}", summary: {{ cond.summary|tojson }} };
 {% endfor %}
 
+// Navn → id, så condition-ord i beskrivelser kan gøres klikbare
+const conditionByName = {};
+Object.keys(allConditions).forEach(id => {
+  conditionByName[allConditions[id].name.toLowerCase().replace(/-/g, " ")] = id;
+});
+
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+// Gør condition-navne i et renderet element klikbare. Kun første forekomst
+// pr. condition, kun i tekstnoder (rører ikke HTML-tags/attributter).
+// skipId udelades (en condition skal ikke linke til sig selv).
+function linkConditions(rootEl, skipId) {
+  const names = Object.keys(conditionByName)
+    .filter(n => conditionByName[n] !== skipId)
+    .sort((a, b) => b.length - a.length);
+  if (!names.length) return;
+  // navne er normaliseret med mellemrum; tillad bindestreg i teksten (flat-footed)
+  const alt = names.map(n => escRe(n).replace(/ /g, "[\\s-]+")).join("|");
+  const pattern = new RegExp("\\b(" + alt + ")\\b", "gi");
+  const linked = new Set();
+  const textNodes = [];
+  const walker = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT);
+  let n;
+  while (n = walker.nextNode()) {
+    if (!n.parentElement || n.parentElement.closest(".cond-link")) continue;
+    textNodes.push(n);
+  }
+  textNodes.forEach(textNode => {
+    const text = textNode.textContent;
+    const frag = document.createDocumentFragment();
+    let lastIndex = 0, m, replaced = false;
+    pattern.lastIndex = 0;
+    while (m = pattern.exec(text)) {
+      const id = conditionByName[m[0].toLowerCase().replace(/-/g, " ")];
+      if (!id || linked.has(id)) continue;
+      linked.add(id);
+      replaced = true;
+      frag.appendChild(document.createTextNode(text.slice(lastIndex, m.index)));
+      const span = document.createElement("span");
+      span.className = "cond-link";
+      span.textContent = m[0];
+      span.title = "Vis forklaring";
+      span.onclick = (e) => { e.stopPropagation(); showDetail("condition", id); };
+      frag.appendChild(span);
+      lastIndex = m.index + m[0].length;
+    }
+    if (replaced) {
+      frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+      textNode.parentNode.replaceChild(frag, textNode);
+    }
+  });
+}
+
 // ── Companion HP ──────────────────────────────────────────────────────────
 {% if char.companion %}
 let compHpCurrent = {{ char.companion.get('hp', {}).get('current', 0) }};
@@ -1339,6 +1403,11 @@ function showDetail(dtype, did) {
       title.textContent = data.name;
       subtitle.textContent = data.summary || "";
       body.innerHTML = `<p style="line-height:1.5">${data.description || ""}</p>`;
+    }
+
+    // Gør condition-ord i beskrivelsen klikbare (ikke for skills — kort tekst)
+    if (dtype === "spell" || dtype === "feat" || dtype === "condition") {
+      linkConditions(body, dtype === "condition" ? did : null);
     }
 
     document.getElementById("modal-overlay").classList.add("open");

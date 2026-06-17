@@ -88,9 +88,13 @@ def karakter(name):
         synergy = synergy_bonuses.get(s.id, 0)
         ranked = int(s.ranks) > 0
         trained_only = bool(defn.get("trained_only"))
+        total = char_module.skill_total(s, ab, db, synergy)
         skill_data.append({
             "skill": s, "defn": defn,
-            "total": char_module.skill_total(s, ab, db, synergy),
+            "total": total,
+            # Synergibonusser er situationsbetingede (SRD) — vis også den "rene"
+            # total uden synergi, så man kender værdien når synergien ikke gælder.
+            "base_total": total - synergy,
             "synergy": synergy,
             "ranked": ranked,
             "trained_only": trained_only,
@@ -183,11 +187,33 @@ def karakter(name):
             spell_id = re.sub(r"[^a-z0-9]+", "_", clean_name.lower()).strip("_")
         else:
             continue
+        spell = db.get_spell(spell_id)
+
+        # Save-DC som monstre skal slå for at modstå evnen.
+        # SLA-formel (SRD): 10 + spell level + Cha-modifier. Gnomen lægger +1
+        # til DC for illusionsskoler.
+        save_dc = None
+        save_text = None
+        if spell:
+            levels = [spell.get(f"level_{c}") for c in
+                      ("druid", "cleric", "wizard", "ranger", "paladin")]
+            levels = [lv for lv in levels if lv is not None]
+            raw_save = (spell.get("save") or "").strip()
+            # "None"/tom = ingen redningskast, så ingen DC at vise.
+            if levels and raw_save.lower() != "none" and raw_save != "":
+                extra = char.gnome_racial.get("illusion_dc_bonus", 0) \
+                    if "illusion" in (spell.get("school") or "").lower() else 0
+                save_dc = char_module.spell_like_dc(
+                    min(levels), ab.modifier("cha"), extra)
+                save_text = raw_save
+
         sla_data.append({
             "id":    spell_id,
             "note":  note,
             "freq":  freq,
-            "spell": db.get_spell(spell_id),
+            "spell": spell,
+            "save_dc":   save_dc,
+            "save_text": save_text,
         })
 
     # Druid spells grouped by level — for preparation modal

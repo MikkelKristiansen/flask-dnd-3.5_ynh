@@ -468,6 +468,15 @@ def class_skills(cls: str) -> set[str]:
     return _CLASS_SKILLS.get(cls.lower(), set())
 
 
+def spell_like_dc(spell_level: int, cha_modifier: int, extra: int = 0) -> int:
+    """Save-DC for en spell-like ability: 10 + spell level + Cha-modifier.
+
+    Gnomens SLA'er er Cha-baserede (SRD). `extra` rummer fx gnomens +1 til
+    DC for illusionsskoler.
+    """
+    return 10 + spell_level + cha_modifier + extra
+
+
 def encumbrance_consequences(enc_level: str, base_speed: int) -> dict:
     """Returns encumbrance penalties per D&D 3.5 PHB p.162."""
     if enc_level == "Light":
