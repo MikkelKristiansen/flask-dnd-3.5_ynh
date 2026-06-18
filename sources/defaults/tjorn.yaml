@@ -193,7 +193,7 @@ class_features:
   spontaneous_casting: Kan ofre forberedt spell → Summon Nature's Ally (1 fuld runde)
   animal_companion: Varg (Wolf)
 
-gnome_racial:
+racial_traits:
   stat_mods: +2 CON, -2 STR
   size: Small
   size_bonuses: +1 AC, +1 angreb, +4 Hide

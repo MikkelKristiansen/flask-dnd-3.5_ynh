@@ -151,7 +151,7 @@ def karakter(name):
         "new_level":     new_level,
         "hit_die":       char_module.hit_die(char.cls),
         "con_modifier":  ab.modifier("con"),
-        "skill_points":  char_module.skill_points_per_level(char.cls, ab.modifier("int")),
+        "skill_points":  char_module.skill_points_per_level(char.cls, ab.modifier("int"), char.race),
         "feat_level":    char_module.is_feat_level(new_level),
         "ability_level": char_module.is_ability_level(new_level),
         "new_features":  new_features,
@@ -172,7 +172,7 @@ def karakter(name):
 
     # Gnome spell-like abilities with DB lookup
     sla_data = []
-    for sla in char.gnome_racial.get("spell_like_abilities", []):
+    for sla in char.racial_traits.get("spell_like_abilities", []):
         if isinstance(sla, dict) and sla.get("id"):
             spell_id = sla["id"]
             note     = sla.get("note", "")
@@ -201,7 +201,7 @@ def karakter(name):
             raw_save = (spell.get("save") or "").strip()
             # "None"/tom = ingen redningskast, så ingen DC at vise.
             if levels and raw_save.lower() != "none" and raw_save != "":
-                extra = char.gnome_racial.get("illusion_dc_bonus", 0) \
+                extra = char.racial_traits.get("illusion_dc_bonus", 0) \
                     if "illusion" in (spell.get("school") or "").lower() else 0
                 save_dc = char_module.spell_like_dc(
                     min(levels), ab.modifier("cha"), extra)
@@ -225,6 +225,28 @@ def karakter(name):
         if lvl is not None:
             available_spells.setdefault(lvl, []).append(spell)
 
+    # Domain spells — a cleric with chosen domains gets one domain slot per
+    # spell level he can cast (SRD). The slot may only hold a domain spell.
+    domain_slots: dict[int, int] = {}
+    domains_info: list = []
+    domain_available: dict[int, list] = {}
+    domain_prepared: dict[int, dict] = {}
+    if char.domains:
+        domains_info = db.get_domains(char.domains)
+        domain_slots = {lvl: 1 for lvl in slots if lvl >= 1}
+        for spell in db.get_domain_spells(char.domains):
+            lvl = spell.get("domain_level")
+            if lvl in domain_slots:
+                domain_available.setdefault(lvl, []).append(spell)
+        for lvl in domain_slots:
+            sid = char.domain_spells_prepared.get(lvl)
+            if sid:
+                domain_prepared[lvl] = {
+                    "id": sid,
+                    "spell": db.get_spell(sid),
+                    "used": bool(char.domain_spells_used.get(lvl, False)),
+                }
+
     return render_template(
         "character.html",
         name=name,
@@ -244,6 +266,10 @@ def karakter(name):
         base_speed=base_speed,
         inventory_json=inventory_json,
         available_spells=available_spells,
+        domain_slots=domain_slots,
+        domains_info=domains_info,
+        domain_available=domain_available,
+        domain_prepared=domain_prepared,
         sla_data=sla_data,
         levelup_info=levelup_info,
         all_feats_json=all_feats_json,
@@ -429,15 +455,39 @@ def api_prepare():
     data = request.get_json()
     slug     = data.get("char")
     prepared = data.get("prepared_spells", {})   # {level_str: [spell_ids]}
+    domain   = data.get("domain_prepared", {})   # {level_str: spell_id}
     path = _char_path(slug)
     if not path.exists():
         return jsonify({"error": "not found"}), 404
     prepared_int = {int(k): list(v) for k, v in prepared.items()}
+    domain_int = {int(k): str(v) for k, v in domain.items() if v}
     char_module.save_character(str(path), {
         "spells_prepared": prepared_int,
         "spells_used": {},          # ny forberedelse nulstiller brug
+        "domain_spells_prepared": domain_int,
+        "domain_spells_used": {},   # ny forberedelse nulstiller domæne-brug
     })
-    return jsonify({"ok": True, "prepared_spells": {str(k): v for k, v in prepared_int.items()}})
+    return jsonify({
+        "ok": True,
+        "prepared_spells": {str(k): v for k, v in prepared_int.items()},
+        "domain_prepared": {str(k): v for k, v in domain_int.items()},
+    })
+
+
+@app.route("/api/domain_used", methods=["POST"])
+def api_domain_used():
+    data  = request.get_json()
+    slug  = data.get("char")
+    level = int(data.get("level", 0))
+    used  = bool(data.get("used", False))
+    path  = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char = char_module.load_character(str(path))
+    domain_used = dict(char.domain_spells_used)
+    domain_used[level] = used
+    char_module.save_character(str(path), {"domain_spells_used": domain_used})
+    return jsonify({"ok": True, "domain_spells_used": {str(k): v for k, v in domain_used.items()}})
 
 
 @app.route("/api/newday", methods=["POST"])
@@ -447,7 +497,7 @@ def api_newday():
     path = _char_path(slug)
     if not path.exists():
         return jsonify({"error": "not found"}), 404
-    char_module.save_character(str(path), {"spells_used": {}})
+    char_module.save_character(str(path), {"spells_used": {}, "domain_spells_used": {}})
     return jsonify({"ok": True})
 
 

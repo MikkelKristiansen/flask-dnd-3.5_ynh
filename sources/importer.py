@@ -90,6 +90,43 @@ CREATE TABLE druid_levels (
     spells_9    INTEGER NOT NULL,
     features    TEXT NOT NULL
 );
+
+DROP TABLE IF EXISTS cleric_levels;
+CREATE TABLE cleric_levels (
+    level       INTEGER PRIMARY KEY,
+    hd          TEXT NOT NULL,
+    skill_points INTEGER NOT NULL,
+    bab         INTEGER NOT NULL,
+    fort        INTEGER NOT NULL,
+    ref         INTEGER NOT NULL,
+    will        INTEGER NOT NULL,
+    spells_0    INTEGER NOT NULL,
+    spells_1    INTEGER NOT NULL,
+    spells_2    INTEGER NOT NULL,
+    spells_3    INTEGER NOT NULL,
+    spells_4    INTEGER NOT NULL,
+    spells_5    INTEGER NOT NULL,
+    spells_6    INTEGER NOT NULL,
+    spells_7    INTEGER NOT NULL,
+    spells_8    INTEGER NOT NULL,
+    spells_9    INTEGER NOT NULL,
+    features    TEXT NOT NULL
+);
+
+DROP TABLE IF EXISTS domains;
+CREATE TABLE domains (
+    id            TEXT PRIMARY KEY,
+    name          TEXT NOT NULL,
+    granted_power TEXT NOT NULL
+);
+
+DROP TABLE IF EXISTS domain_spells;
+CREATE TABLE domain_spells (
+    domain_id TEXT NOT NULL,
+    level     INTEGER NOT NULL,
+    spell_id  TEXT NOT NULL,
+    PRIMARY KEY (domain_id, level)
+);
 """
 
 # ---------------------------------------------------------------------------
@@ -338,6 +375,426 @@ SPELLS: list[dict] = [
         "description": 'When laying your hand upon a living creature, you channel positive energy that cures 1d8 points of damage +1 point per caster level (maximum +5).\n\nSince undead are powered by negative energy, this spell deals damage to them instead of curing their wounds. An undead creature can apply spell resistance, and can attempt a Will save to take half damage.',
     },
     {
+        "id": 'bless',
+        "name": 'Bless',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": 1,
+        "school": 'Enchantment (Compulsion) [Mind-Affecting]',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": '50 ft.',
+        "target_label": 'Area',
+        "target": 'The caster and all allies within a 50-ft. burst, centered on the caster',
+        "duration": '1 min./level',
+        "save": 'None',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'Bless fills your allies with courage. Each ally gains a +1 morale bonus on attack rolls and on saving throws against fear effects.\n\nBless counters and dispels bane.',
+    },
+    {
+        "id": 'sanctuary',
+        "name": 'Sanctuary',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 round/level',
+        "save": 'Will negates; see text',
+        "spell_resistance": 'No',
+        "description": 'Any opponent attempting to strike or otherwise directly attack the warded creature, even with a targeted spell, must attempt a Will save. If the save succeeds, the opponent can attack normally and is unaffected by that casting of the spell. If the save fails, the opponent can\'t follow through with the attack, that part of its action is lost, and it can\'t directly attack the warded creature for the duration of the spell. Those not attempting to attack the subject remain unaffected.\n\nThis spell does not prevent the warded creature from being attacked or affected by area or effect spells. The subject cannot attack without breaking the protection but may use nonattack spells or otherwise act. The warded creature can attack with impunity and still be protected from harm as long as it adheres to these restrictions.',
+    },
+    {
+        "id": 'inflict_minor_wounds',
+        "name": 'Inflict Minor Wounds',
+        "level_druid": None, "level_cleric": 0, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Necromancy',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": 'Instantaneous',
+        "save": 'Will half',
+        "spell_resistance": 'Yes',
+        "description": 'When laying your hand upon a creature, you channel negative energy that deals 1 point of damage to it. Since undead are powered by negative energy, this spell cures such a creature of 1 point of damage, rather than harming it.',
+    },
+    {
+        "id": 'bane',
+        "name": 'Bane',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Enchantment (Compulsion) [Fear, Mind-Affecting]',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": '50 ft.',
+        "target_label": 'Area',
+        "target": 'All enemies within 50 ft.',
+        "duration": '1 min./level',
+        "save": 'Will negates',
+        "spell_resistance": 'Yes',
+        "description": 'Bane fills your enemies with fear and doubt. Each affected creature takes a -1 penalty on attack rolls and a -1 penalty on saving throws against fear effects.\n\nBane counters and dispels bless.',
+    },
+    {
+        "id": 'bless_water',
+        "name": 'Bless Water',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": 1,
+        "school": 'Transmutation [Good]',
+        "components": 'V, S, M',
+        "cast_time": '1 minute',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Flask of water touched',
+        "duration": 'Instantaneous',
+        "save": 'Will negates (object)',
+        "spell_resistance": 'Yes (object)',
+        "description": 'This transmutation imbues a flask (1 pint) of water with positive energy, turning it into holy water.',
+    },
+    {
+        "id": 'cause_fear',
+        "name": 'Cause Fear',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Necromancy [Fear, Mind-Affecting]',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Target',
+        "target": 'One living creature with 5 or fewer HD',
+        "duration": '1d4 rounds or 1 round; see text',
+        "save": 'Will partial',
+        "spell_resistance": 'Yes',
+        "description": 'The affected creature becomes frightened. If the subject succeeds on a Will save, it is shaken for 1 round. Creatures with 6 or more Hit Dice are immune to this effect. _Cause fear_ counters and dispels _remove fear_.',
+    },
+    {
+        "id": 'command',
+        "name": 'Command',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Enchantment (Compulsion) [Language-Dependent, Mind-Affecting]',
+        "components": 'V',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Target',
+        "target": 'One living creature',
+        "duration": '1 round',
+        "save": 'Will negates',
+        "spell_resistance": 'Yes',
+        "description": 'You give the subject a single command, which it obeys to the best of its ability at its earliest opportunity. You may select from the following options.\n\n_Approach:_ On its turn, the subject moves toward you as quickly and directly as possible for 1 round.\n\n_Drop:_ On its turn, the subject drops whatever it is holding.\n\n_Fall:_ On its turn, the subject falls to the ground and remains prone for 1 round.\n\n_Flee:_ On its turn, the subject moves away from you as quickly as possible for 1 round.\n\n_Halt:_ The subject stands in place for 1 round. It may not take any actions but is not considered helpless.\n\nIf the subject can\'t carry out your command on its turn, the spell automatically fails.',
+    },
+    {
+        "id": 'comprehend_languages',
+        "name": 'Comprehend Languages',
+        "level_druid": None, "level_cleric": 1, "level_wizard": 1, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Personal',
+        "target_label": 'Target',
+        "target": 'You',
+        "duration": '10 min./level',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'You can understand the spoken words of creatures or read otherwise incomprehensible written messages. The ability to read does not necessarily impart insight into the material, merely its literal meaning. The spell enables you to understand or read an unknown language, not speak or write it.\n\nWritten material can be read at the rate of one page (250 words) per minute. Magical writing cannot be read, though the spell reveals that it is magical. This spell does not decipher codes or reveal messages concealed in otherwise normal text.\n\n_Comprehend languages_ can be made permanent with a _permanency_ spell.',
+    },
+    {
+        "id": 'curse_water',
+        "name": 'Curse Water',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Necromancy [Evil]',
+        "components": 'V, S, M',
+        "cast_time": '1 minute',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Flask of water touched',
+        "duration": 'Instantaneous',
+        "save": 'Will negates (object)',
+        "spell_resistance": 'Yes (object)',
+        "description": 'This spell imbues a flask (1 pint) of water with negative energy, turning it into unholy water. Unholy water damages good outsiders the way holy water damages undead and evil outsiders.',
+    },
+    {
+        "id": 'deathwatch',
+        "name": 'Deathwatch',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Necromancy',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '30 ft.',
+        "target_label": 'Area',
+        "target": 'Cone-shaped emanation',
+        "duration": '10 min./level',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'Using the powers of necromancy, you can determine the condition of creatures near death within the spell\'s range. You instantly know whether each creature within the area is dead, fragile (alive and wounded, with 3 or fewer hit points left), fighting off death (alive with 4 or more hit points), healthy, undead, or neither alive nor dead (such as a construct).\n\n_Deathwatch_ sees through any spell or ability that allows creatures to feign death.',
+    },
+    {
+        "id": 'detect_chaos',
+        "name": 'Detect Chaos',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '60 ft.',
+        "target_label": 'Area',
+        "target": 'Cone-shaped emanation',
+        "duration": 'Concentration, up to 10 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'This spell functions like _detect evil_, except that it detects the auras of chaotic creatures, clerics of chaotic deities, chaotic spells, and chaotic magic items, and you are vulnerable to an overwhelming chaotic aura if you are lawful.',
+    },
+    {
+        "id": 'detect_evil',
+        "name": 'Detect Evil',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '60 ft.',
+        "target_label": 'Area',
+        "target": 'Cone-shaped emanation',
+        "duration": 'Concentration, up to 10 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'You can sense the presence of evil. The amount of information revealed depends on how long you study a particular area or subject.\n\n_1st Round:_ Presence or absence of evil.\n\n_2nd Round:_ Number of evil auras (creatures, objects, or spells) in the area and the power of the most potent evil aura.\n\n_3rd Round:_ The strength and location of each aura. If an aura is outside your line of sight, then you discern its direction but not its exact location.\n\nThe aura power of a creature depends on its type and Hit Dice; that of an undead or evil outsider can be overwhelming. If you are of good alignment and the strongest evil aura\'s power is overwhelming, and the HD or level of the aura\'s source is at least twice your character level, you are stunned for 1 round and the spell ends.\n\nEach round, you can turn to detect evil in a new area. The spell can penetrate barriers, but 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt blocks it.',
+    },
+    {
+        "id": 'detect_good',
+        "name": 'Detect Good',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '60 ft.',
+        "target_label": 'Area',
+        "target": 'Cone-shaped emanation',
+        "duration": 'Concentration, up to 10 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'This spell functions like _detect evil_, except that it detects the auras of good creatures, clerics of good deities, good spells, and good magic items, and you are vulnerable to an overwhelming good aura if you are evil.',
+    },
+    {
+        "id": 'detect_law',
+        "name": 'Detect Law',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": '60 ft.',
+        "target_label": 'Area',
+        "target": 'Cone-shaped emanation',
+        "duration": 'Concentration, up to 10 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'This spell functions like _detect evil_, except that it detects the auras of lawful creatures, clerics of lawful deities, lawful spells, and lawful magic items, and you are vulnerable to an overwhelming lawful aura if you are chaotic.',
+    },
+    {
+        "id": 'detect_undead',
+        "name": 'Detect Undead',
+        "level_druid": None, "level_cleric": 1, "level_wizard": 1, "level_ranger": None, "level_paladin": None,
+        "school": 'Divination',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": '60 ft.',
+        "target_label": 'Area',
+        "target": 'Cone-shaped emanation',
+        "duration": 'Concentration, up to 1 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'You can detect the aura that surrounds undead creatures. The amount of information revealed depends on how long you study a particular area or subject.\n\n_1st Round:_ Presence or absence of undead.\n\n_2nd Round:_ Number of undead auras in the area and the strength of the strongest undead aura present.\n\n_3rd Round:_ The strength and location of each undead aura. If an aura is outside your line of sight, then you discern its direction but not its exact location.\n\nEach round, you can turn to detect undead in a new area. The spell can penetrate barriers, but 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt blocks it.',
+    },
+    {
+        "id": 'divine_favor',
+        "name": 'Divine Favor',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": 1,
+        "school": 'Evocation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Personal',
+        "target_label": 'Target',
+        "target": 'You',
+        "duration": '1 minute',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'Calling upon the strength and wisdom of a deity, you gain a +1 luck bonus on attack and weapon damage rolls for every three caster levels you have (at least +1, to a maximum of +3). The bonus doesn\'t apply to spell damage.',
+    },
+    {
+        "id": 'doom',
+        "name": 'Doom',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Necromancy [Fear, Mind-Affecting]',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Medium (100 ft. + 10 ft./level)',
+        "target_label": 'Target',
+        "target": 'One living creature',
+        "duration": '1 min./level',
+        "save": 'Will negates',
+        "spell_resistance": 'Yes',
+        "description": 'This spell fills a single subject with a feeling of doom. An affected creature takes a -2 penalty on attack rolls, saving throws, ability checks, skill checks, and weapon damage rolls. A _doomed_ creature remains so for the duration of the spell or until the curse is removed.',
+    },
+    {
+        "id": 'entropic_shield',
+        "name": 'Entropic Shield',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Personal',
+        "target_label": 'Target',
+        "target": 'You',
+        "duration": '1 min./level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'A magical field appears around you, glowing with a chaotic blast of multicolored hues. This field deflects incoming arrows, rays, and other ranged attacks. Each ranged attack directed at you for which the attacker must make an attack roll has a 20% miss chance (similar to the effects of concealment). Other attacks that simply work at a distance are not affected.',
+    },
+    {
+        "id": 'hide_from_undead',
+        "name": 'Hide from Undead',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'One touched creature/level',
+        "duration": '10 min./level (D)',
+        "save": 'Will negates (harmless); see text',
+        "spell_resistance": 'Yes',
+        "description": 'Undead cannot see, hear, or smell the warded creatures. Even extraordinary or supernatural sensory capabilities, such as blindsight, blindsense, scent, and tremorsense, cannot detect or locate warded creatures. Nonintelligent undead creatures are automatically affected and act as though the warded creatures are not present. An intelligent undead creature gets a single Will saving throw. If it fails, the subject can\'t see any of the warded creatures. However, if it has reason to believe unseen opponents are present, it can attempt to find or strike them. If a warded creature attempts to turn or command undead, touches an undead creature, or attacks any creature (even with a spell), the spell ends for all recipients.',
+    },
+    {
+        "id": 'inflict_light_wounds',
+        "name": 'Inflict Light Wounds',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Necromancy',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": 'Instantaneous',
+        "save": 'Will half',
+        "spell_resistance": 'Yes',
+        "description": 'When laying your hand upon a creature, you channel negative energy that deals 1d8 points of damage +1 point per caster level (maximum +5).\n\nSince undead are powered by negative energy, this spell cures such a creature of a like amount of damage, rather than harming it.',
+    },
+    {
+        "id": 'magic_weapon',
+        "name": 'Magic Weapon',
+        "level_druid": None, "level_cleric": 1, "level_wizard": 1, "level_ranger": None, "level_paladin": 1,
+        "school": 'Transmutation',
+        "components": 'V, S, DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Weapon touched',
+        "duration": '1 min./level',
+        "save": 'Will negates (harmless, object)',
+        "spell_resistance": 'Yes (harmless, object)',
+        "description": 'You give a weapon a +1 enhancement bonus on attack and damage rolls. An enhancement bonus does not stack with a masterwork weapon\'s +1 bonus on attack rolls.\n\nYou can\'t cast this spell on a natural weapon, such as an unarmed strike. A monk\'s unarmed strike is considered a weapon, and thus it can be enhanced by this spell.',
+    },
+    {
+        "id": 'protection_chaos',
+        "name": 'Protection from Chaos',
+        "level_druid": None, "level_cleric": 1, "level_wizard": 1, "level_ranger": None, "level_paladin": 1,
+        "school": 'Abjuration [Lawful]',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 min./level (D)',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'No; see text',
+        "description": 'This spell functions like _protection from evil_, except that the deflection and resistance bonuses apply to attacks from chaotic creatures, and the warding blocks mental control and summoned chaotic creatures.',
+    },
+    {
+        "id": 'protection_evil',
+        "name": 'Protection from Evil',
+        "level_druid": None, "level_cleric": 1, "level_wizard": 1, "level_ranger": None, "level_paladin": 1,
+        "school": 'Abjuration [Good]',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 min./level (D)',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'No; see text',
+        "description": 'This spell wards a creature from attacks by evil creatures, from mental control, and from summoned creatures. It creates a magical barrier around the subject at a distance of 1 foot. The barrier moves with the subject and has three major effects.\n\nFirst, the subject gains a +2 deflection bonus to AC and a +2 resistance bonus on saves. Both of these bonuses apply against attacks made or effects created by evil creatures.\n\nSecond, the barrier blocks any attempt to possess the warded creature (by a _magic jar_ attack, for example) or to exercise mental control over it (including enchantment (charm) effects and enchantment (compulsion) effects). The protection does not prevent such effects from targeting the protected creature, but it suppresses the effect for the duration of the protection from evil effect.\n\nThird, the spell prevents bodily contact by summoned creatures. This causes the natural weapon attacks of such creatures to fail and the creatures to recoil if such attacks require touching the warded creature. Good summoned creatures are immune to this effect.',
+    },
+    {
+        "id": 'protection_good',
+        "name": 'Protection from Good',
+        "level_druid": None, "level_cleric": 1, "level_wizard": 1, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration [Evil]',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 min./level (D)',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'No; see text',
+        "description": 'This spell functions like _protection from evil_, except that the deflection and resistance bonuses apply to attacks from good creatures, and the warding blocks mental control and summoned good creatures.',
+    },
+    {
+        "id": 'protection_law',
+        "name": 'Protection from Law',
+        "level_druid": None, "level_cleric": 1, "level_wizard": 1, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration [Chaotic]',
+        "components": 'V, S, M/DF',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 min./level (D)',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'No; see text',
+        "description": 'This spell functions like _protection from evil_, except that the deflection and resistance bonuses apply to attacks from lawful creatures, and the warding blocks mental control and summoned lawful creatures.',
+    },
+    {
+        "id": 'remove_fear',
+        "name": 'Remove Fear',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration',
+        "components": 'V, S',
+        "cast_time": '1 standard action',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Target',
+        "target": 'One creature plus one additional creature per four levels',
+        "duration": '10 minutes; see text',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'Yes (harmless)',
+        "description": 'You instill courage in the subject, granting it a +4 morale bonus against fear effects for 10 minutes. If the subject is under the influence of a fear effect when receiving the spell, that effect is suppressed for the duration of the spell.\n\nMultiple creatures targeted must be no more than 30 feet apart from each other. _Remove fear_ counters and dispels _cause fear_.',
+    },
+    {
+        "id": 'shield_of_faith',
+        "name": 'Shield of Faith',
+        "level_druid": None, "level_cleric": 1, "level_wizard": None, "level_ranger": None, "level_paladin": None,
+        "school": 'Abjuration',
+        "components": 'V, S, M',
+        "cast_time": '1 standard action',
+        "range": 'Touch',
+        "target_label": 'Target',
+        "target": 'Creature touched',
+        "duration": '1 min./level',
+        "save": 'Will negates (harmless)',
+        "spell_resistance": 'No',
+        "description": 'This spell creates a shimmering, magical field around the touched creature that averts attacks. The spell grants the subject a +2 deflection bonus to AC, with an additional +1 to the bonus for every six levels you have (maximum +5 deflection bonus at 18th level).',
+    },
+    {
+        "id": 'summon_monster_i',
+        "name": 'Summon Monster I',
+        "level_druid": None, "level_cleric": 1, "level_wizard": 1, "level_ranger": None, "level_paladin": None,
+        "school": 'Conjuration (Summoning) [see text]',
+        "components": 'V, S, DF',
+        "cast_time": '1 round',
+        "range": 'Close (25 ft. + 5 ft./2 levels)',
+        "target_label": 'Effect',
+        "target": 'One summoned creature',
+        "duration": '1 round/level (D)',
+        "save": 'None',
+        "spell_resistance": 'No',
+        "description": 'This spell summons an extraplanar creature (typically an outsider, elemental, or magical beast native to another plane). It appears where you designate and acts immediately, on your turn. It attacks your opponents to the best of its ability. If you can communicate with the creature, you can direct it not to attack, to attack particular enemies, or to perform other actions.\n\nThe spell conjures one of the creatures from the 1st-level list on the Summon Monster table. You choose which kind of creature to summon, and you can change that choice each time you cast the spell.\n\nA summoned monster cannot summon or otherwise conjure another creature, nor can it use any teleportation or planar travel abilities. Creatures cannot be summoned into an environment that cannot support them. The creature attacks your opponents to the best of its ability, and it remains for the duration unless dismissed.\n\nWhen you use a summoning spell to summon a chaotic, evil, good, or lawful creature, it is a spell of that type.',
+    },
+    {
         "id": 'cure_minor_wounds',
         "name": 'Cure Minor Wounds',
         "level_druid": 0, "level_cleric": 0, "level_wizard": None, "level_ranger": None, "level_paladin": None,
@@ -415,7 +872,7 @@ SPELLS: list[dict] = [
     {
         "id": 'detect_magic',
         "name": 'Detect Magic',
-        "level_druid": 0, "level_cleric": None, "level_wizard": 0, "level_ranger": None, "level_paladin": None,
+        "level_druid": 0, "level_cleric": 0, "level_wizard": 0, "level_ranger": None, "level_paladin": None,
         "school": 'Divination',
         "components": 'V, S',
         "cast_time": '1 standard action',
@@ -1506,6 +1963,15 @@ FEATS: list[dict] = [
         "special": None,
     },
     {
+        "id": "extend_spell",
+        "name": "Extend Spell",
+        "type": "Metamagic",
+        "prerequisites": "None",
+        "benefit": "An extended spell lasts twice as long as normal. A spell with a duration of concentration, instantaneous, or permanent is not affected by this feat. An extended spell uses up a spell slot one level higher than the spell's actual level.",
+        "normal": None,
+        "special": None,
+    },
+    {
         "id": "iron_will",
         "name": "Iron Will",
         "type": "General",
@@ -2099,9 +2565,216 @@ DRUID_LEVELS: list[dict] = [
     },
 ]
 
+# Cleric deler PHB Table 3-8 (bab/fort/ref/will/spells_0-9) med druid —
+# samme 3/4-BAB, gode Fort+Will, dårlig Ref, fuld caster-progression.
+# Forskellen er skill_points (2, ikke 4) og class-features (domæner/turn
+# undead er domæne- og karakterspecifikke — håndteres som tekst på arket,
+# ikke her).
+CLERIC_LEVELS: list[dict] = [
+    {
+        "level": 1, "hd": "d8", "skill_points": 2, "bab": 0,
+        "fort": 2, "ref": 0, "will": 2,
+        "spells_0": 3, "spells_1": 1, "spells_2": 0, "spells_3": 0,
+        "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps(["Turn or Rebuke Undead"]),
+    },
+    {
+        "level": 2, "hd": "d8", "skill_points": 2, "bab": 1,
+        "fort": 3, "ref": 0, "will": 3,
+        "spells_0": 4, "spells_1": 2, "spells_2": 0, "spells_3": 0,
+        "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 3, "hd": "d8", "skill_points": 2, "bab": 2,
+        "fort": 3, "ref": 1, "will": 3,
+        "spells_0": 4, "spells_1": 2, "spells_2": 1, "spells_3": 0,
+        "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 4, "hd": "d8", "skill_points": 2, "bab": 3,
+        "fort": 4, "ref": 1, "will": 4,
+        "spells_0": 5, "spells_1": 3, "spells_2": 2, "spells_3": 0,
+        "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 5, "hd": "d8", "skill_points": 2, "bab": 3,
+        "fort": 4, "ref": 1, "will": 4,
+        "spells_0": 5, "spells_1": 3, "spells_2": 2, "spells_3": 1,
+        "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 6, "hd": "d8", "skill_points": 2, "bab": 4,
+        "fort": 5, "ref": 2, "will": 5,
+        "spells_0": 5, "spells_1": 3, "spells_2": 3, "spells_3": 2,
+        "spells_4": 0, "spells_5": 0, "spells_6": 0, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 7, "hd": "d8", "skill_points": 2, "bab": 5,
+        "fort": 5, "ref": 2, "will": 5,
+        "spells_0": 6, "spells_1": 4, "spells_2": 3, "spells_3": 2,
+        "spells_4": 1, "spells_5": 0, "spells_6": 0, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 8, "hd": "d8", "skill_points": 2, "bab": 6,
+        "fort": 6, "ref": 2, "will": 6,
+        "spells_0": 6, "spells_1": 4, "spells_2": 3, "spells_3": 3,
+        "spells_4": 2, "spells_5": 0, "spells_6": 0, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 9, "hd": "d8", "skill_points": 2, "bab": 6,
+        "fort": 6, "ref": 3, "will": 6,
+        "spells_0": 6, "spells_1": 4, "spells_2": 4, "spells_3": 3,
+        "spells_4": 2, "spells_5": 1, "spells_6": 0, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 10, "hd": "d8", "skill_points": 2, "bab": 7,
+        "fort": 7, "ref": 3, "will": 7,
+        "spells_0": 6, "spells_1": 4, "spells_2": 4, "spells_3": 3,
+        "spells_4": 3, "spells_5": 2, "spells_6": 0, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 11, "hd": "d8", "skill_points": 2, "bab": 8,
+        "fort": 7, "ref": 3, "will": 7,
+        "spells_0": 6, "spells_1": 5, "spells_2": 4, "spells_3": 4,
+        "spells_4": 3, "spells_5": 2, "spells_6": 1, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 12, "hd": "d8", "skill_points": 2, "bab": 9,
+        "fort": 8, "ref": 4, "will": 8,
+        "spells_0": 6, "spells_1": 5, "spells_2": 4, "spells_3": 4,
+        "spells_4": 3, "spells_5": 3, "spells_6": 2, "spells_7": 0,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 13, "hd": "d8", "skill_points": 2, "bab": 9,
+        "fort": 8, "ref": 4, "will": 8,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 4,
+        "spells_4": 4, "spells_5": 3, "spells_6": 2, "spells_7": 1,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 14, "hd": "d8", "skill_points": 2, "bab": 10,
+        "fort": 9, "ref": 4, "will": 9,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 4,
+        "spells_4": 4, "spells_5": 3, "spells_6": 3, "spells_7": 2,
+        "spells_8": 0, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 15, "hd": "d8", "skill_points": 2, "bab": 11,
+        "fort": 9, "ref": 5, "will": 9,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 4, "spells_5": 4, "spells_6": 3, "spells_7": 2,
+        "spells_8": 1, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 16, "hd": "d8", "skill_points": 2, "bab": 12,
+        "fort": 10, "ref": 5, "will": 10,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 4, "spells_5": 4, "spells_6": 3, "spells_7": 3,
+        "spells_8": 2, "spells_9": 0,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 17, "hd": "d8", "skill_points": 2, "bab": 12,
+        "fort": 10, "ref": 5, "will": 10,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 5, "spells_5": 4, "spells_6": 4, "spells_7": 3,
+        "spells_8": 2, "spells_9": 1,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 18, "hd": "d8", "skill_points": 2, "bab": 13,
+        "fort": 11, "ref": 6, "will": 11,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 5, "spells_5": 4, "spells_6": 4, "spells_7": 3,
+        "spells_8": 3, "spells_9": 2,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 19, "hd": "d8", "skill_points": 2, "bab": 14,
+        "fort": 11, "ref": 6, "will": 11,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 5, "spells_5": 5, "spells_6": 4, "spells_7": 4,
+        "spells_8": 3, "spells_9": 3,
+        "features": json.dumps([]),
+    },
+    {
+        "level": 20, "hd": "d8", "skill_points": 2, "bab": 15,
+        "fort": 12, "ref": 6, "will": 12,
+        "spells_0": 6, "spells_1": 5, "spells_2": 5, "spells_3": 5,
+        "spells_4": 5, "spells_5": 5, "spells_6": 4, "spells_7": 4,
+        "spells_8": 4, "spells_9": 4,
+        "features": json.dumps([]),
+    },
+]
+
 # ---------------------------------------------------------------------------
 # INSERT templates
 # ---------------------------------------------------------------------------
+
+DOMAINS: list[dict] = [
+    {
+        "id": "healing",
+        "name": "Healing",
+        "granted_power": "You cast healing spells (any spell with “cure” in its name) at +1 caster level.",
+    },
+    {
+        "id": "protection",
+        "name": "Protection",
+        "granted_power": "You can generate a protective ward as a supernatural ability. Grant someone you touch a resistance bonus on his or her next saving throw equal to your cleric level. Activating this power is a standard action. The protective ward is an abjuration effect with a duration of 1 hour that is usable once per day.",
+    },
+]
+
+# Domain spell per level (1–9). spell_id behover ikke eksistere i spells-tabellen
+# endnu — opslag joiner mod spells, sa kun seedede formler vises i UI'en. Resten
+# tilfojes efterhanden (som druidens formler blev det).
+DOMAIN_SPELLS: list[dict] = [
+    # Healing
+    {"domain_id": "healing", "level": 1, "spell_id": "cure_light_wounds"},
+    {"domain_id": "healing", "level": 2, "spell_id": "cure_moderate_wounds"},
+    {"domain_id": "healing", "level": 3, "spell_id": "cure_serious_wounds"},
+    {"domain_id": "healing", "level": 4, "spell_id": "cure_critical_wounds"},
+    {"domain_id": "healing", "level": 5, "spell_id": "mass_cure_light_wounds"},
+    {"domain_id": "healing", "level": 6, "spell_id": "heal"},
+    {"domain_id": "healing", "level": 7, "spell_id": "regenerate"},
+    {"domain_id": "healing", "level": 8, "spell_id": "mass_cure_critical_wounds"},
+    {"domain_id": "healing", "level": 9, "spell_id": "mass_heal"},
+    # Protection
+    {"domain_id": "protection", "level": 1, "spell_id": "sanctuary"},
+    {"domain_id": "protection", "level": 2, "spell_id": "shield_other"},
+    {"domain_id": "protection", "level": 3, "spell_id": "protection_energy"},
+    {"domain_id": "protection", "level": 4, "spell_id": "spell_immunity"},
+    {"domain_id": "protection", "level": 5, "spell_id": "spell_resistance"},
+    {"domain_id": "protection", "level": 6, "spell_id": "antimagic_field"},
+    {"domain_id": "protection", "level": 7, "spell_id": "repulsion"},
+    {"domain_id": "protection", "level": 8, "spell_id": "mind_blank"},
+    {"domain_id": "protection", "level": 9, "spell_id": "prismatic_sphere"},
+]
 
 SPELL_INSERT = """
 INSERT OR REPLACE INTO spells
@@ -2133,6 +2806,28 @@ VALUES
     (:level, :hd, :skill_points, :bab, :fort, :ref, :will,
      :spells_0, :spells_1, :spells_2, :spells_3, :spells_4,
      :spells_5, :spells_6, :spells_7, :spells_8, :spells_9, :features)
+"""
+
+CLERIC_LEVEL_INSERT = """
+INSERT OR REPLACE INTO cleric_levels
+    (level, hd, skill_points, bab, fort, ref, will,
+     spells_0, spells_1, spells_2, spells_3, spells_4,
+     spells_5, spells_6, spells_7, spells_8, spells_9, features)
+VALUES
+    (:level, :hd, :skill_points, :bab, :fort, :ref, :will,
+     :spells_0, :spells_1, :spells_2, :spells_3, :spells_4,
+     :spells_5, :spells_6, :spells_7, :spells_8, :spells_9, :features)
+"""
+
+
+DOMAIN_INSERT = """
+INSERT OR REPLACE INTO domains (id, name, granted_power)
+VALUES (:id, :name, :granted_power)
+"""
+
+DOMAIN_SPELL_INSERT = """
+INSERT OR REPLACE INTO domain_spells (domain_id, level, spell_id)
+VALUES (:domain_id, :level, :spell_id)
 """
 
 
@@ -2179,12 +2874,23 @@ def seed() -> None:
     for dl in DRUID_LEVELS:
         conn.execute(DRUID_LEVEL_INSERT, dl)
 
+    for cl in CLERIC_LEVELS:
+        conn.execute(CLERIC_LEVEL_INSERT, cl)
+
+    for dom in DOMAINS:
+        conn.execute(DOMAIN_INSERT, dom)
+
+    for ds in DOMAIN_SPELLS:
+        conn.execute(DOMAIN_SPELL_INSERT, ds)
+
     conn.commit()
     conn.close()
 
     print(f"Database seeded at {DB_PATH}")
     print(f"  {len(SPELLS)} spells, {len(SKILLS)} skills, {len(FEATS)} feats")
-    print(f"  {len(CONDITIONS)} conditions, {len(DRUID_LEVELS)} druid levels")
+    print(f"  {len(CONDITIONS)} conditions, {len(DRUID_LEVELS)} druid levels, "
+          f"{len(CLERIC_LEVELS)} cleric levels")
+    print(f"  {len(DOMAINS)} domains, {len(DOMAIN_SPELLS)} domain spells")
 
 
 if __name__ == "__main__":

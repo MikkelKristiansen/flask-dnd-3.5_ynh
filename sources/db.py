@@ -95,10 +95,69 @@ def get_all_conditions() -> list[dict]:
     return [dict(r) for r in rows]
 
 
-def get_druid_level(level: int) -> dict | None:
+def get_domain(domain_id: str) -> dict | None:
     with _connect() as conn:
         row = conn.execute(
-            "SELECT * FROM druid_levels WHERE level = ?", (level,)
+            "SELECT * FROM domains WHERE id = ?", (domain_id,)
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def get_domains(domain_ids: list[str]) -> list[dict]:
+    """Returns the domain rows for the given ids, in the order given."""
+    if not domain_ids:
+        return []
+    placeholders = ",".join("?" * len(domain_ids))
+    with _connect() as conn:
+        rows = conn.execute(
+            f"SELECT * FROM domains WHERE id IN ({placeholders})", domain_ids
+        ).fetchall()
+    by_id = {r["id"]: dict(r) for r in rows}
+    return [by_id[d] for d in domain_ids if d in by_id]
+
+
+def get_domain_spells(
+    domain_ids: list[str], level: int | None = None
+) -> list[dict]:
+    """Returns domain spells joined with the spells table.
+
+    Joining means only spells that actually exist in the spells table are
+    returned — domain entries for not-yet-seeded spells are silently skipped.
+    Each row carries the spell columns plus ``domain_id`` and ``domain_level``.
+    """
+    if not domain_ids:
+        return []
+    placeholders = ",".join("?" * len(domain_ids))
+    params: list = list(domain_ids)
+    level_clause = ""
+    if level is not None:
+        level_clause = "AND ds.level = ?"
+        params.append(level)
+    with _connect() as conn:
+        rows = conn.execute(
+            f"""SELECT s.*, ds.domain_id AS domain_id, ds.level AS domain_level
+                FROM domain_spells ds
+                JOIN spells s ON s.id = ds.spell_id
+                WHERE ds.domain_id IN ({placeholders}) {level_clause}
+                ORDER BY ds.level, s.name""",
+            params,
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+_CLASS_LEVEL_TABLES = {
+    "druid": "druid_levels",
+    "cleric": "cleric_levels",
+}
+
+
+def get_class_level(class_name: str, level: int) -> dict | None:
+    table = _CLASS_LEVEL_TABLES.get(class_name.lower())
+    if table is None:
+        return None
+    with _connect() as conn:
+        row = conn.execute(
+            f"SELECT * FROM {table} WHERE level = ?", (level,)
         ).fetchone()
     if not row:
         return None
@@ -108,10 +167,3 @@ def get_druid_level(level: int) -> dict | None:
         result[f"spells_{i}"] for i in range(10)
     ]
     return result
-
-
-def get_class_level(class_name: str, level: int) -> dict | None:
-    """Generic class level lookup — currently only supports 'druid'."""
-    if class_name.lower() == "druid":
-        return get_druid_level(level)
-    return None

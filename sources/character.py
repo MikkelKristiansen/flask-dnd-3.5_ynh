@@ -109,7 +109,10 @@ class Character:
     companion: dict = field(default_factory=dict)
     class_features: dict = field(default_factory=dict)
     deity: str = ""
-    gnome_racial: dict = field(default_factory=dict)
+    racial_traits: dict = field(default_factory=dict)
+    domains: list = field(default_factory=list)
+    domain_spells_prepared: dict = field(default_factory=dict)  # {level: spell_id}
+    domain_spells_used: dict = field(default_factory=dict)      # {level: bool}
 
 
 def validate_character_data(data: object) -> None:
@@ -200,6 +203,17 @@ def load_character(path: str) -> Character:
 
     conditions = list(data.get("conditions") or [])
 
+    domains = [str(d).lower() for d in (data.get("domains") or [])]
+
+    domain_spells_prepared: dict[int, str] = {}
+    for k, v in (data.get("domain_spells_prepared") or {}).items():
+        if v:
+            domain_spells_prepared[int(k)] = str(v)
+
+    domain_spells_used: dict[int, bool] = {}
+    for k, v in (data.get("domain_spells_used") or {}).items():
+        domain_spells_used[int(k)] = bool(v)
+
     return Character(
         name=str(data.get("name", "Unknown")),
         race=str(data.get("race", "")),
@@ -224,7 +238,10 @@ def load_character(path: str) -> Character:
         companion=dict(data.get("companion") or {}),
         class_features=dict(data.get("class_features") or {}),
         deity=str(data.get("deity") or ""),
-        gnome_racial=dict(data.get("gnome_racial") or {}),
+        racial_traits=dict(data.get("racial_traits") or {}),
+        domains=domains,
+        domain_spells_prepared=domain_spells_prepared,
+        domain_spells_used=domain_spells_used,
     )
 
 
@@ -250,6 +267,16 @@ def save_character(path: str, updates: dict) -> None:
     if "spells_used" in updates:
         data["spells_used"] = {
             int(k): list(v) for k, v in updates["spells_used"].items()
+        }
+
+    if "domain_spells_prepared" in updates:
+        data["domain_spells_prepared"] = {
+            int(k): str(v) for k, v in updates["domain_spells_prepared"].items() if v
+        }
+
+    if "domain_spells_used" in updates:
+        data["domain_spells_used"] = {
+            int(k): bool(v) for k, v in updates["domain_spells_used"].items()
         }
 
     if "conditions" in updates:
@@ -445,6 +472,11 @@ _CLASS_SKILLS: dict[str, set[str]] = {
         "profession", "profession_herbalist", "ride",
         "spellcraft", "spot", "survival", "swim",
     },
+    "cleric": {
+        "concentration", "craft", "diplomacy", "heal",
+        "knowledge_arcana", "knowledge_history", "knowledge_planes",
+        "knowledge_religion", "profession", "spellcraft",
+    },
 }
 
 
@@ -452,8 +484,9 @@ def hit_die(cls: str) -> int:
     return _HIT_DIE.get(cls.lower(), 8)
 
 
-def skill_points_per_level(cls: str, int_modifier: int) -> int:
-    return max(1, _SKILL_POINTS.get(cls.lower(), 2) + int_modifier)
+def skill_points_per_level(cls: str, int_modifier: int, race: str = "") -> int:
+    race_bonus = 1 if race.lower() == "human" else 0
+    return max(1, _SKILL_POINTS.get(cls.lower(), 2) + int_modifier + race_bonus)
 
 
 def is_feat_level(level: int) -> bool:

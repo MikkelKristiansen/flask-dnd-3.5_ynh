@@ -512,10 +512,10 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   </div>
   {% endif %}
 
-  {% if char.gnome_racial %}
+  {% if char.racial_traits %}
   <div class="section">
     <div class="section-title">Raceevner</div>
-    {% for key, val in char.gnome_racial.items() %}
+    {% for key, val in char.racial_traits.items() %}
     {% if key == "spell_like_abilities" %}
     <div class="stat-row" style="flex-direction:column;align-items:flex-start;gap:.1rem">
       <span class="stat-label" style="margin-bottom:.2rem">Spell-like abilities
@@ -675,6 +675,18 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 
   <div id="spellview-prepared" class="spell-view active">
 
+  {% if domains_info %}
+  <div class="section" id="domains-section">
+    <div class="section-title">⛨ Domæner</div>
+    {% for d in domains_info %}
+    <div style="margin-bottom:.5rem">
+      <div style="color:var(--accent);font-weight:bold">{{ d.name }}</div>
+      <div style="color:var(--muted);font-size:.82rem">{{ d.granted_power }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {% if spell_data %}
   <div class="section" id="prepared-section">
     <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem">
@@ -739,6 +751,28 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   </div>
   {% endif %}
 
+  {% if domain_prepared %}
+  <div class="section" id="domain-prepared-section">
+    <div class="section-title">⛨ Domæne-formler <span style="color:var(--muted);font-size:.7rem;font-style:italic">(1 ekstra plads pr. niveau)</span></div>
+    {% for lvl in domain_prepared|sort %}
+    {% set dp = domain_prepared[lvl] %}
+    <div class="spell-level-header"><span>Level {{ lvl }}</span></div>
+    <div class="spell-row {% if dp.used %}used{% endif %}" id="domain-spell-{{ lvl }}"
+         data-spell-id="{{ dp.id }}" onclick="showDetail('spell','{{ dp.id }}')">
+      <span>
+        <span class="spell-name">{{ dp.spell.name if dp.spell else dp.id }}</span>
+        {% if dp.spell %}<span class="spell-school">&nbsp;·&nbsp;{{ dp.spell.school }}</span>{% endif %}
+        <span class="spell-prepared-badge" title="Domæne-formel">⛨ domæne</span>
+      </span>
+      <span class="spell-status {% if dp.used %}used{% else %}free{% endif %}"
+            onclick="event.stopPropagation();toggleDomainSpell({{ lvl }},{{ 'true' if dp.used else 'false' }})">
+        {{ "Brugt" if dp.used else "Ledig" }}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {% if slots %}
   <div class="section">
     <div class="section-title">Spell slots (inkl. WIS-bonus)</div>
@@ -756,7 +790,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 
   <div id="spellview-available" class="spell-view">
     <div class="section">
-      <div class="section-title">Tilgængelige druide-formler
+      <div class="section-title">Tilgængelige {{ char.cls }}-formler
         <span style="color:var(--muted);font-size:.7rem;font-style:italic">(qua dit level · klik for detaljer)</span>
       </div>
       {% if slots %}
@@ -1443,6 +1477,16 @@ currentPrepared = Object.fromEntries(
   Object.entries(currentPrepared).map(([k, v]) => [parseInt(k), v])
 );
 
+// ── Domain spell data ──────────────────────────────────────────────────────
+// domainSlots: {level: 1}  ·  domainAvailable: {level: [{id, name, school, ...}]}
+const domainSlots = {{ domain_slots|tojson }};
+const domainAvailable = {{ domain_available|tojson }};
+let currentDomainPrepared = {{ char.domain_spells_prepared|tojson }};
+currentDomainPrepared = Object.fromEntries(
+  Object.entries(currentDomainPrepared).map(([k, v]) => [parseInt(k), v])
+);
+let newDomainPrepared = {};
+
 // ── XP ────────────────────────────────────────────────────────────────────
 function addXp() {
   const input = document.getElementById("xp-input");
@@ -1474,6 +1518,7 @@ function addXp() {
 // ── Spell tooltip ─────────────────────────────────────────────────────────
 const spellLookup = {};
 Object.values(availableSpells).forEach(arr => arr.forEach(s => { spellLookup[s.id] = s; }));
+Object.values(domainAvailable).forEach(arr => arr.forEach(s => { spellLookup[s.id] = s; }));
 
 // Spell-like abilities — preloaded from server
 const slaSpells = {{ sla_data|tojson }};
@@ -1562,6 +1607,10 @@ function openPrepModal() {
   newPrepared = {};
   Object.entries(currentPrepared).forEach(([lvl, ids]) => {
     newPrepared[parseInt(lvl)] = [...ids];
+  });
+  newDomainPrepared = {};
+  Object.entries(currentDomainPrepared).forEach(([lvl, id]) => {
+    if (id) newDomainPrepared[parseInt(lvl)] = id;
   });
 
   renderPrepModal();
@@ -1673,7 +1722,98 @@ function renderPrepModal() {
     }
     rBlock.appendChild(rBody);
     right.appendChild(rBlock);
+
+    // ── Domæne-slot for dette niveau (hvis nogen) ──
+    if (domainSlots[lvl]) {
+      const chosen = newDomainPrepared[lvl];
+      const dAvail = (domainAvailable[lvl] || []).slice().sort((a, b) => a.name.localeCompare(b.name));
+
+      // Venstre: tilgængelige domæne-formler
+      const dlBlock = document.createElement("div");
+      dlBlock.className = "prep-level-block";
+      const dlHdr = document.createElement("div");
+      dlHdr.className = "prep-level-header";
+      dlHdr.textContent = `Level ${lvl} — ⛨ domæne`;
+      dlBlock.appendChild(dlHdr);
+      if (dAvail.length === 0) {
+        const empty = document.createElement("div");
+        empty.style.cssText = "color:var(--muted);font-size:.8rem;font-style:italic;padding:.3rem 0";
+        empty.textContent = "Ingen domæne-formler tilgængelige";
+        dlBlock.appendChild(empty);
+      } else {
+        dAvail.forEach(spell => {
+          const row = document.createElement("div");
+          row.className = "prep-avail-row" + (chosen ? " prep-avail-full" : "");
+          row.innerHTML =
+            `<span class="prep-avail-name">${escHtml(spell.name)}</span>` +
+            `<span class="prep-avail-school">${escHtml(spell.school || "")}</span>`;
+          if (!chosen) row.onclick = () => addDomainSpell(lvl, spell.id);
+          if (spell.description) {
+            row.addEventListener("mouseenter", () => showSpellTooltip(spell, row));
+            row.addEventListener("mouseleave", hideSpellTooltip);
+          }
+          dlBlock.appendChild(row);
+        });
+      }
+      left.appendChild(dlBlock);
+
+      // Højre: den enkelte domæne-slot
+      const drBlock = document.createElement("div");
+      drBlock.className = "prep-level-block";
+      const drHdr = document.createElement("div");
+      drHdr.className = "prep-level-header";
+      drHdr.textContent = `Level ${lvl} — ⛨ domæne (${chosen ? 1 : 0}/1)`;
+      drBlock.appendChild(drHdr);
+      const dSlotRow = document.createElement("div");
+      if (chosen) {
+        const sp = dAvail.find(s => s.id === chosen);
+        dSlotRow.className = "prep-slot-row prep-slot-filled";
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "prep-slot-name";
+        nameSpan.textContent = sp ? sp.name : chosen;
+        if (sp && sp.description) {
+          nameSpan.style.cursor = "help";
+          nameSpan.addEventListener("mouseenter", () => showSpellTooltip(sp, nameSpan));
+          nameSpan.addEventListener("mouseleave", hideSpellTooltip);
+        }
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "prep-slot-remove";
+        removeBtn.textContent = "×";
+        removeBtn.title = "Fjern";
+        removeBtn.onclick = () => removeDomainSpell(lvl);
+        dSlotRow.appendChild(nameSpan);
+        dSlotRow.appendChild(removeBtn);
+      } else {
+        dSlotRow.className = "prep-slot-row prep-slot-empty";
+        const ph = document.createElement("span");
+        ph.className = "prep-slot-placeholder";
+        ph.textContent = "── ledig domæne-slot ──";
+        dSlotRow.appendChild(ph);
+      }
+      drBlock.appendChild(dSlotRow);
+      right.appendChild(drBlock);
+    }
   });
+}
+
+function addDomainSpell(lvl, spellId) {
+  newDomainPrepared[lvl] = spellId;
+  renderPrepModal();
+}
+
+function removeDomainSpell(lvl) {
+  delete newDomainPrepared[lvl];
+  renderPrepModal();
+}
+
+function toggleDomainSpell(lvl, used) {
+  fetch(BASE + "/api/domain_used", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, level: lvl, used: !used})
+  })
+  .then(r => r.json())
+  .then(data => { if (data.ok) window.location.reload(); });
 }
 
 function addPrepSpell(lvl, spellId) {
@@ -1691,6 +1831,7 @@ function removePrepSpell(lvl, idx) {
 
 function prepNewDay() {
   newPrepared = {};
+  newDomainPrepared = {};
   renderPrepModal();
 }
 
@@ -1698,7 +1839,7 @@ function savePrepared() {
   fetch(BASE + "/api/prepare", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, prepared_spells: newPrepared})
+    body: JSON.stringify({char: CHAR, prepared_spells: newPrepared, domain_prepared: newDomainPrepared})
   })
   .then(r => r.json())
   .then(data => {
@@ -1706,6 +1847,9 @@ function savePrepared() {
     // Update state
     currentPrepared = Object.fromEntries(
       Object.entries(data.prepared_spells).map(([k, v]) => [parseInt(k), v])
+    );
+    currentDomainPrepared = Object.fromEntries(
+      Object.entries(data.domain_prepared || {}).map(([k, v]) => [parseInt(k), v])
     );
     spellsUsed = {};
     document.getElementById("prep-overlay").classList.remove("open");

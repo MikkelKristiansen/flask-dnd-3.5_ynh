@@ -1,0 +1,146 @@
+# Aelred — Human Cleric 1, Lawful Good
+name: Aelred
+race: Human
+class: Cleric
+level: 1
+alignment: Lawful Good
+deity: Aldric, den Vågne Vogter   # generisk LG god for helbredelse og beskyttelse
+size: medium
+
+experience_points: 0
+
+hp:
+  current: 9          # 1d8 (8, max ved level 1) + CON-mod (+1)
+  max: 9
+
+ability_scores:
+  str: 12
+  dex: 10
+  con: 12
+  int: 10
+  wis: 16
+  cha: 15
+
+saves:
+  fortitude: 2   # base — CON-modifier (+1) tilføjes automatisk → +3
+  reflex: 0      # base — DEX-modifier (+0) tilføjes automatisk → +0
+  will: 2        # base — WIS-modifier (+3) tilføjes automatisk → +5
+
+combat:
+  ac: 16              # Chain Shirt +4, Heavy Steel Shield +2, DEX +0
+  touch_ac: 10
+  flat_footed_ac: 16
+  initiative: 4       # DEX +0 + Improved Initiative +4
+  bab: 0
+  speed: 30           # let rustning (chain shirt) reducerer ikke hastigheden
+  grapple: 1          # BAB 0 + STR +1
+
+attacks:
+- name: Light Mace
+  attack_bonus: 1
+  damage: 1d6+1
+  crit: x2
+  type: Bludgeoning
+- name: Sling
+  attack_bonus: 0
+  damage: 1d4+1
+  crit: x2
+  type: Bludgeoning
+  range: 50 ft
+
+skills:
+- id: concentration
+  ranks: 4.0
+  misc: 0
+- id: heal
+  ranks: 4.0
+  misc: 0
+- id: knowledge_religion
+  ranks: 4.0
+  misc: 0
+feats:
+- improved_initiative
+- extend_spell
+conditions: []
+spells_prepared:
+  0:
+  - guidance
+  - light
+  - resistance
+  1:
+  - bless
+  - magic_stone
+spells_used: {}
+domains:
+- healing
+- protection
+domain_spells_prepared:
+  1: sanctuary
+domain_spells_used: {}
+inventory:
+- name: Chain Shirt
+  weight: 25.0
+  qty: 1
+  notes: +4 AC, max DEX +4, -2 armor check, light armor
+- name: Light Mace
+  weight: 4.0
+  qty: 1
+  notes: ''
+- name: Sling
+  weight: 0.0
+  qty: 1
+  notes: ''
+- name: Sling bullets (10)
+  weight: 5.0
+  qty: 1
+  notes: ''
+- name: Wooden holy symbol
+  weight: 0.0
+  qty: 1
+  notes: spellcasting focus (DF)
+- name: Backpack
+  weight: 2.0
+  qty: 1
+  notes: ''
+- name: Rations
+  weight: 0.5
+  qty: 5
+  notes: 5 days
+- name: Waterskin
+  weight: 4.0
+  qty: 1
+  notes: full
+gold:
+  pp: 0
+  gp: 12
+  sp: 0
+  cp: 0
+
+class_features:
+  turn_undead: 1d20 + 2 (CHA) — turning check; (3 + CHA-mod) = 5 forsøg/dag
+  spontaneous_casting: Kan ofre forberedt spell → Cure-spell (positiv energi)
+  aura: Stærk Lawful + Good aura (jf. detect-spells)
+  # Domæner (Healing + Protection) vises nu fra databasen, jf. domains-feltet.
+
+racial_traits:
+  bonus_feat: 1 ekstra feat ved level 1 (Extend Spell)
+  skill_points: +1 skill point pr. level (medregnet automatisk)
+  size: Medium
+  speed: 30 ft. (før armor)
+
+notes: |
+  Aelred er en menneskelig klerik af Lawful Good alignment, viet til
+  helbredelse og beskyttelse (domænerne Healing og Protection).
+
+  Deity-navnet "Aldric, den Vågne Vogter" er et forslag — sig til hvis du
+  hellere vil have en SRD-gud (fx Heironeous) eller et andet navn.
+
+  Forberedte formler ved dagens start (du bad mig vælge):
+    Orisons: Guidance, Light, Resistance
+    1.-niveau: Cure Light Wounds, Bless + Sanctuary (domæne-pladsen)
+  Skift gerne ud — alle fire 1.-niveau cleric-spells i db'en er nu:
+  Cure Light Wounds, Bless, Sanctuary, Endure Elements, Magic Stone,
+  Obscuring Mist.
+
+  Skill points level 1: (2 cleric + 0 INT + 1 human) × 4 = 12 →
+  Concentration 4, Heal 4, Knowledge (Religion) 4.
