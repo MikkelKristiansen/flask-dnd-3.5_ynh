@@ -459,6 +459,12 @@ def grapple_total(bab: int, str_score: int, size: str) -> int:
     return bab + (str_score - 10) // 2 + size_mod_grapple(size)
 
 
+def initiative_total(ability_scores: AbilityScores, feats: list, misc: int = 0) -> int:
+    """Initiativ: Dex-mod + Improved Initiative (+4 hvis feat'en haves) + misc."""
+    feat_bonus = 4 if "improved_initiative" in {str(f).lower() for f in feats} else 0
+    return ability_scores.modifier("dex") + feat_bonus + misc
+
+
 def xp_to_next_level(current_level: int) -> int | None:
     """XP required to reach current_level + 1. Returns None at max level."""
     next_level = current_level + 1

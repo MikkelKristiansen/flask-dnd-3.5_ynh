@@ -130,13 +130,15 @@ def karakter(name):
         for i in char.inventory
     ]
 
-    # Combat: beregn til-hit/skade pr. angreb + grapple (gemmes aldrig i YAML)
+    # Combat: beregn til-hit/skade pr. angreb + grapple + initiativ (gemmes aldrig i YAML)
     bab = int(char.combat.get("bab", 0))
     attack_rows = [
         {"attack": atk, **char_module.attack_total(atk, ab, bab, char.size)}
         for atk in char.attacks
     ]
     grapple = char_module.grapple_total(bab, ab.str, char.size)
+    initiative = char_module.initiative_total(
+        ab, char.feats, int(char.combat.get("initiative_misc", 0)))
 
     abilities = [
         ("STR", ab.str, ab.modifier("str")),
@@ -274,6 +276,7 @@ def karakter(name):
         base_speed=base_speed,
         attack_rows=attack_rows,
         grapple=grapple,
+        initiative=initiative,
         inventory_json=inventory_json,
         available_spells=available_spells,
         domain_slots=domain_slots,

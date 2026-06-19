@@ -30,7 +30,7 @@ combat:
   ac: 15              # MWK Studded Leather +3, DEX +1, size +1
   touch_ac: 12
   flat_footed_ac: 14
-  initiative: 1
+  # initiative beregnes: Dex-mod (+1), ingen Improved Initiative → +1
   bab: 1
   speed: 20
   # grapple beregnes: BAB + STR-mod + SÆRLIG grapple-størrelse (Small = -4) → -4

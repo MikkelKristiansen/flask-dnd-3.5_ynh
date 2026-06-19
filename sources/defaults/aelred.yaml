@@ -30,7 +30,7 @@ combat:
   ac: 16              # Chain Shirt +4, Heavy Steel Shield +2, DEX +0
   touch_ac: 10
   flat_footed_ac: 16
-  initiative: 4       # DEX +0 + Improved Initiative +4
+  # initiative beregnes: Dex-mod + Improved Initiative (+4) → +4
   bab: 0
   speed: 30           # let rustning (chain shirt) reducerer ikke hastigheden
   # grapple beregnes: BAB + STR-mod + størrelses-modifier (Medium = 0)
