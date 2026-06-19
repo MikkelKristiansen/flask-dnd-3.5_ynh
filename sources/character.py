@@ -110,6 +110,8 @@ class Character:
     gold: dict = field(default_factory=dict)
     notes: str = ""
     size: str = "medium"
+    armor: str = ""             # equipped rustnings-id (slås op i armor-tabellen)
+    shield: str = ""            # equipped skjold-id
     companion: dict = field(default_factory=dict)
     class_features: dict = field(default_factory=dict)
     deity: str = ""
@@ -242,6 +244,8 @@ def load_character(path: str) -> Character:
         gold=dict(data.get("gold") or {}),
         notes=str(data.get("notes") or ""),
         size=str(data.get("size", "medium")).lower(),
+        armor=str(data.get("combat", {}).get("armor") or ""),
+        shield=str(data.get("combat", {}).get("shield") or ""),
         companion=dict(data.get("companion") or {}),
         class_features=dict(data.get("class_features") or {}),
         deity=str(data.get("deity") or ""),
@@ -463,6 +467,37 @@ def initiative_total(ability_scores: AbilityScores, feats: list, misc: int = 0) 
     """Initiativ: Dex-mod + Improved Initiative (+4 hvis feat'en haves) + misc."""
     feat_bonus = 4 if "improved_initiative" in {str(f).lower() for f in feats} else 0
     return ability_scores.modifier("dex") + feat_bonus + misc
+
+
+def armor_class(ability_scores: AbilityScores, size: str, *,
+                armor: dict | None = None, shield: dict | None = None,
+                enc_max_dex: int | None = None,
+                natural: int = 0, deflection: int = 0,
+                dodge: int = 0, misc: int = 0) -> dict:
+    """Beregn AC, touch-AC og flat-footed-AC (3.5 SRD).
+
+    armor/shield er rækker fra armor-tabellen (dict) eller None. Dex-bonus til AC
+    cappes af det laveste af rustningens/skjoldets max_dex og encumbrance-max_dex
+    (en Dex-straf rammer altid fuldt). Touch ignorerer rustning/skjold/naturlig
+    armor; flat-footed mister Dex-bonus og dodge (men beholder en Dex-straf).
+    """
+    armor_bonus = (armor["armor_bonus"] if armor else 0) \
+        + (shield["armor_bonus"] if shield else 0)
+    size_mod = size_mod_attack(size)
+    dex = ability_scores.modifier("dex")
+
+    caps = [c for c in (
+        armor.get("max_dex") if armor else None,
+        shield.get("max_dex") if shield else None,
+        enc_max_dex,
+    ) if c is not None]
+    dex_to_ac = min([dex, *caps]) if caps else dex
+    dex_penalty = min(dex_to_ac, 0)   # bevares når flat-footed
+
+    full = 10 + armor_bonus + dex_to_ac + size_mod + natural + deflection + dodge + misc
+    touch = 10 + dex_to_ac + size_mod + deflection + dodge + misc
+    flat = 10 + armor_bonus + size_mod + natural + deflection + misc + dex_penalty
+    return {"ac": full, "touch": touch, "flat_footed": flat}
 
 
 def xp_to_next_level(current_level: int) -> int | None:

@@ -127,6 +127,17 @@ CREATE TABLE domain_spells (
     spell_id  TEXT NOT NULL,
     PRIMARY KEY (domain_id, level)
 );
+
+DROP TABLE IF EXISTS armor;
+CREATE TABLE armor (
+    id            TEXT PRIMARY KEY,
+    name          TEXT NOT NULL,
+    armor_bonus   INTEGER NOT NULL,
+    max_dex       INTEGER,                    -- NULL = ingen Dex-grænse
+    armor_check   INTEGER NOT NULL DEFAULT 0, -- ACP (negativ); bruges ikke i AC, gemt til skills senere
+    spell_failure INTEGER NOT NULL DEFAULT 0, -- arcane spell failure % (gemt til senere)
+    type          TEXT NOT NULL               -- light | medium | heavy | shield
+);
 """
 
 # ---------------------------------------------------------------------------
@@ -2776,6 +2787,34 @@ DOMAIN_SPELLS: list[dict] = [
     {"domain_id": "protection", "level": 9, "spell_id": "prismatic_sphere"},
 ]
 
+# SRD-rustninger og skjolde. max_dex = None betyder ingen Dex-grænse. Masterwork
+# påvirker kun armor_check (ikke AC/max_dex), så MWK-varianter behøver ikke egne
+# rækker til AC-beregning — equip blot grund-rustningen.
+ARMOR: list[dict] = [
+    # Let rustning
+    {"id": "padded",          "name": "Padded",              "armor_bonus": 1, "max_dex": 8, "armor_check": 0,   "spell_failure": 5,  "type": "light"},
+    {"id": "leather",         "name": "Leather",             "armor_bonus": 2, "max_dex": 6, "armor_check": 0,   "spell_failure": 10, "type": "light"},
+    {"id": "studded_leather", "name": "Studded Leather",     "armor_bonus": 3, "max_dex": 5, "armor_check": -1,  "spell_failure": 15, "type": "light"},
+    {"id": "chain_shirt",     "name": "Chain Shirt",         "armor_bonus": 4, "max_dex": 4, "armor_check": -2,  "spell_failure": 20, "type": "light"},
+    # Mellem rustning
+    {"id": "hide",            "name": "Hide",                "armor_bonus": 3, "max_dex": 4, "armor_check": -3,  "spell_failure": 20, "type": "medium"},
+    {"id": "scale_mail",      "name": "Scale Mail",          "armor_bonus": 4, "max_dex": 3, "armor_check": -4,  "spell_failure": 25, "type": "medium"},
+    {"id": "chainmail",       "name": "Chainmail",           "armor_bonus": 5, "max_dex": 2, "armor_check": -5,  "spell_failure": 30, "type": "medium"},
+    {"id": "breastplate",     "name": "Breastplate",         "armor_bonus": 5, "max_dex": 3, "armor_check": -4,  "spell_failure": 25, "type": "medium"},
+    # Tung rustning
+    {"id": "banded_mail",     "name": "Banded Mail",         "armor_bonus": 6, "max_dex": 1, "armor_check": -6,  "spell_failure": 35, "type": "heavy"},
+    {"id": "splint_mail",     "name": "Splint Mail",         "armor_bonus": 6, "max_dex": 0, "armor_check": -7,  "spell_failure": 40, "type": "heavy"},
+    {"id": "half_plate",      "name": "Half-Plate",          "armor_bonus": 7, "max_dex": 0, "armor_check": -7,  "spell_failure": 40, "type": "heavy"},
+    {"id": "full_plate",      "name": "Full Plate",          "armor_bonus": 8, "max_dex": 1, "armor_check": -6,  "spell_failure": 35, "type": "heavy"},
+    # Skjolde (max_dex = None undtagen tower shield)
+    {"id": "buckler",             "name": "Buckler",             "armor_bonus": 1, "max_dex": None, "armor_check": -1,  "spell_failure": 5,  "type": "shield"},
+    {"id": "light_wooden_shield", "name": "Light Wooden Shield", "armor_bonus": 1, "max_dex": None, "armor_check": -1,  "spell_failure": 5,  "type": "shield"},
+    {"id": "light_steel_shield",  "name": "Light Steel Shield",  "armor_bonus": 1, "max_dex": None, "armor_check": -1,  "spell_failure": 5,  "type": "shield"},
+    {"id": "heavy_wooden_shield", "name": "Heavy Wooden Shield", "armor_bonus": 2, "max_dex": None, "armor_check": -2,  "spell_failure": 15, "type": "shield"},
+    {"id": "heavy_steel_shield",  "name": "Heavy Steel Shield",  "armor_bonus": 2, "max_dex": None, "armor_check": -2,  "spell_failure": 15, "type": "shield"},
+    {"id": "tower_shield",        "name": "Tower Shield",        "armor_bonus": 4, "max_dex": 2,    "armor_check": -10, "spell_failure": 50, "type": "shield"},
+]
+
 SPELL_INSERT = """
 INSERT OR REPLACE INTO spells
     (id, name, level_druid, level_cleric, level_wizard, level_ranger, level_paladin,
@@ -2828,6 +2867,11 @@ VALUES (:id, :name, :granted_power)
 DOMAIN_SPELL_INSERT = """
 INSERT OR REPLACE INTO domain_spells (domain_id, level, spell_id)
 VALUES (:domain_id, :level, :spell_id)
+"""
+
+ARMOR_INSERT = """
+INSERT OR REPLACE INTO armor (id, name, armor_bonus, max_dex, armor_check, spell_failure, type)
+VALUES (:id, :name, :armor_bonus, :max_dex, :armor_check, :spell_failure, :type)
 """
 
 
@@ -2883,6 +2927,9 @@ def seed() -> None:
     for ds in DOMAIN_SPELLS:
         conn.execute(DOMAIN_SPELL_INSERT, ds)
 
+    for armor in ARMOR:
+        conn.execute(ARMOR_INSERT, armor)
+
     conn.commit()
     conn.close()
 
@@ -2890,7 +2937,7 @@ def seed() -> None:
     print(f"  {len(SPELLS)} spells, {len(SKILLS)} skills, {len(FEATS)} feats")
     print(f"  {len(CONDITIONS)} conditions, {len(DRUID_LEVELS)} druid levels, "
           f"{len(CLERIC_LEVELS)} cleric levels")
-    print(f"  {len(DOMAINS)} domains, {len(DOMAIN_SPELLS)} domain spells")
+    print(f"  {len(DOMAINS)} domains, {len(DOMAIN_SPELLS)} domain spells, {len(ARMOR)} armor")
 
 
 if __name__ == "__main__":

@@ -139,6 +139,16 @@ def karakter(name):
     grapple = char_module.grapple_total(bab, ab.str, char.size)
     initiative = char_module.initiative_total(
         ab, char.feats, int(char.combat.get("initiative_misc", 0)))
+    ac = char_module.armor_class(
+        ab, char.size,
+        armor=db.get_armor(char.armor) if char.armor else None,
+        shield=db.get_armor(char.shield) if char.shield else None,
+        enc_max_dex=char_module.encumbrance_consequences(enc, base_speed)["max_dex"],
+        natural=int(char.combat.get("natural_armor", 0)),
+        deflection=int(char.combat.get("deflection", 0)),
+        dodge=int(char.combat.get("dodge", 0)),
+        misc=int(char.combat.get("misc_ac", 0)),
+    )
 
     abilities = [
         ("STR", ab.str, ab.modifier("str")),
@@ -277,6 +287,7 @@ def karakter(name):
         attack_rows=attack_rows,
         grapple=grapple,
         initiative=initiative,
+        ac=ac,
         inventory_json=inventory_json,
         available_spells=available_spells,
         domain_slots=domain_slots,

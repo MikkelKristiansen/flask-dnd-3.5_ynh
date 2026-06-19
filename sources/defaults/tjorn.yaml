@@ -27,9 +27,9 @@ saves:
   will: 3        # base — WIS-modifier tilføjes automatisk
 
 combat:
-  ac: 15              # MWK Studded Leather +3, DEX +1, size +1
-  touch_ac: 12
-  flat_footed_ac: 14
+  armor: studded_leather   # +3 AC, max Dex +5 (MWK påvirker kun ACP, ikke AC)
+  # intet skjold
+  # AC beregnes: 10 + rustning + Dex (cappet) + størrelse (Small +1) → 15/12/14
   # initiative beregnes: Dex-mod (+1), ingen Improved Initiative → +1
   bab: 1
   speed: 20

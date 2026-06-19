@@ -95,6 +95,22 @@ def get_all_conditions() -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def get_armor(armor_id: str) -> dict | None:
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM armor WHERE id = ?", (armor_id,)
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def get_all_armor() -> list[dict]:
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM armor ORDER BY type, armor_bonus"
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def get_domain(domain_id: str) -> dict | None:
     with _connect() as conn:
         row = conn.execute(

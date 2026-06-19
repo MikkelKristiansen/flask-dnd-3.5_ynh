@@ -473,9 +473,9 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     <div class="section">
       <div class="section-title">Kamp</div>
       {% set co = char.combat %}
-      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ co.get("ac","—") }}</span></div>
-      <div class="stat-row"><span class="stat-label">Touch</span><span class="stat-val">{{ co.get("touch_ac","—") }}</span></div>
-      <div class="stat-row"><span class="stat-label">FF</span><span class="stat-val">{{ co.get("flat_footed_ac","—") }}</span></div>
+      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ ac.ac }}</span></div>
+      <div class="stat-row"><span class="stat-label">Touch</span><span class="stat-val">{{ ac.touch }}</span></div>
+      <div class="stat-row"><span class="stat-label">FF</span><span class="stat-val">{{ ac.flat_footed }}</span></div>
       <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(initiative) }}','Initiativ')" title="Slå initiativ"><span class="stat-label">Init</span><span class="stat-val">{{ "%+d"|format(initiative) }}</span></div>
       <div class="stat-row"><span class="stat-label">BAB</span><span class="stat-val">{{ "%+d"|format(co.get("bab",0)) }}</span></div>
       <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(grapple) }}','Grapple')" title="Slå grapple-check"><span class="stat-label">Grapple</span><span class="stat-val">{{ "%+d"|format(grapple) }}</span></div>

@@ -27,9 +27,10 @@ saves:
   will: 2        # base — WIS-modifier (+3) tilføjes automatisk → +5
 
 combat:
-  ac: 16              # Chain Shirt +4, Heavy Steel Shield +2, DEX +0
-  touch_ac: 10
-  flat_footed_ac: 16
+  armor: chain_shirt          # +4 AC, max Dex +4 (slås op i armor-tabellen)
+  shield: heavy_steel_shield  # +2 AC
+  # AC beregnes: 10 + rustning/skjold + Dex (cappet af max Dex) + størrelse
+  #   + natural_armor/deflection/dodge/misc_ac (alle 0 her) → 16/10/16
   # initiative beregnes: Dex-mod + Improved Initiative (+4) → +4
   bab: 0
   speed: 30           # let rustning (chain shirt) reducerer ikke hastigheden
