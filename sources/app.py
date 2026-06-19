@@ -358,6 +358,12 @@ def api_roll(expression):
     try:
         result = dice_module.roll(expression)
         result["expression"] = expression
+        # Valgfrit gulv (3.5: et succesfuldt angreb giver mindst 1 i skade).
+        # Kun relevant for skade-rul — almindelige rul sender ingen min.
+        minimum = request.args.get("min", type=int)
+        if minimum is not None and result["total"] < minimum:
+            result["total"] = minimum
+            result["floored"] = True
         return jsonify(result)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400

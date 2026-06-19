@@ -494,8 +494,8 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
             onclick="quickRoll('1d20{{ "%+d"|format(row.to_hit) }}','{{ atk.name }} angreb')"
             title="Slå angrebsbonus">{{ "%+d"|format(row.to_hit) }}</span>
       <span class="attack-dmg roll-tap"
-            onclick="quickRoll('{{ row.damage }}','{{ atk.name }} skade')"
-            title="Slå skade">{{ row.damage }}</span>
+            onclick="quickRoll('{{ row.damage }}','{{ atk.name }} skade', 1)"
+            title="Slå skade (min. 1 ved træffer)">{{ row.damage }}</span>
       <span class="attack-type">{{ atk.type }}{% if atk.range %} · {{ atk.range }}{% endif %}</span>
     </div>
     {% endfor %}
@@ -1321,9 +1321,11 @@ function updatePips(level) {
 }
 
 // ── Dice roller ───────────────────────────────────────────────────────────
-function rollDice() {
+function rollDice(min) {
   const expr = document.getElementById("dice-expr").value.trim() || "1d20";
-  fetch(BASE + "/api/roll/" + encodeURIComponent(expr))
+  let url = BASE + "/api/roll/" + encodeURIComponent(expr);
+  if (min != null) url += "?min=" + min;
+  fetch(url)
   .then(r => r.json())
   .then(data => {
     const el = document.getElementById("dice-result");
@@ -1333,14 +1335,15 @@ function rollDice() {
     }
     const rollStr = data.rolls.join("+");
     const modStr = data.modifier !== 0 ? (data.modifier > 0 ? "+" + data.modifier : data.modifier) : "";
-    el.innerHTML = `<span class="total">${data.total}</span><br><span class="detail">[${rollStr}]${modStr}</span>`;
+    const flooredStr = data.floored ? ` <span style="color:var(--muted)">(min ${min})</span>` : "";
+    el.innerHTML = `<span class="total">${data.total}</span><br><span class="detail">[${rollStr}]${modStr}${flooredStr}</span>`;
   });
 }
 
-function quickRoll(expr, label) {
+function quickRoll(expr, label, min) {
   const inp = document.getElementById("dice-expr");
   inp.value = expr;
-  rollDice();
+  rollDice(min);
   if (label) {
     const el = document.getElementById("dice-result");
     // Prepend label after result renders (next microtask)
