@@ -1,4 +1,6 @@
 """D&D 3.5 Flask-app — tablet-first karakterark."""
+import io
+import json
 import os
 import re
 import tempfile
@@ -6,11 +8,17 @@ from pathlib import Path
 
 from flask import (Flask, Response, abort, jsonify, redirect, render_template,
                    request, url_for)
+from ruamel.yaml import YAML
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import character as char_module
 import db
 import dice as dice_module
+
+# Klasser/racer generatoren understøtter (v1: de motoren er bevist mod + ranger).
+GEN_CLASSES = ["Cleric", "Druid", "Ranger"]
+GEN_RACES = ["Human", "Elf", "Gnome"]
+GEN_DOMAINS = ["healing", "protection", "war", "knowledge", "good", "luck"]
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
@@ -152,6 +160,224 @@ def import_character():
     overwrote = char_module.write_character_file(str(_char_path(slug)), raw)
     note = " (overskrev en eksisterende — tidligere version ligger under Versioner)" if overwrote else ""
     return redirect(url_for("index", imported=f"Importerede “{char.name}” som {slug}.yaml{note}"))
+
+
+# ── Karaktergenerator ───────────────────────────────────────────────────────
+
+def _gen_context() -> dict:
+    """Data til generatorformularen (klasse/race-lister + regel-data til JS)."""
+    races_json = {
+        r.lower(): {
+            "ability_adjust": char_module.race_data(r).get("ability_adjust", {}),
+            "skill_bonuses": char_module.race_data(r).get("skill_bonuses", {}),
+            "size": char_module.race_data(r).get("size", "medium"),
+            "speed": char_module.race_data(r).get("speed", 30),
+            "feat_count": char_module.level1_feat_count(r),
+        }
+        for r in GEN_RACES
+    }
+    classes_json = {
+        c.lower(): {
+            "skill_base": char_module.base_skill_points(c),
+            "class_skills": sorted(char_module.class_skills(c)),
+            "hit_die": char_module.hit_die(c),
+            "needs_domains": char_module.class_needs_domains(c),
+            "bonus_feats": char_module.class_bonus_feats(c),
+        }
+        for c in GEN_CLASSES
+    }
+    armor = db.get_all_armor()
+    return {
+        "races": GEN_RACES,
+        "classes": GEN_CLASSES,
+        "skills": db.get_all_skills(),
+        "feats": db.get_all_feats(),
+        "armors": [a for a in armor if a.get("type") != "shield"],
+        "shields": [a for a in armor if a.get("type") == "shield"],
+        "domains": db.get_domains(GEN_DOMAINS),
+        "races_json": races_json,
+        "classes_json": classes_json,
+    }
+
+
+@app.route("/create")
+def create_form():
+    return render_template("create.html", error=request.args.get("error"), **_gen_context())
+
+
+@app.route("/create", methods=["POST"])
+def create_character():
+    """Byg en ny level-1-karakter fra formularen, valider mod reglerne og skriv YAML."""
+    f = request.form
+    try:
+        name = f.get("name", "").strip()
+        if not name:
+            raise ValueError("Navn mangler.")
+        race = f.get("race", "").strip()
+        cls = f.get("cls", "").strip()
+        if race not in GEN_RACES or cls not in GEN_CLASSES:
+            raise ValueError("Ugyldig race eller klasse.")
+
+        # Ability scores: basis-input → race-justering → endelige scores.
+        base = {}
+        for a in ("str", "dex", "con", "int", "wis", "cha"):
+            iv = int(f.get(f"score_{a}", ""))
+            if not 3 <= iv <= 20:
+                raise ValueError(f"{a.upper()} skal være mellem 3 og 20 (før race).")
+            base[a] = iv
+        final = char_module.apply_racial_adjustments(base, race)
+        int_mod = (final["int"] - 10) // 2
+        con_mod = (final["con"] - 10) // 2
+
+        # Skills: budget = (klasse-basis + INT + human) × 4; klasse-skill cap 4 (cost 1),
+        # cross-class cap 2 (cost 2).
+        budget = max(1, char_module.base_skill_points(cls) + int_mod
+                     + (1 if race == "Human" else 0)) * 4
+        cls_sk = char_module.class_skills(cls)
+        spent, skills_out = 0, {}
+        for s in db.get_all_skills():
+            raw_v = f.get(f"skill_{s['id']}", "").strip()
+            ranks = int(raw_v) if raw_v else 0
+            if ranks <= 0:
+                continue
+            is_class = s["id"] in cls_sk
+            cap = 4 if is_class else 2
+            if ranks > cap:
+                raise ValueError(f"{s['name']}: max {cap} ranks ved level 1.")
+            spent += ranks * (1 if is_class else 2)
+            skills_out[s["id"]] = {"id": s["id"], "ranks": float(ranks), "misc": 0}
+        if spent > budget:
+            raise ValueError(f"For mange skill points brugt ({spent} af {budget}).")
+        # Racial skill-bonusser i misc (også på skills uden ranks).
+        for sid, bonus in char_module.race_data(race).get("skill_bonuses", {}).items():
+            if sid in skills_out:
+                skills_out[sid]["misc"] += bonus
+            else:
+                skills_out[sid] = {"id": sid, "ranks": 0.0, "misc": bonus}
+
+        # Feats: antal = 1 + race-bonus; klassens bonus-feats lægges til (Track).
+        chosen = f.getlist("feats")
+        need = char_module.level1_feat_count(race)
+        if len(chosen) != need:
+            raise ValueError(f"Vælg præcis {need} feat(s) — du valgte {len(chosen)}.")
+        valid_feats = {x["id"] for x in db.get_all_feats()}
+        if any(x not in valid_feats for x in chosen):
+            raise ValueError("Ukendt feat valgt.")
+        feats_out = list(dict.fromkeys(chosen + char_module.class_bonus_feats(cls)))
+
+        # Domæner: cleric kræver præcis 2.
+        domains = f.getlist("domains")
+        if char_module.class_needs_domains(cls):
+            valid_dom = {d["id"] for d in db.get_domains(GEN_DOMAINS)}
+            if len(domains) != 2 or any(d not in valid_dom for d in domains):
+                raise ValueError("En cleric skal vælge præcis 2 domæner.")
+        else:
+            domains = []
+
+        # Udstyr: rustning/skjold (valgfri) + våben-rækker → attacks.
+        armor_id = f.get("armor", "").strip()
+        shield_id = f.get("shield", "").strip()
+        attacks = []
+        wn = f.getlist("weapon_name")
+        wk, wd = f.getlist("weapon_kind"), f.getlist("weapon_damage")
+        wm, wc = f.getlist("weapon_str_mult"), f.getlist("weapon_crit")
+        wt, wr = f.getlist("weapon_type"), f.getlist("weapon_range")
+        for i, nm in enumerate(wn):
+            nm = nm.strip()
+            if not nm:
+                continue
+
+            def _g(lst, default=""):
+                return (lst[i].strip() if i < len(lst) and lst[i].strip() else default)
+            attacks.append({
+                "name": nm,
+                "kind": _g(wk, "melee"),
+                "base_damage": _g(wd, "1d6"),
+                "str_damage_mult": float(_g(wm, "1") or "1"),
+                "bonus": 0,
+                "crit": _g(wc, "x2"),
+                "type": _g(wt),
+                "range": _g(wr),
+            })
+
+        # Afledte rå-værdier (én gang, gemmes som rå data).
+        cl1 = db.get_class_level(cls.lower(), 1) or {}
+        hp = max(1, char_module.hit_die(cls) + con_mod)
+        rd = char_module.race_data(race)
+        raw_features = cl1.get("features") or []
+        features = raw_features if isinstance(raw_features, list) else json.loads(raw_features)
+        favored = f.get("favored_enemy", "").strip()
+        class_features = {}
+        for feat in features:
+            if cls == "Ranger" and feat.endswith("Favored Enemy") and favored:
+                class_features["Favored Enemy"] = (
+                    f"{favored} — +2 på Bluff/Listen/Sense Motive/Spot/Survival og +2 skade mod denne type")
+            else:
+                class_features[feat] = ""
+
+        gold = {k: int(f.get(f"gold_{k}", "") or 0) for k in ("pp", "gp", "sp", "cp")}
+        combat = {"bab": int(cl1.get("bab", 0)), "speed": rd.get("speed", 30)}
+        if armor_id:
+            combat["armor"] = armor_id
+        if shield_id:
+            combat["shield"] = shield_id
+
+        data = {
+            "name": name,
+            "race": race,
+            "class": cls,
+            "level": 1,
+            "alignment": f.get("alignment", "").strip(),
+            "deity": f.get("deity", "").strip(),
+            "size": rd.get("size", "medium"),
+            "experience_points": 0,
+            "hp": {"current": hp, "max": hp},
+            "ability_scores": final,
+            "saves": {"fortitude": int(cl1.get("fort", 0)),
+                      "reflex": int(cl1.get("ref", 0)),
+                      "will": int(cl1.get("will", 0))},
+            "combat": combat,
+            "attacks": attacks,
+            "skills": list(skills_out.values()),
+            "feats": feats_out,
+            "conditions": [],
+            "spells_prepared": {},
+            "spells_used": {},
+            "inventory": [],
+            "gold": gold,
+            "class_features": class_features,
+            "racial_traits": rd.get("traits", {}),
+        }
+        if domains:
+            data["domains"] = domains
+            data["domain_spells_prepared"] = {}
+            data["domain_spells_used"] = {}
+
+        slug = _safe_slug(name)
+        if not slug:
+            raise ValueError("Kunne ikke udlede et filnavn fra navnet.")
+        if _char_path(slug).exists():
+            raise ValueError(f"En karakter med filnavnet {slug}.yaml findes allerede.")
+
+        # Dump → valider via round-trip → skriv (atomar + snapshot).
+        buf = io.StringIO()
+        YAML().dump(data, buf)
+        raw = buf.getvalue().encode("utf-8")
+        tmp = None
+        try:
+            fd, tmp = tempfile.mkstemp(suffix=".yaml")
+            with os.fdopen(fd, "wb") as fh:
+                fh.write(raw)
+            char_module.load_character(tmp)  # rejser ved ugyldig
+        finally:
+            if tmp and os.path.exists(tmp):
+                os.unlink(tmp)
+
+        char_module.write_character_file(str(_char_path(slug)), raw)
+    except (ValueError, KeyError) as e:
+        return redirect(url_for("create_form", error=str(e)))
+
+    return redirect(url_for("karakter", name=slug))
 
 
 @app.route("/karakter/<name>")

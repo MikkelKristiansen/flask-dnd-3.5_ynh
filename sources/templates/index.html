@@ -79,6 +79,12 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
   font-family:Georgia,serif;font-size:.85rem;padding:.4rem 1rem;border-radius:6px;cursor:pointer;}
 .import-btn:hover{border-color:var(--accent);color:var(--accent);}
 .import-hint{color:var(--muted);font-size:.72rem;margin-top:.5rem;}
+
+/* Ny karakter-knap */
+.new-char{width:100%;max-width:520px;margin-bottom:1.2rem;display:block;text-align:center;
+  background:var(--accent);color:#000;text-decoration:none;font-weight:bold;
+  padding:.7rem;border-radius:8px;letter-spacing:.5px;}
+.new-char:hover{filter:brightness(1.08);}
 </style>
 </head>
 <body>
@@ -86,6 +92,8 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
 
 {% if imported %}<div class="banner banner-ok">✓ {{ imported }}</div>{% endif %}
 {% if import_error %}<div class="banner banner-err">⚠ {{ import_error }}</div>{% endif %}
+
+<a class="new-char" href="{{ url_for('create_form') }}">➕ Ny karakter</a>
 
 <div class="char-list">
   {% for c in chars %}

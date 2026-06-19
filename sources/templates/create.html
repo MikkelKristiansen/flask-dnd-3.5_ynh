@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D&D 3.5 — Ny karakter</title>
+<style>
+:root {
+  --bg:#403932; --surface:#4a4139; --card:#554c43; --accent:#DAC597;
+  --text:#ede7d5; --muted:#a5a195; --border:#6b5f53;
+  --red:#b5432c; --green:#7d9635; --yellow:#d49c28;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
+     min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;}
+h1{color:var(--accent);font-size:1.6rem;margin-bottom:1.2rem;letter-spacing:1px;}
+a.back{color:var(--muted);text-decoration:none;font-size:.85rem;align-self:flex-start;
+       max-width:640px;width:100%;margin:0 auto .8rem;}
+a.back:hover{color:var(--accent);}
+form{width:100%;max-width:640px;}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+         padding:1rem 1.2rem;margin-bottom:1rem;}
+.section-title{color:var(--accent);font-size:1rem;margin-bottom:.8rem;
+               border-bottom:1px solid var(--border);padding-bottom:.4rem;}
+label{display:block;color:var(--muted);font-size:.8rem;margin:.5rem 0 .2rem;}
+input[type=text],input[type=number],select{width:100%;background:var(--card);
+  border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:.9rem;
+  padding:.4rem .5rem;border-radius:5px;}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;}
+.row>div{flex:1;min-width:120px;}
+.scores-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;}
+.score-cell{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.5rem;text-align:center;}
+.score-cell label{margin:0 0 .3rem;color:var(--accent);font-size:.78rem;}
+.score-cell input{text-align:center;}
+.score-final{font-size:.74rem;color:var(--muted);margin-top:.3rem;min-height:1rem;}
+.budget{font-size:.85rem;margin-bottom:.6rem;}
+.budget b{color:var(--accent);}
+.budget.over b{color:var(--red);}
+.skill-list,.feat-list{max-height:260px;overflow-y:auto;border:1px solid var(--border);
+  border-radius:6px;padding:.4rem;}
+.skill-row{display:flex;align-items:center;gap:.5rem;padding:.25rem .2rem;border-bottom:1px solid rgba(107,95,83,.4);}
+.skill-row:last-child{border-bottom:none;}
+.skill-row .nm{flex:1;font-size:.85rem;}
+.skill-row .nm .cls{color:var(--accent);font-size:.7rem;margin-left:.3rem;}
+.skill-row .ab{color:var(--muted);font-size:.7rem;width:2.4rem;text-transform:uppercase;}
+.skill-row input{width:3.4rem;text-align:center;padding:.2rem;}
+.feat-row,.dom-row{display:flex;gap:.5rem;align-items:flex-start;padding:.3rem .2rem;border-bottom:1px solid rgba(107,95,83,.4);}
+.feat-row:last-child,.dom-row:last-child{border-bottom:none;}
+.feat-row label,.dom-row label{margin:0;color:var(--text);font-size:.85rem;cursor:pointer;}
+.feat-row .pre{color:var(--muted);font-size:.72rem;font-style:italic;}
+.hint{color:var(--muted);font-size:.75rem;margin-top:.4rem;}
+.weapon-row{display:grid;grid-template-columns:1.6fr .9fr 1fr .8fr;gap:.4rem;margin-bottom:.4rem;}
+.weapon-row input,.weapon-row select{font-size:.8rem;padding:.3rem;}
+.add-btn,.submit-btn{background:var(--card);border:1px solid var(--border);color:var(--text);
+  font-family:Georgia,serif;border-radius:6px;cursor:pointer;}
+.add-btn{font-size:.8rem;padding:.35rem .8rem;}
+.add-btn:hover{border-color:var(--accent);color:var(--accent);}
+.submit-btn{font-size:1rem;padding:.7rem 2rem;background:var(--accent);color:#000;border:none;font-weight:bold;}
+.submit-btn:disabled{opacity:.45;cursor:not-allowed;}
+.banner-err{background:rgba(181,67,44,.18);border:1px solid var(--red);color:var(--text);
+  border-radius:6px;padding:.6rem .9rem;margin-bottom:1rem;font-size:.85rem;}
+.err-inline{color:var(--red);font-size:.78rem;margin-top:.4rem;min-height:1rem;}
+.hidden{display:none;}
+.gold-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;}
+</style>
+</head>
+<body>
+<a class="back" href="{{ url_for('index') }}">← Tilbage til karakterer</a>
+<h1>➕ Ny karakter (level 1)</h1>
+
+{% if error %}<div class="banner-err" style="max-width:640px;width:100%">⚠ {{ error }}</div>{% endif %}
+
+<form id="gen-form" action="{{ url_for('create_character') }}" method="post">
+
+  <div class="section">
+    <div class="section-title">Identitet</div>
+    <label for="name">Navn</label>
+    <input type="text" id="name" name="name" required>
+    <div class="row">
+      <div>
+        <label for="race">Race</label>
+        <select id="race" name="race" onchange="onUpdate()">
+          {% for r in races %}<option value="{{ r }}">{{ r }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="cls">Klasse</label>
+        <select id="cls" name="cls" onchange="onUpdate()">
+          {% for c in classes %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div><label for="alignment">Alignment</label><input type="text" id="alignment" name="alignment" placeholder="fx Chaotic Good"></div>
+      <div><label for="deity">Deity (valgfri)</label><input type="text" id="deity" name="deity"></div>
+    </div>
+    <div id="favored-wrap" class="hidden">
+      <label for="favored_enemy">Favored Enemy (ranger)</label>
+      <input type="text" id="favored_enemy" name="favored_enemy" placeholder="fx Goblinoids">
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Ability scores <span style="color:var(--muted);font-size:.75rem">(basis — race lægges på)</span></div>
+    <div class="scores-grid">
+      {% for a in ['str','dex','con','int','wis','cha'] %}
+      <div class="score-cell">
+        <label for="score_{{ a }}">{{ a|upper }}</label>
+        <input type="number" id="score_{{ a }}" name="score_{{ a }}" value="10" min="3" max="20" oninput="onUpdate()">
+        <div class="score-final" id="final_{{ a }}"></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Skills</div>
+    <div class="budget" id="skill-budget"></div>
+    <div class="skill-list" id="skill-list"></div>
+    <div class="err-inline" id="skill-err"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Feats</div>
+    <div class="budget" id="feat-budget"></div>
+    <div id="feat-note" class="hint"></div>
+    <div class="feat-list">
+      {% for ft in feats %}
+      <div class="feat-row">
+        <input type="checkbox" id="feat_{{ ft.id }}" name="feats" value="{{ ft.id }}" onchange="onUpdate()">
+        <label for="feat_{{ ft.id }}">{{ ft.name }}{% if ft.prerequisites and ft.prerequisites != 'None' %}
+          <span class="pre">— {{ ft.prerequisites }}</span>{% endif %}</label>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="err-inline" id="feat-err"></div>
+  </div>
+
+  <div class="section hidden" id="domain-section">
+    <div class="section-title">Domæner <span style="color:var(--muted);font-size:.75rem">(vælg præcis 2)</span></div>
+    <div>
+      {% for d in domains %}
+      <div class="dom-row">
+        <input type="checkbox" id="dom_{{ d.id }}" name="domains" value="{{ d.id }}" onchange="onUpdate()">
+        <label for="dom_{{ d.id }}"><b>{{ d.name }}</b> — <span style="color:var(--muted);font-size:.78rem">{{ d.granted_power }}</span></label>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="err-inline" id="domain-err"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Udstyr <span style="color:var(--muted);font-size:.75rem">(valgfrit — kan også udfyldes på arket)</span></div>
+    <div class="row">
+      <div>
+        <label for="armor">Rustning</label>
+        <select id="armor" name="armor">
+          <option value="">— ingen —</option>
+          {% for a in armors %}<option value="{{ a.id }}">{{ a.name }} (+{{ a.armor_bonus }} AC)</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="shield">Skjold</label>
+        <select id="shield" name="shield">
+          <option value="">— intet —</option>
+          {% for s in shields %}<option value="{{ s.id }}">{{ s.name }} (+{{ s.armor_bonus }} AC)</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <label>Våben</label>
+    <div id="weapons"></div>
+    <button type="button" class="add-btn" onclick="addWeapon()">+ Tilføj våben</button>
+    <label style="margin-top:.8rem">Startguld</label>
+    <div class="gold-grid">
+      {% for coin in ['pp','gp','sp','cp'] %}
+      <div><input type="number" name="gold_{{ coin }}" min="0" value="0" placeholder="{{ coin }}"></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-bottom:2rem">
+    <button type="submit" class="submit-btn" id="submit-btn">Opret karakter</button>
+  </div>
+</form>
+
+<script>
+const RACES = {{ races_json|tojson }};
+const CLASSES = {{ classes_json|tojson }};
+const SKILLS = {{ skills|tojson }};
+
+function mod(score){ return Math.floor((score - 10) / 2); }
+
+function buildSkillList(){
+  const cls = document.getElementById('cls').value.toLowerCase();
+  const classSkills = new Set(CLASSES[cls].class_skills);
+  // klasse-skills først, så resten — alfabetisk i hver gruppe
+  const sorted = [...SKILLS].sort((a,b)=>{
+    const ca = classSkills.has(a.id), cb = classSkills.has(b.id);
+    if (ca !== cb) return ca ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+  const html = sorted.map(s=>{
+    const isCls = classSkills.has(s.id);
+    const cap = isCls ? 4 : 2;
+    return `<div class="skill-row">
+      <span class="nm">${s.name}${isCls?'<span class="cls">klasse</span>':''}</span>
+      <span class="ab">${s.ability||''}</span>
+      <input type="number" name="skill_${s.id}" data-cls="${isCls?1:0}" min="0" max="${cap}" value="0" oninput="onUpdate()">
+    </div>`;
+  }).join('');
+  document.getElementById('skill-list').innerHTML = html;
+}
+
+function addWeapon(){
+  const div = document.createElement('div');
+  div.className = 'weapon-row';
+  div.innerHTML = `
+    <input type="text" name="weapon_name" placeholder="Navn">
+    <select name="weapon_kind"><option value="melee">melee</option><option value="ranged">ranged</option></select>
+    <input type="text" name="weapon_damage" placeholder="1d8">
+    <input type="text" name="weapon_crit" placeholder="x2">`;
+  // skjulte felter for str-mult/type/range med fornuftige defaults
+  const extra = document.createElement('div');
+  extra.className = 'weapon-row';
+  extra.innerHTML = `
+    <input type="text" name="weapon_type" placeholder="Slashing/Piercing/…" style="grid-column:span 2">
+    <input type="text" name="weapon_str_mult" placeholder="Str-mult (1)" >
+    <input type="text" name="weapon_range" placeholder="Range (ranged)">`;
+  document.getElementById('weapons').appendChild(div);
+  document.getElementById('weapons').appendChild(extra);
+}
+
+function onUpdate(){
+  const race = document.getElementById('race').value;
+  const cls = document.getElementById('cls').value;
+  const rd = RACES[race.toLowerCase()];
+  const cd = CLASSES[cls.toLowerCase()];
+
+  // Ability score-preview
+  let intMod = 0, ok = true;
+  ['str','dex','con','int','wis','cha'].forEach(a=>{
+    const base = parseInt(document.getElementById('score_'+a).value || '0', 10);
+    const adj = rd.ability_adjust[a] || 0;
+    const fin = base + adj;
+    if (a==='int') intMod = mod(fin);
+    const sign = adj>0?`+${adj}`:(adj<0?`${adj}`:'');
+    document.getElementById('final_'+a).textContent =
+      `${fin} (${mod(fin)>=0?'+':''}${mod(fin)})${sign?' '+sign:''}`;
+    if (base<3 || base>20) ok=false;
+  });
+
+  // Skills budget
+  const budget = Math.max(1, cd.skill_base + intMod + (race==='Human'?1:0)) * 4;
+  let spent = 0;
+  document.querySelectorAll('#skill-list input').forEach(inp=>{
+    const r = parseInt(inp.value||'0',10);
+    const isCls = inp.dataset.cls==='1';
+    spent += r * (isCls?1:2);
+  });
+  const bEl = document.getElementById('skill-budget');
+  bEl.innerHTML = `Brugt <b>${spent}</b> af <b>${budget}</b> point (klasse-skill = 1/rank, cross-class = 2/rank)`;
+  bEl.classList.toggle('over', spent>budget);
+  document.getElementById('skill-err').textContent = spent>budget ? 'For mange skill points.' : '';
+
+  // Feats
+  const need = rd.feat_count;
+  const chosen = document.querySelectorAll('input[name="feats"]:checked').length;
+  document.getElementById('feat-budget').innerHTML = `Vælg <b>${need}</b> feat(s) — valgt <b>${chosen}</b>`;
+  document.getElementById('feat-note').textContent =
+    cd.bonus_feats.length ? `Klassen giver desuden gratis: ${cd.bonus_feats.join(', ')} (tæller ikke med).` : '';
+  document.getElementById('feat-err').textContent = (chosen!==need) ? `Skal være ${need}.` : '';
+
+  // Domæner (kun cleric)
+  const domSec = document.getElementById('domain-section');
+  let domOk = true;
+  if (cd.needs_domains){
+    domSec.classList.remove('hidden');
+    const dc = document.querySelectorAll('input[name="domains"]:checked').length;
+    domOk = dc===2;
+    document.getElementById('domain-err').textContent = domOk ? '' : 'Vælg præcis 2 domæner.';
+  } else {
+    domSec.classList.add('hidden');
+  }
+
+  // Favored enemy-felt (kun ranger)
+  document.getElementById('favored-wrap').classList.toggle('hidden', cls!=='Ranger');
+
+  // Submit-spærring
+  const valid = ok && spent<=budget && chosen===need && domOk;
+  document.getElementById('submit-btn').disabled = !valid;
+}
+
+// Genbyg skill-listen når klassen skifter (klasse-markering + caps ændrer sig)
+document.getElementById('cls').addEventListener('change', ()=>{ buildSkillList(); onUpdate(); });
+
+buildSkillList();
+addWeapon();
+onUpdate();
+</script>
+</body>
+</html>

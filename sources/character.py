@@ -828,6 +828,11 @@ def class_needs_domains(cls: str) -> bool:
     return cls.lower() == "cleric"
 
 
+def base_skill_points(cls: str) -> int:
+    """Klassens skill points pr. level før INT/race (til generatorens budget-preview)."""
+    return _SKILL_POINTS.get(cls.lower(), 2)
+
+
 def spell_like_dc(spell_level: int, cha_modifier: int, extra: int = 0) -> int:
     """Save-DC for en spell-like ability: 10 + spell level + Cha-modifier.
 
