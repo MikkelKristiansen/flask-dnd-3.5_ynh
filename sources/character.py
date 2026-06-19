@@ -1,9 +1,16 @@
 """Dataklasser og beregningslogik for D&D 3.5 karakterark."""
+import io
 import math
+import os
+import tempfile
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 
 from ruamel.yaml import YAML
+
+# Antal versioner der beholdes pr. karakter i backups/<navn>/ (roteres ved gem)
+SNAPSHOT_KEEP = 50
 
 # D&D 3.5 XP thresholds: index = target level (XP_THRESHOLDS[2] = XP needed for level 2)
 XP_THRESHOLDS = [
@@ -256,11 +263,98 @@ def load_character(path: str) -> Character:
     )
 
 
+# ---------------------------------------------------------------------------
+# Versionering / backup af karakterfiler
+#
+# To lag beskytter live-data (YAML i $data_dir/characters/):
+#   1. Atomar skrivning — der skrives til en temp-fil i samme mappe og
+#      byttes ind med os.replace(). Den eksisterende fil er urørt indtil
+#      byttet lykkes, så en afbrudt/fejlet skrivning kan aldrig efterlade
+#      en halvskrevet eller tom karakterfil.
+#   2. Roterende snapshots — efter hvert gem kopieres tilstanden til
+#      $data_dir/backups/<navn>/<tidsstempel>.yaml; de seneste SNAPSHOT_KEEP
+#      beholdes. Giver historik og mulighed for at rulle tilbage.
+# ---------------------------------------------------------------------------
+
+def snapshot_dir(char_path: Path) -> Path:
+    """backups-mappen for en given karakterfil.
+
+    $data_dir/characters/tjorn.yaml → $data_dir/backups/tjorn/
+    (søstermappe til characters/, så den følger med i YunoHost-backup af data_dir).
+    """
+    return char_path.parent.parent / "backups" / char_path.stem
+
+
+def list_snapshots(char_path: Path) -> list[Path]:
+    """Snapshots for en karakter, ældste først (tidsstempel-navne sorterer kronologisk)."""
+    return sorted(snapshot_dir(Path(char_path)).glob("*.yaml"))
+
+
+def _write_snapshot(char_path: Path) -> None:
+    """Kopiér den netop-gemte tilstand til et tidsstemplet snapshot og roter.
+
+    Best-effort: en fejl her må ALDRIG forplante sig — et gem skal altid lykkes,
+    også selvom backup-mappen er utilgængelig.
+    """
+    try:
+        if not char_path.exists():
+            return
+        snap_dir = snapshot_dir(char_path)
+        snap_dir.mkdir(parents=True, exist_ok=True)
+        current = char_path.read_bytes()
+        existing = sorted(snap_dir.glob("*.yaml"))
+        # Spring over hvis intet er ændret siden nyeste snapshot (undgå spam ved
+        # idempotente gem, fx "ny dag" hvor intet var brugt).
+        if existing and existing[-1].read_bytes() == current:
+            return
+        # Mikrosekunder i navnet → ingen kollision og korrekt kronologisk sortering.
+        ts = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+        (snap_dir / f"{ts}.yaml").write_bytes(current)
+        # Roter: behold kun de seneste SNAPSHOT_KEEP.
+        snaps = sorted(snap_dir.glob("*.yaml"))
+        for old in snaps[:-SNAPSHOT_KEEP]:
+            old.unlink()
+    except Exception:
+        pass
+
+
+def restore_snapshot(char_path: str, snapshot_name: str) -> None:
+    """Gendan en karakterfil fra et navngivet snapshot (atomart).
+
+    snapshot_name er filnavnet i backups/<navn>/, fx "20260619-204500-123456.yaml".
+    Tager selv et snapshot af nuværende tilstand først, så gendannelsen kan fortrydes.
+    """
+    p = Path(char_path)
+    snap = snapshot_dir(p) / snapshot_name
+    if not snap.is_file():
+        raise FileNotFoundError(f"Snapshot findes ikke: {snap}")
+    _write_snapshot(p)  # bevar nuværende tilstand inden overskrivning
+    _atomic_write_bytes(p, snap.read_bytes())
+
+
+def _atomic_write_bytes(p: Path, content: bytes) -> None:
+    """Skriv bytes til p atomart: temp-fil i samme mappe → os.replace()."""
+    fd, tmp = tempfile.mkstemp(dir=str(p.parent), prefix=f".{p.stem}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "wb") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, p)
+    except Exception:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        raise
+
+
 def save_character(path: str, updates: dict) -> None:
     """Gem kun angivne felter — overskriv aldrig hele filen.
 
     updates kan indeholde: hp_current, spells_prepared, spells_used,
     conditions, inventory, experience_points.
+
+    Skrivningen er atomar, og der tages et roterende snapshot efter hvert gem
+    (se afsnittet om versionering ovenfor).
     """
     yaml = YAML()
     p = Path(path)
@@ -349,8 +443,11 @@ def save_character(path: str, updates: dict) -> None:
         key = str(updates["ability_boost"]).lower()
         data["ability_scores"][key] = int(data["ability_scores"].get(key, 10)) + 1
 
-    with p.open("w", encoding="utf-8") as f:
-        yaml.dump(data, f)
+    # Atomar skrivning: dump til en buffer, skriv den atomart ind, snapshot bagefter.
+    buf = io.StringIO()
+    yaml.dump(data, buf)
+    _atomic_write_bytes(p, buf.getvalue().encode("utf-8"))
+    _write_snapshot(p)
 
 
 # ---------------------------------------------------------------------------

@@ -11,3 +11,6 @@ rules/
 
 # Genereret af importer.py — bygges lokalt/på serveren, ikke versioneret
 sources/srd35.db
+
+# Snapshots af karakterfiler (skrives ved siden af characters/ ved gem) — runtime-data
+backups/
