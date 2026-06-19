@@ -20,6 +20,34 @@ def _char_path(slug: str) -> Path:
     return CHARACTERS_DIR / f"{slug}.yaml"
 
 
+def _snapshots_for(slug: str) -> list[dict]:
+    """Snapshots for en karakter til restore-UI'en — nyeste først, med læsbar dato.
+
+    `is_current` sammenligner indhold med live-filen (ikke rækkefølge), så markeringen
+    forbliver korrekt efter en restore, hvor den nuværende tilstand ikke nødvendigvis
+    er det nyeste snapshot.
+    """
+    import datetime
+    path = _char_path(slug)
+    try:
+        current = path.read_bytes()
+    except OSError:
+        current = None
+    out = []
+    for snap in reversed(char_module.list_snapshots(path)):
+        try:
+            ts = datetime.datetime.strptime(snap.stem, "%Y%m%d-%H%M%S-%f")
+            label = ts.strftime("%-d. %b %Y, %H:%M:%S")
+        except ValueError:
+            label = snap.stem
+        try:
+            is_current = current is not None and snap.read_bytes() == current
+        except OSError:
+            is_current = False
+        out.append({"file": snap.name, "label": label, "is_current": is_current})
+    return out
+
+
 # ── Pages ──────────────────────────────────────────────────────────────────
 
 def _last_updated() -> str:
@@ -309,6 +337,7 @@ def karakter(name):
         all_feats_json=all_feats_json,
         all_skills_json=all_skills_json,
         cls_skills_json=cls_skills_json,
+        snapshots=_snapshots_for(name),
     )
 
 
@@ -585,6 +614,22 @@ def api_notes():
     if not path.exists():
         return jsonify({"error": "not found"}), 404
     char_module.save_character(str(path), {"notes": notes})
+    return jsonify({"ok": True})
+
+
+@app.route("/api/restore", methods=["POST"])
+def api_restore():
+    data     = request.get_json()
+    slug     = data.get("char")
+    snapshot = str(data.get("snapshot", ""))
+    path     = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    # Tillad kun et navn der faktisk er et snapshot for DENNE karakter (ingen path traversal).
+    valid = {s.name for s in char_module.list_snapshots(path)}
+    if snapshot not in valid:
+        return jsonify({"error": "ukendt snapshot"}), 400
+    char_module.restore_snapshot(str(path), snapshot)
     return jsonify({"ok": True})
 
 

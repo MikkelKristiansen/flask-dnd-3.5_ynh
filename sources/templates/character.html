@@ -902,6 +902,32 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       </div>
     </div>
   </div>
+
+  <div class="section" id="versions-section">
+    <div class="section-title">Versioner</div>
+    {% if snapshots %}
+    <p style="color:var(--muted);font-size:.8rem;margin-bottom:.6rem">
+      Tidligere gemte tilstande, nyeste øverst. Gendan ruller arket tilbage til en version —
+      den nuværende tilstand gemmes som et nyt snapshot først, så du kan fortryde.
+    </p>
+    {% for s in snapshots %}
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;
+                padding:.45rem .2rem;border-bottom:1px solid var(--border)">
+      <span style="color:var(--text);font-size:.85rem">
+        {{ s.label }}{% if s.is_current %} <span style="color:var(--green);font-size:.75rem">· nuværende</span>{% endif %}
+      </span>
+      {% if not s.is_current %}
+      <button onclick="restoreSnapshot('{{ s.file }}','{{ s.label }}')"
+              style="background:var(--card);border:1px solid var(--border);color:var(--text);
+                     font-family:Georgia,serif;font-size:.78rem;padding:.25rem .7rem;
+                     border-radius:5px;cursor:pointer;white-space:nowrap">↩ Gendan</button>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <p style="color:var(--muted);font-style:italic">Ingen tidligere versioner endnu — der oprettes et snapshot ved hvert gem.</p>
+    {% endif %}
+  </div>
 </div>
 
 <!-- ── Dice bar ── -->
@@ -2376,6 +2402,21 @@ async function saveNotes() {
     document.getElementById('notes-view').innerHTML = renderMd(_notesRaw);
     cancelNotesEdit();
   }
+}
+
+function restoreSnapshot(file, label) {
+  if (!confirm(`Gendan tilstanden fra ${label}?\n\nDen nuværende tilstand gemmes som et snapshot først, så du kan fortryde.`)) return;
+  fetch(BASE + "/api/restore", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, snapshot: file})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) window.location.reload();
+    else alert("Kunne ikke gendanne: " + (data.error || "ukendt fejl"));
+  })
+  .catch(() => alert("Kunne ikke gendanne (netværksfejl)."));
 }
 </script>
 </body>
