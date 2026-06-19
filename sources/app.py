@@ -1,9 +1,11 @@
 """D&D 3.5 Flask-app — tablet-first karakterark."""
 import os
 import re
+import tempfile
 from pathlib import Path
 
-from flask import Flask, abort, jsonify, render_template, request
+from flask import (Flask, Response, abort, jsonify, redirect, render_template,
+                   request, url_for)
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import character as char_module
@@ -12,12 +14,19 @@ import dice as dice_module
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
+# Karakterfiler er små (~få KB) — en beskeden grænse beskytter import-ruten.
+app.config["MAX_CONTENT_LENGTH"] = 512 * 1024
 CHARACTERS_DIR = Path(os.environ.get("DND_CHARACTERS_DIR",
                                      str(Path(__file__).parent / "characters")))
 
 
 def _char_path(slug: str) -> Path:
     return CHARACTERS_DIR / f"{slug}.yaml"
+
+
+def _safe_slug(text: str) -> str:
+    """Saniter til et filsikkert slug: kun a-z, 0-9, bindestreg og underscore."""
+    return re.sub(r"[^a-z0-9_-]+", "-", str(text).strip().lower()).strip("-")
 
 
 def _snapshots_for(slug: str) -> list[dict]:
@@ -90,7 +99,59 @@ def index():
                           "race": "", "cls": "", "level": "?",
                           "hp_current": 0, "hp_max": 0, "hp_pct": 0,
                           "dead": False, "conditions": [], "xp_ready": False, "enc": ""})
-    return render_template("index.html", chars=chars, last_updated=_last_updated())
+    return render_template("index.html", chars=chars, last_updated=_last_updated(),
+                           imported=request.args.get("imported"),
+                           import_error=request.args.get("import_error"))
+
+
+@app.route("/export/<slug>")
+def export_character(slug):
+    """Hent en karakters rå YAML som fil-download (off-box kopi)."""
+    path = _char_path(slug)
+    if not path.exists() or path.parent.resolve() != CHARACTERS_DIR.resolve():
+        abort(404)
+    return Response(
+        path.read_bytes(),
+        mimetype="application/x-yaml",
+        headers={"Content-Disposition": f'attachment; filename="{slug}.yaml"'},
+    )
+
+
+@app.route("/import", methods=["POST"])
+def import_character():
+    """Importér en karakter-YAML fra brugerens disk.
+
+    Validerer at filen rent faktisk kan loades som en karakter, før den skrives.
+    Slug udledes af filnavnet (saniteret), med karakterens name som fallback.
+    Overskriver en eksisterende karakter med samme slug — men kun efter et
+    snapshot af den nuværende, så det kan fortrydes via Versioner.
+    """
+    file = request.files.get("file")
+    if file is None or not file.filename:
+        return redirect(url_for("index", import_error="Ingen fil valgt."))
+
+    raw = file.read()
+
+    # Valider: skal kunne loades som en rigtig karakter (ellers ville arket fejle).
+    tmp = None
+    try:
+        fd, tmp = tempfile.mkstemp(suffix=".yaml")
+        with os.fdopen(fd, "wb") as f:
+            f.write(raw)
+        char = char_module.load_character(tmp)
+    except Exception as e:
+        return redirect(url_for("index", import_error=f"Ugyldig karakterfil: {e}"))
+    finally:
+        if tmp and os.path.exists(tmp):
+            os.unlink(tmp)
+
+    slug = _safe_slug(Path(file.filename).stem) or _safe_slug(char.name)
+    if not slug:
+        return redirect(url_for("index", import_error="Kunne ikke udlede et navn fra filen."))
+
+    overwrote = char_module.write_character_file(str(_char_path(slug)), raw)
+    note = " (overskrev en eksisterende — tidligere version ligger under Versioner)" if overwrote else ""
+    return redirect(url_for("index", imported=f"Importerede “{char.name}” som {slug}.yaml{note}"))
 
 
 @app.route("/karakter/<name>")

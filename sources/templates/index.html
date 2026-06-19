@@ -52,15 +52,49 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
 
 .empty{color:var(--muted);font-style:italic;}
 .version{color:var(--muted);font-size:.72rem;margin-top:2rem;text-align:center;}
+
+/* Per-kort download + klikbart kort (stretched link) */
+.char-card{position:relative;}
+.card-link{position:absolute;inset:0;z-index:1;border-radius:8px;}
+.card-download{position:absolute;top:.55rem;right:.7rem;z-index:2;
+  background:var(--card);border:1px solid var(--border);color:var(--text);
+  font-size:.72rem;padding:.22rem .55rem;border-radius:5px;text-decoration:none;
+  display:inline-flex;align-items:center;gap:.25rem;}
+.card-download:hover{border-color:var(--accent);color:var(--accent);}
+
+/* Import-resultat-banner */
+.banner{width:100%;max-width:520px;border-radius:6px;padding:.6rem .9rem;
+  margin-bottom:1.2rem;font-size:.85rem;}
+.banner-ok{background:rgba(125,150,53,.18);border:1px solid var(--green);color:var(--text);}
+.banner-err{background:rgba(181,67,44,.18);border:1px solid var(--red);color:var(--text);}
+
+/* Import-boks */
+.import-box{width:100%;max-width:520px;margin-top:1.6rem;background:var(--surface);
+  border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;}
+.import-label{display:block;color:var(--accent);font-size:.9rem;margin-bottom:.6rem;}
+.import-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;}
+.import-row input[type=file]{flex:1;min-width:0;color:var(--muted);
+  font-family:inherit;font-size:.8rem;}
+.import-btn{background:var(--card);border:1px solid var(--border);color:var(--text);
+  font-family:Georgia,serif;font-size:.85rem;padding:.4rem 1rem;border-radius:6px;cursor:pointer;}
+.import-btn:hover{border-color:var(--accent);color:var(--accent);}
+.import-hint{color:var(--muted);font-size:.72rem;margin-top:.5rem;}
 </style>
 </head>
 <body>
 <h1>⚔ D&D 3.5</h1>
+
+{% if imported %}<div class="banner banner-ok">✓ {{ imported }}</div>{% endif %}
+{% if import_error %}<div class="banner banner-err">⚠ {{ import_error }}</div>{% endif %}
+
 <div class="char-list">
   {% for c in chars %}
   {% set hp_cls = "dead" if c.dead else ("hurt" if c.hp_pct < 50 else "ok") %}
   {% set fill_cls = "fill-dead" if c.dead else ("fill-hurt" if c.hp_pct < 50 else "fill-ok") %}
-  <a class="char-card{% if c.dead %} dead{% endif %}" href="{{ url_for('karakter', name=c.slug) }}">
+  <div class="char-card{% if c.dead %} dead{% endif %}">
+    <a class="card-link" href="{{ url_for('karakter', name=c.slug) }}" aria-label="Åbn {{ c.name }}"></a>
+    <a class="card-download" href="{{ url_for('export_character', slug=c.slug) }}"
+       title="Gem {{ c.name }} som YAML til disk">⬇ Gem</a>
 
     <div class="card-top">
       <div>
@@ -93,11 +127,23 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
       {% endif %}
     </div>
 
-  </a>
+  </div>
   {% else %}
   <p class="empty">Ingen karakterer fundet i characters/</p>
   {% endfor %}
 </div>
+
+<form class="import-box" action="{{ url_for('import_character') }}" method="post"
+      enctype="multipart/form-data">
+  <label class="import-label" for="import-file">⬆ Importér karakter fra disk</label>
+  <div class="import-row">
+    <input id="import-file" type="file" name="file" accept=".yaml,.yml" required>
+    <button class="import-btn" type="submit">Importér</button>
+  </div>
+  <p class="import-hint">YAML-fil. Importerer en ny karakter — eller overskriver en med
+    samme filnavn (den gamle bevares som en version, så det kan fortrydes).</p>
+</form>
+
 <p class="version">Sidst opdateret: {{ last_updated }}</p>
 </body>
 </html>

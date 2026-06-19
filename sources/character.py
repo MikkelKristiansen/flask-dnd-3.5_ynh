@@ -318,6 +318,23 @@ def _write_snapshot(char_path: Path) -> None:
         pass
 
 
+def write_character_file(char_path: str, content: bytes) -> bool:
+    """Skriv en hel karakterfil (import) atomart. Returnerer True hvis en
+    eksisterende fil blev overskrevet.
+
+    Findes filen i forvejen, tages et snapshot af den nuværende tilstand FØRST,
+    så en import der overskriver kan fortrydes via Versioner. Den importerede
+    tilstand snapshottes også bagefter.
+    """
+    p = Path(char_path)
+    existed = p.exists()
+    if existed:
+        _write_snapshot(p)
+    _atomic_write_bytes(p, content)
+    _write_snapshot(p)
+    return existed
+
+
 def restore_snapshot(char_path: str, snapshot_name: str) -> None:
     """Gendan en karakterfil fra et navngivet snapshot (atomart).
 
