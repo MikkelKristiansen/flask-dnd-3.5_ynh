@@ -1,4 +1,5 @@
 """Dataklasser og beregningslogik for D&D 3.5 karakterark."""
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -69,10 +70,13 @@ class Skill:
 @dataclass
 class Attack:
     name: str
-    attack_bonus: int
-    damage: str
-    crit: str
-    type: str
+    kind: str = "melee"            # melee | ranged | melee_touch | ranged_touch
+    base_damage: str = "1d4"       # KUN terningen; Str lægges på i koden
+    str_damage_mult: float = 1.0   # 1 normal · 1.5 tohånds · 0.5 off-hand · 0 ingen Str
+    bonus: int = 0                 # situations-uafhængig til-hit (Weapon Focus, masterwork, magi)
+    fixed_damage: str = ""         # skade sat af kilden (spell/touch); tilsidesætter base+Str
+    crit: str = "x2"
+    type: str = ""
     range: str = ""
 
 
@@ -163,8 +167,11 @@ def load_character(path: str) -> Character:
     for a in data.get("attacks") or []:
         attacks.append(Attack(
             name=str(a["name"]),
-            attack_bonus=int(a.get("attack_bonus", 0)),
-            damage=str(a.get("damage", "1d4")),
+            kind=str(a.get("kind", "melee")).lower(),
+            base_damage=str(a.get("base_damage", "1d4")),
+            str_damage_mult=float(a.get("str_damage_mult", 1.0)),
+            bonus=int(a.get("bonus", 0)),
+            fixed_damage=str(a.get("fixed_damage", "")),
             crit=str(a.get("crit", "x2")),
             type=str(a.get("type", "")),
             range=str(a.get("range", "")),
@@ -399,6 +406,57 @@ def skill_total(skill: Skill, ability_scores: AbilityScores, db,
 
 def save_total(base: int, ability_score: int) -> int:
     return base + (ability_score - 10) // 2
+
+
+# ---------------------------------------------------------------------------
+# Angreb, skade og grapple (3.5 SRD) — beregnes, gemmes aldrig i YAML
+# ---------------------------------------------------------------------------
+
+SIZE_MOD_ATTACK = {   # normal størrelses-modifier: til AC og angrebsrul
+    "fine": 8, "diminutive": 4, "tiny": 2, "small": 1,
+    "medium": 0, "large": -1, "huge": -2, "gargantuan": -4, "colossal": -8,
+}
+SIZE_MOD_GRAPPLE = {  # særlig størrelses-modifier: grapple/bull rush/trip (IKKE samme som ovenfor)
+    "fine": -16, "diminutive": -12, "tiny": -8, "small": -4,
+    "medium": 0, "large": 4, "huge": 8, "gargantuan": 12, "colossal": 16,
+}
+
+
+def size_mod_attack(size: str) -> int:
+    return SIZE_MOD_ATTACK.get(size.lower(), 0)
+
+
+def size_mod_grapple(size: str) -> int:
+    return SIZE_MOD_GRAPPLE.get(size.lower(), 0)
+
+
+def attack_total(attack: Attack, ability_scores: AbilityScores,
+                 bab: int, size: str) -> dict:
+    """Beregn til-hit og skade-streng for ét angreb.
+
+    Til-hit: bab + ability-mod (Str for melee, Dex for ranged) + størrelse + bonus.
+    Skade: fixed_damage hvis sat (spell/touch), ellers base_damage + floor(Str-mod ·
+    str_damage_mult). Str-delen skjules helt når den er 0.
+    """
+    hit_ability = "dex" if attack.kind in ("ranged", "ranged_touch") else "str"
+    to_hit = (bab + ability_scores.modifier(hit_ability)
+              + size_mod_attack(size) + attack.bonus)
+
+    if attack.fixed_damage:
+        damage = attack.fixed_damage
+    else:
+        str_bonus = math.floor(ability_scores.modifier("str") * attack.str_damage_mult)
+        if attack.str_damage_mult == 0 or str_bonus == 0:
+            damage = attack.base_damage
+        else:
+            damage = f"{attack.base_damage}{str_bonus:+d}"
+
+    return {"to_hit": to_hit, "damage": damage}
+
+
+def grapple_total(bab: int, str_score: int, size: str) -> int:
+    """Grapple-modifier: bab + Str-mod + den SÆRLIGE grapple-størrelses-modifier."""
+    return bab + (str_score - 10) // 2 + size_mod_grapple(size)
 
 
 def xp_to_next_level(current_level: int) -> int | None:

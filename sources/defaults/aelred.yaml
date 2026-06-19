@@ -14,9 +14,9 @@ hp:
   max: 9
 
 ability_scores:
-  str: 12
+  str: 14
   dex: 10
-  con: 12
+  con: 13
   int: 10
   wis: 16
   cha: 15
@@ -33,17 +33,21 @@ combat:
   initiative: 4       # DEX +0 + Improved Initiative +4
   bab: 0
   speed: 30           # let rustning (chain shirt) reducerer ikke hastigheden
-  grapple: 1          # BAB 0 + STR +1
+  # grapple beregnes: BAB + STR-mod + størrelses-modifier (Medium = 0)
 
 attacks:
 - name: Light Mace
-  attack_bonus: 1
-  damage: 1d6+1
+  kind: melee
+  base_damage: 1d6    # KUN terningen; Str lægges på i koden
+  str_damage_mult: 1
+  bonus: 0
   crit: x2
   type: Bludgeoning
 - name: Sling
-  attack_bonus: 0
-  damage: 1d4+1
+  kind: ranged
+  base_damage: 1d4
+  str_damage_mult: 1  # slyngen er undtagelsen: ranged men får Str til skade
+  bonus: 0
   crit: x2
   type: Bludgeoning
   range: 50 ft

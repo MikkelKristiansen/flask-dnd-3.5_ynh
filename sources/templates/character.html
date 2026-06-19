@@ -478,22 +478,24 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       <div class="stat-row"><span class="stat-label">FF</span><span class="stat-val">{{ co.get("flat_footed_ac","—") }}</span></div>
       <div class="stat-row"><span class="stat-label">Init</span><span class="stat-val">{{ "%+d"|format(co.get("initiative",0)) }}</span></div>
       <div class="stat-row"><span class="stat-label">BAB</span><span class="stat-val">{{ "%+d"|format(co.get("bab",0)) }}</span></div>
+      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(grapple) }}','Grapple')" title="Slå grapple-check"><span class="stat-label">Grapple</span><span class="stat-val">{{ "%+d"|format(grapple) }}</span></div>
       <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ co.get("speed",30) }} ft</span></div>
     </div>
   </div>
 
-  {% if char.attacks %}
+  {% if attack_rows %}
   <div class="section">
     <div class="section-title">Angreb <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik bonus/skade for at slå)</span></div>
-    {% for atk in char.attacks %}
+    {% for row in attack_rows %}
+    {% set atk = row.attack %}
     <div class="attack-row">
       <span>{{ atk.name }}</span>
       <span class="attack-bonus roll-tap"
-            onclick="quickRoll('1d20{{ "%+d"|format(atk.attack_bonus) }}','{{ atk.name }} angreb')"
-            title="Slå angrebsbonus">{{ "%+d"|format(atk.attack_bonus) }}</span>
+            onclick="quickRoll('1d20{{ "%+d"|format(row.to_hit) }}','{{ atk.name }} angreb')"
+            title="Slå angrebsbonus">{{ "%+d"|format(row.to_hit) }}</span>
       <span class="attack-dmg roll-tap"
-            onclick="quickRoll('{{ atk.damage }}','{{ atk.name }} skade')"
-            title="Slå skade">{{ atk.damage }}</span>
+            onclick="quickRoll('{{ row.damage }}','{{ atk.name }} skade')"
+            title="Slå skade">{{ row.damage }}</span>
       <span class="attack-type">{{ atk.type }}{% if atk.range %} · {{ atk.range }}{% endif %}</span>
     </div>
     {% endfor %}

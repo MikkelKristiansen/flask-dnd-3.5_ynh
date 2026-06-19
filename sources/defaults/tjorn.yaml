@@ -33,28 +33,34 @@ combat:
   initiative: 1
   bab: 1
   speed: 20
-  grapple: -1
+  # grapple beregnes: BAB + STR-mod + SÆRLIG grapple-størrelse (Small = -4) → -4
 
 attacks:
 - name: Quarterstaff
-  attack_bonus: 1
-  damage: 1d4-1
+  kind: melee
+  base_damage: 1d4    # KUN terningen; Str lægges på i koden
+  str_damage_mult: 1
+  bonus: 0
   crit: x2
   type: Bludgeoning
 - name: Sling
-  attack_bonus: 3
-  damage: 1d3-1
+  kind: ranged
+  base_damage: 1d3
+  str_damage_mult: 1  # slyngen er undtagelsen: ranged men får Str til skade
+  bonus: 0
   crit: x2
   type: Bludgeoning
   range: 50 ft
 - name: Produce Flame (melee touch)
-  attack_bonus: 1
-  damage: 1d6+1
+  kind: melee_touch
+  str_damage_mult: 0      # touch-angreb: ingen våben-Str til skade
+  fixed_damage: 1d6+2     # 1d6 +1/casterniveau (druid 2) — sat af spellen
   crit: x2
   type: Fire
 - name: Produce Flame (ranged touch)
-  attack_bonus: 3
-  damage: 1d6+1
+  kind: ranged_touch
+  str_damage_mult: 0
+  fixed_damage: 1d6+2
   crit: x2
   type: Fire
   range: 120 ft
