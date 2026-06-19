@@ -742,6 +742,92 @@ def class_skills(cls: str) -> set[str]:
     return _CLASS_SKILLS.get(cls.lower(), set())
 
 
+# ---------------------------------------------------------------------------
+# Race-data — bruges KUN af karaktergeneratoren ved oprettelse. Motoren har
+# ingen mekanisk race-logik (scores gemmes som endelige tal, racial_traits er
+# fri tekst); disse data lader generatoren lægge ability-justeringer på, sætte
+# size/speed, lægge racial skill-bonusser i skills' misc, og pre-udfylde
+# racial_traits i samme format som de håndskrevne karakterer bruger.
+# ---------------------------------------------------------------------------
+_RACES: dict[str, dict] = {
+    "human": {
+        "size": "medium", "speed": 30,
+        "ability_adjust": {},
+        "skill_bonuses": {},
+        "bonus_feats": 1,                 # ekstra feat ved level 1 (skill point håndteres i skill_points_per_level)
+        "traits": {
+            "bonus_feat": "1 ekstra feat ved level 1",
+            "skill_points": "+1 skill point pr. level (medregnet automatisk)",
+            "size": "Medium",
+            "speed": "30 ft.",
+        },
+    },
+    "elf": {
+        "size": "medium", "speed": 30,
+        "ability_adjust": {"dex": 2, "con": -2},
+        "skill_bonuses": {"listen": 2, "spot": 2, "search": 2},
+        "bonus_feats": 0,
+        "traits": {
+            "stat_mods": "+2 DEX, -2 CON",
+            "immunities": "Immun over for magisk sleep; +2 på saves mod enchantment",
+            "low_light_vision": True,
+            "keen_senses": "+2 på Listen, Spot og Search; automatisk Search-tjek for hemmelige døre inden for 5 ft.",
+            "weapon_proficiency": "Longsword, rapier, longbow, shortbow",
+            "size": "Medium", "speed": "30 ft.",
+        },
+    },
+    "gnome": {
+        "size": "small", "speed": 20,
+        "ability_adjust": {"con": 2, "str": -2},
+        "skill_bonuses": {"listen": 2},
+        "bonus_feats": 0,
+        "traits": {
+            "stat_mods": "+2 CON, -2 STR",
+            "size": "Small",
+            "size_bonuses": "+1 AC, +1 angreb, +4 Hide",
+            "low_light_vision": True,
+            "illusion_save_bonus": 2,
+            "illusion_dc_bonus": 1,
+            "attack_bonus_vs": "Kobolder og goblinoids +1",
+            "dodge_ac_vs": "Giant-type monstre +4",
+            "listen_bonus": 2,
+            "spell_like_abilities": [
+                {"id": "speak_with_animals", "note": "gravende dyr", "freq": "1/dag"},
+                {"id": "dancing_lights", "freq": "1/dag"},
+                {"id": "ghost_sound", "freq": "1/dag"},
+                {"id": "prestidigitation", "freq": "1/dag"},
+            ],
+        },
+    },
+}
+
+
+def race_data(race: str) -> dict:
+    """Race-data (size, speed, ability-justeringer, skill-bonusser, traits) eller {}."""
+    return _RACES.get(race.lower(), {})
+
+
+def apply_racial_adjustments(base_scores: dict, race: str) -> dict:
+    """Læg racens ability-justeringer på basis-scores → endelige scores."""
+    adj = race_data(race).get("ability_adjust", {})
+    return {k: int(base_scores.get(k, 10)) + adj.get(k, 0)
+            for k in ("str", "dex", "con", "int", "wis", "cha")}
+
+
+def level1_feat_count(race: str) -> int:
+    """Antal feats spilleren selv vælger ved level 1 (1 + evt. race-bonus-feat)."""
+    return 1 + race_data(race).get("bonus_feats", 0)
+
+
+def class_bonus_feats(cls: str) -> list[str]:
+    """Feats klassen giver gratis ved level 1 (tæller ikke mod de valgte)."""
+    return ["track"] if cls.lower() == "ranger" else []
+
+
+def class_needs_domains(cls: str) -> bool:
+    return cls.lower() == "cleric"
+
+
 def spell_like_dc(spell_level: int, cha_modifier: int, extra: int = 0) -> int:
     """Save-DC for en spell-like ability: 10 + spell level + Cha-modifier.
 

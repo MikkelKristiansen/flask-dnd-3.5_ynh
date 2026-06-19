@@ -164,6 +164,7 @@ def get_domain_spells(
 _CLASS_LEVEL_TABLES = {
     "druid": "druid_levels",
     "cleric": "cleric_levels",
+    "ranger": "ranger_levels",
 }
 
 

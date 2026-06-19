@@ -114,6 +114,28 @@ CREATE TABLE cleric_levels (
     features    TEXT NOT NULL
 );
 
+DROP TABLE IF EXISTS ranger_levels;
+CREATE TABLE ranger_levels (
+    level       INTEGER PRIMARY KEY,
+    hd          TEXT NOT NULL,
+    skill_points INTEGER NOT NULL,
+    bab         INTEGER NOT NULL,
+    fort        INTEGER NOT NULL,
+    ref         INTEGER NOT NULL,
+    will        INTEGER NOT NULL,
+    spells_0    INTEGER NOT NULL,
+    spells_1    INTEGER NOT NULL,
+    spells_2    INTEGER NOT NULL,
+    spells_3    INTEGER NOT NULL,
+    spells_4    INTEGER NOT NULL,
+    spells_5    INTEGER NOT NULL,
+    spells_6    INTEGER NOT NULL,
+    spells_7    INTEGER NOT NULL,
+    spells_8    INTEGER NOT NULL,
+    spells_9    INTEGER NOT NULL,
+    features    TEXT NOT NULL
+);
+
 DROP TABLE IF EXISTS domains;
 CREATE TABLE domains (
     id            TEXT PRIMARY KEY,
@@ -2774,6 +2796,39 @@ CLERIC_LEVELS: list[dict] = [
 # INSERT templates
 # ---------------------------------------------------------------------------
 
+# Ranger — full BAB, Fort+Ref good, Will poor, 6 skill points, divine spells fra niv. 4.
+# Spells per day (PHB tabel 3-14); 0 dækker både "—" og "0 + kun Wis-bonus" (motoren
+# viser kun slots hvor base > 0, jf. spell_slots_total — en kendt mindre begrænsning for
+# rangere med høj Wis). Bygges programmatisk for at undgå håndskrevne fejl over 20 niveauer.
+_RANGER_GOOD = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12]
+_RANGER_POOR = [0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6]
+_RANGER_SPELLS = {  # level: {spell_level: base slots}
+    4: {1: 0}, 5: {1: 1}, 6: {1: 1}, 7: {1: 1, 2: 0}, 8: {1: 1, 2: 1}, 9: {1: 1, 2: 1},
+    10: {1: 1, 2: 1, 3: 0}, 11: {1: 1, 2: 1, 3: 1}, 12: {1: 1, 2: 1, 3: 1},
+    13: {1: 1, 2: 1, 3: 1, 4: 0}, 14: {1: 2, 2: 1, 3: 1, 4: 1}, 15: {1: 2, 2: 1, 3: 1, 4: 1},
+    16: {1: 2, 2: 2, 3: 1, 4: 1}, 17: {1: 2, 2: 2, 3: 2, 4: 1}, 18: {1: 3, 2: 2, 3: 2, 4: 1},
+    19: {1: 3, 2: 3, 3: 3, 4: 2}, 20: {1: 3, 2: 3, 3: 3, 4: 3},
+}
+_RANGER_FEATURES = {
+    1: ["1st Favored Enemy", "Track", "Wild Empathy"], 2: ["Combat Style"], 3: ["Endurance"],
+    4: ["Animal Companion", "Spells (1st level)"], 5: ["2nd Favored Enemy"],
+    6: ["Improved Combat Style"], 7: ["Woodland Stride"], 8: ["Swift Tracker"],
+    9: ["Evasion"], 10: ["3rd Favored Enemy"], 11: ["Combat Style Mastery"],
+    13: ["Camouflage"], 15: ["4th Favored Enemy"], 17: ["Hide in Plain Sight"],
+    20: ["5th Favored Enemy"],
+}
+RANGER_LEVELS: list[dict] = []
+for _lvl in range(1, 21):
+    _sp = _RANGER_SPELLS.get(_lvl, {})
+    RANGER_LEVELS.append({
+        "level": _lvl, "hd": "d8", "skill_points": 6, "bab": _lvl,
+        "fort": _RANGER_GOOD[_lvl - 1], "ref": _RANGER_GOOD[_lvl - 1],
+        "will": _RANGER_POOR[_lvl - 1],
+        **{f"spells_{i}": _sp.get(i, 0) for i in range(10)},
+        "features": json.dumps(_RANGER_FEATURES.get(_lvl, [])),
+    })
+
+
 DOMAINS: list[dict] = [
     {
         "id": "healing",
@@ -2784,6 +2839,26 @@ DOMAINS: list[dict] = [
         "id": "protection",
         "name": "Protection",
         "granted_power": "You can generate a protective ward as a supernatural ability. Grant someone you touch a resistance bonus on his or her next saving throw equal to your cleric level. Activating this power is a standard action. The protective ward is an abjuration effect with a duration of 1 hour that is usable once per day.",
+    },
+    {
+        "id": "war",
+        "name": "War",
+        "granted_power": "Free Martial Weapon Proficiency with your deity's favored weapon (if necessary) and Weapon Focus with that weapon.",
+    },
+    {
+        "id": "knowledge",
+        "name": "Knowledge",
+        "granted_power": "Add all Knowledge skills to your list of cleric class skills. You cast divination spells at +1 caster level.",
+    },
+    {
+        "id": "good",
+        "name": "Good",
+        "granted_power": "You cast good spells at +1 caster level.",
+    },
+    {
+        "id": "luck",
+        "name": "Luck",
+        "granted_power": "You gain the power of good fortune, usable once per day. It lets you reroll one roll you have just made, before the DM declares success or failure. You must take the result of the reroll, even if it is worse.",
     },
 ]
 
@@ -2811,6 +2886,46 @@ DOMAIN_SPELLS: list[dict] = [
     {"domain_id": "protection", "level": 7, "spell_id": "repulsion"},
     {"domain_id": "protection", "level": 8, "spell_id": "mind_blank"},
     {"domain_id": "protection", "level": 9, "spell_id": "prismatic_sphere"},
+    # War
+    {"domain_id": "war", "level": 1, "spell_id": "magic_weapon"},
+    {"domain_id": "war", "level": 2, "spell_id": "spiritual_weapon"},
+    {"domain_id": "war", "level": 3, "spell_id": "magic_vestment"},
+    {"domain_id": "war", "level": 4, "spell_id": "divine_power"},
+    {"domain_id": "war", "level": 5, "spell_id": "flame_strike"},
+    {"domain_id": "war", "level": 6, "spell_id": "blade_barrier"},
+    {"domain_id": "war", "level": 7, "spell_id": "power_word_blind"},
+    {"domain_id": "war", "level": 8, "spell_id": "power_word_stun"},
+    {"domain_id": "war", "level": 9, "spell_id": "power_word_kill"},
+    # Knowledge
+    {"domain_id": "knowledge", "level": 1, "spell_id": "detect_secret_doors"},
+    {"domain_id": "knowledge", "level": 2, "spell_id": "detect_thoughts"},
+    {"domain_id": "knowledge", "level": 3, "spell_id": "clairaudience_clairvoyance"},
+    {"domain_id": "knowledge", "level": 4, "spell_id": "divination"},
+    {"domain_id": "knowledge", "level": 5, "spell_id": "true_seeing"},
+    {"domain_id": "knowledge", "level": 6, "spell_id": "find_the_path"},
+    {"domain_id": "knowledge", "level": 7, "spell_id": "legend_lore"},
+    {"domain_id": "knowledge", "level": 8, "spell_id": "discern_location"},
+    {"domain_id": "knowledge", "level": 9, "spell_id": "foresight"},
+    # Good
+    {"domain_id": "good", "level": 1, "spell_id": "protection_from_evil"},
+    {"domain_id": "good", "level": 2, "spell_id": "aid"},
+    {"domain_id": "good", "level": 3, "spell_id": "magic_circle_against_evil"},
+    {"domain_id": "good", "level": 4, "spell_id": "holy_smite"},
+    {"domain_id": "good", "level": 5, "spell_id": "dispel_evil"},
+    {"domain_id": "good", "level": 6, "spell_id": "blade_barrier"},
+    {"domain_id": "good", "level": 7, "spell_id": "holy_word"},
+    {"domain_id": "good", "level": 8, "spell_id": "holy_aura"},
+    {"domain_id": "good", "level": 9, "spell_id": "summon_monster_ix"},
+    # Luck
+    {"domain_id": "luck", "level": 1, "spell_id": "entropic_shield"},
+    {"domain_id": "luck", "level": 2, "spell_id": "aid"},
+    {"domain_id": "luck", "level": 3, "spell_id": "protection_energy"},
+    {"domain_id": "luck", "level": 4, "spell_id": "freedom_of_movement"},
+    {"domain_id": "luck", "level": 5, "spell_id": "break_enchantment"},
+    {"domain_id": "luck", "level": 6, "spell_id": "mislead"},
+    {"domain_id": "luck", "level": 7, "spell_id": "spell_turning"},
+    {"domain_id": "luck", "level": 8, "spell_id": "moment_of_prescience"},
+    {"domain_id": "luck", "level": 9, "spell_id": "miracle"},
 ]
 
 # Druider må ikke bære metalrustning eller metalskjold (kun padded/leather/hide +
@@ -2894,6 +3009,17 @@ VALUES
      :spells_5, :spells_6, :spells_7, :spells_8, :spells_9, :features)
 """
 
+RANGER_LEVEL_INSERT = """
+INSERT OR REPLACE INTO ranger_levels
+    (level, hd, skill_points, bab, fort, ref, will,
+     spells_0, spells_1, spells_2, spells_3, spells_4,
+     spells_5, spells_6, spells_7, spells_8, spells_9, features)
+VALUES
+    (:level, :hd, :skill_points, :bab, :fort, :ref, :will,
+     :spells_0, :spells_1, :spells_2, :spells_3, :spells_4,
+     :spells_5, :spells_6, :spells_7, :spells_8, :spells_9, :features)
+"""
+
 
 DOMAIN_INSERT = """
 INSERT OR REPLACE INTO domains (id, name, granted_power)
@@ -2958,6 +3084,9 @@ def seed() -> None:
     for cl in CLERIC_LEVELS:
         conn.execute(CLERIC_LEVEL_INSERT, cl)
 
+    for rl in RANGER_LEVELS:
+        conn.execute(RANGER_LEVEL_INSERT, rl)
+
     for dom in DOMAINS:
         conn.execute(DOMAIN_INSERT, dom)
 
@@ -2974,7 +3103,7 @@ def seed() -> None:
     print(f"Database seeded at {DB_PATH}")
     print(f"  {len(SPELLS)} spells, {len(SKILLS)} skills, {len(FEATS)} feats")
     print(f"  {len(CONDITIONS)} conditions, {len(DRUID_LEVELS)} druid levels, "
-          f"{len(CLERIC_LEVELS)} cleric levels")
+          f"{len(CLERIC_LEVELS)} cleric levels, {len(RANGER_LEVELS)} ranger levels")
     print(f"  {len(DOMAINS)} domains, {len(DOMAIN_SPELLS)} domain spells, {len(ARMOR)} armor")
 
 
