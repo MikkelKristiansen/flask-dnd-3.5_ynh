@@ -1,0 +1,248 @@
+# Tjørn Birkerod — Gnome Druid 2, Neutral Good
+name: Tjørn Birkerod
+race: Gnome
+class: Druid
+level: 2
+alignment: Neutral Good
+deity: Silvanus
+size: small
+
+experience_points: 2410
+
+hp:
+  current: 14
+  max: 17
+
+ability_scores:
+  str: 9
+  dex: 12
+  con: 15
+  int: 11
+  wis: 15
+  cha: 10
+
+saves:
+  fortitude: 3   # base — CON-modifier tilføjes automatisk
+  reflex: 0      # base — DEX-modifier tilføjes automatisk
+  will: 3        # base — WIS-modifier tilføjes automatisk
+
+combat:
+  armor: studded_leather   # MWK Studded Leather (+3 AC) — MWK påvirker kun ACP, ikke AC
+  # AC, initiative og grapple beregnes nu af koden (ikke længere hardcodet)
+  bab: 1
+  speed: 20
+
+attacks:
+- name: Quarterstaff
+  kind: melee
+  base_damage: 1d4
+  str_damage_mult: 1
+  bonus: 0
+  crit: x2
+  type: Bludgeoning
+- name: Sling
+  kind: ranged
+  base_damage: 1d3
+  str_damage_mult: 1  # slynge får Str til skade
+  bonus: 0
+  crit: x2
+  type: Bludgeoning
+  range: 50 ft
+- name: Produce Flame (melee touch)
+  kind: melee_touch
+  str_damage_mult: 0
+  fixed_damage: 1d6+2     # 1d6 +1/casterniveau (druid 2) — sat af spellen
+  crit: x2
+  type: Fire
+- name: Produce Flame (ranged touch)
+  kind: ranged_touch
+  str_damage_mult: 0
+  fixed_damage: 1d6+2
+  crit: x2
+  type: Fire
+  range: 25 ft
+
+skills:
+- id: concentration
+  ranks: 3.0
+  misc: 0
+- id: handle_animal
+  ranks: 5.0
+  misc: 0
+- id: heal
+  ranks: 4.0
+  misc: 0
+- id: knowledge_nature
+  ranks: 5.0
+  misc: 2
+- id: knowledge_local
+  ranks: 2.0
+  misc: 0
+- id: listen
+  ranks: 0.0
+  misc: 2
+- id: profession_herbalist
+  ranks: 4.0
+  misc: 0
+- id: ride
+  ranks: 4.0
+  misc: 0
+- id: survival
+  ranks: 4.0
+  misc: 2
+feats:
+- spell_focus_conjuration
+conditions: []
+spells_prepared:
+  0:
+  - cure_minor_wounds
+  - light
+  - guidance
+  - virtue
+  1:
+  - produce_flame
+  - cure_light_wounds
+  - magic_stone
+spells_used: {}
+inventory:
+- name: Masterwork Studded Leather Armor
+  weight: 10.0
+  qty: 1
+  notes: +3 AC, 0 armor check penalty
+- name: Quarterstaff
+  weight: 2.0
+  qty: 1
+  notes: ''
+- name: Sling
+  weight: 0.0
+  qty: 1
+  notes: ''
+- name: Sling bullets (10)
+  weight: 2.5
+  qty: 1
+  notes: ''
+- name: Healer's Kit
+  weight: 0.5
+  qty: 1
+  notes: 7 uses, +2 Heal
+- name: Holly and mistletoe
+  weight: 0.0
+  qty: 1
+  notes: spellcasting focus
+- name: Backpack
+  weight: 1.0
+  qty: 1
+  notes: ''
+- name: Rations
+  weight: 0.5
+  qty: 4
+  notes: 4 days
+- name: Waterskin
+  weight: 0.5
+  qty: 1
+  notes: full
+- name: Tanglefootbag
+  weight: 0.0
+  qty: 1
+  notes: "Tanglefoot Bag\nWhen you throw a tanglefoot bag at a creature (as a ranged
+    touch attack with a range increment of 10 feet), the bag comes apart and the goo
+    bursts out, entangling the target and then becoming tough and resilient upon exposure
+    to air. An entangled creature takes a –2 penalty on attack rolls and a –4 penalty
+    to Dexterity and must make a DC 15 Reflex save or be glued to the floor, unable
+    to move. Even on a successful save, it can move only at half speed. Huge or larger
+    creatures are unaffected by a tanglefoot bag. A flying creature is not stuck to
+    the floor, but it must make a DC 15 Reflex save or be unable to fly (assuming
+    it uses its wings to fly) and fall to the ground. A tanglefoot bag does not function
+    underwater.\n\nA creature that is glued to the floor (or unable to fly) can break
+    free by making a DC 17 Strength check or by dealing 15 points of damage to the
+    goo with a slashing weapon. A creature trying to scrape goo off itself, or another
+    creature assisting, does not need to make an attack roll; hitting the goo is automatic,
+    after which the creature that hit makes a damage roll to see how much of the goo
+    was scraped off. Once free, the creature can move (including flying) at half speed.
+    A character capable of spellcasting who is bound by the goo must make a DC 15
+    Concentration check to cast a spell. The goo becomes brittle and fragile after
+    2d4 rounds, cracking apart and losing its effectiveness. An application of universal
+    solvent to a stuck creature dissolves the alchemical goo immediately.\n\n"
+- name: Drageskæl
+  weight: 0.1
+  qty: 5
+  notes: 'Drageskæl revet af en blå drage.  '
+gold:
+  pp: 0
+  gp: 45
+  sp: 12
+  cp: 3
+
+companion:
+  name: Varg
+  type: Riding Dog
+  ac: 13
+  hp:
+    current: 12
+    max: 13
+  attack_bite: +3 to hit, 1d6+3
+  trip: Str check +1 (provokes no AoO)
+  speed: 40
+  tricks:
+  - Attack
+  - Come
+  - Seek
+  - Stay
+  - Down
+  - Guard
+  - Heel
+  special:
+  - Link (+4 Handle Animal med Tjørn)
+  - Share Spells
+
+  skills:
+  - name: Jump
+    total: 8
+  - name: Listen
+    total: 5
+  - name: Spot
+    total: 5
+  - name: Swim
+    total: 3
+  - name: Survival
+    total: 1
+    note: +5 ved tracking by scent (+4 racial)
+  feats:
+  - Alertness
+  - Track
+class_features:
+  nature_sense: +2 Knowledge (Nature) og Survival
+  wild_empathy: 1d20 + 2 (level) + 0 (CHA) — Diplomacy mod dyr
+  woodland_stride: Bevæger sig normalt igennem naturligt svært terræn
+  spontaneous_casting: Kan ofre forberedt spell → Summon Nature's Ally (1 fuld 
+    runde)
+  animal_companion: Varg (Wolf)
+
+racial_traits:
+  stat_mods: +2 CON, -2 STR
+  size: Small
+  size_bonuses: +1 AC, +1 angreb, +4 Hide
+  low_light_vision: true
+  illusion_save_bonus: 2
+  illusion_dc_bonus: 1
+  attack_bonus_vs: Kobolder og goblinoids +1
+  dodge_ac_vs: Giant-type monstre +4
+  listen_bonus: 2
+  spell_like_abilities:
+  - Speak with Animals (gravende dyr) — 1/dag
+  - Dancing Lights — 1/dag
+  - Ghost Sound — 1/dag
+  - Prestidigitation — 1/dag
+
+notes: |
+  Tjørn er fra gnom-landsbyen Gravelwood i Arn Forest.
+  Bærer Grumles (grævling) klo i en læderrem om halsen.
+  Moren Edna er druide i Silverwood på den anden side af floden.
+  Deity ændret fra Obad-Hai til Silvanus (jf. booklet).
+
+  DM-bonus (session 2): +2 Know. (Nature), +1 Know. (Local/Silver Marches),
+  +2 Prof. (Herbalist) — for hjælp til præstinde Silefrey ved Riverrest.
+
+  Level 3 plan: +1 Survival, +2 Concentration, +1 Spot. Feat: Augment Summoning.
+
+  Husk 120 touch produce flame
