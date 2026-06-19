@@ -627,7 +627,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
         {% if item.trained_only %}<span class="skill-trained" title="Trænet kun — kan ikke bruges utrænet">▲</span>{% endif %}
       </span>
       <span style="display:flex;align-items:baseline;gap:.8rem">
-        <span class="skill-ranks">{{ s.ranks|int }} ranks{% if item.synergy > 0 %}&nbsp;<span style="color:var(--green);font-size:.7rem" title="Synergibonus fra andre skills">+{{ item.synergy }}⟳</span>{% endif %}</span>
+        <span class="skill-ranks">{{ s.ranks|int }} ranks{% if item.synergy > 0 %}&nbsp;<span style="color:var(--green);font-size:.7rem" title="Synergibonus fra andre skills">+{{ item.synergy }}⟳</span>{% endif %}{% if item.acp_applied != 0 %}&nbsp;<span style="color:var(--red);font-size:.7rem" title="Rustnings-tjekstraf (ACP)">{{ item.acp_applied }}🛡</span>{% endif %}</span>
         {% if item.usable %}
         {% if item.synergy > 0 %}
         <span class="skill-total roll-tap"

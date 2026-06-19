@@ -47,6 +47,7 @@ CREATE TABLE skills (
     name TEXT NOT NULL,
     ability TEXT NOT NULL,
     trained_only INTEGER NOT NULL,
+    armor_check INTEGER NOT NULL DEFAULT 0,  -- 0 ingen · 1 normal ACP · 2 dobbelt (Swim)
     description TEXT
 );
 
@@ -1767,6 +1768,12 @@ SPELLS: list[dict] = [
     },
 ]
 
+# SRD: skills med rustnings-tjekstraf (ACP). Swim tæller dobbelt. Alle andre = 0.
+_ARMOR_CHECK_SKILLS = {
+    "balance": 1, "climb": 1, "escape_artist": 1, "hide": 1, "jump": 1,
+    "move_silently": 1, "sleight_of_hand": 1, "swim": 2, "tumble": 1,
+}
+
 SKILLS: list[dict] = [
     {"id": "appraise",           "name": "Appraise",             "ability": "int", "trained_only": 0,
      "description": "You can appraise common or well-known objects with a DC 12 Appraise check. Rare or exotic items require a DC 15–25 check. Failure means you estimate the value at 50%–150% of its actual value (DM determines). A magnifying glass gives a +2 circumstance bonus on checks for small or detailed items."},
@@ -2902,10 +2909,11 @@ def seed() -> None:
         conn.execute(SPELL_INSERT, row)
 
     for skill in SKILLS:
+        row = {**skill, "armor_check": _ARMOR_CHECK_SKILLS.get(skill["id"], 0)}
         conn.execute(
-            "INSERT OR REPLACE INTO skills (id, name, ability, trained_only, description) "
-            "VALUES (:id, :name, :ability, :trained_only, :description)",
-            skill,
+            "INSERT OR REPLACE INTO skills (id, name, ability, trained_only, armor_check, description) "
+            "VALUES (:id, :name, :ability, :trained_only, :armor_check, :description)",
+            row,
         )
 
     for feat in FEATS:

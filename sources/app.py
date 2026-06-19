@@ -74,6 +74,11 @@ def karakter(name):
     char = char_module.load_character(str(path))
     ab = char.ability_scores
 
+    # Equipped rustning/skjold → bruges til både AC og rustnings-tjekstraf (ACP)
+    armor_row  = db.get_armor(char.armor) if char.armor else None
+    shield_row = db.get_armor(char.shield) if char.shield else None
+    acp = char_module.armor_check_penalty(armor_row, shield_row)
+
     saves = {
         "Fortitude": char_module.save_total(char.saves.get("fortitude", 0), ab.con),
         "Reflex":    char_module.save_total(char.saves.get("reflex",    0), ab.dex),
@@ -88,10 +93,12 @@ def karakter(name):
         synergy = synergy_bonuses.get(s.id, 0)
         ranked = int(s.ranks) > 0
         trained_only = bool(defn.get("trained_only"))
-        total = char_module.skill_total(s, ab, db, synergy)
+        total = char_module.skill_total(s, ab, db, synergy, acp)
+        acp_applied = acp * int(defn.get("armor_check", 0) or 0)
         skill_data.append({
             "skill": s, "defn": defn,
             "total": total,
+            "acp_applied": acp_applied,
             # Synergibonusser er situationsbetingede (SRD) — vis også den "rene"
             # total uden synergi, så man kender værdien når synergien ikke gælder.
             "base_total": total - synergy,
@@ -141,8 +148,8 @@ def karakter(name):
         ab, char.feats, int(char.combat.get("initiative_misc", 0)))
     ac = char_module.armor_class(
         ab, char.size,
-        armor=db.get_armor(char.armor) if char.armor else None,
-        shield=db.get_armor(char.shield) if char.shield else None,
+        armor=armor_row,
+        shield=shield_row,
         enc_max_dex=char_module.encumbrance_consequences(enc, base_speed)["max_dex"],
         natural=int(char.combat.get("natural_armor", 0)),
         deflection=int(char.combat.get("deflection", 0)),

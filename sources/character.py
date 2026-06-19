@@ -397,15 +397,24 @@ def compute_synergy_bonuses(skills: list[Skill]) -> dict[str, int]:
     return bonuses
 
 
+def armor_check_penalty(armor: dict | None = None, shield: dict | None = None) -> int:
+    """Samlet rustnings-tjekstraf (ACP): rustning + skjold (begge ≤ 0)."""
+    return (int(armor.get("armor_check", 0)) if armor else 0) \
+        + (int(shield.get("armor_check", 0)) if shield else 0)
+
+
 def skill_total(skill: Skill, ability_scores: AbilityScores, db,
-                synergy_bonus: int = 0) -> int:
+                synergy_bonus: int = 0, acp: int = 0) -> int:
     skill_def = db.get_skill(skill.id)
     if skill_def is None:
         return int(skill.ranks) + skill.misc + synergy_bonus
+    # ACP rammer kun Str/Dex-skills markeret i db'en; Swim tæller dobbelt (=2).
+    acp_applied = acp * int(skill_def.get("armor_check", 0) or 0)
     ability = skill_def["ability"]
     if ability == "none":
-        return int(skill.ranks) + skill.misc + synergy_bonus
-    return int(skill.ranks) + ability_scores.modifier(ability) + skill.misc + synergy_bonus
+        return int(skill.ranks) + skill.misc + synergy_bonus + acp_applied
+    return (int(skill.ranks) + ability_scores.modifier(ability)
+            + skill.misc + synergy_bonus + acp_applied)
 
 
 def save_total(base: int, ability_score: int) -> int:
