@@ -8,3 +8,6 @@ CLAUDE.md
 
 # Klonet OGL-kildemateriale (srd-v3.5-md) — kun til lokal import, ikke en del af appen
 rules/
+
+# Genereret af importer.py — bygges lokalt/på serveren, ikke versioneret
+sources/srd35.db
