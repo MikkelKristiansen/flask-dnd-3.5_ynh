@@ -1,0 +1,181 @@
+# Faelyn Egeskov — Elf Ranger 1, Chaotic Good
+name: Faelyn Egeskov
+race: Elf
+class: Ranger
+level: 1
+alignment: Chaotic Good
+deity: ''                 # rangere får først (divine) spells ved level 4 — ingen gud nødvendig endnu
+size: medium
+
+experience_points: 0
+
+hp:
+  current: 8          # 1d8 (8, max ved level 1) + CON-mod (+0)
+  max: 8
+
+# Elf-justering (+2 DEX, -2 CON) er ALLEREDE indregnet her — motoren rører ikke ved tallene.
+# Rå 28-point-buy før race: STR14 DEX15 CON13 INT12 WIS13 CHA8.
+ability_scores:
+  str: 14
+  dex: 17    # 15 + 2 (elf)
+  con: 11    # 13 - 2 (elf)
+  int: 12
+  wis: 13
+  cha: 8
+
+saves:
+  fortitude: 2   # base — CON-modifier (+0) tilføjes automatisk → +2
+  reflex: 2      # base — DEX-modifier (+3) tilføjes automatisk → +5
+  will: 0        # base — WIS-modifier (+1) tilføjes automatisk → +1
+  # Elf: +2 racial på saves mod enchantment (situationsbestemt — se racial_traits)
+
+combat:
+  armor: studded_leather      # +3 AC, max Dex +5, -1 armor check (slås op i armor-tabellen)
+  shield: ''                  # intet skjold — begge hænder optaget af two-weapon fighting
+  # AC beregnes: 10 + rustning (+3) + Dex (+3, ikke cappet) + størrelse (0) → 16 / touch 13 / flat-footed 13
+  # initiative beregnes: Dex-mod (+3), ingen Improved Initiative → +3
+  bab: 1               # ranger har fuld BAB → +1 ved level 1
+  speed: 30            # elf-basishastighed; let rustning reducerer ikke
+  # grapple beregnes: BAB (+1) + STR-mod (+2) + størrelses-modifier (Medium = 0) → +3
+
+# Two-weapon fighting: tallene nedenfor har -2/-2-straffen bagt ind (fuldt angreb med
+# to våben + TWF-feat + let bihånd-våben). Et ENKELT angreb uden TWF rammer +3 (uden -2).
+attacks:
+- name: Short Sword (hovedhånd · TWF)
+  kind: melee
+  base_damage: 1d6    # KUN terningen; Str lægges på i koden
+  str_damage_mult: 1
+  bonus: -2           # two-weapon fighting-straf (primær hånd)
+  crit: 19-20/x2
+  type: Piercing
+- name: Short Sword (bihånd · TWF)
+  kind: melee
+  base_damage: 1d6
+  str_damage_mult: 0.5  # bihånd får kun ½ Str til skade (+1)
+  bonus: -2
+  crit: 19-20/x2
+  type: Piercing
+- name: Longbow
+  kind: ranged
+  base_damage: 1d8
+  str_damage_mult: 0    # almindelig (ikke-composite) longbow får ikke Str til skade
+  bonus: 0              # ingen TWF-straf når man skyder
+  crit: x3
+  type: Piercing
+  range: 100 ft
+
+# 7 skill points (6 ranger + 1 INT) × 4 = 28 ranks ved level 1; max 4 ranks/skill.
+skills:
+- id: hide
+  ranks: 4.0
+  misc: 0
+- id: move_silently
+  ranks: 4.0
+  misc: 0
+- id: survival
+  ranks: 4.0
+  misc: 0          # favored enemy giver +2 mod goblinoider (situationsbestemt — se class_features)
+- id: spot
+  ranks: 4.0
+  misc: 2          # +2 elf racial (Keen Senses)
+- id: listen
+  ranks: 4.0
+  misc: 2          # +2 elf racial
+- id: search
+  ranks: 4.0
+  misc: 2          # +2 elf racial
+- id: climb
+  ranks: 4.0
+  misc: 0
+
+feats:
+- track                 # ranger bonus-feat (tæller ikke mod normale feat-pladser)
+- two_weapon_fighting   # level-1 feat (Dex 17 opfylder Dex 15-kravet)
+
+conditions: []
+
+# Ingen spells: rangere får først divine spells ved level 4.
+spells_prepared: {}
+spells_used: {}
+
+inventory:
+- name: Studded Leather
+  weight: 20.0
+  qty: 1
+  notes: +3 AC, max DEX +5, -1 armor check, light armor
+- name: Short Sword
+  weight: 2.0
+  qty: 2
+  notes: hovedhånd + bihånd (two-weapon fighting)
+- name: Longbow
+  weight: 3.0
+  qty: 1
+  notes: ''
+- name: Arrows (20)
+  weight: 3.0
+  qty: 2
+  notes: to koggere
+- name: Backpack
+  weight: 2.0
+  qty: 1
+  notes: ''
+- name: Bedroll
+  weight: 5.0
+  qty: 1
+  notes: ''
+- name: Trail rations
+  weight: 0.5
+  qty: 5
+  notes: 5 dage
+- name: Waterskin
+  weight: 4.0
+  qty: 1
+  notes: fuld
+- name: Flint and steel
+  weight: 0.0
+  qty: 1
+  notes: ''
+- name: Hemp rope (50 ft)
+  weight: 10.0
+  qty: 1
+  notes: ''
+- name: Forkullet egeløv-token
+  weight: 0.0
+  qty: 1
+  notes: minde om den brændte lund
+
+gold:
+  pp: 0
+  gp: 8
+  sp: 0
+  cp: 0
+
+class_features:
+  favored_enemy: Goblinoids — +2 på Bluff, Listen, Sense Motive, Spot og Survival mod dem, og +2 skade med våben mod dem
+  wild_empathy: 1d20 + 0 (level 1 + CHA -1) for at ændre et dyrs holdning, som et Diplomacy-tjek
+  combat_style: Two-Weapon Fighting — taget som level-1 feat (to kortsværd, -2/-2 ved fuldt angreb). Ranger Combat Style-featuren kommer ved level 2 og gør feat'en gratis, kun i let/ingen rustning.
+
+racial_traits:
+  ability_adjust: +2 DEX, -2 CON (allerede indregnet i ability scores)
+  immunities: Immun over for magisk sleep; +2 på saves mod enchantment-formler og -effekter
+  low_light_vision: Ser dobbelt så langt som et menneske i svagt lys
+  keen_senses: +2 på Listen, Spot og Search (indregnet i skills' misc); må slå Search automatisk for hemmelige døre inden for 5 ft. ved at passere
+  weapon_proficiency: Gratis færdighed med longsword, rapier, longbow og shortbow
+  size: Medium
+  speed: 30 ft.
+
+notes: |
+  Faelyn Egeskov var spejder for en lille elver-lund, indtil en goblinoid-krigsbande
+  brændte den ned. Hun overlevede som en af få og jager nu banden gennem grænseskovene
+  med to kortsværd — favored enemy: Goblinoids.
+
+  Kamp: Med two-weapon fighting laver hun ved et FULDT angreb to slag, begge til +1
+  (BAB +1 + Str +2 - 2 TWF). Primær skade 1d6+2, bihånd 1d6+1 (kun ½ Str). Laver hun
+  i stedet ét enkelt angreb (uden TWF), er det til +3 uden -2-straffen. Longbue på
+  afstand: +4 til-hit, 1d8.
+
+  Spells: Rangere caster ikke før level 4 — derfor er Trylleformler-fanen tom med vilje.
+
+  Navnet "Egeskov" er valgt for at matche Tjørn Birkerods stil (dansk natur-efternavn).
+  Sig til hvis du vil have et andet navn, en anden favored enemy (fx Orcs eller
+  Magical Beasts), eller justere alignment.

@@ -749,7 +749,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     {% endfor %}
     {% endfor %}
   </div>
-  {% else %}
+  {% elif slots %}
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;
               padding:1.2rem;text-align:center;margin-bottom:.8rem">
     <p style="color:var(--muted);margin-bottom:.8rem">Ingen forberedte trylleformler endnu.</p>
@@ -759,6 +759,11 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
                    border-radius:6px;cursor:pointer">
       📖 Forbered spells til i dag
     </button>
+  </div>
+  {% else %}
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;
+              padding:1.2rem;text-align:center;margin-bottom:.8rem">
+    <p style="color:var(--muted)">{{ char.cls }} har ingen trylleformler ved level {{ char.level }}.</p>
   </div>
   {% endif %}
 

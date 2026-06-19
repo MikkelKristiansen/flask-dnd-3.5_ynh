@@ -598,6 +598,12 @@ _CLASS_SKILLS: dict[str, set[str]] = {
         "knowledge_arcana", "knowledge_history", "knowledge_planes",
         "knowledge_religion", "profession", "spellcraft",
     },
+    "ranger": {
+        "climb", "concentration", "craft", "handle_animal", "heal",
+        "hide", "jump", "knowledge_dungeoneering", "knowledge_geography",
+        "knowledge_nature", "listen", "move_silently", "profession",
+        "ride", "search", "spot", "survival", "swim", "use_rope",
+    },
 }
 
 
