@@ -78,6 +78,8 @@ def karakter(name):
     armor_row  = db.get_armor(char.armor) if char.armor else None
     shield_row = db.get_armor(char.shield) if char.shield else None
     acp = char_module.armor_check_penalty(armor_row, shield_row)
+    # Druide i metalrustning/-skjold mister spellcasting (+ su/sp-evner) i 24t
+    druid_armor_block = char_module.druid_armor_violations(char.cls, armor_row, shield_row)
 
     saves = {
         "Fortitude": char_module.save_total(char.saves.get("fortitude", 0), ab.con),
@@ -295,6 +297,7 @@ def karakter(name):
         grapple=grapple,
         initiative=initiative,
         ac=ac,
+        druid_armor_block=druid_armor_block,
         inventory_json=inventory_json,
         available_spells=available_spells,
         domain_slots=domain_slots,

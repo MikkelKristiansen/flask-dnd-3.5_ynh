@@ -135,8 +135,9 @@ CREATE TABLE armor (
     name          TEXT NOT NULL,
     armor_bonus   INTEGER NOT NULL,
     max_dex       INTEGER,                    -- NULL = ingen Dex-grænse
-    armor_check   INTEGER NOT NULL DEFAULT 0, -- ACP (negativ); bruges ikke i AC, gemt til skills senere
-    spell_failure INTEGER NOT NULL DEFAULT 0, -- arcane spell failure % (gemt til senere)
+    armor_check   INTEGER NOT NULL DEFAULT 0, -- ACP (negativ); anvendes på Str/Dex-skills
+    spell_failure INTEGER NOT NULL DEFAULT 0, -- arcane spell failure % (kun arcane casters; gemt til senere)
+    druid_ok      INTEGER NOT NULL DEFAULT 1, -- 0 = forbudt for druider (metal); jf. _DRUID_PROHIBITED_ARMOR
     type          TEXT NOT NULL               -- light | medium | heavy | shield
 );
 """
@@ -2794,6 +2795,16 @@ DOMAIN_SPELLS: list[dict] = [
     {"domain_id": "protection", "level": 9, "spell_id": "prismatic_sphere"},
 ]
 
+# Druider må ikke bære metalrustning eller metalskjold (kun padded/leather/hide +
+# træskjolde). En druide i forbudt rustning kan ikke caste druidespells (eller bruge
+# su/sp-evner) mens den bæres + 24t efter. HUSREGEL (Mikkels bord): studded leather
+# regnes som TILLADT, selvom den har metalnitter — derfor ikke på listen.
+_DRUID_PROHIBITED_ARMOR = {
+    "chain_shirt", "scale_mail", "chainmail", "breastplate",
+    "banded_mail", "splint_mail", "half_plate", "full_plate",
+    "buckler", "light_steel_shield", "heavy_steel_shield", "tower_shield",
+}
+
 # SRD-rustninger og skjolde. max_dex = None betyder ingen Dex-grænse. Masterwork
 # påvirker kun armor_check (ikke AC/max_dex), så MWK-varianter behøver ikke egne
 # rækker til AC-beregning — equip blot grund-rustningen.
@@ -2877,8 +2888,8 @@ VALUES (:domain_id, :level, :spell_id)
 """
 
 ARMOR_INSERT = """
-INSERT OR REPLACE INTO armor (id, name, armor_bonus, max_dex, armor_check, spell_failure, type)
-VALUES (:id, :name, :armor_bonus, :max_dex, :armor_check, :spell_failure, :type)
+INSERT OR REPLACE INTO armor (id, name, armor_bonus, max_dex, armor_check, spell_failure, druid_ok, type)
+VALUES (:id, :name, :armor_bonus, :max_dex, :armor_check, :spell_failure, :druid_ok, :type)
 """
 
 
@@ -2936,7 +2947,8 @@ def seed() -> None:
         conn.execute(DOMAIN_SPELL_INSERT, ds)
 
     for armor in ARMOR:
-        conn.execute(ARMOR_INSERT, armor)
+        row = {**armor, "druid_ok": 0 if armor["id"] in _DRUID_PROHIBITED_ARMOR else 1}
+        conn.execute(ARMOR_INSERT, row)
 
     conn.commit()
     conn.close()

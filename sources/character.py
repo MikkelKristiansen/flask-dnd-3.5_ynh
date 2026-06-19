@@ -403,6 +403,19 @@ def armor_check_penalty(armor: dict | None = None, shield: dict | None = None) -
         + (int(shield.get("armor_check", 0)) if shield else 0)
 
 
+def druid_armor_violations(cls: str, armor: dict | None = None,
+                           shield: dict | None = None) -> list:
+    """Navne på equipped rustning/skjold der er forbudt for en druide (metal).
+
+    Tom liste hvis ikke druide, eller intet forbudt. En druide i forbudt rustning
+    kan ikke caste druidespells eller bruge su/sp-evner — mens den bæres + 24t efter.
+    """
+    if cls.lower() != "druid":
+        return []
+    return [item["name"] for item in (armor, shield)
+            if item and not int(item.get("druid_ok", 1))]
+
+
 def skill_total(skill: Skill, ability_scores: AbilityScores, db,
                 synergy_bonus: int = 0, acp: int = 0) -> int:
     skill_def = db.get_skill(skill.id)
