@@ -183,20 +183,25 @@ def _gen_context() -> dict:
             "hit_die": char_module.hit_die(c),
             "needs_domains": char_module.class_needs_domains(c),
             "bonus_feats": char_module.class_bonus_feats(c),
+            "bab1": int((db.get_class_level(c.lower(), 1) or {}).get("bab", 0)),
+            "turn_undead": char_module.class_can_turn_undead(c),
         }
         for c in GEN_CLASSES
     }
+    all_feats = db.get_all_feats()
     armor = db.get_all_armor()
     return {
         "races": GEN_RACES,
         "classes": GEN_CLASSES,
         "skills": db.get_all_skills(),
-        "feats": db.get_all_feats(),
+        "feats": all_feats,
         "armors": [a for a in armor if a.get("type") != "shield"],
         "shields": [a for a in armor if a.get("type") == "shield"],
         "domains": db.get_domains(GEN_DOMAINS),
         "races_json": races_json,
         "classes_json": classes_json,
+        "feat_prereqs": {x["id"]: (x.get("prerequisites") or "") for x in all_feats},
+        "feat_name_to_id": {x["name"].lower(): x["id"] for x in all_feats},
     }
 
 
@@ -260,10 +265,22 @@ def create_character():
         need = char_module.level1_feat_count(race)
         if len(chosen) != need:
             raise ValueError(f"Vælg præcis {need} feat(s) — du valgte {len(chosen)}.")
-        valid_feats = {x["id"] for x in db.get_all_feats()}
+        all_feats = db.get_all_feats()
+        valid_feats = {x["id"] for x in all_feats}
         if any(x not in valid_feats for x in chosen):
             raise ValueError("Ukendt feat valgt.")
         feats_out = list(dict.fromkeys(chosen + char_module.class_bonus_feats(cls)))
+
+        # Håndhæv feat-prerequisites (fx Augment Summoning kræver Spell Focus (Conjuration)).
+        name_to_id = {x["name"].lower(): x["id"] for x in all_feats}
+        prereq_by_id = {x["id"]: x.get("prerequisites") for x in all_feats}
+        name_by_id = {x["id"]: x["name"] for x in all_feats}
+        bab1 = int((db.get_class_level(cls.lower(), 1) or {}).get("bab", 0))
+        for fid in chosen:
+            missing = char_module.feat_prereq_unmet(
+                prereq_by_id.get(fid) or "", feats_out, final, cls, 1, bab1, name_to_id)
+            if missing:
+                raise ValueError(f"{name_by_id.get(fid, fid)} kræver: {', '.join(missing)}.")
 
         # Domæner: cleric kræver præcis 2.
         domains = f.getlist("domains")

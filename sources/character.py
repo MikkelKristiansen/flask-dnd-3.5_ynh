@@ -2,6 +2,7 @@
 import io
 import math
 import os
+import re
 import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -831,6 +832,71 @@ def class_needs_domains(cls: str) -> bool:
 def base_skill_points(cls: str) -> int:
     """Klassens skill points pr. level før INT/race (til generatorens budget-preview)."""
     return _SKILL_POINTS.get(cls.lower(), 2)
+
+
+# ---------------------------------------------------------------------------
+# Feat-prerequisite-tjek til generatoren. Prerequisites er fri tekst i db'en
+# (fx "Dex 15", "Str 13, Power Attack", "Spell Focus (Conjuration)", "BAB +4",
+# "Ability to turn or rebuke undead", "Wild shape class ability"). Vi parser
+# klausul-for-klausul og tjekker de typer vi kan verificere; ukendte klausuler
+# behandles som rådgivende (ikke-blokerende) for at undgå falske afvisninger.
+# ---------------------------------------------------------------------------
+_ABILITY_PREREQ_RE = re.compile(r"^(str|dex|con|int|wis|cha)\s+(\d+)$", re.I)
+_BAB_PREREQ_RE = re.compile(r"(?:base attack bonus|bab)\s*\+?(\d+)", re.I)
+
+
+def class_can_turn_undead(cls: str) -> bool:
+    return cls.lower() == "cleric"
+
+
+def class_has_wild_shape(cls: str, level: int) -> bool:
+    return cls.lower() == "druid" and level >= 5
+
+
+def feat_prereq_unmet(prereq_text: str, owned_feat_ids, scores: dict,
+                      cls: str, level: int, bab: int,
+                      feat_name_to_id: dict) -> list[str]:
+    """Returnér de prerequisite-klausuler der IKKE er opfyldt (tom liste = OK).
+
+    owned_feat_ids er de feats karakteren VIL have (valgte + klassens gratis) — så
+    en feat-kæde som Dodge→Mobility er gyldig når begge vælges samtidig ved level 1.
+    """
+    if not prereq_text or prereq_text.strip().lower() == "none":
+        return []
+    owned = set(owned_feat_ids)
+    unmet = []
+    for clause in prereq_text.split(","):
+        clause = clause.strip()
+        if not clause:
+            continue
+        m = _ABILITY_PREREQ_RE.match(clause)
+        if m:
+            if int(scores.get(m.group(1).lower(), 10)) < int(m.group(2)):
+                unmet.append(clause)
+            continue
+        m = _BAB_PREREQ_RE.search(clause)
+        if m:
+            if bab < int(m.group(1)):
+                unmet.append(clause)
+            continue
+        low = clause.lower()
+        if "turn" in low and "undead" in low:
+            if not class_can_turn_undead(cls):
+                unmet.append(clause)
+            continue
+        if "wild shape" in low:
+            if not class_has_wild_shape(cls, level):
+                unmet.append(clause)
+            continue
+        if low.startswith("proficiency"):
+            continue  # kan ikke verificeres her — rådgivende
+        fid = feat_name_to_id.get(low)
+        if fid is not None:
+            if fid not in owned:
+                unmet.append(clause)
+            continue
+        # ukendt klausul → rådgivende, blokér ikke
+    return unmet
 
 
 def spell_like_dc(spell_level: int, cha_modifier: int, extra: int = 0) -> int:

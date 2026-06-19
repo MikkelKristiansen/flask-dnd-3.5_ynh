@@ -187,8 +187,34 @@ input[type=text],input[type=number],select{width:100%;background:var(--card);
 const RACES = {{ races_json|tojson }};
 const CLASSES = {{ classes_json|tojson }};
 const SKILLS = {{ skills|tojson }};
+const FEAT_PREREQS = {{ feat_prereqs|tojson }};
+const FEAT_NAME_TO_ID = {{ feat_name_to_id|tojson }};
+const FEAT_ID_TO_NAME = Object.fromEntries(Object.entries(FEAT_NAME_TO_ID).map(([n,i])=>[i,n]));
+
+const ABILITY_RE = /^(str|dex|con|int|wis|cha)\s+(\d+)$/i;
+const BAB_RE = /(?:base attack bonus|bab)\s*\+?(\d+)/i;
 
 function mod(score){ return Math.floor((score - 10) / 2); }
+
+// Spejler character.feat_prereq_unmet — returnerer ikke-opfyldte klausuler.
+function featUnmet(prereq, owned, finalScores, bab, canTurn){
+  if(!prereq || prereq.trim().toLowerCase()==='none') return [];
+  const unmet=[];
+  prereq.split(',').forEach(cl=>{
+    cl=cl.trim(); if(!cl) return;
+    let m=cl.match(ABILITY_RE);
+    if(m){ if((finalScores[m[1].toLowerCase()]||10) < parseInt(m[2])) unmet.push(cl); return; }
+    m=cl.match(BAB_RE);
+    if(m){ if(bab < parseInt(m[1])) unmet.push(cl); return; }
+    const low=cl.toLowerCase();
+    if(low.includes('turn') && low.includes('undead')){ if(!canTurn) unmet.push(cl); return; }
+    if(low.includes('wild shape')){ unmet.push(cl); return; }  // ingen klasse har wild shape ved level 1
+    if(low.startsWith('proficiency')) return;
+    const fid=FEAT_NAME_TO_ID[low];
+    if(fid!==undefined){ if(!owned.has(fid)) unmet.push(cl); return; }
+  });
+  return unmet;
+}
 
 function buildSkillList(){
   const cls = document.getElementById('cls').value.toLowerCase();
@@ -238,10 +264,12 @@ function onUpdate(){
 
   // Ability score-preview
   let intMod = 0, ok = true;
+  const finalScores = {};
   ['str','dex','con','int','wis','cha'].forEach(a=>{
     const base = parseInt(document.getElementById('score_'+a).value || '0', 10);
     const adj = rd.ability_adjust[a] || 0;
     const fin = base + adj;
+    finalScores[a] = fin;
     if (a==='int') intMod = mod(fin);
     const sign = adj>0?`+${adj}`:(adj<0?`${adj}`:'');
     document.getElementById('final_'+a).textContent =
@@ -262,13 +290,25 @@ function onUpdate(){
   bEl.classList.toggle('over', spent>budget);
   document.getElementById('skill-err').textContent = spent>budget ? 'For mange skill points.' : '';
 
-  // Feats
+  // Feats — antal + prerequisite-tjek
   const need = rd.feat_count;
-  const chosen = document.querySelectorAll('input[name="feats"]:checked').length;
+  const checkedEls = [...document.querySelectorAll('input[name="feats"]:checked')];
+  const chosen = checkedEls.length;
   document.getElementById('feat-budget').innerHTML = `Vælg <b>${need}</b> feat(s) — valgt <b>${chosen}</b>`;
   document.getElementById('feat-note').textContent =
     cd.bonus_feats.length ? `Klassen giver desuden gratis: ${cd.bonus_feats.join(', ')} (tæller ikke med).` : '';
-  document.getElementById('feat-err').textContent = (chosen!==need) ? `Skal være ${need}.` : '';
+  // Owned = valgte + klassens gratis feats (feat-kæder gælder når begge er valgt).
+  const owned = new Set(checkedEls.map(e=>e.value).concat(cd.bonus_feats));
+  const prereqProblems = [];
+  checkedEls.forEach(e=>{
+    const miss = featUnmet(FEAT_PREREQS[e.value]||'', owned, finalScores, cd.bab1, cd.turn_undead);
+    if (miss.length) prereqProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value} kræver: ${miss.join(', ')}`);
+  });
+  let featErr = '';
+  if (chosen !== need) featErr = `Skal være ${need}.`;
+  else if (prereqProblems.length) featErr = '⚠ ' + prereqProblems.join(' · ');
+  document.getElementById('feat-err').textContent = featErr;
+  const featsOk = (chosen === need) && prereqProblems.length === 0;
 
   // Domæner (kun cleric)
   const domSec = document.getElementById('domain-section');
@@ -286,7 +326,7 @@ function onUpdate(){
   document.getElementById('favored-wrap').classList.toggle('hidden', cls!=='Ranger');
 
   // Submit-spærring
-  const valid = ok && spent<=budget && chosen===need && domOk;
+  const valid = ok && spent<=budget && featsOk && domOk;
   document.getElementById('submit-btn').disabled = !valid;
 }
 
