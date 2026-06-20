@@ -477,7 +477,18 @@ def karakter(name):
         inventory_json.append({
             "name": r["name"], "weight": r["unit_weight"], "qty": i.qty,
             "notes": i.notes, "state": i.state, "is_ref": bool(i.ref),
+            "ref": i.ref, "bonus": i.bonus, "str_mult": i.str_mult,
         })
+
+    # Katalog til "tilføj fra katalog"-vælgeren (ref, navn, gruppe pr. type)
+    catalog_json = {
+        "weapons": [{"ref": f"weapons/{w['id']}", "name": w["name"], "group": w["category"]}
+                    for w in db.get_all_weapons()],
+        "armor":   [{"ref": f"armor/{a['id']}", "name": a["name"], "group": a["type"]}
+                    for a in db.get_all_armor()],
+        "items":   [{"ref": f"items/{it['id']}", "name": it["name"], "group": it["category"]}
+                    for it in db.get_all_items()],
+    }
 
     # Combat: beregn til-hit/skade pr. angreb + grapple + initiativ (gemmes aldrig i YAML).
     # Angreb = eksplicitte (spells/unarmed) + afledte fra våben i hånden (wielded).
@@ -641,6 +652,7 @@ def karakter(name):
         ac=ac,
         druid_armor_block=druid_armor_block,
         inventory_json=inventory_json,
+        catalog_json=catalog_json,
         available_spells=available_spells,
         domain_slots=domain_slots,
         domains_info=domains_info,
@@ -796,15 +808,31 @@ def api_inventory():
     inventory = list(char.inventory)
 
     if action == "add":
-        name = str(data.get("name", "")).strip()
-        if not name:
-            return jsonify({"error": "name required"}), 400
-        inventory.append(char_module.InventoryItem(
-            name=name,
-            weight=float(data.get("weight", 0)),
-            qty=int(data.get("qty", 1)),
-            notes=str(data.get("notes", "")),
-        ))
+        ref   = str(data.get("ref", "")).strip()
+        state = str(data.get("state", "backpack")).lower()
+        if state not in char_module.INVENTORY_STATES:
+            state = "backpack"
+        if ref:
+            # Katalog-genstand: navn/vægt slås op via ref ved visning
+            sm = data.get("str_mult")
+            inventory.append(char_module.InventoryItem(
+                ref=ref, state=state,
+                qty=max(1, int(data.get("qty", 1))),
+                bonus=int(data.get("bonus", 0)),
+                str_mult=(None if sm in (None, "") else float(sm)),
+                notes=str(data.get("notes", "")),
+            ))
+        else:
+            name = str(data.get("name", "")).strip()
+            if not name:
+                return jsonify({"error": "name required"}), 400
+            inventory.append(char_module.InventoryItem(
+                name=name,
+                weight=float(data.get("weight", 0)),
+                qty=max(1, int(data.get("qty", 1))),
+                notes=str(data.get("notes", "")),
+                state=state,
+            ))
     elif action == "remove":
         idx = int(data.get("index", -1))
         if 0 <= idx < len(inventory):
@@ -813,9 +841,18 @@ def api_inventory():
         idx = int(data.get("index", -1))
         if 0 <= idx < len(inventory):
             old = inventory[idx]
-            # Bevar katalog-ref + angrebs-felter; navn/vægt redigeres kun for custom.
+            # Bevar katalog-ref; navn/vægt redigeres kun for custom.
             old.qty   = max(1, int(data.get("qty", old.qty)))
             old.notes = str(data.get("notes", old.notes))
+            if "state" in data:
+                st = str(data["state"]).lower()
+                if st in char_module.INVENTORY_STATES:
+                    old.state = st
+            if "bonus" in data:
+                old.bonus = int(data.get("bonus") or 0)
+            if "str_mult" in data:
+                sm = data.get("str_mult")
+                old.str_mult = None if sm in (None, "") else float(sm)
             if not old.ref:
                 old.name   = str(data.get("name", old.name))
                 old.weight = float(data.get("weight", old.weight))
@@ -830,6 +867,7 @@ def api_inventory():
         inv_rows.append({
             "name": r["name"], "weight": r["unit_weight"], "qty": i.qty,
             "notes": i.notes, "state": i.state, "is_ref": bool(i.ref),
+            "ref": i.ref, "bonus": i.bonus, "str_mult": i.str_mult,
         })
     return jsonify({
         "inventory":  inv_rows,

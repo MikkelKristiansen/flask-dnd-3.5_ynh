@@ -860,7 +860,28 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     <div id="enc-limits-text" style="color:var(--muted);font-size:.75rem;margin-top:.4rem"></div>
 
     <div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)">
-      <div style="color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Tilføj genstand</div>
+      <div style="color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Tilføj fra katalog</div>
+      <div class="add-grid">
+        <select class="form-input" id="cat-type" onchange="populateCatalogItems()">
+          <option value="weapons">Våben</option>
+          <option value="armor">Rustning</option>
+          <option value="items">Genstand</option>
+        </select>
+        <select class="form-input" id="cat-state">
+          <option value="wielded">i hånden</option>
+          <option value="worn">båret</option>
+          <option value="backpack">rygsæk</option>
+          <option value="stored">opbevaret</option>
+          <option value="dropped">droppet</option>
+        </select>
+        <input class="form-input" id="cat-qty" type="number" min="1" value="1">
+      </div>
+      <select class="form-input" id="cat-item" style="width:100%;margin-top:.3rem"></select>
+      <button class="add-btn" onclick="addFromCatalog()" style="width:100%;margin-top:.3rem">+ Tilføj fra katalog</button>
+    </div>
+
+    <div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)">
+      <div style="color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Tilføj custom genstand <span style="font-style:italic;text-transform:none">(ikke i katalog)</span></div>
       <div class="add-grid">
         <input class="form-input" id="add-name" type="text" placeholder="Navn"
                onkeydown="if(event.key==='Enter')addItem()">
@@ -870,7 +891,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       <textarea class="form-input" id="add-notes" rows="2"
                 placeholder="Beskrivelse / noter (valgfri — kan f.eks. beskrive DM-opfundne egenskaber)"
                 style="resize:vertical;font-size:.82rem"></textarea>
-      <button class="add-btn" onclick="addItem()" style="width:100%;margin-top:.3rem">+ Tilføj</button>
+      <button class="add-btn" onclick="addItem()" style="width:100%;margin-top:.3rem">+ Tilføj custom</button>
     </div>
   </div>
 
@@ -1039,6 +1060,26 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       </div>
     </div>
     <div style="margin-top:.6rem">
+      <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Tilstand</div>
+      <select class="form-input" id="item-modal-state">
+        <option value="wielded">i hånden (giver angreb)</option>
+        <option value="worn">båret (rustning → AC)</option>
+        <option value="backpack">rygsæk / på person</option>
+        <option value="stored">opbevaret (tæller ikke i vægt)</option>
+        <option value="dropped">droppet (tæller ikke)</option>
+      </select>
+    </div>
+    <div id="item-modal-weapon" style="display:none;gap:.5rem;margin-top:.6rem">
+      <div style="flex:1">
+        <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Til-hit bonus</div>
+        <input class="form-input" id="item-modal-bonus" type="number" step="1" placeholder="0">
+      </div>
+      <div style="flex:1">
+        <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Str-mult</div>
+        <input class="form-input" id="item-modal-strmult" type="number" step="0.5" placeholder="auto">
+      </div>
+    </div>
+    <div style="margin-top:.6rem">
       <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Beskrivelse / noter</div>
       <textarea class="notes-textarea" id="item-modal-notes" rows="5"
                 placeholder="Frihåndsbeskrivelse — egenskaber, DM-noter, historik…"
@@ -1161,6 +1202,7 @@ function adjCompHp(delta) {
 
 // ── Inventory state ───────────────────────────────────────────────────────
 let inventoryData = {{ inventory_json|tojson }};
+const catalogData = {{ catalog_json|tojson }};
 let currentWeight = {{ weight }};
 let currentEnc    = {{ enc|tojson }};
 let encLimits     = {{ enc_limits|tojson }};
@@ -1172,7 +1214,16 @@ function showTab(name, btn) {
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.getElementById("tab-" + name).classList.add("active");
   btn.classList.add("active");
+  history.replaceState(null, "", "#" + name);   // bevar fane ved genindlæsning
 }
+
+// Aktivér fane fra URL-hash ved load (så reload efter udrustning lander på Udstyr)
+(function restoreTab() {
+  const h = location.hash.replace("#", "");
+  if (!h) return;
+  const btn = document.querySelector(`.tab-btn[onclick*="showTab('${h}'"]`);
+  if (btn) showTab(h, btn);
+})();
 
 function showSpellView(name, btn) {
   document.querySelectorAll(".spell-view").forEach(v => v.classList.remove("active"));
@@ -1982,6 +2033,15 @@ function openItemDetail(idx) {
   const nameEl = document.getElementById("item-modal-name");
   const wtEl   = document.getElementById("item-modal-weight");
   nameEl.disabled = wtEl.disabled = !!item.is_ref;
+  document.getElementById("item-modal-state").value = item.state || "backpack";
+  // Våben-felter (bonus/Str-mult) kun for våben i kataloget
+  const isWeapon = (item.ref || "").startsWith("weapons/");
+  document.getElementById("item-modal-weapon").style.display = isWeapon ? "flex" : "none";
+  if (isWeapon) {
+    document.getElementById("item-modal-bonus").value   = item.bonus || 0;
+    document.getElementById("item-modal-strmult").value =
+      (item.str_mult === null || item.str_mult === undefined) ? "" : item.str_mult;
+  }
   document.getElementById("item-modal-overlay").classList.add("open");
   (item.is_ref ? document.getElementById("item-modal-qty") : nameEl).focus();
 }
@@ -1993,16 +2053,23 @@ function saveItemDetail() {
   const weight = parseFloat(document.getElementById("item-modal-weight").value) || 0;
   const qty    = Math.max(1, parseInt(document.getElementById("item-modal-qty").value) || 1);
   const notes  = document.getElementById("item-modal-notes").value;
+  const state  = document.getElementById("item-modal-state").value;
+  const payload = {char: CHAR, action: "update", index: idx, name, weight, qty, notes, state};
+  if ((inventoryData[idx].ref || "").startsWith("weapons/")) {
+    payload.bonus = parseInt(document.getElementById("item-modal-bonus").value) || 0;
+    const sm = document.getElementById("item-modal-strmult").value.trim();
+    payload.str_mult = sm === "" ? "" : parseFloat(sm);
+  }
   fetch(BASE + "/api/inventory", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, action: "update", index: idx, name, weight, qty, notes})
+    body: JSON.stringify(payload)
   })
   .then(r => r.json())
   .then(data => {
     if (!data.error) {
-      updateInventoryDisplay(data);
-      document.getElementById("item-modal-overlay").classList.remove("open");
+      // Tilstand/bonus/Str-mult kan ændre afledte angreb + AC → genindlæs (bevarer fane)
+      location.reload();
     }
   });
 }
@@ -2090,7 +2157,8 @@ function removeItem(idx) {
     body: JSON.stringify({char: CHAR, action: "remove", index: idx})
   })
   .then(r => r.json())
-  .then(data => { if (!data.error) updateInventoryDisplay(data); });
+  // Fjernelse kan ramme et wielded-våben/worn-rustning → genindlæs (bevarer fane)
+  .then(data => { if (!data.error) location.reload(); });
 }
 
 function addItem() {
@@ -2117,6 +2185,49 @@ function addItem() {
     nameEl.focus();
   });
 }
+
+// ── Tilføj fra katalog ───────────────────────────────────────────────────────
+function populateCatalogItems() {
+  const type = document.getElementById("cat-type").value;
+  const sel  = document.getElementById("cat-item");
+  sel.innerHTML = "";
+  const groups = {};
+  (catalogData[type] || []).forEach(it => {
+    (groups[it.group] = groups[it.group] || []).push(it);
+  });
+  Object.keys(groups).sort().forEach(g => {
+    const og = document.createElement("optgroup");
+    og.label = g;
+    groups[g].forEach(it => {
+      const o = document.createElement("option");
+      o.value = it.ref; o.textContent = it.name;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+  // Fornuftig default-tilstand ud fra type
+  document.getElementById("cat-state").value =
+    type === "weapons" ? "wielded" : (type === "armor" ? "worn" : "backpack");
+}
+
+function addFromCatalog() {
+  const ref = document.getElementById("cat-item").value;
+  if (!ref) return;
+  const state = document.getElementById("cat-state").value;
+  const qty   = Math.max(1, parseInt(document.getElementById("cat-qty").value) || 1);
+  fetch(BASE + "/api/inventory", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "add", ref, state, qty})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) return;
+    // Genindlæs: et wielded-våben/worn-rustning påvirker afledte angreb + AC (server-side)
+    location.reload();
+  });
+}
+populateCatalogItems();
 
 // ── Level-up ───────────────────────────────────────────────────────────────
 const luBase       = {{ levelup_info|tojson }};
