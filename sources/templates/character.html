@@ -646,7 +646,12 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     <div class="stat-row"><span class="stat-label">Feats</span><span class="stat-val" style="font-size:.8rem;text-align:right">{{ cp.feats|join(', ') }}</span></div>
     {% endif %}
     <div style="margin-top:.6rem;color:var(--muted);font-size:.7rem;font-style:italic;text-transform:uppercase;letter-spacing:.05em">Tricks ({{ cp.bonus_tricks }} bonus)</div>
-    <div style="font-size:.85rem;margin-top:.2rem">{{ cp.tricks|join(', ') if cp.tricks else '—' }}</div>
+    <div id="comp-tricks" style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.35rem"></div>
+    <div style="display:flex;gap:.4rem;margin-top:.4rem">
+      <input class="form-input" id="comp-trick-input" type="text" placeholder="Nyt trick…"
+             style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addTrick();}">
+      <button class="add-btn" style="padding:.2rem .7rem" onclick="addTrick()">+ Tilføj</button>
+    </div>
   </div>
 
 </div>
@@ -1242,6 +1247,53 @@ function adjCompHp(delta) {
     if (el) el.textContent = compHpCurrent + "/" + data.hp_max;
   });
 }
+
+// ── Companion tricks (redigerbar liste) ───────────────────────────────────
+let compTricks = {{ companion.tricks|tojson }};
+
+function renderTricks() {
+  const box = document.getElementById("comp-tricks");
+  if (!box) return;
+  if (!compTricks.length) {
+    box.innerHTML = '<span style="color:var(--muted);font-size:.85rem">— ingen tricks —</span>';
+    return;
+  }
+  box.innerHTML = compTricks.map((t, i) =>
+    `<span style="display:inline-flex;align-items:center;gap:.3rem;padding:.15rem .5rem;`
+    + `background:var(--card);border:1px solid var(--border);border-radius:12px;font-size:.82rem">`
+    + `${t.replace(/</g,'&lt;')}`
+    + `<span onclick="removeTrick(${i})" title="Fjern" `
+    + `style="cursor:pointer;color:var(--muted);font-weight:bold">×</span></span>`
+  ).join("");
+}
+
+function saveTricks() {
+  fetch(BASE + "/api/companion_tricks", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, tricks: compTricks})
+  })
+  .then(r => r.json())
+  .then(data => { if (!data.error) { compTricks = data.tricks; renderTricks(); } });
+}
+
+function addTrick() {
+  const inp = document.getElementById("comp-trick-input");
+  const name = inp.value.trim();
+  if (!name) return;
+  compTricks.push(name);
+  inp.value = "";
+  renderTricks();
+  saveTricks();
+}
+
+function removeTrick(i) {
+  compTricks.splice(i, 1);
+  renderTricks();
+  saveTricks();
+}
+
+renderTricks();
 {% endif %}
 
 // ── Inventory state ───────────────────────────────────────────────────────

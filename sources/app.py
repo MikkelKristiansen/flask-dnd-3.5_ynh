@@ -999,6 +999,28 @@ def api_companion_hp():
     return jsonify({"hp_current": new_hp, "hp_max": hp_max})
 
 
+@app.route("/api/companion_tricks", methods=["POST"])
+def api_companion_tricks():
+    data = request.get_json()
+    slug = data.get("char")
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char = char_module.load_character(str(path))
+    if not char.companion:
+        return jsonify({"error": "no companion"}), 400
+    # Normalisér: trim, fjern tomme, bevar rækkefølge, dedupér.
+    seen, tricks = set(), []
+    for t in (data.get("tricks") or []):
+        name = str(t).strip()
+        key = name.lower()
+        if name and key not in seen:
+            seen.add(key)
+            tricks.append(name)
+    char_module.save_character(str(path), {"companion_tricks": tricks})
+    return jsonify({"tricks": tricks})
+
+
 @app.route("/api/gold", methods=["POST"])
 def api_gold():
     data = request.get_json()

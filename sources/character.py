@@ -460,6 +460,11 @@ def save_character(path: str, updates: dict) -> None:
         if isinstance(comp, dict):
             comp["hp_current"] = int(updates["companion_hp_current"])
 
+    if "companion_tricks" in updates:
+        comp = data.get("companion")
+        if isinstance(comp, dict):
+            comp["tricks"] = [str(t) for t in updates["companion_tricks"]]
+
     if "gold" in updates:
         data["gold"] = dict(updates["gold"])
 
