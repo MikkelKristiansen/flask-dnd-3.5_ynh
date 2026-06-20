@@ -111,6 +111,38 @@ def get_all_armor() -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def get_weapon(weapon_id: str) -> dict | None:
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM weapons WHERE id = ?", (weapon_id,)
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def get_all_weapons() -> list[dict]:
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM weapons ORDER BY category, weapon_class, name"
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_item(item_id: str) -> dict | None:
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM items WHERE id = ?", (item_id,)
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def get_all_items() -> list[dict]:
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM items ORDER BY category, name"
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def get_domain(domain_id: str) -> dict | None:
     with _connect() as conn:
         row = conn.execute(

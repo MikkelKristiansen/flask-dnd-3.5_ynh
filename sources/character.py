@@ -90,10 +90,13 @@ class Attack:
 
 @dataclass
 class InventoryItem:
-    name: str
-    weight: float = 0.0
+    name: str = ""              # tom => navn slås op fra katalog via ref
+    weight: float = 0.0         # kun for custom genstande; katalog-vægt slås op via ref
     qty: int = 1
     notes: str = ""
+    ref: str = ""               # "tabel/id" i kataloget (weapons|armor|items); tom = custom
+    state: str = "backpack"     # wielded | worn | backpack | stored | dropped
+    bonus: int = 0              # til-hit-bonus på afledte angreb (masterwork/feat/TWF) — bite 4
 
 
 @dataclass
@@ -190,11 +193,17 @@ def load_character(path: str) -> Character:
     inventory = []
     for item in data.get("inventory") or []:
         if isinstance(item, dict):
+            state = str(item.get("state", "backpack")).lower()
+            if state not in INVENTORY_STATES:
+                state = "backpack"
             inventory.append(InventoryItem(
                 name=str(item.get("name", "")),
-                weight=float(item.get("weight", 0)),
+                weight=float(item.get("weight", 0) or 0),
                 qty=int(item.get("qty", 1)),
                 notes=str(item.get("notes", "")),
+                ref=str(item.get("ref", "")),
+                state=state,
+                bonus=int(item.get("bonus", 0)),
             ))
         else:
             # Backwards-compat: plain string
@@ -689,6 +698,75 @@ def encumbrance_level(str_score: int, total_weight: float, size: str = "medium")
 
 def total_weight(inventory: list[InventoryItem]) -> float:
     return sum(item.weight * item.qty for item in inventory)
+
+
+# Tilstande en genstand kan have. CARRIED_STATES tæller med i båret vægt.
+INVENTORY_STATES = {"wielded", "worn", "backpack", "stored", "dropped"}
+CARRIED_STATES = {"wielded", "worn", "backpack"}
+
+# Hvilken tabel-præfiks i ref => skaleringsklasse for weight_for_size
+_REF_LOOKUP = {"weapons": "get_weapon", "armor": "get_armor", "items": "get_item"}
+
+
+def weight_for_size(base_weight: float, kind: str, size: str = "medium") -> float:
+    """Udregn faktisk vægt for en skabnings størrelse fra Medium-basisvægt.
+
+    kind: 'half'    -> våben/rustning (Small ×½, Large ×2)
+          'quarter' -> gear m. SRD-fodnote 1 (Small ×¼)
+          'none'    -> uændret med størrelse (fakkel, reb, custom genstande)
+    """
+    size = (size or "medium").lower()
+    if size == "small":
+        factor = {"half": 0.5, "quarter": 0.25}.get(kind, 1.0)
+    elif size == "large":
+        factor = {"half": 2.0}.get(kind, 1.0)
+    else:  # medium (og uhåndterede størrelser) — ingen skalering
+        factor = 1.0
+    return round(base_weight * factor, 3)
+
+
+def resolve_item(item: InventoryItem, db, size: str = "medium") -> dict:
+    """Slå en inventory-post op mod kataloget og udregn dens faktiske vægt.
+
+    Returnerer navn, enheds- og totalvægt (størrelses-justeret), om den tæller
+    som båret, samt katalog-posten (record) hvis ref peger på noget gyldigt.
+    """
+    name = item.name
+    base_weight = item.weight
+    kind = "none"
+    source = None
+    record = None
+    if item.ref:
+        table, _, oid = item.ref.partition("/")
+        getter = getattr(db, _REF_LOOKUP[table], None) if table in _REF_LOOKUP else None
+        record = getter(oid) if getter else None
+        if record:
+            source = table
+            name = item.name or record["name"]
+            base_weight = record.get("weight") or 0.0
+            if table in ("weapons", "armor"):
+                kind = "half"
+            elif table == "items":
+                kind = "quarter" if record.get("small_quarter") else "none"
+    unit = weight_for_size(base_weight, kind, size)
+    return {
+        "name": name,
+        "unit_weight": unit,
+        "weight": round(unit * item.qty, 3),
+        "kind": kind,
+        "carried": item.state in CARRIED_STATES,
+        "state": item.state,
+        "source": source,
+        "record": record,
+    }
+
+
+def carried_weight(inventory: list[InventoryItem], db, size: str = "medium") -> float:
+    """Samlet båret vægt — kun poster i wielded/worn/backpack, størrelses-justeret."""
+    return round(
+        sum(r["weight"] for r in (resolve_item(i, db, size) for i in inventory) if r["carried"]),
+        3,
+    )
 
 
 _HIT_DIE = {
