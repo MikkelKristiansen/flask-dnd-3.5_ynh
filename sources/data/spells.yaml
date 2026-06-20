@@ -2273,3 +2273,979 @@
   components: V, S, DF
   target_label: Target
   description: _Wood shape_ enables you to form one existing piece of wood into any shape that suits your purpose. While it is possible to make crude coffers, doors, and so forth, fine detail isn’t possible. There is a 30% chance that any shape that includes moving parts simply doesn’t work.
+
+- id: restoration_lesser
+  name: Restoration, Lesser
+  level_druid: 2
+  level_cleric: 2
+  level_wizard:
+  level_ranger:
+  level_paladin: 1
+  school: Conjuration (Healing)
+  cast_time: 3 rounds
+  range: Touch
+  target: Creature touched
+  duration: Instantaneous
+  save: Will negates (harmless)
+  spell_resistance: Yes (harmless)
+  components: V, S
+  target_label: Target
+  description: |-
+    _Lesser restoration_ dispels any magical effects reducing one of the subject’s ability scores or cures 1d4 points of temporary ability damage to one of the subject’s ability scores. It also eliminates any fatigue suffered by the character, and improves an exhausted condition to fatigued. It does not restore permanent ability drain.
+- id: contagion
+  name: Contagion
+  level_druid: 3
+  level_cleric: 3
+  level_wizard: 4
+  level_ranger:
+  level_paladin:
+  school: Necromancy [Evil]
+  cast_time: 1 standard action
+  range: Touch
+  target: Living creature touched
+  duration: Instantaneous
+  save: Fortitude negates
+  spell_resistance: Yes
+  components: V, S
+  target_label: Target
+  description: |-
+    The subject contracts a disease selected from the table below, which strikes immediately (no incubation period). The DC noted is for the subsequent saves (use _contagion_’s normal save DC for the initial saving throw).
+
+    <table data-debug="no-caption" class="full-width-table"><tbody><tr><th>Disease</th><th>DC</th><th>Damage</th></tr><tr><td>Blinding sickness</td><td>16</td><td>1d4 Str<sup>1</sup></td></tr><tr><td>Cackle fever</td><td>16</td><td>1d6 Wis</td></tr><tr><td>Filth fever</td><td>12</td><td>1d3 Dex and 1d3 Con</td></tr><tr><td>Mindfire</td><td>12</td><td>1d4 Int</td></tr><tr><td>Red ache</td><td>15</td><td>1d6 Str</td></tr><tr><td>Shakes</td><td>13</td><td>1d8 Dex</td></tr><tr><td>Slimy doom</td><td>14</td><td>1d4 Con</td></tr><tr><td colspan="3">1 Each time a victim takes 2 or more points of Strength damage from blinding sickness, he or she must make another Fortitude save (using the disease’s save DC) or be permanently blinded.</td></tr></tbody></table>
+- id: daylight
+  name: Daylight
+  level_druid: 3
+  level_cleric: 3
+  level_wizard: 3
+  level_ranger:
+  level_paladin: 3
+  school: Evocation [Light]
+  cast_time: 1 standard action
+  range: Touch
+  target: Object touched
+  duration: 10 min./level (D)
+  save: None
+  spell_resistance: No
+  components: V, S
+  target_label: Target
+  description: |-
+    The object touched sheds light as bright as full daylight in a 60-foot radius, and dim light for an additional 60 feet beyond that. Creatures that take penalties in bright light also take them while within the radius of this magical light. Despite its name, this spell is not the equivalent of daylight for the purposes of creatures that are damaged or destroyed by bright light.
+
+    If _daylight_ is cast on a small object that is then placed inside or under a light- proof covering, the spell’s effects are blocked until the covering is removed.
+
+    _Daylight_ brought into an area of magical darkness (or vice versa) is temporarily negated, so that the otherwise prevailing light conditions exist in the overlapping areas of effect.
+
+    _Daylight_ counters or dispels any darkness spell of equal or lower level, such as _darkness._
+- id: diminish_plants
+  name: Diminish Plants
+  level_druid: 3
+  level_cleric:
+  level_wizard:
+  level_ranger: 3
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: See text
+  target:
+  duration: Instantaneous
+  save: None
+  spell_resistance: No
+  components: V, S, DF
+  target_label:
+  description: |-
+    This spell has two versions.
+
+    _Prune Growth:_ This version causes normal vegetation within long range (400 feet + 40 feet per level) to shrink to about one-third of their normal size, becoming untangled and less bushy. The affected vegetation appears to have been carefully pruned and trimmed.
+
+    At your option, the area can be a 100- foot-radius circle, a 150-foot-radius semicircle, or a 200-foot-radius quarter-circle.
+
+    You may also designate portions of the area that are not affected.
+
+    _Stunt Growth:_ This version targets normal plants within a range of 1/2 mile, reducing their potential productivity over the course of the following year to one third below normal.
+
+    _Diminish plants_ counters _plant growth_.
+
+    This spell has no effect on plant creatures.
+- id: dominate_animal
+  name: Dominate Animal
+  level_druid: 3
+  level_cleric:
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Enchantment (Compulsion) [Mind-Affecting]
+  cast_time: 1 round
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One animal
+  duration: 1 round/level
+  save: Will negates
+  spell_resistance: Yes
+  components: V, S
+  target_label: Target
+  description: |-
+    You can enchant an animal and direct it with simple commands such as “Attack,” “Run,” and “Fetch.” Suicidal or self-destructive commands (including an order to attack a creature two or more size categories larger than the _dominated_ animal) are simply ignored.
+
+    _Dominate animal_ establishes a mental link between you and the subject creature. The animal can be directed by silent mental command as long as it remains in range. You need not see the creature to control it. You do not receive direct sensory input from the creature, but you know what it is experiencing. Because you are directing the animal with your own intelligence, it may be able to undertake actions normally beyond its own comprehension. You need not concentrate exclusively on controlling the creature unless you are trying to direct it to do something it normally couldn’t do. Changing your instructions or giving a _dominated_ creature a new command is the equivalent of redirecting a spell, so it is a move action.
+- id: magic_fang_greater
+  name: Magic Fang, Greater
+  level_druid: 3
+  level_cleric:
+  level_wizard:
+  level_ranger: 3
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One living creature
+  duration: 1 hour/level
+  save: Will negates (harmless)
+  spell_resistance: Yes (harmless)
+  components: V, S, DF
+  target_label: Target
+  description: |-
+    This spell functions like _magic fang_, except that the enhancement bonus on attack and damage rolls is +1 per four caster levels (maximum +5).
+
+    Alternatively, you may imbue all of the creature’s natural weapons with a +1 enhancement bonus (regardless of your caster level).
+
+    _Greater magic fang_ can be made permanent with a _permanency_ spell.
+- id: meld_into_stone
+  name: Meld Into Stone
+  level_druid: 3
+  level_cleric: 3
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Transmutation [Earth]
+  cast_time: 1 standard action
+  range: Personal
+  target: You
+  duration: 10 min./level
+  save:
+  spell_resistance:
+  components: V, S, DF
+  target_label: Target
+  description: |-
+    _Meld into stone_ enables you to meld your body and possessions into a single block of stone. The stone must be large enough to accommodate your body in all three dimensions. When the casting is complete, you and not more than 100 pounds of nonliving gear merge with the stone. If either condition is violated, the spell fails and is wasted.
+
+    While in the stone, you remain in contact, however tenuous, with the face of the stone through which you melded. You remain aware of the passage of time and can cast spells on yourself while hiding in the stone. Nothing that goes on outside the stone can be seen, but you can still hear what happens around you. Minor physical damage to the stone does not harm you, but its partial destruction (to the extent that you no longer fit within it) expels you and deals you 5d6 points of damage. The stone’s complete destruction expels you and slays you instantly unless you make a DC 18 Fortitude save.
+
+    Any time before the duration expires, you can step out of the stone through the surface that you entered. If the spell’s duration expires or the effect is dispelled before you voluntarily exit the stone, you are violently expelled and take 5d6 points of damage.
+
+    The following spells harm you if cast upon the stone that you are occupying: _Stone to flesh_ expels you and deals you 5d6 points of damage. _Stone shape_ deals you 3d6 points of damage but does not expel you. _Transmute rock to mud_ expels you and then slays you instantly unless you make a DC 18 Fortitude save, in which case you are merely expelled. Finally, _passwall_ expels you without damage.
+- id: neutralize_poison
+  name: Neutralize Poison
+  level_druid: 3
+  level_cleric: 4
+  level_wizard:
+  level_ranger: 3
+  level_paladin: 4
+  school: Conjuration (Healing)
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature or object of up to 1 cu. ft./level touched
+  duration: 10 min./level
+  save: Will negates (harmless, object)
+  spell_resistance: Yes (harmless, object)
+  components: V, S, M/DF
+  target_label: Target
+  description: |-
+    You detoxify any sort of venom in the creature or object touched. A poisoned creature suffers no additional effects from the poison, and any temporary effects are ended, but the spell does not reverse instantaneous effects, such as hit point damage, temporary ability damage, or effects that don’t go away on their own.
+
+    The creature is immune to any poison it is exposed to during the duration of the spell. Unlike with _delay poison_, such effects aren’t postponed until after the duration —the creature need not make any saves against poison effects applied to it during the length of the spell.
+
+    This spell can instead neutralize the poison in a poisonous creature or object for the duration of the spell, at the caster’s option.
+
+    _Arcane Material Component:_ A bit of charcoal.
+- id: quench
+  name: Quench
+  level_druid: 3
+  level_cleric:
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target:
+  duration: Instantaneous
+  save: None or Will negates (object)
+  spell_resistance: No or Yes (object)
+  components: V, S, DF
+  target_label:
+  description: |-
+    _Quench_ is often used to put out forest fires and other conflagrations. It extinguishes all nonmagical fires in its area. The spell also dispels any fire spells in its area, though you must succeed on a dispel check (1d20 +1 per caster level, maximum +15) against each spell to dispel it. The DC to dispel such spells is 11 + the caster level of the fire spell.
+
+    Each elemental (fire) creature within the area of a _quench_ spell takes 1d6 points of damage per caster level (maximum 15d6, no save allowed).
+
+    Alternatively, you can target the spell on a single magic item that creates or controls flame. The item loses all its fire-based magical abilities for 1d4 hours unless it succeeds on a Will save. (Artifacts are immune to this effect.)
+- id: remove_disease
+  name: Remove Disease
+  level_druid: 3
+  level_cleric: 3
+  level_wizard:
+  level_ranger: 3
+  level_paladin:
+  school: Conjuration (Healing)
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature touched
+  duration: Instantaneous
+  save: Fortitude negates (harmless)
+  spell_resistance: Yes (harmless)
+  components: V, S
+  target_label: Target
+  description: |-
+    _Remove disease_ cures all diseases that the subject is suffering from. The spell also kills parasites, including green slime and others. Certain special diseases may not be countered by this spell or may be countered only by a caster of a certain level or higher.
+
+    _Note:_ Since the spell’s duration is instantaneous, it does not prevent reinfection after a new exposure to the same disease at a later date.
+- id: snare
+  name: Snare
+  level_druid: 3
+  level_cleric:
+  level_wizard:
+  level_ranger: 2
+  level_paladin:
+  school: Transmutation
+  cast_time: 3 rounds
+  range: Touch
+  target: Touched nonmagical circle of vine, rope, or thong with a 2 ft. diameter + 2 ft./level
+  duration: Until triggered or broken
+  save: None
+  spell_resistance: No
+  components: V, S, DF
+  target_label: Target
+  description: |-
+    This spell enables you to make a snare that functions as a magic trap. The snare can be made from any supple vine, a thong, or a rope. When you cast _snare_ upon it, the cordlike object blends with its surroundings (Search DC 23 for a character with the trapfinding ability to locate). One end of the snare is tied in a loop that contracts around one or more of the limbs of any creature stepping inside the circle.
+
+    If a strong and supple tree is nearby, the snare can be fastened to it. The spell causes the tree to bend and then straighten when the loop is triggered, dealing 1d6 points of damage to the creature trapped and lifting it off the ground by the trapped limb or limbs. If no such tree is available, the cordlike object tightens around the creature, dealing no damage but causing it to be entangled.
+
+    The snare is magical. To escape, a trapped creature must make a DC 23 Escape Artist check or a DC 23 Strength check that is a full-round action. The snare has AC 7 and 5 hit points. A successful escape from the snare breaks the loop and ends the spell.
+- id: speak_with_plants
+  name: Speak with Plants
+  level_druid: 3
+  level_cleric:
+  level_wizard:
+  level_ranger: 2
+  level_paladin:
+  school: Divination
+  cast_time: 1 standard action
+  range: Personal
+  target: You
+  duration: 1 min./level
+  save:
+  spell_resistance:
+  components: V, S
+  target_label: Target
+  description: |-
+    You can comprehend and communicate with plants, including both normal plants and plant creatures. You are able to ask questions of and receive answers from plants. A regular plant’s sense of its surroundings is limited, so it won’t be able to give (or recognize) detailed descriptions of creatures or answer questions about events outside its immediate vicinity.
+
+    The spell doesn’t make plant creatures any more friendly or cooperative than normal. Furthermore, wary and cunning plant creatures are likely to be terse and evasive, while the more stupid ones may make inane comments. If a plant creature is friendly toward you, it may do some favor or service for you.
+- id: air_walk
+  name: Air Walk
+  level_druid: 4
+  level_cleric: 4
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Transmutation [Air]
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature (Gargantuan or smaller) touched
+  duration: 10 min./level
+  save: None
+  spell_resistance: Yes (harmless)
+  components: V, S, DF
+  target_label: Target
+  description: |-
+    The subject can tread on air as if walking on solid ground. Moving upward is similar to walking up a hill. The maximum upward or downward angle possible is 45 degrees, at a rate equal to one-half the air walker’s normal speed.
+
+    A strong wind (21+ mph) can push the subject along or hold it back. At the end of its turn each round, the wind blows the air walker 5 feet for each 5 miles per hour of wind speed. The creature may be subject to additional penalties in exceptionally strong or turbulent winds, such as loss of control over movement or physical damage from being buffeted about.
+
+    Should the spell duration expire while the subject is still aloft, the magic fails slowly. The subject floats downward 60 feet per round for 1d6 rounds. If it reaches the ground in that amount of time, it lands safely. If not, it falls the rest of the distance, taking 1d6 points of damage per 10 feet of fall. Since dispelling a spell effectively ends it, the subject also descends in this way if the _air walk_ spell is dispelled, but not if it is negated by an _antimagic field_.
+
+    You can cast _air walk_ on a specially trained mount so it can be ridden through the air. You can train a mount to move with the aid of _air walk_ (counts as a trick; see Handle Animal skill) with one week of work and a DC 25 Handle Animal check.
+- id: antiplant_shell
+  name: Antiplant Shell
+  level_druid: 4
+  level_cleric:
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Abjuration
+  cast_time: 1 standard action
+  range: 10 ft.
+  target: 10-ft.-radius emanation, centered on you
+  duration: 10 min./level (D)
+  save: None
+  spell_resistance: Yes
+  components: V, S, DF
+  target_label: Area
+  description: |-
+    The _antiplant shell_ spell creates an invisible, mobile barrier that keeps all creatures within the shell protected from attacks by plant creatures or animated plants. As with many abjuration spells, forcing the barrier against creatures that the spell keeps at bay strains and collapses the field.
+- id: blight
+  name: Blight
+  level_druid: 4
+  level_cleric:
+  level_wizard: 5
+  level_ranger:
+  level_paladin:
+  school: Necromancy
+  cast_time: 1 standard action
+  range: Touch
+  target:
+  duration: Instantaneous
+  save: Fortitude half; see text
+  spell_resistance: Yes
+  components: V, S, DF
+  target_label:
+  description: |-
+    This spell withers a single plant of any size. An affected plant creature takes 1d6 points of damage per level (maximum 15d6) and may attempt a Fortitude saving throw for half damage. A plant that isn’t a creature doesn’t receive a save and immediately withers and dies.
+
+    This spell has no effect on the soil or surrounding plant life.
+- id: command_plants
+  name: Command Plants
+  level_druid: 4
+  level_cleric:
+  level_wizard:
+  level_ranger: 3
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: Up to 2 HD/level of plant creatures, no two of which can be more than 30 ft. apart
+  duration: One day/level
+  save: Will negates
+  spell_resistance: Yes
+  components: V
+  target_label: Targets
+  description: |-
+    This spell allows you some degree of control over one or more plant creatures. Affected plant creatures can understand you, and they perceive your words and actions in the most favorable way (treat their attitude as friendly). They will not attack you while the spell lasts. You can try to give a subject orders, but you must win an opposed Charisma check to convince it to do anything it wouldn’t ordinarily do. (Retries are not allowed.) A commanded plant never obeys suicidal or obviously harmful orders, but it might be convinced that something very dangerous is worth doing.
+
+    You can affect a number of plant creatures whose combined level or HD do not exceed twice your level.
+- id: control_water
+  name: Control Water
+  level_druid: 4
+  level_cleric: 4
+  level_wizard: 6
+  level_ranger:
+  level_paladin:
+  school: Transmutation [Water]
+  cast_time: 1 standard action
+  range: Long (400 ft. + 40 ft./level)
+  target: Water in a volume of 10 ft./level by 10 ft./level by 2 ft./level (S)
+  duration: 10 min./level (D)
+  save: None; see text
+  spell_resistance: No
+  components: V, S, M/DF
+  target_label: Area
+  description: |-
+    Depending on the version you choose, the _control water_ spell raises or lowers water.
+
+    _Lower Water:_ This causes water or similar liquid to reduce its depth by as much as 2 feet per caster level (to a minimum depth of 1 inch). The water is lowered within a squarish depression whose sides are up to caster level x 10 feet long. In extremely large and deep bodies of water, such as a deep ocean, the spell creates a whirlpool that sweeps ships and similar craft downward, putting them at risk and rendering them unable to leave by normal movement for the duration of the spell. When cast on water elementals and other water-based creatures, this spell acts as a _slow_ spell (Will negates). The spell has no effect on other creatures.
+
+    _Raise Water:_ This causes water or similar liquid to rise in height, just as the _lower water_ version causes it to lower. Boats raised in this way slide down the sides of the hump that the spell creates. If the area affected by the spell includes riverbanks, a beach, or other land nearby, the water can spill over onto dry land.
+
+    With either version, you may reduce one horizontal dimension by half and double the other horizontal dimension.
+
+    _Arcane Material Component:_ A drop of water (for _raise water_) or a pinch of dust (for _lower water_).
+- id: cure_serious_wounds
+  name: Cure Serious Wounds
+  level_druid: 4
+  level_cleric: 3
+  level_wizard:
+  level_ranger: 4
+  level_paladin: 4
+  school: Conjuration (Healing)
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature touched
+  duration: Instantaneous
+  save: Will half (harmless); see text
+  spell_resistance: Yes (harmless); see text
+  components: V, S
+  target_label: Target
+  description: |-
+    This spell functions like _cure light wounds_, except that it cures 3d8 points of damage +1 point per caster level (maximum +15).
+- id: dispel_magic
+  name: Dispel Magic
+  level_druid: 4
+  level_cleric: 3
+  level_wizard: 3
+  level_ranger:
+  level_paladin: 3
+  school: Abjuration
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target:
+  duration: Instantaneous
+  save: None
+  spell_resistance: No
+  components: V, S
+  target_label:
+  description: |-
+    You can use _dispel magic_ to end ongoing spells that have been cast on a creature or object, to temporarily suppress the magical abilities of a magic item, to end ongoing spells (or at least their effects) within an area, or to counter another spellcaster’s spell. A dispelled spell ends as if its duration had expired. Some spells, as detailed in their descriptions, can’t be defeated by _dispel magic_. _Dispel magic_ can dispel (but not counter) spell-like effects just as it does spells.
+
+    _Note:_ The effect of a spell with an instantaneous duration can’t be dispelled, because the magical effect is already over before the _dispel magic_ can take effect.
+
+    You choose to use _dispel magic_ in one of three ways: a targeted dispel, an area dispel, or a counterspell:
+
+    _Targeted Dispel:_ One object, creature, or spell is the target of the _dispel magic_ spell. You make a dispel check (1d20 + your caster level, maximum +10) against the spell or against each ongoing spell currently in effect on the object or creature. The DC for this dispel check is 11 + the spell’s caster level. If you succeed on a particular check, that spell is dispelled; if you fail, that spell remains in effect.
+
+    If you target an object or creature that is the effect of an ongoing spell (such as a monster summoned by _monster summoning_), you make a dispel check to end the spell that conjured the object or creature.
+
+    If the object that you target is a magic item, you make a dispel check against the item’s caster level. If you succeed, all the item’s magical properties are suppressed for 1d4 rounds, after which the item recovers on its own. A suppressed item becomes nonmagical for the duration of the effect. An interdimensional interface (such as a _bag of holding_) is temporarily closed. A magic item’s physical properties are unchanged: A suppressed magic sword is still a sword (a masterwork sword, in fact). Artifacts and deities are unaffected by mortal magic such as this.
+
+    You automatically succeed on your dispel check against any spell that you cast yourself.
+
+    _Area Dispel:_ When _dispel magic_ is used in this way, the spell affects everything within a 20-foot radius.
+
+    For each creature within the area that is the subject of one or more spells, you make a dispel check against the spell with the highest caster level. If that check fails, you make dispel checks against progressively weaker spells until you dispel one spell (which discharges the _dispel magic_ spell so far as that target is concerned) or until you fail all your checks. The creature’s magic items are not affected.
+
+    For each object within the area that is the target of one or more spells, you make dispel checks as with creatures. Magic items are not affected by an area dispel.
+
+    For each ongoing area or effect spell whose point of origin is within the area of the _dispel magic_ spell, you can make a dispel check to dispel the spell.
+
+    For each ongoing spell whose area overlaps that of the _dispel magic_ spell, you can make a dispel check to end the effect, but only within the overlapping area.
+
+    If an object or creature that is the effect of an ongoing spell (such as a monster summoned by _monster summoning_) is in the area, you can make a dispel check to end the spell that conjured that object or creature (returning it whence it came) in addition to attempting to dispel spells targeting the creature or object.
+
+    You may choose to automatically succeed on dispel checks against any spell that you have cast.
+
+    _Counterspell:_ When _dispel magic_ is used in this way, the spell targets a spellcaster and is cast as a counterspell. Unlike a true counterspell, however, _dispel magic_ may not work; you must make a dispel check to counter the other spellcaster’s spell.
+- id: giant_vermin
+  name: Giant Vermin
+  level_druid: 4
+  level_cleric: 4
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: Up to three vermin, no two of which can be more than 30 ft. apart
+  duration: 1 min./level
+  save: None
+  spell_resistance: Yes
+  components: V, S, DF
+  target_label: Targets
+  description: |-
+    You turn three normal-sized centipedes, two normal-sized spiders, or a single normal-sized scorpion into larger forms. Only one type of vermin can be transmuted (so a single casting cannot affect both a centipede and a spider), and all must be grown to the same size. The size to which the vermin can be grown depends on your level; see the table below.
+
+    Any giant vermin created by this spell do not attempt to harm you, but your control of such creatures is limited to simple commands (“Attack,” “Defend,” “Stop,” and so forth). Orders to attack a certain creature when it appears or guard against a particular occurrence are too complex for the vermin to understand. Unless commanded to do otherwise, the giant vermin attack whoever or whatever is near them.
+
+    <table data-debug="no-caption" class="half-width-table"><tbody><tr><th>Caster Level</th><th>Vermin Size</th></tr><tr><td>9th or lower</td><td>Medium</td></tr><tr><td>10th–13th</td><td>Large</td></tr><tr><td>14th–17th</td><td>Huge</td></tr><tr><td>18th–19th</td><td>Gargantuan</td></tr><tr><td>20th or higher</td><td>Colossal</td></tr></tbody></table>
+- id: repel_vermin
+  name: Repel Vermin
+  level_druid: 4
+  level_cleric: 4
+  level_wizard:
+  level_ranger: 3
+  level_paladin:
+  school: Abjuration
+  cast_time: 1 standard action
+  range: 10 ft.
+  target: 10-ft.-radius emanation centered on you
+  duration: 10 min./level (D)
+  save: None or Will negates; see text
+  spell_resistance: Yes
+  components: V, S, DF
+  target_label: Area
+  description: |-
+    An invisible barrier holds back vermin. A vermin with Hit Dice of less than one-third your level cannot penetrate the barrier.
+
+    A vermin with Hit Dice of one-third your level or more can penetrate the barrier if it succeeds on a Will save. Even so, crossing the barrier deals the vermin 2d6 points of damage, and pressing against the barrier causes pain, which deters most vermin.
+- id: rusting_grasp
+  name: Rusting Grasp
+  level_druid: 4
+  level_cleric:
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: Touch
+  target: One nonmagical ferrous object (or the volume of the object within 3 ft. of the touched point) or one ferrous creature
+  duration: See text
+  save: None
+  spell_resistance: No
+  components: V, S, DF
+  target_label: Target
+  description: |-
+    Any iron or iron alloy item you touch becomes instantaneously rusted, pitted, and worthless, effectively destroyed. If the item is so large that it cannot fit within a 3-foot radius a 3-foot-radius volume of the metal is rusted and destroyed. Magic items made of metal are immune to this spell.
+
+    You may employ _rusting grasp_ in combat with a successful melee touch attack. _Rusting grasp_ used in this way instantaneously destroys 1d6 points of Armor Class gained from metal armor (to the maximum amount of protection the armor offered) through corrosion.
+
+    Weapons in use by an opponent targeted by the spell are more difficult to grasp. You must succeed on a melee touch attack against the weapon. A metal weapon that is hit is destroyed.
+
+    _Note:_ Striking at an opponent’s weapon provokes an attack of opportunity. Also, you must touch the weapon and not the other way around.
+
+    Against a ferrous creature, _rusting grasp_ instantaneously deals 3d6 points of damage +1 per caster level (maximum +15) per successful attack. The spell lasts for 1 round per level, and you can make one melee touch attack per round.
+- id: scrying
+  name: Scrying
+  level_druid: 4
+  level_cleric: 5
+  level_wizard: 4
+  level_ranger:
+  level_paladin:
+  school: Divination (Scrying)
+  cast_time: 1 hour
+  range: See text
+  target: Magical sensor
+  duration: 1 min./level
+  save: Will negates
+  spell_resistance: Yes
+  components: V, S, M/DF, F
+  target_label: Effect
+  description: |-
+    You can see and hear some creature, which may be at any distance. If the subject succeeds on a Will save, the scrying attempt simply fails. The difficulty of the save depends on how well you know the subject and what sort of physical connection (if any) you have to that creature. Furthermore, if the subject is on another plane, it gets a +5 bonus on its Will save.
+
+    <table data-debug="no-caption" class="half-width-table"><tbody><tr><th>Knowledge</th><th>Will Save Modifier</th></tr><tr><td>None<sup>1</sup></td><td>+10</td></tr><tr><td>Secondhand (you have heard of the subject)</td><td>+5</td></tr><tr><td>Firsthand (you have met the subject)</td><td>+0</td></tr><tr><td>Familiar (you know the subject well)</td><td>–5</td></tr><tr><td colspan="2">1 You must have some sort of connection to a creature you have no knowledge of.</td></tr><tr><th>Connection</th><th>Will Save Modifier</th></tr><tr><td>Likeness or picture</td><td>–2</td></tr><tr><td>Possession or garment</td><td>–4</td></tr><tr><td>Body part, lock of hair, bit of nail, etc.</td><td>–10</td></tr></tbody></table>
+
+    If the save fails, you can see and hear the subject and the subject’s immediate surroundings (approximately 10 feet in all directions of the subject). If the subject moves, the sensor follows at a speed of up to 150 feet.
+
+    As with all divination (scrying) spells, the sensor has your full visual acuity, including any magical effects. In addition, the following spells have a 5% chance per caster level of operating through the sensor: _detect chaos_, _detect evil_, _detect good_, _detect law_, _detect magic_, and _message_.
+
+    If the save succeeds, you can’t attempt to scry on that subject again for at least 24 hours.
+
+    _Arcane Material Component:_ The eye of a hawk, an eagle, or a roc, plus nitric acid, copper, and zinc.
+
+    _Wizard, Sorcerer, or Bard Focus:_ A mirror of finely wrought and highly polished silver costing not less than 1,000 gp. The mirror must be at least 2 feet by 4 feet.
+
+    _Cleric Focus:_ A holy water font costing not less than 100 gp.
+
+    _Druid Focus:_ A natural pool of water.
+- id: spike_stones
+  name: Spike Stones
+  level_druid: 4
+  level_cleric:
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Transmutation [Earth]
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target: One 20-ft. square/level
+  duration: 1 hour/level (D)
+  save: Reflex partial
+  spell_resistance: Yes
+  components: V, S, DF
+  target_label: Area
+  description: |-
+    Rocky ground, stone floors, and similar surfaces shape themselves into long, sharp points that blend into the background.
+
+    _Spike stones_ impede progress through an area and deal damage. Any creature moving on foot into or through the spell’s area moves at half speed.
+
+    In addition, each creature moving through the area takes 1d8 points of piercing damage for each 5 feet of movement through the spiked area.
+
+    Any creature that takes damage from this spell must also succeed on a Reflex save to avoid injuries to its feet and legs. A failed save causes the creature’s speed to be reduced to half normal for 24 hours or until the injured creature receives a _cure_ spell (which also restores lost hit points). Another character can remove the penalty by taking 10 minutes to dress the injuries and succeeding on a Heal check against the spell’s save DC.
+
+    _Spike stones_ is a magic trap that can’t be disabled with the Disable Device skill.
+
+    _Note:_ Magic traps such as _spike stones_ are hard to detect. A rogue (only) can use the Search skill to find _spike stones_. The DC is 25 + spell level, or DC 29 for _spike stones_.
+- id: summon_natures_ally_iv
+  name: Summon Nature’s Ally IV
+  level_druid: 4
+  level_cleric:
+  level_wizard:
+  level_ranger: 4
+  level_paladin:
+  school: Conjuration (Summoning) [see text]
+  cast_time: 1 round
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One or more creatures, no two of which can be more than 30 ft. apart
+  duration: 1 round/level (D)
+  save: None
+  spell_resistance: No
+  components: V, S, DF
+  target_label: Effect
+  description: |-
+    This spell functions like _summon nature’s ally I,_ except that you can summon one 4th-level creature, 1d3 3rd-level creatures of the same kind, or 1d4+1 lower-level creatures of the same kind.
+
+    When you use a summoning spell to summon an air, chaotic, earth, evil, fire, good, lawful, or water creature, it is a spell of that type.
+- id: atonement
+  name: Atonement
+  level_druid: 5
+  level_cleric: 5
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Abjuration
+  cast_time: 1 hour
+  range: Touch
+  target: Living creature touched
+  duration: Instantaneous
+  save: None
+  spell_resistance: Yes
+  components: V, S, M, F, DF, XP
+  target_label: Target
+  description: |-
+    This spell removes the burden of evil acts or misdeeds from the subject. The creature seeking atonement must be truly repentant and desirous of setting right its misdeeds. If the atoning creature committed the evil act unwittingly or under some form of compulsion, _atonement_ operates normally at no cost to you. However, in the case of a creature atoning for deliberate misdeeds and acts of a knowing and willful nature, you must intercede with your deity (requiring you to expend 500 XP) in order to expunge the subject’s burden. Many casters first assign a subject of this sort a quest (see _geas/quest_) or similar penance to determine whether the creature is truly contrite before casting the _atonement_ spell on its behalf.
+
+    _Atonement_ may be cast for one of several purposes, depending on the version selected.
+
+    _Reverse Magical Alignment Change:_ If a creature has had its alignment magically changed, _atonement_ returns its alignment to its original status at no cost in experience points.
+
+    _Restore Class:_ A paladin who has lost her class features due to committing an evil act may have her paladinhood restored to her by this spell.
+
+    _Restore Cleric or Druid Spell Powers:_ A cleric or druid who has lost the ability to cast spells by incurring the anger of his or her deity may regain that ability by seeking _atonement_ from another cleric of the same deity or another druid. If the transgression was intentional, the casting cleric loses 500 XP for his intercession. If the transgression was unintentional, he does not lose XP.
+
+    _Redemption or Temptation:_ You may cast this spell upon a creature of an opposing alignment in order to offer it a chance to change its alignment to match yours. The prospective subject must be present for the entire casting process. Upon completion of the spell, the subject freely chooses whether it retains its original alignment or acquiesces to your offer and changes to your alignment. No duress, compulsion, or magical influence can force the subject to take advantage of the opportunity offered if it is unwilling to abandon its old alignment. This use of the spell does not work on outsiders or any creature incapable of changing its alignment naturally.
+
+    Though the spell description refers to evil acts, _atonement_ can also be used on any creature that has performed acts against its alignment, whether those acts are evil, good, chaotic, or lawful.
+
+    _Note:_ Normally, changing alignment is up to the player. This use of _atonement_ simply offers a believable way for a character to change his or her alignment drastically, suddenly, and definitively.
+
+    _Material Component:_ Burning incense.
+
+    _Focus:_ In addition to your holy symbol or normal divine focus, you need a set of prayer beads (or other prayer device, such as a prayer wheel or prayer book) worth at least 500 gp.
+
+    _XP Cost:_ When cast for the benefit of a creature whose guilt was the result of deliberate acts, the cost to you is 500 XP per casting (see above).
+- id: baleful_polymorph
+  name: Baleful Polymorph
+  level_druid: 5
+  level_cleric:
+  level_wizard: 5
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One creature
+  duration: Permanent
+  save: Fortitude negates, Will partial; see text
+  spell_resistance: Yes
+  components: V, S
+  target_label: Target
+  description: |-
+    As _polymorph,_ except that you change the subject into a Small or smaller animal of no more than 1 HD. If the new form would prove fatal to the creature the subject gets a +4 bonus on the save.
+
+    If the spell succeeds, the subject must also make a Will save. If this second save fails, the creature loses its extraordinary, supernatural, and spell-like abilities, loses its ability to cast spells (if it had the ability), and gains the alignment, special abilities, and Intelligence, Wisdom, and Charisma scores of its new form in place of its own. It still retains its class and level (or HD), as well as all benefits deriving therefrom (such as base attack bonus, base save bonuses, and hit points). It retains any class features (other than spellcasting) that aren’t extraordinary, supernatural, or spell-like abilities.
+
+    Incorporeal or gaseous creatures are immune to being _polymorphed_, and a creature with the shapechanger subtype can revert to its natural form as a standard action.
+- id: call_lightning_storm
+  name: Call Lightning Storm
+  level_druid: 5
+  level_cleric:
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Evocation [Electricity]
+  cast_time: 1 round
+  range: Long (400 ft. + 40 ft./level)
+  target: One or more 30-ft.-long vertical lines of lightning
+  duration: 1 min./level
+  save: Reflex half
+  spell_resistance: Yes
+  components: V, S
+  target_label: Effect
+  description: |-
+    This spell functions like _call lightning_, except that each bolt deals 5d6 points of electricity damage (or 5d10 if created outdoors in a stormy area), and you may call a maximum of 15 bolts.
+- id: control_winds
+  name: Control Winds
+  level_druid: 5
+  level_cleric:
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Transmutation [Air]
+  cast_time: 1 standard action
+  range: 40 ft./level
+  target: 40 ft./level radius cylinder 40 ft. high
+  duration: 10 min./level
+  save: Fortitude negates
+  spell_resistance: No
+  components: V, S
+  target_label: Area
+  description: |-
+    You alter wind force in the area surrounding you. You can make the wind blow in a certain direction or manner, increase its strength, or decrease its strength. The new wind direction and strength persist until the spell ends or until you choose to alter your handiwork, which requires concentration. You may create an “eye” of calm air up to 80 feet in diameter at the center of the area if you so desire, and you may choose to limit the area to any cylindrical area less than your full limit.
+
+    _Wind Direction:_ You may choose one of four basic wind patterns to function over the spell’s area.
+
+    - A downdraft blows from the center outward in equal strength in all directions.
+    - An updraft blows from the outer edges in toward the center in equal strength from all directions, veering upward before impinging on the eye in the center.
+    - A rotation causes the winds to circle the center in clockwise or counterclockwise fashion.
+    - A blast simply causes the winds to blow in one direction across the entire area from one side to the other.
+
+    _Wind Strength:_ For every three caster levels, you can increase or decrease wind strength by one level. Each round on your turn, a creature in the wind must make a Fortitude save or suffer the effect of being in the windy area.
+
+    Strong winds (21+ mph) make sailing difficult.
+
+    A severe wind (31+ mph) causes minor ship and building damage.
+
+    A windstorm (51+ mph) drives most flying creatures from the skies, uproots small trees, knocks down light wooden structures, tears off roofs, and endangers ships.
+
+    Hurricane force winds (75+ mph) destroy wooden buildings, sometimes uproot even large trees, and cause most ships to founder.
+
+    A tornado (175+ mph) destroys all nonfortified buildings and often uproots large trees.
+- id: death_ward
+  name: Death Ward
+  level_druid: 5
+  level_cleric: 4
+  level_wizard:
+  level_ranger:
+  level_paladin: 4
+  school: Necromancy
+  cast_time: 1 standard action
+  range: Touch
+  target: Living creature touched
+  duration: 1 min./level
+  save: Will negates (harmless)
+  spell_resistance: Yes (harmless)
+  components: V, S, DF
+  target_label: Target
+  description: |-
+    The subject is immune to all death spells, magical death effects, energy drain, and any negative energy effects.
+
+    This spell doesn’t remove negative levels that the subject has already gained, nor does it affect the saving throw necessary 24 hours after gaining a negative level.
+
+    _Death ward_ does not protect against other sorts of attacks even if those attacks might be lethal.
+- id: hallow
+  name: Hallow
+  level_druid: 5
+  level_cleric: 5
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Evocation [Good]
+  cast_time: 24 hours
+  range: Touch
+  target: 40-ft. radius emanating from the touched point
+  duration: Instantaneous
+  save: See text
+  spell_resistance: See text
+  components: V, S, M, DF
+  target_label: Area
+  description: |-
+    _Hallow_ makes a particular site, building, or structure a holy site. This has four major effects.
+
+    First, the site or structure is guarded by a _magic circle against evil_ effect.
+
+    Second, all Charisma checks made to turn undead gain a +4 sacred bonus, and Charisma checks to command undead take a –4 penalty. Spell resistance does not apply to this effect. (This provision does not apply to the druid version of the spell.)
+
+    Third, any dead body interred in a _hallowed_ site cannot be turned into an undead creature.
+
+    Finally, you may choose to fix a single spell effect to the _hallowed_ site. The spell effect lasts for one year and functions throughout the entire site, regardless of the normal duration and area or effect. You may designate whether the effect applies to all creatures, creatures who share your faith or alignment, or creatures who adhere to another faith or alignment. At the end of the year, the chosen effect lapses, but it can be renewed or replaced simply by casting _hallow_ again.
+
+    Spell effects that may be tied to a _hallowed_ site include _aid, bane, bless, cause fear, darkness, daylight, death ward, deeper darkness, detect evil, detect magic, dimensional anchor, discern lies, dispel magic, endure elements, freedom of movement, invisibility purge, protection from energy, remove fear, resist energy, silence, tongues,_ and _zone of truth_. Saving throws and spell resistance might apply to these spells’ effects. (See the individual spell descriptions for details.)
+
+    An area can receive only one _hallow_ spell (and its associated spell effect) at a time. _Hallow_ counters but does not dispel _unhallow_.
+
+    _Material Component:_ Herbs, oils, and incense worth at least 1,000 gp, plus 1,000 gp per level of the spell to be included in the _hallowed_ area.
+- id: insect_plague
+  name: Insect Plague
+  level_druid: 5
+  level_cleric: 5
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Conjuration (Summoning)
+  cast_time: 1 round
+  range: Long (400 ft. + 40 ft./level)
+  target: One swarm of locusts per three levels, each of which must be adjacent to at least one other swarm
+  duration: 1 min./level
+  save: None
+  spell_resistance: No
+  components: V, S, DF
+  target_label: Effect
+  description: |-
+    You summon a number of swarms of locusts (one per three levels, to a maximum of six swarms at 18th level). The swarms must be summoned so that each one is adjacent to at least one other swarm (that is, the swarms must fill one contiguous area). You may summon the locust swarms so that they share the area of other creatures. Each swarm attacks any creatures occupying its area. The swarms are stationary after being summoned, and won’t pursue creatures that flee.
+- id: stoneskin
+  name: Stoneskin
+  level_druid: 5
+  level_cleric:
+  level_wizard: 4
+  level_ranger:
+  level_paladin:
+  school: Abjuration
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature touched
+  duration: 10 min./level or until discharged
+  save: Will negates (harmless)
+  spell_resistance: Yes (harmless)
+  components: V, S, M
+  target_label: Target
+  description: |-
+    The warded creature gains resistance to blows, cuts, stabs, and slashes. The subject gains damage reduction 10/adamantine. (It ignores the first 10 points of damage each time it takes damage from a weapon, though an adamantine weapon bypasses the reduction.) Once the spell has prevented a total of 10 points of damage per caster level (maximum 150 points), it is discharged.
+
+    _Material Component:_ Granite and 250 gp worth of diamond dust sprinkled on the target’s skin.
+- id: summon_natures_ally_v
+  name: Summon Nature’s Ally V
+  level_druid: 5
+  level_cleric:
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Conjuration (Summoning) [see text]
+  cast_time: 1 round
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One or more creatures, no two of which can be more than 30 ft. apart
+  duration: 1 round/level (D)
+  save: None
+  spell_resistance: No
+  components: V, S, DF
+  target_label: Effect
+  description: |-
+    This spell functions like _summon nature’s ally I,_ except that you can summon one 5th-level creature, 1d3 4th-level creatures of the same kind, or 1d4+1 lower-level creatures of the same kind.
+
+    When you use a summoning spell to summon an air, chaotic, earth, evil, fire, good, lawful, or water creature, it is a spell of that type.
+- id: transmute_mud_to_rock
+  name: Transmute Mud to Rock
+  level_druid: 5
+  level_cleric:
+  level_wizard: 5
+  level_ranger:
+  level_paladin:
+  school: Transmutation [Earth]
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target: Up to two 10-ft. cubes/level (S)
+  duration: Permanent
+  save: See text
+  spell_resistance: No
+  components: V, S, M/DF
+  target_label: Area
+  description: |-
+    This spell transforms normal mud or quicksand of any depth into soft stone (sandstone or a similar mineral) permanently.
+
+    Any creature in the mud is allowed a Reflex save to escape before the area is hardened to stone.
+
+    _Transmute mud to rock_ counters and dispels _transmute rock to mud_.
+
+    _Arcane Material Component:_ Sand, lime, and water.
+- id: transmute_rock_to_mud
+  name: Transmute Rock to Mud
+  level_druid: 5
+  level_cleric:
+  level_wizard: 5
+  level_ranger:
+  level_paladin:
+  school: Transmutation [Earth]
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target: Up to two 10-ft. cubes/level (S)
+  duration: Permanent; see text
+  save: See text
+  spell_resistance: No
+  components: V, S, M/DF
+  target_label: Area
+  description: |-
+    This spell turns natural, uncut or unworked rock of any sort into an equal volume of mud. Magical stone is not affected by the spell. The depth of the mud created cannot exceed 10 feet. A creature unable to levitate, fly, or otherwise free itself from the mud sinks until hip- or chest-deep, reducing its speed to 5 feet and causing a –2 penalty on attack rolls and AC. Brush thrown atop the mud can support creatures able to climb on top of it. Creatures large enough to walk on the bottom can wade through the area at a speed of 5 feet.
+
+    If _transmute rock to mud_ is cast upon the ceiling of a cavern or tunnel, the mud falls to the floor and spreads out in a pool at a depth of 5 feet. The falling mud and the ensuing cave-in deal 8d6 points of bludgeoning damage to anyone caught directly beneath the area, or half damage to those who succeed on Reflex saves.
+
+    Castles and large stone buildings are generally immune to the effect of the spell, since _transmute rock to mud_ can’t affect worked stone and doesn’t reach deep enough to undermine such buildings’ foundations. However, small buildings or structures often rest upon foundations shallow enough to be damaged or even partially toppled by this spell.
+
+    The mud remains until a successful _dispel magic_ or _transmute mud to rock_ spell restores its substance—but not necessarily its form. Evaporation turns the mud to normal dirt over a period of days. The exact time depends on exposure to the sun, wind, and normal drainage.
+
+    _Arcane Material Component:_ Clay and water.
+- id: tree_stride
+  name: Tree Stride
+  level_druid: 5
+  level_cleric:
+  level_wizard:
+  level_ranger: 4
+  level_paladin:
+  school: Conjuration (Teleportation)
+  cast_time: 1 standard action
+  range: Personal
+  target: You
+  duration: 1 hour/level or until expended; see text
+  save:
+  spell_resistance:
+  components: V, S, DF
+  target_label: Target
+  description: |-
+    You gain the ability to enter trees and move from inside one tree to inside another tree. The first tree you enter and all others you enter must be of the same kind, must be living, and must have girth at least equal to yours. By moving into an oak tree (for example), you instantly know the location of all other oak trees within transport range (see below) and may choose whether you want to pass into one or simply step back out of the tree you moved into. You may choose to pass to any tree of the appropriate kind within the transport range as shown on the following table.
+
+    <table data-debug="no-caption" class="half-width-table"><tbody><tr><th>Type of Tree</th><th>Transport Range</th></tr><tr><td>Oak, ash, yew</td><td>3,000 feet</td></tr><tr><td>Elm, linden</td><td>2,000 feet</td></tr><tr><td>Other deciduous</td><td>1,500 feet</td></tr><tr><td>Any coniferous</td><td>1,000 feet</td></tr><tr><td>All other trees</td><td>500 feet</td></tr></tbody></table>
+
+    You may move into a tree up to one time per caster level (passing from one tree to another counts only as moving into one tree). The spell lasts until the duration expires or you exit a tree. Each transport is a full-round action.
+
+    You can, at your option, remain within a tree without transporting yourself, but you are forced out when the spell ends. If the tree in which you are concealed is chopped down or burned, you are slain if you do not exit before the process is complete.
+- id: unhallow
+  name: Unhallow
+  level_druid: 5
+  level_cleric: 5
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Evocation [Evil]
+  cast_time: 24 hours
+  range: Touch
+  target: 40-ft. radius emanating from the touched point
+  duration: Instantaneous
+  save: See text
+  spell_resistance: See text
+  components: V, S, M
+  target_label: Area
+  description: |-
+    _Unhallow_ makes a particular site, building, or structure an unholy site. This has three major effects.
+
+    First, the site or structure is guarded by a _magic circle against good_ effect.
+
+    Second, all turning checks made to turn undead take a –4 penalty, and turning checks to rebuke undead gain a +4 profane bonus. Spell resistance does not apply to this effect. (This provision does not apply to the druid version of the spell.)
+
+    Finally, you may choose to fix a single spell effect to the _unhallowed_ site. The spell effect lasts for one year and functions throughout the entire site, regardless of its normal duration and area or effect. You may designate whether the effect applies to all creatures, creatures that share your faith or alignment, or creatures that adhere to another faith or alignment. At the end of the year, the chosen effect lapses, but it can be renewed or replaced simply by casting _unhallow_ again.
+
+    Spell effects that may be tied to an _unhallowed_ site include _aid, bane, bless, cause fear, darkness, daylight, death ward, deeper darkness, detect magic, detect good, dimensional anchor, discern lies, dispel magic, endure elements, freedom of movement, invisibility purge, protection from energy, remove fear, resist energy, silence, tongues,_ and _zone of truth_.
+
+    Saving throws and spell resistance might apply to these spells’ effects. (See the individual spell descriptions for details.)
+
+    An area can receive only one _unhallow_ spell (and its associated spell effect) at a time.
+
+    _Unhallow_ counters but does not dispel _hallow_.
+
+    _Material Component:_ Herbs, oils, and incense worth at least 1,000 gp, plus 1,000 gp per level of the spell to be tied to the _unhallowed_ area.
+- id: wall_of_fire
+  name: Wall of Fire
+  level_druid: 5
+  level_cleric:
+  level_wizard: 4
+  level_ranger:
+  level_paladin:
+  school: Evocation [Fire]
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target: Opaque sheet of flame up to 20 ft. long/level or a ring of fire with a radius of up to 5 ft. per two levels; either form 20 ft. high
+  duration: Concentration + 1 round/level
+  save: None
+  spell_resistance: Yes
+  components: V, S, M/DF
+  target_label: Effect
+  description: |-
+    An immobile, blazing curtain of shimmering violet fire springs into existence. One side of the wall, selected by you, sends forth waves of heat, dealing 2d4 points of fire damage to creatures within 10 feet and 1d4 points of fire damage to those past 10 feet but within 20 feet. The wall deals this damage when it appears and on your turn each round to all creatures in the area. In addition, the wall deals 2d6 points of fire damage +1 point of fire damage per caster level (maximum +20) to any creature passing through it. The wall deals double damage to undead creatures.
+
+    If you evoke the wall so that it appears where creatures are, each creature takes damage as if passing through the wall. If any 5-foot length of wall takes 20 points of cold damage or more in 1 round, that length goes out. (Do not divide cold damage by 4, as normal for objects.)
+
+    _Wall of fire_ can be made permanent with a _permanency_ spell. A permanent _wall of fire_ that is extinguished by cold damage becomes inactive for 10 minutes, then reforms at normal strength.
+
+    _Arcane Material Component:_ A small piece of phosphorus.
+- id: wall_of_thorns
+  name: Wall of Thorns
+  level_druid: 5
+  level_cleric:
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Conjuration (Creation)
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target: Wall of thorny brush, up to one 10-ft. cube/level (S)
+  duration: 10 min./level (D)
+  save: None
+  spell_resistance: No
+  components: V, S
+  target_label: Effect
+  description: |-
+    A _wall of thorns_ spell creates a barrier of very tough, pliable, tangled brush bearing needle-sharp thorns as long as a human’s finger. Any creature forced into or attempting to move through a _wall of thorns_ takes slashing damage per round of movement equal to 25 minus the creature’s AC. Dexterity and dodge bonuses to AC do not count for this calculation. (Creatures with an Armor Class of 25 or higher, without considering Dexterity and dodge bonuses, take no damage from contact with the wall.)
+
+    You can make the wall as thin as 5 feet thick, which allows you to shape the wall as a number of 10-by-10-by-5-foot blocks equal to twice your caster level. This has no effect on the damage dealt by the thorns, but any creature attempting to break through takes that much less time to force its way through the barrier.
+
+    Creatures can force their way slowly through the wall by making a Strength check as a full-round action. For every 5 points by which the check exceeds 20, a creature moves 5 feet (up to a maximum distance equal to its normal land speed). Of course, moving or attempting to move through the thorns incurs damage as described above. A creature trapped in the thorns can choose to remain motionless in order to avoid taking any more damage.
+
+    Any creature within the area of the spell when it is cast takes damage as if it had moved into the wall and is caught inside. In order to escape, it must attempt to push its way free, or it can wait until the spell ends. Creatures with the ability to pass through overgrown areas unhindered can pass through a _wall of thorns_ at normal speed without taking damage.
+
+    A _wall of thorns_ can be breached by slow work with edged weapons. Chopping away at the wall creates a safe passage 1 foot deep for every 10 minutes of work. Normal fire cannot harm the barrier, but magical fire burns it away in 10 minutes.
+
+    Despite its appearance, a _wall of thorns_ is not actually a living plant, and thus is unaffected by spells that affect plants.
