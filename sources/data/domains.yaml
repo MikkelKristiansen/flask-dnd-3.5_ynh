@@ -1,0 +1,19 @@
+# domains — SRD v3.5 data (OGL v1.0a). Genereret fra importer.py, herefter kilden til sandheden.
+- id: healing
+  name: Healing
+  granted_power: You cast healing spells (any spell with “cure” in its name) at +1 caster level.
+- id: protection
+  name: Protection
+  granted_power: You can generate a protective ward as a supernatural ability. Grant someone you touch a resistance bonus on his or her next saving throw equal to your cleric level. Activating this power is a standard action. The protective ward is an abjuration effect with a duration of 1 hour that is usable once per day.
+- id: war
+  name: War
+  granted_power: Free Martial Weapon Proficiency with your deity's favored weapon (if necessary) and Weapon Focus with that weapon.
+- id: knowledge
+  name: Knowledge
+  granted_power: Add all Knowledge skills to your list of cleric class skills. You cast divination spells at +1 caster level.
+- id: good
+  name: Good
+  granted_power: You cast good spells at +1 caster level.
+- id: luck
+  name: Luck
+  granted_power: You gain the power of good fortune, usable once per day. It lets you reroll one roll you have just made, before the DM declares success or failure. You must take the result of the reroll, even if it is worse.

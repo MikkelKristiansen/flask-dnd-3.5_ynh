@@ -1,0 +1,271 @@
+# skills — SRD v3.5 data (OGL v1.0a). Genereret fra importer.py, herefter kilden til sandheden.
+- id: appraise
+  name: Appraise
+  ability: int
+  trained_only: 0
+  armor_check: 0
+  description: You can appraise common or well-known objects with a DC 12 Appraise check. Rare or exotic items require a DC 15–25 check. Failure means you estimate the value at 50%–150% of its actual value (DM determines). A magnifying glass gives a +2 circumstance bonus on checks for small or detailed items.
+- id: balance
+  name: Balance
+  ability: dex
+  trained_only: 0
+  armor_check: 1
+  description: You can walk on a precarious surface. A successful check lets you move at half speed along the surface. On a failure by 4 or less you can't move; on a failure by 5 or more you fall. DC 10 for a 2–6 inch wide surface; DC 15 for 7–11 inches; DC 20 for 1–6 inches; DC 25 for less than 1 inch. Being attacked while balancing forces a new check (DC = attack roll if hit).
+- id: bluff
+  name: Bluff
+  ability: cha
+  trained_only: 0
+  armor_check: 0
+  description: Bluff is opposed by the target's Sense Motive check. A successful Bluff can convince someone that something false is true, send a secret message, feint in combat, or imply a meaning other than the one actually stated. A feint in combat (DC = defender's BAB + Wis mod) lets you deny the target their Dex bonus to AC for your next attack.
+- id: climb
+  name: Climb
+  ability: str
+  trained_only: 0
+  armor_check: 1
+  description: With a successful Climb check you can advance up, down, or across a slope, wall, or other steep incline at one-quarter your normal speed as a move action. A DC 0 slope is not steep enough to require a check. DC 5 for a rope with a wall, DC 15 for a dungeon wall, DC 25 for a smooth surface. You need both hands free to climb. Failure by 4 or less means no progress; failure by 5 or more means you fall.
+- id: concentration
+  name: Concentration
+  ability: con
+  trained_only: 0
+  armor_check: 0
+  description: 'You must make a Concentration check whenever you might be distracted while engaged in an activity requiring your full attention (such as spellcasting). If you fail, the distraction interrupts the activity. Spellcasting in combat: DC 10 + damage taken (if hurt) or DC 10 + spell level (to cast defensively). Also used to avoid losing a spell when grappled, pinned, or subject to violent motion.'
+- id: craft
+  name: Craft
+  ability: int
+  trained_only: 0
+  armor_check: 0
+  description: You are skilled in a craft (alchemy, armorsmithing, bowmaking, etc.). A Craft check represents a week of work. The DC and the item's price in silver pieces determine progress. You can also use Craft to evaluate items of that type (DC 15). Druids and rangers may craft items from natural materials without needing Craft tools as a bonus.
+- id: decipher_script
+  name: Decipher Script
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: You can decipher writing in an unfamiliar language or a message written in an incomplete or archaic form. DC 20 for a simple message, DC 25 for standard text, DC 30 for intricate, obscure, or ancient writing. Takes 1 minute per page. Failure by 5+ gives a false reading.
+- id: diplomacy
+  name: Diplomacy
+  ability: cha
+  trained_only: 0
+  armor_check: 0
+  description: "Use Diplomacy to persuade others to agree with your point of view or to change their attitude toward you or someone else. The DC depends on the target's starting attitude: Hostile (DC 25+5), Unfriendly (DC 20), Indifferent (DC 15), Friendly (DC 10), Helpful (DC 5). Improving attitude by two steps or more requires beating a much higher DC. A Diplomacy check takes at least 1 full minute."
+- id: disable_device
+  name: Disable Device
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: You can disarm traps and other small mechanical devices. DC 20 for simple devices (takes 1 round), DC 21–30 for tricky devices (1d4 rounds), DC 30+ for very tricky devices (2d4 rounds). Working without thieves' tools imposes a –2 penalty. If you exceed the DC by 10 or more, you can move the device to a new location or reset it after disarming.
+- id: disguise
+  name: Disguise
+  ability: cha
+  trained_only: 0
+  armor_check: 0
+  description: You can change your appearance and voice. The check is opposed by an observer's Spot check. Disguising as a different gender (−2), race (−2), or age category (−2 per step) applies penalties. Using a disguise kit gives a +2 circumstance bonus. A disguise takes 1d3×10 minutes to apply. A character who is not disguising themselves doesn't need a check, but a creature that has reason to be suspicious gets a Spot check.
+- id: escape_artist
+  name: Escape Artist
+  ability: dex
+  trained_only: 0
+  armor_check: 1
+  description: "Escape from restraints: DC 20 for rope bonds (opposed by binder's Use Rope +10), DC 30 for manacles, DC 35 for masterwork manacles. Squeeze through tight space: DC 30 for a tight squeeze (move at 1/4 speed), DC 35 for extremely tight squeeze. Escape from a net or entangle spell: DC 20. Escape from a grapple: opposed by opponent's grapple check. Using rope bonds: takes 1 minute; tight spaces: 1 minute per 5 feet."
+- id: forgery
+  name: Forgery
+  ability: int
+  trained_only: 0
+  armor_check: 0
+  description: You can falsify documents, including handwriting. Forging a document takes 1 minute per page. The check is opposed by the reader's Forgery check (to notice it). Familiarity with the handwriting being forged gives a +4 bonus to the forger. Dissimilarity between the forged and original script gives the reader a +4 bonus.
+- id: gather_information
+  name: Gather Information
+  ability: cha
+  trained_only: 0
+  armor_check: 0
+  description: "By spending 1d4+1 hours canvassing a settlement and speaking with locals, you can gather rumors, legends, and other information about a topic (DC 10). The DM sets the DC based on how obscure or secret the information is. You can improve your result by spending more coin: for every 1 gp spent, add +1 to the roll (up to the DM's discretion)."
+- id: handle_animal
+  name: Handle Animal
+  ability: cha
+  trained_only: 1
+  armor_check: 0
+  description: 'Use Handle Animal to drive, command, and train animals. Push an animal to perform a trick beyond its training: DC 25. Command an animal to perform a trained trick: DC 10. Push an untrained animal: DC 15. Teach an animal a new trick: DC 15–20 (1 week). Train an animal for a general purpose: DC 15–20 (varies). Wild empathy (druids and rangers) works like Diplomacy against animals, rolling 1d20 + class level + Cha modifier.'
+- id: heal
+  name: Heal
+  ability: wis
+  trained_only: 0
+  armor_check: 0
+  description: "First aid (DC 15, standard action): stabilize a dying character and prevent further damage loss. Long-term care (DC 15, 8 hours, requires healer's kit): doubles natural healing rate. Treat wounds from caltrops, spike growth, or spike stones (DC 15): removes the penalty. Treat poison (DC = poison's save DC): patient uses your Heal check result instead of their own save. Treat disease (DC = disease's save DC): patient uses your Heal check. Diagnose illness: DC 15."
+- id: hide
+  name: Hide
+  ability: dex
+  trained_only: 0
+  armor_check: 1
+  description: 'Your Hide check is opposed by Spot checks of anyone who might notice you. You can hide behind cover (at least 1/4 obscured) or with concealment. While hiding you can move at half speed without penalty; moving faster imposes a −5 penalty. Sniping: after making a ranged attack, immediately re-hide with a −20 penalty. Size modifiers: Fine +16, Diminutive +12, Tiny +8, Small +4, Large −4, Huge −8, Gargantuan −12, Colossal −16.'
+- id: intimidate
+  name: Intimidate
+  ability: cha
+  trained_only: 0
+  armor_check: 0
+  description: "Coerce or threaten a creature into temporary cooperation. Demoralizing in combat (DC 10 + target's HD + Wis mod, standard action): the target is shaken for 1 round plus 1 round per 5 you exceed the DC. Influencing attitude: as Diplomacy but only to Unfriendly→Friendly and only lasts d6×10 minutes. Creatures with 4+ more HD than you are immune to combat demoralization."
+- id: jump
+  name: Jump
+  ability: str
+  trained_only: 0
+  armor_check: 1
+  description: A running jump (at least 20 ft run-up) requires DC 4 per foot for long jump, DC 4 × height in feet for high jump. Without run-up, double the DC. A successful high jump lets you reach up to 8 feet above the jump's apex. Failure by 4 or less lands short; failure by 5+ means you fall. DC is halved if the character is in a gravity-reduced environment or benefits from a speed spell. Each point of encumbrance penalty also applies here.
+- id: knowledge_arcana
+  name: Knowledge (Arcana)
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: Covers ancient mysteries, magic traditions, arcane symbols, cryptic phrases, constructs, dragons, and magical beasts. A DC 10 check lets you recall a relevant legend or piece of information. Higher DCs apply to more obscure or esoteric knowledge. You can also identify spells being cast (DC 15 + spell level) and recognize magic items you've encountered (DC 20).
+- id: knowledge_dungeoneering
+  name: Knowledge (Dungeoneering)
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: Covers aberrations, cave systems, underground geography, dungeon hazards (oozes, fungi, slimes), and subterranean ecosystems. DC 10 for common dungeon knowledge, DC 15–20 for obscure or specific creatures. Useful for identifying creature types, their abilities, and natural habits found underground.
+- id: knowledge_geography
+  name: Knowledge (Geography)
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: Covers lands, terrain, climate, people, and fauna across the world. Useful for navigation, knowing about distant cultures, and identifying regional hazards. DC 10 for major kingdoms and capital cities, DC 15–20 for lesser-known regions. Also allows identification of animals, vermin, and magical creatures tied to geography.
+- id: knowledge_history
+  name: Knowledge (History)
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: Covers wars, colonies, migrations, and founding of civilizations. Also covers legendary heroes, famous dynasties, and ancient empires. Useful for identifying historical artifacts and understanding context. DC 10 for widely-known history, DC 20–30 for obscure or ancient lore.
+- id: knowledge_local
+  name: Knowledge (Local)
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: Covers legends, personalities, inhabitants, laws, customs, traditions, and humanoids of a particular region. DC 10 to know about well-known local figures or laws, DC 15–25 for rumors, criminal guilds, or hidden factions. Useful for navigating social situations in a specific area.
+- id: knowledge_nature
+  name: Knowledge (Nature)
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: Covers animals, fey, giants, monstrous humanoids, plants, seasons and cycles, weather, and vermin. DC 10 to identify common natural creatures or phenomena, DC 15–20 for rare species or unusual natural events. Druids and rangers treat this as a class skill. A successful check can also reveal a creature's vulnerabilities or special abilities.
+- id: knowledge_nobility
+  name: Knowledge (Nobility)
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: Covers lineages, heraldry, family trees, mottoes, personalities, and customs of noble houses. DC 10 for well-known noble families, DC 20+ for obscure titles or noble secrets. Useful for court intrigue, recognizing insignia, and knowing the proper protocols and forms of address.
+- id: knowledge_planes
+  name: Knowledge (The Planes)
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: Covers the Inner Planes, Outer Planes, the Astral Plane, the Ethereal Plane, outsiders, and planar travel. DC 10 to know basic planar geography, DC 15–25 for specific planar denizens or portals. Essential for identifying extraplanar creatures, spells that interact with planes, and navigating non-material realms.
+- id: knowledge_religion
+  name: Knowledge (Religion)
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: Covers gods and goddesses, mythic history, ecclesiastic tradition, holy symbols, and undead. DC 10 for widely-worshipped deities, DC 15–20 for obscure cults or divine mysteries. Also used to identify undead creatures and their weaknesses. Clerics and paladins treat this as a class skill.
+- id: listen
+  name: Listen
+  ability: wis
+  trained_only: 0
+  armor_check: 0
+  description: Make a Listen check to hear things. DC 0 for a person speaking loudly nearby, DC 5 for a whispered conversation 5 ft away, DC 10+ for further distances or other obstructions. Each 10 feet of distance adds +2 to DC; a door adds +5; a stone wall adds +15. While asleep your Listen check takes a −10 penalty.
+- id: move_silently
+  name: Move Silently
+  ability: dex
+  trained_only: 0
+  armor_check: 1
+  description: Move Silently is opposed by Listen checks of anyone who might hear you. Moving at half speed or less gives no penalty; moving at full speed imposes a −5 penalty; running or charging imposes a −20 penalty. Armor check penalty applies. Success allows you to move without being heard by nearby creatures.
+- id: open_lock
+  name: Open Lock
+  ability: dex
+  trained_only: 1
+  armor_check: 0
+  description: Pick or open a lock. DC 20 for a simple lock (1 round), DC 25 for an average lock, DC 30 for a good lock, DC 40 for an amazing lock. Requires thieves' tools; without them you take a −2 penalty and can only attempt DC 20 locks. Masterwork thieves' tools give a +2 circumstance bonus. An open lock check takes a full-round action.
+- id: perform
+  name: Perform
+  ability: cha
+  trained_only: 0
+  armor_check: 0
+  description: 'You can practice a form of performance (acting, comedy, dance, keyboard, oratory, percussion, sing, string, wind). Result: 10 or less = barely adequate; 11–14 = routine; 15–19 = memorable; 20–24 = masterful; 25–29 = extraordinary; 30+ = legendary. Bards use Perform as a class skill for their bardic music and spellcasting abilities.'
+- id: profession
+  name: Profession
+  ability: wis
+  trained_only: 1
+  armor_check: 0
+  description: You are skilled in a livelihood (herbalist, innkeeper, scribe, shepherd, etc.). A Profession check (DC 10) lets you earn half your check result in gold pieces per week of work. You can also use a Profession check to know specific facts about your trade. Each Profession is a separate skill.
+- id: profession_herbalist
+  name: Profession (Herbalist)
+  ability: wis
+  trained_only: 1
+  armor_check: 0
+  description: Specialized knowledge of herbs, plants, and their medicinal, culinary, and alchemical uses. DC 10 to identify common herbs and their effects, DC 15–20 for rare or exotic plants. Can be used to gather herbs in the wild (combined with Survival) and to assess the quality of herbal preparations.
+- id: ride
+  name: Ride
+  ability: dex
+  trained_only: 0
+  armor_check: 0
+  description: 'You can ride a mount. Guide with knees (DC 5, free action): keep control hands-free. Stay in saddle (DC 5): avoid falling. Fight with a war-trained mount (DC 10): direct your mount in combat as a move action instead of standard. Soft fall (DC 15): reduce falling damage. Leap (DC 15): have your mount jump while mounted. Fast mount/dismount (DC 20): mount or dismount as a free action.'
+- id: search
+  name: Search
+  ability: int
+  trained_only: 0
+  armor_check: 0
+  description: Examine an area to find secret doors, hidden compartments, or concealed traps. DC 10 to find a simple hidden object, DC 20 for a typical secret door or compartment, DC 25+ for a well-hidden trap. Searching a 5-foot square is a full-round action. Elves get a free Search check when passing within 5 ft of a secret or concealed door.
+- id: sense_motive
+  name: Sense Motive
+  ability: wis
+  trained_only: 0
+  armor_check: 0
+  description: "Hunch (DC 20): you can tell something is off about a person or situation without knowing exactly what. Sense enchantment (DC 25 or 15 for charm/compulsion): detect whether a person is under a magical influence. Discern secret message (DC = sender's Bluff): detect that a Bluffed message has a hidden meaning. Opposed by Bluff for deception."
+- id: sleight_of_hand
+  name: Sleight of Hand
+  ability: dex
+  trained_only: 1
+  armor_check: 1
+  description: 'Palm a coin or small object (DC 10), or pick a pocket or conceal a dagger (DC 20). Observers get an opposed Spot check; if they beat yours, they notice the attempt. A distracted target: −4 to their Spot. Trying to pass a large object (like a sword) unnoticed: −4 to your check. Armor check penalty applies.'
+- id: speak_language
+  name: Speak Language
+  ability: none
+  trained_only: 1
+  armor_check: 0
+  description: 'Speak Language is not used like a normal skill. Each rank lets you speak and read/write an additional language fluently. Common languages: Abyssal, Aquan, Auran, Celestial, Common, Draconic, Druidic (secret), Dwarven, Elven, Giant, Gnome, Goblin, Gnoll, Halfling, Ignan, Infernal, Orc, Sylvan, Terran, Undercommon. Druidic can only be taken by druids.'
+- id: spellcraft
+  name: Spellcraft
+  ability: int
+  trained_only: 1
+  armor_check: 0
+  description: "Identify a spell being cast (DC 15 + spell level, requires detect magic). Identify a spell from its school (DC 15 + spell level). Learn a spell from a spellbook or scroll (DC 15 + spell level). Prepare a spell from another's spellbook (DC 15). Identify a magic item (DC 25 + caster level, requires detect magic). Determine if an item is magical (DC 15). Counterspell: identify a spell to counter it (DC 15 + spell level)."
+- id: spot
+  name: Spot
+  ability: wis
+  trained_only: 0
+  armor_check: 0
+  description: 'Spot is used to notice things — hidden creatures, approaching enemies, details in a scene. Opposed by Hide when looking for hidden creatures. DC increases with distance: +1 per 10 ft; −4 if distracted; −5 if the target is not moving. The check can also reveal concealed objects (DC set by DM) or give you more initiative information.'
+- id: survival
+  name: Survival
+  ability: wis
+  trained_only: 0
+  armor_check: 0
+  description: 'Get along in the wild (DC 10): find food and water for yourself; DC 15: for one other. Follow tracks (DC varies): 10 for soft ground, 15 for normal, 20 for hard. Predict weather (DC 15): 24 hours ahead; DC 20: 48 hours. Avoid getting lost (DC 15). Keep from becoming lost in fog or storm (DC 15). Gain a +2 bonus on Fortitude saves against severe weather.'
+- id: swim
+  name: Swim
+  ability: str
+  trained_only: 0
+  armor_check: 2
+  description: Make a Swim check once per round to swim at one-quarter speed (DC 10 for calm water, DC 15 for rough water, DC 20 for stormy). A successful check at DC 15 lets you swim at half speed; DC 20 at full speed. Failure by 4 or less means no progress; failure by 5 or more means you go underwater. Armor check penalty applies; encumbered characters subtract the penalty from their check.
+- id: tumble
+  name: Tumble
+  ability: dex
+  trained_only: 1
+  armor_check: 1
+  description: "Fall safely (DC 15): reduce damage from a fall of any height by 1d6. Move through a threatened square (DC 15): avoid an attack of opportunity. Move through an enemy's space (DC 25): move through without provoking an AoO. Tumble at full speed takes a −10 penalty to the DC. Armor check penalty applies. DC increases by 2 for each opponent beyond the first in a given move."
+- id: use_magic_device
+  name: Use Magic Device
+  ability: cha
+  trained_only: 1
+  armor_check: 0
+  description: "Activate a magic item that you normally couldn't use. Activate blindly (DC 25): if you don't know what a device does. Decipher written spell (DC 25 + spell level): read a scroll or spellbook. Use a scroll (DC varies): cast the spell on the scroll (DC 20 + caster level). Use a wand (DC 20): if you lack the class ability. Emulate a class feature (DC 20): pretend to have it for the item's purpose. Failure by 10+ triggers a mishap."
+- id: use_rope
+  name: Use Rope
+  ability: dex
+  trained_only: 0
+  armor_check: 0
+  description: "Tie a firm knot (DC 10, takes 1 minute). Make rope difficult to escape (DC 15, takes 2 minutes; escapee's DC = your check +10). Bind a character (DC 15): target's Escape Artist DC = your check result. Splice rope (DC 15): join two ropes. Tie a special knot (DC 15–20): e.g. bowline, cleat hitch. Throw a rope to a hook (DC 10 + 2 per 10 ft above head height). Secure a grappling hook: DC 10."

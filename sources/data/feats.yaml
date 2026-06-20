@@ -1,0 +1,197 @@
+# feats — SRD v3.5 data (OGL v1.0a). Genereret fra importer.py, herefter kilden til sandheden.
+- id: alertness
+  name: Alertness
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Listen checks and Spot checks.
+  normal:
+  special: The master of a familiar gains the benefit of Alertness whenever the familiar is within arm's reach.
+- id: augment_summoning
+  name: Augment Summoning
+  type: General
+  prerequisites: Spell Focus (Conjuration)
+  benefit: Each creature you conjure with any summon spell gains a +4 enhancement bonus to Strength and Constitution for the duration of the spell that summoned it.
+  normal:
+  special:
+- id: blind_fight
+  name: Blind-Fight
+  type: General
+  prerequisites: None
+  benefit: In melee, every time you miss because of concealment, you can reroll your miss chance percentile roll one time to see if you actually hit. An invisible attacker gets no advantages related to hitting you in melee.
+  normal:
+  special:
+- id: cleave
+  name: Cleave
+  type: General
+  prerequisites: Str 13, Power Attack
+  benefit: If you deal a creature enough damage to make it drop, you get an immediate, extra melee attack against another creature within reach. You can use this ability once per round.
+  normal:
+  special:
+- id: combat_casting
+  name: Combat Casting
+  type: General
+  prerequisites: None
+  benefit: You get a +4 bonus on Concentration checks made to cast a spell or use a spell-like ability while on the defensive or while you are grappling or pinned.
+  normal:
+  special:
+- id: diehard
+  name: Diehard
+  type: General
+  prerequisites: Endurance
+  benefit: When reduced to between -1 and -9 hit points, you automatically become stable. When reduced to negative hit points, you may choose to act as if you were disabled, rather than dying.
+  normal: A character without this feat who is reduced to between -1 and -9 hit points is unconscious and dying.
+  special:
+- id: dodge
+  name: Dodge
+  type: General
+  prerequisites: Dex 13
+  benefit: During your action, you designate an opponent and receive a +1 dodge bonus to Armor Class against attacks from that opponent. You can select a new opponent on any action.
+  normal:
+  special:
+- id: endurance
+  name: Endurance
+  type: General
+  prerequisites: None
+  benefit: You gain a +4 bonus on Swim checks to resist nonlethal damage, Constitution checks to continue running or hold your breath, forced march checks, and Fortitude saves vs. nonlethal damage from starvation, thirst, or environment.
+  normal:
+  special: A ranger automatically gains Endurance as a bonus feat at 3rd level.
+- id: extra_turning
+  name: Extra Turning
+  type: General
+  prerequisites: Ability to turn or rebuke undead
+  benefit: Each time you take this feat, you can use your ability to turn or rebuke undead four more times per day than normal.
+  normal:
+  special: You can gain this feat multiple times. Its effects stack.
+- id: extra_wild_shape
+  name: Extra Wild Shape
+  type: General
+  prerequisites: Wild shape class ability
+  benefit: You can use your wild shape ability two additional times per day.
+  normal:
+  special:
+- id: great_fortitude
+  name: Great Fortitude
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Fortitude saving throws.
+  normal:
+  special:
+- id: improved_initiative
+  name: Improved Initiative
+  type: General
+  prerequisites: None
+  benefit: You get a +4 bonus on initiative checks.
+  normal:
+  special:
+- id: extend_spell
+  name: Extend Spell
+  type: Metamagic
+  prerequisites: None
+  benefit: An extended spell lasts twice as long as normal. A spell with a duration of concentration, instantaneous, or permanent is not affected by this feat. An extended spell uses up a spell slot one level higher than the spell's actual level.
+  normal:
+  special:
+- id: track
+  name: Track
+  type: General
+  prerequisites: None
+  benefit: 'To find tracks or to follow them for 1 mile requires a successful Survival check. You must make another Survival check every time the tracks become difficult to follow. You move at half your normal speed (or at your normal speed with a -5 penalty on the check, or at up to twice your normal speed with a -20 penalty). The DC depends on the surface and the prevailing conditions: very soft ground DC 5, soft ground DC 10, firm ground DC 15, hard ground DC 20.'
+  normal: A character without this feat can use the Survival skill to find tracks, but can follow them only if the DC for the task is 10 or lower. Such a character can use the Search skill to find a footprint or similar sign of a creature's passage, but cannot use Survival to follow tracks, even if someone else has already found them.
+  special: A ranger automatically has Track as a bonus feat. This feat does not count toward the normal feat slots available as the character gains levels.
+- id: two_weapon_fighting
+  name: Two-Weapon Fighting
+  type: General
+  prerequisites: Dex 15
+  benefit: Your penalties on attack rolls for fighting with two weapons are reduced. The penalty for your primary hand lessens by 2 and the one for your off hand lessens by 6. (With a light weapon in the off hand, the net penalty is -2 on the primary hand and -2 on the off hand.)
+  normal: If you wield a second weapon in your off hand, you can get one extra attack per round with that weapon. When fighting in this way you suffer a -6 penalty with your regular attack or attacks with your primary hand and a -10 penalty to the attack with your off hand. If your off-hand weapon is light, the penalties are reduced by 2 each.
+  special: A ranger gains Two-Weapon Fighting as a bonus class feature (combat style) at 2nd level, even without meeting the prerequisite, as long as he wears light or no armor.
+- id: iron_will
+  name: Iron Will
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Will saving throws.
+  normal:
+  special:
+- id: lightning_reflexes
+  name: Lightning Reflexes
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Reflex saving throws.
+  normal:
+  special:
+- id: mobility
+  name: Mobility
+  type: General
+  prerequisites: Dex 13, Dodge
+  benefit: You get a +4 dodge bonus to Armor Class against attacks of opportunity caused when you move out of or within a threatened area.
+  normal:
+  special:
+- id: natural_spell
+  name: Natural Spell
+  type: General
+  prerequisites: Wis 13, wild shape ability
+  benefit: You can complete the verbal and somatic components of spells while using your wild shape ability. You substitute various sounds and gestures for the normal verbal and somatic components of a spell.
+  normal:
+  special:
+- id: power_attack
+  name: Power Attack
+  type: General
+  prerequisites: Str 13
+  benefit: On your action, before making attack rolls for a round, you may choose to subtract a number from all melee attack rolls and add the same number to all melee damage rolls. This number may not exceed your base attack bonus.
+  normal:
+  special:
+- id: run
+  name: Run
+  type: General
+  prerequisites: None
+  benefit: When running, you move five times your normal speed (light/no armor) or four times your speed (heavy armor). If you make a jump after a running start, you gain a +4 bonus on your Jump check. You retain your Dexterity bonus to AC while running.
+  normal: You move four times your speed while running (light/no armor) or three times your speed (heavy armor), and you lose your Dexterity bonus to AC.
+  special:
+- id: skill_focus
+  name: Skill Focus
+  type: General
+  prerequisites: None
+  benefit: You get a +3 bonus on all checks involving the chosen skill.
+  normal:
+  special: You can gain this feat multiple times. Each time it applies to a new skill.
+- id: spell_focus
+  name: Spell Focus
+  type: General
+  prerequisites: None
+  benefit: Add +1 to the Difficulty Class for all saving throws against spells from the school of magic you select.
+  normal:
+  special: You can gain this feat multiple times. Each time it applies to a new school of magic.
+- id: spell_focus_conjuration
+  name: Spell Focus (Conjuration)
+  type: General
+  prerequisites: None
+  benefit: Add +1 to the Difficulty Class for all saving throws against Conjuration spells you cast.
+  normal:
+  special: This is the Conjuration-specific version of Spell Focus.
+- id: spell_penetration
+  name: Spell Penetration
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on caster level checks made to overcome a creature's spell resistance.
+  normal:
+  special:
+- id: spring_attack
+  name: Spring Attack
+  type: General
+  prerequisites: Dex 13, Dodge, Mobility, BAB +4
+  benefit: When using the attack action with a melee weapon, you can move both before and after the attack, provided that your total distance moved is not greater than your speed.
+  normal:
+  special:
+- id: toughness
+  name: Toughness
+  type: General
+  prerequisites: None
+  benefit: You gain +3 hit points.
+  normal:
+  special: A character may gain this feat multiple times. Its effects stack.
+- id: weapon_focus
+  name: Weapon Focus
+  type: Fighter
+  prerequisites: Proficiency with selected weapon, BAB +1
+  benefit: You gain a +1 bonus on all attack rolls you make using the selected weapon.
+  normal:
+  special: You can gain this feat multiple times. Each time it applies to a new weapon.

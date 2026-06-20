@@ -1,0 +1,145 @@
+# armor — SRD v3.5 data (OGL v1.0a). Genereret fra importer.py, herefter kilden til sandheden.
+- id: padded
+  name: Padded
+  armor_bonus: 1
+  max_dex: 8
+  armor_check: 0
+  spell_failure: 5
+  druid_ok: 1
+  type: light
+- id: leather
+  name: Leather
+  armor_bonus: 2
+  max_dex: 6
+  armor_check: 0
+  spell_failure: 10
+  druid_ok: 1
+  type: light
+- id: studded_leather
+  name: Studded Leather
+  armor_bonus: 3
+  max_dex: 5
+  armor_check: -1
+  spell_failure: 15
+  druid_ok: 1
+  type: light
+- id: chain_shirt
+  name: Chain Shirt
+  armor_bonus: 4
+  max_dex: 4
+  armor_check: -2
+  spell_failure: 20
+  druid_ok: 0
+  type: light
+- id: hide
+  name: Hide
+  armor_bonus: 3
+  max_dex: 4
+  armor_check: -3
+  spell_failure: 20
+  druid_ok: 1
+  type: medium
+- id: scale_mail
+  name: Scale Mail
+  armor_bonus: 4
+  max_dex: 3
+  armor_check: -4
+  spell_failure: 25
+  druid_ok: 0
+  type: medium
+- id: chainmail
+  name: Chainmail
+  armor_bonus: 5
+  max_dex: 2
+  armor_check: -5
+  spell_failure: 30
+  druid_ok: 0
+  type: medium
+- id: breastplate
+  name: Breastplate
+  armor_bonus: 5
+  max_dex: 3
+  armor_check: -4
+  spell_failure: 25
+  druid_ok: 0
+  type: medium
+- id: banded_mail
+  name: Banded Mail
+  armor_bonus: 6
+  max_dex: 1
+  armor_check: -6
+  spell_failure: 35
+  druid_ok: 0
+  type: heavy
+- id: splint_mail
+  name: Splint Mail
+  armor_bonus: 6
+  max_dex: 0
+  armor_check: -7
+  spell_failure: 40
+  druid_ok: 0
+  type: heavy
+- id: half_plate
+  name: Half-Plate
+  armor_bonus: 7
+  max_dex: 0
+  armor_check: -7
+  spell_failure: 40
+  druid_ok: 0
+  type: heavy
+- id: full_plate
+  name: Full Plate
+  armor_bonus: 8
+  max_dex: 1
+  armor_check: -6
+  spell_failure: 35
+  druid_ok: 0
+  type: heavy
+- id: buckler
+  name: Buckler
+  armor_bonus: 1
+  max_dex:
+  armor_check: -1
+  spell_failure: 5
+  druid_ok: 0
+  type: shield
+- id: light_wooden_shield
+  name: Light Wooden Shield
+  armor_bonus: 1
+  max_dex:
+  armor_check: -1
+  spell_failure: 5
+  druid_ok: 1
+  type: shield
+- id: light_steel_shield
+  name: Light Steel Shield
+  armor_bonus: 1
+  max_dex:
+  armor_check: -1
+  spell_failure: 5
+  druid_ok: 0
+  type: shield
+- id: heavy_wooden_shield
+  name: Heavy Wooden Shield
+  armor_bonus: 2
+  max_dex:
+  armor_check: -2
+  spell_failure: 15
+  druid_ok: 1
+  type: shield
+- id: heavy_steel_shield
+  name: Heavy Steel Shield
+  armor_bonus: 2
+  max_dex:
+  armor_check: -2
+  spell_failure: 15
+  druid_ok: 0
+  type: shield
+- id: tower_shield
+  name: Tower Shield
+  armor_bonus: 4
+  max_dex: 2
+  armor_check: -10
+  spell_failure: 50
+  druid_ok: 0
+  type: shield
