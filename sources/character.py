@@ -96,7 +96,9 @@ class InventoryItem:
     notes: str = ""
     ref: str = ""               # "tabel/id" i kataloget (weapons|armor|items); tom = custom
     state: str = "backpack"     # wielded | worn | backpack | stored | dropped
-    bonus: int = 0              # til-hit-bonus på afledte angreb (masterwork/feat/TWF) — bite 4
+    bonus: int = 0              # til-hit-bonus på afledte angreb (masterwork/feat/TWF)
+    str_mult: float | None = None  # override af Str-til-skade (None = default fra våbentype)
+    two_handed: bool = False    # enhåndsvåben brugt tohånds → ×1,5 Str (hvis str_mult ikke sat)
 
 
 @dataclass
@@ -204,6 +206,8 @@ def load_character(path: str) -> Character:
                 ref=str(item.get("ref", "")),
                 state=state,
                 bonus=int(item.get("bonus", 0)),
+                str_mult=(None if item.get("str_mult") is None else float(item["str_mult"])),
+                two_handed=bool(item.get("two_handed", False)),
             ))
         else:
             # Backwards-compat: plain string
@@ -767,6 +771,46 @@ def carried_weight(inventory: list[InventoryItem], db, size: str = "medium") -> 
         sum(r["weight"] for r in (resolve_item(i, db, size) for i in inventory) if r["carried"]),
         3,
     )
+
+
+# Default Str-til-skade-multiplier ud fra våbentype (kan overrides pr. inventory-post)
+_DEFAULT_STR_MULT = {
+    "two-handed": 1.5, "one-handed": 1.0, "light": 1.0, "unarmed": 1.0, "ranged": 0.0,
+}
+
+
+def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium") -> list[Attack]:
+    """Lav Attack-objekter ud fra våben i tilstand 'wielded'.
+
+    Skade/crit/type/range slås op i weapons-kataloget (dmg_s for Small, ellers
+    dmg_m). Str-til-skade tages fra posten (str_mult), ellers two_handed-flaget
+    (×1,5 for enhåndsvåben), ellers default fra weapon_class. bonus = til-hit.
+    """
+    attacks: list[Attack] = []
+    for item in inventory:
+        if item.state != "wielded" or not item.ref.startswith("weapons/"):
+            continue
+        w = db.get_weapon(item.ref.split("/", 1)[1])
+        if not w:
+            continue
+        wclass = w["weapon_class"]
+        if item.str_mult is not None:
+            mult = item.str_mult
+        elif item.two_handed and wclass in ("light", "one-handed"):
+            mult = 1.5
+        else:
+            mult = _DEFAULT_STR_MULT.get(wclass, 1.0)
+        attacks.append(Attack(
+            name=item.name or w["name"],
+            kind="ranged" if wclass == "ranged" else "melee",
+            base_damage=(w["dmg_s"] if size.lower() == "small" else w["dmg_m"]) or "",
+            str_damage_mult=mult,
+            bonus=item.bonus,
+            crit=w["critical"] or "x2",
+            type=w["damage_type"] or "",
+            range=f"{w['range_ft']} ft." if w["range_ft"] else "",
+        ))
+    return attacks
 
 
 _HIT_DIE = {
