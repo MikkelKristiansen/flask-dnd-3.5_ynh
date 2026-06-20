@@ -7,11 +7,11 @@ alignment: Neutral Good
 deity: Silvanus
 size: small
 
-experience_points: 17
+experience_points: 2410
 
 hp:
-  current: 27
-  max: 27
+  current: 14
+  max: 17
 
 ability_scores:
   str: 9
@@ -27,33 +27,17 @@ saves:
   will: 3        # base — WIS-modifier tilføjes automatisk
 
 combat:
-  armor: studded_leather   # +3 AC, max Dex +5 (MWK påvirker kun ACP, ikke AC)
-  # intet skjold
-  # AC beregnes: 10 + rustning + Dex (cappet) + størrelse (Small +1) → 15/12/14
-  # initiative beregnes: Dex-mod (+1), ingen Improved Initiative → +1
+  # Rustning ligger nu i inventory (state: worn) og udledes derfra.
+  # AC, initiative og grapple beregnes af koden (ikke hardcodet).
   bab: 1
   speed: 20
-  # grapple beregnes: BAB + STR-mod + SÆRLIG grapple-størrelse (Small = -4) → -4
 
+# Våben-angreb udledes nu af wielded-genstande i inventory (quarterstaff, sling).
+# Her står kun rene spell-/touch-angreb (Produce Flame) som ikke er genstande.
 attacks:
-- name: Quarterstaff
-  kind: melee
-  base_damage: 1d4    # KUN terningen; Str lægges på i koden
-  str_damage_mult: 1
-  bonus: 0
-  crit: x2
-  type: Bludgeoning
-- name: Sling
-  kind: ranged
-  base_damage: 1d3
-  str_damage_mult: 1  # slyngen er undtagelsen: ranged men får Str til skade
-  bonus: 0
-  crit: x2
-  type: Bludgeoning
-  range: 50 ft
 - name: Produce Flame (melee touch)
   kind: melee_touch
-  str_damage_mult: 0      # touch-angreb: ingen våben-Str til skade
+  str_damage_mult: 0
   fixed_damage: 1d6+2     # 1d6 +1/casterniveau (druid 2) — sat af spellen
   crit: x2
   type: Fire
@@ -63,7 +47,7 @@ attacks:
   fixed_damage: 1d6+2
   crit: x2
   type: Fire
-  range: 120 ft
+  range: 25 ft
 
 skills:
 - id: concentration
@@ -98,57 +82,47 @@ feats:
 conditions: []
 spells_prepared:
   0:
-  - detect_magic
-  - guidance
+  - cure_minor_wounds
   - light
-  - purify_food_drink
+  - guidance
+  - virtue
   1:
-  - entangle
   - produce_flame
   - cure_light_wounds
-  - faerie_fire
+  - magic_stone
 spells_used: {}
 inventory:
-- name: Masterwork Studded Leather Armor
-  weight: 10.0
-  qty: 1
-  notes: +3 AC, 0 armor check penalty
-- name: Quarterstaff
-  weight: 2.0
-  qty: 1
-  notes: ''
-- name: Sling
-  weight: 0.0
-  qty: 1
-  notes: ''
-- name: Sling bullets (10)
-  weight: 2.5
-  qty: 1
-  notes: ''
-- name: Healer's Kit
-  weight: 0.5
-  qty: 1
-  notes: 10 uses, +2 Heal
-- name: Holly and mistletoe
-  weight: 0.0
-  qty: 1
+- ref: weapons/quarterstaff
+  state: wielded
+  str_mult: 1
+- ref: weapons/sling
+  state: wielded
+  str_mult: 1
+- ref: armor/studded_leather
+  state: worn
+  notes: Masterwork (MWK→ACP 0; MWK endnu ikke modelleret, ACP er −1)
+- ref: items/sling_bullets_10
+- ref: items/healer_s_kit
+  notes: 7 brug tilbage, +2 Heal
+- ref: items/holly_and_mistletoe
   notes: spellcasting focus
-- name: Backpack
-  weight: 1.0
-  qty: 1
-  notes: ''
-- name: Rations
-  weight: 0.5
+- ref: items/backpack_empty
+- ref: items/rations_trail_per_day
+  qty: 4
+  notes: 4 dage
+- ref: items/waterskin
+  notes: fuld
+- ref: items/tanglefoot_bag
+  notes: |+
+    Tanglefoot Bag
+    When you throw a tanglefoot bag at a creature (as a ranged touch attack with a range increment of 10 feet), the bag comes apart and the goo bursts out, entangling the target and then becoming tough and resilient upon exposure to air. An entangled creature takes a –2 penalty on attack rolls and a –4 penalty to Dexterity and must make a DC 15 Reflex save or be glued to the floor, unable to move. Even on a successful save, it can move only at half speed. Huge or larger creatures are unaffected by a tanglefoot bag. A flying creature is not stuck to the floor, but it must make a DC 15 Reflex save or be unable to fly (assuming it uses its wings to fly) and fall to the ground. A tanglefoot bag does not function underwater.
+
+    A creature that is glued to the floor (or unable to fly) can break free by making a DC 17 Strength check or by dealing 15 points of damage to the goo with a slashing weapon. A creature trying to scrape goo off itself, or another creature assisting, does not need to make an attack roll; hitting the goo is automatic, after which the creature that hit makes a damage roll to see how much of the goo was scraped off. Once free, the creature can move (including flying) at half speed. A character capable of spellcasting who is bound by the goo must make a DC 15 Concentration check to cast a spell. The goo becomes brittle and fragile after 2d4 rounds, cracking apart and losing its effectiveness. An application of universal solvent to a stuck creature dissolves the alchemical goo immediately.
+
+- name: Drageskæl
+  weight: 0.1
   qty: 5
-  notes: 5 days
-- name: Waterskin
-  weight: 0.5
-  qty: 1
-  notes: full
-- name: tanglebag
-  weight: 0.0
-  qty: 1
-  notes: ''
+  notes: 'Drageskæl revet af en blå drage.  '
 gold:
   pp: 0
   gp: 45
@@ -160,7 +134,7 @@ companion:
   type: Riding Dog
   ac: 13
   hp:
-    current: 13
+    current: 12
     max: 13
   attack_bite: +3 to hit, 1d6+3
   trip: Str check +1 (provokes no AoO)
@@ -176,6 +150,7 @@ companion:
   special:
   - Link (+4 Handle Animal med Tjørn)
   - Share Spells
+
   skills:
   - name: Jump
     total: 8
@@ -191,7 +166,6 @@ companion:
   feats:
   - Alertness
   - Track
-
 class_features:
   nature_sense: +2 Knowledge (Nature) og Survival
   wild_empathy: 1d20 + 2 (level) + 0 (CHA) — Diplomacy mod dyr
@@ -210,15 +184,10 @@ racial_traits:
   dodge_ac_vs: Giant-type monstre +4
   listen_bonus: 2
   spell_like_abilities:
-  - id: speak_with_animals
-    note: gravende dyr
-    freq: 1/dag
-  - id: dancing_lights
-    freq: 1/dag
-  - id: ghost_sound
-    freq: 1/dag
-  - id: prestidigitation
-    freq: 1/dag
+  - Speak with Animals (gravende dyr) — 1/dag
+  - Dancing Lights — 1/dag
+  - Ghost Sound — 1/dag
+  - Prestidigitation — 1/dag
 
 notes: |
   Tjørn er fra gnom-landsbyen Gravelwood i Arn Forest.
@@ -230,3 +199,5 @@ notes: |
   +2 Prof. (Herbalist) — for hjælp til præstinde Silefrey ved Riverrest.
 
   Level 3 plan: +1 Survival, +2 Concentration, +1 Spot. Feat: Augment Summoning.
+
+  Husk 120 touch produce flame.

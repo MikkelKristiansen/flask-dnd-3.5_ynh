@@ -493,7 +493,7 @@ def karakter(name):
     # Combat: beregn til-hit/skade pr. angreb + grapple + initiativ (gemmes aldrig i YAML).
     # Angreb = eksplicitte (spells/unarmed) + afledte fra våben i hånden (wielded).
     bab = int(char.combat.get("bab", 0))
-    all_attacks = list(char.attacks) + char_module.derive_attacks(char.inventory, db, char.size)
+    all_attacks = char_module.derive_attacks(char.inventory, db, char.size) + list(char.attacks)
     attack_rows = [
         {"attack": atk, **char_module.attack_total(atk, ab, bab, char.size)}
         for atk in all_attacks

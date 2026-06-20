@@ -820,10 +820,13 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium") -> 
             mult = 1.5
         else:
             mult = _DEFAULT_STR_MULT.get(wclass, 1.0)
+        # Dobbeltvåben (fx quarterstaff "1d6/1d6") → brug første ende til ét angreb
+        base = (w["dmg_s"] if size.lower() == "small" else w["dmg_m"]) or ""
+        base = base.split("/")[0]
         attacks.append(Attack(
             name=item.name or w["name"],
             kind="ranged" if wclass == "ranged" else "melee",
-            base_damage=(w["dmg_s"] if size.lower() == "small" else w["dmg_m"]) or "",
+            base_damage=base,
             str_damage_mult=mult,
             bonus=item.bonus,
             crit=w["critical"] or "x2",
