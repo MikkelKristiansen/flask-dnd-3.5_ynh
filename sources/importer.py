@@ -42,6 +42,7 @@ TABLES = [
     "armor",
     "weapons",
     "items",
+    "animals",
 ]
 
 

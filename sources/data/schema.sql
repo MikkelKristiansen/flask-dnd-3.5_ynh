@@ -169,3 +169,24 @@ CREATE TABLE items (
     weight        REAL NOT NULL DEFAULT 0,    -- pund (Medium-version)
     small_quarter INTEGER NOT NULL DEFAULT 0  -- 1 = vejer ¼ for Small (SRD fodnote 1); 0 = uændret
 );
+
+DROP TABLE IF EXISTS animals;
+CREATE TABLE animals (
+    id                TEXT PRIMARY KEY,
+    name              TEXT NOT NULL,
+    size              TEXT NOT NULL,              -- tiny | small | medium | large
+    base_hd           INTEGER NOT NULL,          -- antal d8 hit dice (uden bonus-HD)
+    str               INTEGER NOT NULL,
+    dex               INTEGER NOT NULL,
+    con               INTEGER NOT NULL,
+    int               INTEGER NOT NULL,
+    wis               INTEGER NOT NULL,
+    cha               INTEGER NOT NULL,
+    natural_armor     INTEGER NOT NULL DEFAULT 0, -- basis naturlig rustning (avancement lægger til)
+    speed             TEXT NOT NULL,              -- fri tekst, fx "50 ft." eller "10 ft., fly 80 ft."
+    attacks           TEXT NOT NULL,              -- JSON: [{name, damage, group:primary|secondary, count?}]
+    special_attacks   TEXT,                       -- fri tekst, fx "Trip" / "Poison"; NULL = ingen
+    special_qualities TEXT,                       -- fri tekst, fx "Low-light vision, scent"
+    skills            TEXT NOT NULL,              -- JSON: [{id, misc, note?}] (misc = total − basis-abilitymod)
+    feats             TEXT NOT NULL               -- JSON: liste af feat-navne (strenge)
+);

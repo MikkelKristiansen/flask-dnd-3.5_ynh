@@ -143,6 +143,29 @@ def get_all_items() -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def _animal_row(row) -> dict:
+    """Konverter en animals-række til dict og afkod JSON-felterne."""
+    rec = dict(row)
+    rec["attacks"] = json.loads(rec["attacks"])
+    rec["skills"] = json.loads(rec["skills"])
+    rec["feats"] = json.loads(rec["feats"])
+    return rec
+
+
+def get_animal(animal_id: str) -> dict | None:
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM animals WHERE id = ?", (animal_id,)
+        ).fetchone()
+    return _animal_row(row) if row else None
+
+
+def get_all_animals() -> list[dict]:
+    with _connect() as conn:
+        rows = conn.execute("SELECT * FROM animals ORDER BY name").fetchall()
+    return [_animal_row(r) for r in rows]
+
+
 def get_domain(domain_id: str) -> dict | None:
     with _connect() as conn:
         row = conn.execute(
