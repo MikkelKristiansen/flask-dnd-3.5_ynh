@@ -70,6 +70,11 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
                     color:var(--text);font-family:Georgia,serif;padding:.3rem;border-radius:4px;}
 .cond-picker button{margin-top:.3rem;width:100%;background:var(--accent);border:none;
                     color:#fff;font-family:Georgia,serif;padding:.4rem;border-radius:4px;cursor:pointer;}
+.cond-picker input{width:100%;background:var(--card);border:1px solid var(--border);
+                   color:var(--text);font-family:Georgia,serif;padding:.3rem;border-radius:4px;margin-top:.3rem;}
+.buff-badge{background:var(--green);color:#fff;border-radius:12px;font-size:.75rem;
+            padding:.2rem .5rem;display:flex;align-items:center;gap:.3rem;cursor:help;}
+.pick-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:.35rem 0 .1rem;}
 
 /* ── Tabs ── */
 .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
@@ -378,6 +383,27 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   {% set _ = spells_used_json.update({lvl|string: entries|selectattr("used")|map(attribute="id")|list}) %}
 {% endfor %}
 
+{# Genbrugelig picker til effekter (tilstande + buffs), target = character|companion #}
+{% macro effect_picker(target) %}
+<div class="cond-picker" id="effect-picker-{{ target }}">
+  <div class="pick-label">Tilstand (negativ)</div>
+  <select id="cond-select-{{ target }}">
+    <option value="">— vælg tilstand —</option>
+    {% for cond in all_conditions %}<option value="{{ cond.id }}">{{ cond.name }} — {{ cond.summary }}</option>{% endfor %}
+  </select>
+  <button onclick="addCondition('{{ target }}')">+ Tilføj tilstand</button>
+  <div class="pick-label">Buff (positiv)</div>
+  <select id="buff-select-{{ target }}" onchange="onBuffPick('{{ target }}')">
+    <option value="">— vælg buff —</option>
+    {% for b in buff_catalog %}<option value="{{ loop.index0 }}">{{ b.name }} — {{ b.note }}</option>{% endfor %}
+    <option value="custom">✏ Egen buff…</option>
+  </select>
+  <input type="text" id="buff-name-{{ target }}" placeholder="Eget navn" style="display:none">
+  <input type="text" id="buff-note-{{ target }}" placeholder="Virkning / note" style="display:none">
+  <button onclick="addBuff('{{ target }}')">+ Tilføj buff</button>
+</div>
+{% endmacro %}
+
 <!-- ── Header ── -->
 <div class="header">
   <div class="header-flex">
@@ -443,29 +469,27 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     </div><!-- /header-content -->
   </div><!-- /header-flex -->
 
-  <!-- Conditions -->
+  <!-- Effekter: tilstande (rød) + buffs (grøn) -->
   <div id="conditions-strip" class="conditions-strip">
     {% for cid, cond in condition_data %}
-      <span class="cond-badge"
-            onclick="showDetail('condition','{{ cid }}')"
+      <span class="cond-badge" onclick="showDetail('condition','{{ cid }}')"
             title="{{ cond.summary if cond else '' }}">
         {{ cond.name if cond else cid }}
-        <button class="cond-remove" onclick="event.stopPropagation();removeCondition('{{ cid }}')" title="Fjern">×</button>
+        <button class="cond-remove" onclick="event.stopPropagation();removeCondition('{{ cid }}','character')" title="Fjern">×</button>
       </span>
-    {% else %}
-      <span class="no-conditions" id="no-cond-msg">Ingen aktive conditions</span>
     {% endfor %}
-    <button class="cond-add-btn" onclick="toggleCondPicker()" title="Tilføj condition">+</button>
+    {% for buff in char.buffs %}
+      <span class="buff-badge" onclick="showBuff('character',{{ loop.index0 }})" title="{{ buff.note }}">
+        {{ buff.name }}
+        <button class="cond-remove" onclick="event.stopPropagation();removeBuff('character',{{ loop.index0 }})" title="Fjern">×</button>
+      </span>
+    {% endfor %}
+    {% if not condition_data and not char.buffs %}
+      <span class="no-conditions">Ingen aktive effekter</span>
+    {% endif %}
+    <button class="cond-add-btn" onclick="toggleEffectPicker('character')" title="Tilføj effekt">+</button>
   </div>
-  <div class="cond-picker" id="cond-picker">
-    <select id="cond-select">
-      <option value="">— vælg condition —</option>
-      {% for cond in all_conditions %}
-      <option value="{{ cond.id }}">{{ cond.name }} — {{ cond.summary }}</option>
-      {% endfor %}
-    </select>
-    <button onclick="addCondition()">Tilføj</button>
-  </div>
+  {{ effect_picker('character') }}
 </div>
 
 <!-- ── Tabs ── -->
@@ -619,6 +643,29 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
         <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(cp.saves.ref) }}','Ref ({{ cp.name }})')">Ref {{ "%+d"|format(cp.saves.ref) }}</span> ·
         <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(cp.saves.will) }}','Will ({{ cp.name }})')">Will {{ "%+d"|format(cp.saves.will) }}</span>
       </span></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Effekter <span style="color:var(--muted);font-size:.7rem;font-style:italic">(tilstande + buffs)</span></div>
+    <div class="conditions-strip">
+      {% for cid, cond in cp.conditions %}
+        <span class="cond-badge" onclick="showDetail('condition','{{ cid }}')" title="{{ cond.summary if cond else '' }}">
+          {{ cond.name if cond else cid }}
+          <button class="cond-remove" onclick="event.stopPropagation();removeCondition('{{ cid }}','companion')" title="Fjern">×</button>
+        </span>
+      {% endfor %}
+      {% for buff in cp.buffs %}
+        <span class="buff-badge" onclick="showBuff('companion',{{ loop.index0 }})" title="{{ buff.note }}">
+          {{ buff.name }}
+          <button class="cond-remove" onclick="event.stopPropagation();removeBuff('companion',{{ loop.index0 }})" title="Fjern">×</button>
+        </span>
+      {% endfor %}
+      {% if not cp.conditions and not cp.buffs %}
+        <span class="no-conditions">Ingen aktive effekter</span>
+      {% endif %}
+      <button class="cond-add-btn" onclick="toggleEffectPicker('companion')" title="Tilføj effekt">+</button>
+    </div>
+    {{ effect_picker('companion') }}
   </div>
 
   <div class="section">
@@ -1196,6 +1243,13 @@ const slotTotals = {{ slots|tojson }};
 // Conditions
 let conditions = {{ char.conditions|tojson }};
 
+// Buffs (tracking) — data til badge-popups + hurtigvalg
+const charBuffs   = {{ char.buffs|tojson }};
+const compBuffs   = {{ (companion.buffs if companion else [])|tojson }};
+const buffCatalog = {{ buff_catalog|tojson }};
+const AFFECT_LABEL = {attack:"angreb", save:"saves", skill:"skills", ac:"AC", hp:"HP",
+                      str:"Str", dex:"Dex", con:"Con", wis:"Wis", int:"Int", cha:"Cha", speed:"speed"};
+
 // All conditions lookup for name display
 const allConditions = {};
 {% for cond in all_conditions %}
@@ -1421,62 +1475,75 @@ function hpChange(delta) {
 updateHpDisplay(hpCurrent);
 
 // ── Conditions ────────────────────────────────────────────────────────────
-function toggleCondPicker() {
-  const p = document.getElementById("cond-picker");
-  p.style.display = p.style.display === "block" ? "none" : "block";
+// Effekter (tilstande + buffs) — server-renderet, så vi reloader efter ændring.
+function toggleEffectPicker(target) {
+  const p = document.getElementById("effect-picker-" + target);
+  p.style.display = (p.style.display === "block") ? "none" : "block";
 }
 
-function addCondition() {
-  const sel = document.getElementById("cond-select");
-  const id = sel.value;
+function onBuffPick(target) {
+  const custom = document.getElementById("buff-select-" + target).value === "custom";
+  document.getElementById("buff-name-" + target).style.display = custom ? "block" : "none";
+  document.getElementById("buff-note-" + target).style.display = custom ? "block" : "none";
+}
+
+function addCondition(target) {
+  target = target || "character";
+  const id = document.getElementById("cond-select-" + target).value;
   if (!id) return;
   fetch(BASE + "/api/conditions", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, condition_id: id, action: "add"})
-  })
-  .then(r => r.json())
-  .then(data => {
-    conditions = data.conditions;
-    renderConditions();
-    document.getElementById("cond-picker").style.display = "none";
-    sel.value = "";
-  });
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, condition_id: id, action: "add", target})
+  }).then(() => location.reload());
 }
 
-function removeCondition(id) {
+function removeCondition(id, target) {
   fetch(BASE + "/api/conditions", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, condition_id: id, action: "remove"})
-  })
-  .then(r => r.json())
-  .then(data => {
-    conditions = data.conditions;
-    renderConditions();
-  });
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, condition_id: id, action: "remove", target: target || "character"})
+  }).then(() => location.reload());
 }
 
-function renderConditions() {
-  const strip = document.getElementById("conditions-strip");
-  const addBtn = strip.querySelector(".cond-add-btn");
-  // Remove old badges
-  strip.querySelectorAll(".cond-badge, .no-conditions").forEach(el => el.remove());
-  if (conditions.length === 0) {
-    const msg = document.createElement("span");
-    msg.className = "no-conditions";
-    msg.textContent = "Ingen aktive conditions";
-    strip.insertBefore(msg, addBtn);
-  } else {
-    conditions.forEach(cid => {
-      const info = allConditions[cid] || {name: cid, summary: ""};
-      const badge = document.createElement("span");
-      badge.className = "cond-badge";
-      badge.title = info.summary;
-      badge.onclick = () => showDetail("condition", cid);
-      badge.innerHTML = `${info.name} <button class="cond-remove" title="Fjern">×</button>`;
-      badge.querySelector(".cond-remove").onclick = (e) => { e.stopPropagation(); removeCondition(cid); };
-      strip.insertBefore(badge, addBtn);
+function addBuff(target) {
+  target = target || "character";
+  const sel = document.getElementById("buff-select-" + target);
+  let buff = null;
+  if (sel.value === "custom") {
+    const name = document.getElementById("buff-name-" + target).value.trim();
+    if (!name) return;
+    buff = {name, note: document.getElementById("buff-note-" + target).value.trim(), affects: []};
+  } else if (sel.value !== "") {
+    buff = buffCatalog[parseInt(sel.value)];
+  }
+  if (!buff) return;
+  fetch(BASE + "/api/buffs", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "add", target, buff})
+  }).then(() => location.reload());
+}
+
+function removeBuff(target, idx) {
+  fetch(BASE + "/api/buffs", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "remove", target: target || "character", index: idx})
+  }).then(() => location.reload());
+}
+
+function showBuff(target, idx) {
+  const b = (target === "companion" ? compBuffs : charBuffs)[idx];
+  if (!b) return;
+  document.getElementById("modal-title").textContent = b.name;
+  document.getElementById("modal-subtitle").textContent = "Buff — tracking (læg selv tallet til)";
+  const affects = (b.affects || []).map(a => AFFECT_LABEL[a] || a).join(", ");
+  const body = document.getElementById("modal-body");
+  body.innerHTML =
+    (b.note ? `<p style="line-height:1.5">${escHtml(b.note)}</p>` : "") +
+    (affects ? `<div class="modal-row"><span class="modal-key">Påvirker</span><span class="modal-val">${affects}</span></div>` : "");
+  document.getElementById("modal-overlay").classList.add("open");
+  if (b.spell_id) {
+    fetch(BASE + `/api/detail/spell/${b.spell_id}`).then(r => r.json()).then(d => {
+      if (!d.error && d.description)
+        body.innerHTML += `<div style="margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--border);line-height:1.5;white-space:pre-line">${mdText(d.description)}</div>`;
     });
   }
 }

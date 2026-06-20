@@ -21,6 +21,38 @@ GEN_CLASSES = ["Cleric", "Druid", "Ranger"]
 GEN_RACES = ["Human", "Elf", "Gnome"]
 GEN_DOMAINS = ["healing", "protection", "war", "knowledge", "good", "luck"]
 
+# Kuraterede buff-hurtigvalg (KUN tracking — tallene anvendes ikke mekanisk).
+# Hver: navn + virkningstekst + hvilke rul den rammer (affects) + spell_id til
+# fuld SRD-beskrivelse i popuppen. Fritekst-buffs kan tilføjes ved siden af.
+BUFF_CATALOG = [
+    {"name": "Guidance", "spell_id": "guidance", "affects": ["attack", "save", "skill"],
+     "note": "+1 competence på ÉT angreb, save eller skill-check (engangs)"},
+    {"name": "Virtue", "spell_id": "virtue", "affects": ["hp"],
+     "note": "+1 midlertidigt HP"},
+    {"name": "Resistance", "spell_id": "resistance", "affects": ["save"],
+     "note": "+1 resistance på alle saves"},
+    {"name": "Bless", "spell_id": "bless", "affects": ["attack", "save"],
+     "note": "+1 på angrebsrul og +1 saves mod frygt"},
+    {"name": "Shield of Faith", "spell_id": "shield_of_faith", "affects": ["ac"],
+     "note": "+2 deflection-bonus til AC (mere ved højere niveau)"},
+    {"name": "Barkskin", "spell_id": "barkskin", "affects": ["ac"],
+     "note": "+2 naturlig rustning til AC (mere ved højere niveau)"},
+    {"name": "Bull's Strength", "spell_id": "bull_strength", "affects": ["str"],
+     "note": "+4 Str — alle Str-rul: angreb, skade, grapple, Str-skills"},
+    {"name": "Cat's Grace", "spell_id": "cat_grace", "affects": ["dex"],
+     "note": "+4 Dex — AC, Reflex, init, Dex-skills, ranged angreb"},
+    {"name": "Bear's Endurance", "spell_id": "bear_endurance", "affects": ["con"],
+     "note": "+4 Con — HP, Fortitude-save, Con-checks"},
+    {"name": "Owl's Wisdom", "spell_id": "owl_wisdom", "affects": ["wis"],
+     "note": "+4 Wis — Will-save, Wis-skills, druide-spell-DC'er"},
+    {"name": "Magic Fang", "spell_id": "magic_fang", "affects": ["attack"],
+     "note": "+1 angreb og skade på ÉT naturligt våben (godt til companion)"},
+    {"name": "Longstrider", "spell_id": "longstrider", "affects": ["speed"],
+     "note": "+10 ft. til land-bevægelse"},
+    {"name": "Endure Elements", "spell_id": "endure_elements", "affects": [],
+     "note": "Uskadt af varme/kulde fra –50°F til 140°F"},
+]
+
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
 # Karakterfiler er små (~få KB) — en beskeden grænse beskytter import-ruten.
@@ -696,6 +728,7 @@ def karakter(name):
         slots=slots,
         condition_data=condition_data,
         all_conditions=all_conditions,
+        buff_catalog=BUFF_CATALOG,
         xp_info=xp_info,
         weight=weight,
         enc_limits=enc_limits,
@@ -786,16 +819,64 @@ def api_conditions():
     if not path.exists():
         return jsonify({"error": "not found"}), 404
 
+    target = data.get("target", "character")
     char = char_module.load_character(str(path))
-    conditions = list(char.conditions)
 
-    if action == "add" and condition_id not in conditions:
+    if target == "companion":
+        comp = char.companion or {}
+        if not comp:
+            return jsonify({"error": "no companion"}), 400
+        conditions = list(comp.get("conditions") or [])
+    else:
+        conditions = list(char.conditions)
+
+    if action == "add" and condition_id and condition_id not in conditions:
         conditions.append(condition_id)
     elif action == "remove" and condition_id in conditions:
         conditions.remove(condition_id)
 
-    char_module.save_character(str(path), {"conditions": conditions})
+    key = "companion_conditions" if target == "companion" else "conditions"
+    char_module.save_character(str(path), {key: conditions})
     return jsonify({"conditions": conditions})
+
+
+@app.route("/api/buffs", methods=["POST"])
+def api_buffs():
+    data   = request.get_json()
+    slug   = data.get("char")
+    action = data.get("action")           # "add" | "remove"
+    target = data.get("target", "character")
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+
+    char = char_module.load_character(str(path))
+    if target == "companion":
+        comp = char.companion or {}
+        if not comp:
+            return jsonify({"error": "no companion"}), 400
+        buffs = list(comp.get("buffs") or [])
+        key = "companion_buffs"
+    else:
+        buffs = list(char.buffs)
+        key = "buffs"
+
+    if action == "add":
+        b = data.get("buff") or {}
+        name = str(b.get("name", "")).strip()
+        if name:
+            entry = {"name": name, "note": str(b.get("note", "")).strip(),
+                     "affects": [str(a) for a in (b.get("affects") or [])]}
+            if b.get("spell_id"):
+                entry["spell_id"] = str(b["spell_id"])
+            buffs.append(entry)
+    elif action == "remove":
+        i = int(data.get("index", -1))
+        if 0 <= i < len(buffs):
+            buffs.pop(i)
+
+    char_module.save_character(str(path), {key: buffs})
+    return jsonify({"ok": True})
 
 
 @app.route("/api/roll/<path:expression>")

@@ -119,6 +119,7 @@ class Character:
     spells_prepared: dict = field(default_factory=dict)
     spells_used: dict = field(default_factory=dict)
     conditions: list = field(default_factory=list)
+    buffs: list = field(default_factory=list)  # aktive positive effekter: {name, note, affects, spell_id?}
     inventory: list = field(default_factory=list)
     gold: dict = field(default_factory=dict)
     notes: str = ""
@@ -232,6 +233,7 @@ def load_character(path: str) -> Character:
                 spells_used[int(k)] = indices
 
     conditions = list(data.get("conditions") or [])
+    buffs = list(data.get("buffs") or [])
 
     domains = [str(d).lower() for d in (data.get("domains") or [])]
 
@@ -261,6 +263,7 @@ def load_character(path: str) -> Character:
         spells_prepared=spells_prepared,
         spells_used=spells_used,
         conditions=conditions,
+        buffs=buffs,
         inventory=inventory,
         gold=dict(data.get("gold") or {}),
         notes=str(data.get("notes") or ""),
@@ -445,6 +448,19 @@ def save_character(path: str, updates: dict) -> None:
 
     if "conditions" in updates:
         data["conditions"] = list(updates["conditions"])
+
+    if "buffs" in updates:
+        data["buffs"] = list(updates["buffs"])
+
+    if "companion_conditions" in updates:
+        comp = data.get("companion")
+        if isinstance(comp, dict):
+            comp["conditions"] = list(updates["companion_conditions"])
+
+    if "companion_buffs" in updates:
+        comp = data.get("companion")
+        if isinstance(comp, dict):
+            comp["buffs"] = list(updates["companion_buffs"])
 
     if "inventory" in updates:
         data["inventory"] = [_serialize_inventory_item(i) for i in updates["inventory"]]

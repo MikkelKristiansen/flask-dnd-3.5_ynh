@@ -198,4 +198,8 @@ def build_companion(char, db) -> dict | None:
     hp_max = stat["hp_max"]
     hp_cur = comp.get("hp_current")
     stat["hp_current"] = hp_max if hp_cur is None else min(hp_cur, hp_max)
+    # Effekter (tracking): tilstande slås op i kataloget; buffs er selvbeskrivende.
+    cond_ids = list(comp.get("conditions") or [])
+    stat["conditions"] = [(cid, db.get_condition(cid)) for cid in cond_ids]
+    stat["buffs"] = list(comp.get("buffs") or [])
     return stat
