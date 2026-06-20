@@ -894,7 +894,8 @@ def api_inventory():
         if 0 <= idx < len(inventory):
             old = inventory[idx]
             # Bevar katalog-ref; navn/vægt redigeres kun for custom.
-            old.qty   = max(1, int(data.get("qty", old.qty)))
+            # qty kan gå til 0 (fx ammo brugt op); ingen negative.
+            old.qty   = max(0, int(data.get("qty", old.qty)))
             old.notes = str(data.get("notes", old.notes))
             if "state" in data:
                 st = str(data["state"]).lower()
@@ -1068,7 +1069,8 @@ def api_restore():
 @app.route("/api/detail/<dtype>/<did>")
 def api_detail(dtype, did):
     lookup = {"spell": db.get_spell, "skill": db.get_skill,
-              "feat": db.get_feat, "condition": db.get_condition}
+              "feat": db.get_feat, "condition": db.get_condition,
+              "weapon": db.get_weapon, "armor": db.get_armor, "item": db.get_item}
     fn = lookup.get(dtype)
     if not fn:
         return jsonify({"error": "unknown type"}), 400
