@@ -378,6 +378,34 @@ def _atomic_write_bytes(p: Path, content: bytes) -> None:
         raise
 
 
+def _serialize_inventory_item(item: InventoryItem) -> dict:
+    """Inventory-post → minimal YAML-dict. Udelad tomme/default-felter.
+
+    Ref-poster gemmer ikke navn/vægt (slås op i kataloget). Custom-poster gemmer
+    navn + vægt. Kun afvigelser fra default skrives, så filerne forbliver rene.
+    """
+    out: dict = {}
+    if item.ref:
+        out["ref"] = item.ref
+    else:
+        out["name"] = item.name
+        if item.weight:
+            out["weight"] = item.weight
+    if item.qty != 1:
+        out["qty"] = item.qty
+    if item.state != "backpack":
+        out["state"] = item.state
+    if item.bonus:
+        out["bonus"] = item.bonus
+    if item.str_mult is not None:
+        out["str_mult"] = item.str_mult
+    if item.two_handed:
+        out["two_handed"] = item.two_handed
+    if item.notes:
+        out["notes"] = item.notes
+    return out
+
+
 def save_character(path: str, updates: dict) -> None:
     """Gem kun angivne felter — overskriv aldrig hele filen.
 
@@ -419,15 +447,7 @@ def save_character(path: str, updates: dict) -> None:
         data["conditions"] = list(updates["conditions"])
 
     if "inventory" in updates:
-        data["inventory"] = [
-            {
-                "name": item.name,
-                "weight": item.weight,
-                "qty": item.qty,
-                "notes": item.notes,
-            }
-            for item in updates["inventory"]
-        ]
+        data["inventory"] = [_serialize_inventory_item(i) for i in updates["inventory"]]
 
     if "experience_points" in updates:
         data["experience_points"] = int(updates["experience_points"])
@@ -811,6 +831,26 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium") -> 
             range=f"{w['range_ft']} ft." if w["range_ft"] else "",
         ))
     return attacks
+
+
+def equipped_armor(inventory: list[InventoryItem], db):
+    """Find båret rustning + skjold i inventaret (state=worn, ref til armor).
+
+    Returnerer (armor_row, shield_row) som katalog-dicts eller None. Tager den
+    første af hver slags: armor = type light/medium/heavy, shield = type shield.
+    """
+    armor_row = shield_row = None
+    for item in inventory:
+        if item.state != "worn" or not item.ref.startswith("armor/"):
+            continue
+        rec = db.get_armor(item.ref.split("/", 1)[1])
+        if not rec:
+            continue
+        if rec["type"] == "shield":
+            shield_row = shield_row or rec
+        elif rec["type"] in ("light", "medium", "heavy"):
+            armor_row = armor_row or rec
+    return armor_row, shield_row
 
 
 _HIT_DIE = {

@@ -27,31 +27,15 @@ saves:
   will: 2        # base — WIS-modifier (+3) tilføjes automatisk → +5
 
 combat:
-  armor: chain_shirt          # +4 AC, max Dex +4 (slås op i armor-tabellen)
-  shield: heavy_steel_shield  # +2 AC
-  # AC beregnes: 10 + rustning/skjold + Dex (cappet af max Dex) + størrelse
-  #   + natural_armor/deflection/dodge/misc_ac (alle 0 her) → 16/10/16
-  # initiative beregnes: Dex-mod + Improved Initiative (+4) → +4
+  # Rustning/skjold ligger nu i inventory (state: worn) og udledes derfra.
+  # AC: 10 + rustning(+4) + skjold(+2) + Dex(0) → 16/10/16
+  # initiative: Dex-mod + Improved Initiative (+4) → +4
   bab: 0
-  speed: 30           # let rustning (chain shirt) reducerer ikke hastigheden
+  speed: 30
   # grapple beregnes: BAB + STR-mod + størrelses-modifier (Medium = 0)
 
-attacks:
-- name: Light Mace
-  kind: melee
-  base_damage: 1d6    # KUN terningen; Str lægges på i koden
-  str_damage_mult: 1
-  bonus: 0
-  crit: x2
-  type: Bludgeoning
-- name: Sling
-  kind: ranged
-  base_damage: 1d4
-  str_damage_mult: 1  # slyngen er undtagelsen: ranged men får Str til skade
-  bonus: 0
-  crit: x2
-  type: Bludgeoning
-  range: 50 ft
+# Angreb udledes nu af våben i inventory med state: wielded (se nederst).
+# (Rene spell-/unarmed-angreb ville stå her som før — Aelred har ingen.)
 
 skills:
 - id: concentration
@@ -83,38 +67,26 @@ domain_spells_prepared:
   1: sanctuary
 domain_spells_used: {}
 inventory:
-- name: Chain Shirt
-  weight: 25.0
-  qty: 1
-  notes: +4 AC, max DEX +4, -2 armor check, light armor
-- name: Light Mace
-  weight: 4.0
-  qty: 1
-  notes: ''
-- name: Sling
-  weight: 0.0
-  qty: 1
-  notes: ''
-- name: Sling bullets (10)
-  weight: 5.0
-  qty: 1
-  notes: ''
-- name: Wooden holy symbol
-  weight: 0.0
-  qty: 1
+# I brug / båret — navne, vægte, skade osv. slås op i kataloget via ref
+- ref: weapons/mace_light          # Light Mace i hånden → angreb (+2 / 1d6+2)
+  state: wielded
+- ref: weapons/sling               # slynge i hånden; ranged men får Str (undtagelse)
+  state: wielded
+  str_mult: 1
+- ref: armor/chain_shirt           # +4 AC (let rustning)
+  state: worn
+- ref: armor/heavy_steel_shield    # +2 AC
+  state: worn
+# I rygsæk / på person
+- ref: items/sling_bullets_10
+- ref: items/holy_symbol_wooden
   notes: spellcasting focus (DF)
-- name: Backpack
-  weight: 2.0
-  qty: 1
-  notes: ''
-- name: Rations
-  weight: 0.5
+- ref: items/backpack_empty
+- ref: items/rations_trail_per_day
   qty: 5
-  notes: 5 days
-- name: Waterskin
-  weight: 4.0
-  qty: 1
-  notes: full
+  notes: 5 dage
+- ref: items/waterskin
+  notes: fuld
 gold:
   pp: 0
   gp: 12

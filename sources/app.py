@@ -87,7 +87,7 @@ def index():
             hp_pct = max(0, min(100, c.hp_current * 100 // c.hp_max)) if c.hp_max else 0
             xp_info = char_module.xp_progress(c.experience_points, c.level)
             enc = char_module.encumbrance_level(
-                ab.str, char_module.total_weight(c.inventory), c.size)
+                ab.str, char_module.carried_weight(c.inventory, db, c.size), c.size)
             chars.append({
                 "slug":       f.stem,
                 "name":       c.name,
@@ -406,9 +406,12 @@ def karakter(name):
     char = char_module.load_character(str(path))
     ab = char.ability_scores
 
-    # Equipped rustning/skjold → bruges til både AC og rustnings-tjekstraf (ACP)
-    armor_row  = db.get_armor(char.armor) if char.armor else None
-    shield_row = db.get_armor(char.shield) if char.shield else None
+    # Equipped rustning/skjold → bruges til både AC og rustnings-tjekstraf (ACP).
+    # Udledes fra inventaret (worn-poster); falder tilbage til combat.armor/shield
+    # for endnu-ikke-migrerede karakterer.
+    inv_armor, inv_shield = char_module.equipped_armor(char.inventory, db)
+    armor_row  = inv_armor  or (db.get_armor(char.armor)  if char.armor  else None)
+    shield_row = inv_shield or (db.get_armor(char.shield) if char.shield else None)
     acp = char_module.armor_check_penalty(armor_row, shield_row)
     # Druide i metalrustning/-skjold mister spellcasting (+ su/sp-evner) i 24t
     druid_armor_block = char_module.druid_armor_violations(char.cls, armor_row, shield_row)
@@ -462,20 +465,27 @@ def karakter(name):
         slots = char_module.spell_slots_total(class_level_data, ab.wis)
 
     xp_info    = char_module.xp_progress(char.experience_points, char.level)
-    weight     = char_module.total_weight(char.inventory)
+    weight     = char_module.carried_weight(char.inventory, db, char.size)
     enc_limits = char_module.carry_limits(ab.str, char.size)
     enc        = char_module.encumbrance_level(ab.str, weight, char.size)
     base_speed = char.combat.get("speed", 30)
-    inventory_json = [
-        {"name": i.name, "weight": i.weight, "qty": i.qty, "notes": i.notes}
-        for i in char.inventory
-    ]
+    # Beriget inventar-visning: navn/vægt slås op i kataloget for ref-poster,
+    # størrelses-justeres, og state vises. is_ref => navn/vægt redigeres ikke i UI.
+    inventory_json = []
+    for i in char.inventory:
+        r = char_module.resolve_item(i, db, char.size)
+        inventory_json.append({
+            "name": r["name"], "weight": r["unit_weight"], "qty": i.qty,
+            "notes": i.notes, "state": i.state, "is_ref": bool(i.ref),
+        })
 
-    # Combat: beregn til-hit/skade pr. angreb + grapple + initiativ (gemmes aldrig i YAML)
+    # Combat: beregn til-hit/skade pr. angreb + grapple + initiativ (gemmes aldrig i YAML).
+    # Angreb = eksplicitte (spells/unarmed) + afledte fra våben i hånden (wielded).
     bab = int(char.combat.get("bab", 0))
+    all_attacks = list(char.attacks) + char_module.derive_attacks(char.inventory, db, char.size)
     attack_rows = [
         {"attack": atk, **char_module.attack_total(atk, ab, bab, char.size)}
-        for atk in char.attacks
+        for atk in all_attacks
     ]
     grapple = char_module.grapple_total(bab, ab.str, char.size)
     initiative = char_module.initiative_total(
@@ -803,20 +813,26 @@ def api_inventory():
         idx = int(data.get("index", -1))
         if 0 <= idx < len(inventory):
             old = inventory[idx]
-            inventory[idx] = char_module.InventoryItem(
-                name=str(data.get("name", old.name)),
-                weight=float(data.get("weight", old.weight)),
-                qty=max(1, int(data.get("qty", old.qty))),
-                notes=str(data.get("notes", old.notes)),
-            )
+            # Bevar katalog-ref + angrebs-felter; navn/vægt redigeres kun for custom.
+            old.qty   = max(1, int(data.get("qty", old.qty)))
+            old.notes = str(data.get("notes", old.notes))
+            if not old.ref:
+                old.name   = str(data.get("name", old.name))
+                old.weight = float(data.get("weight", old.weight))
 
     char_module.save_character(str(path), {"inventory": inventory})
     ab     = char.ability_scores
-    weight = char_module.total_weight(inventory)
+    weight = char_module.carried_weight(inventory, db, char.size)
     enc    = char_module.encumbrance_level(ab.str, weight, char.size)
+    inv_rows = []
+    for i in inventory:
+        r = char_module.resolve_item(i, db, char.size)
+        inv_rows.append({
+            "name": r["name"], "weight": r["unit_weight"], "qty": i.qty,
+            "notes": i.notes, "state": i.state, "is_ref": bool(i.ref),
+        })
     return jsonify({
-        "inventory": [{"name": i.name, "weight": i.weight, "qty": i.qty, "notes": i.notes}
-                      for i in inventory],
+        "inventory":  inv_rows,
         "weight":     weight,
         "enc":        enc,
         "enc_limits": char_module.carry_limits(ab.str, char.size),

@@ -166,6 +166,11 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .inv-remove:hover{color:var(--red);}
 .inv-editable{cursor:pointer;transition:color .15s;}
 .inv-editable:hover{color:var(--accent);text-decoration:underline dotted;}
+.inv-c1{display:flex;align-items:center;gap:.3rem;min-width:0;}
+.inv-c1 span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.inv-state{font-size:.6rem;color:var(--muted);border:1px solid var(--border);border-radius:8px;
+           padding:0 .35rem;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex:none;}
+.inv-state.st-wielded,.inv-state.st-worn{color:var(--accent);border-color:var(--accent);}
 .enc-badge{padding:.2rem .7rem;border-radius:12px;font-size:.8rem;font-weight:bold;}
 .enc-Light{background:var(--green);color:#fff;}
 .enc-Medium{background:var(--yellow);color:#000;}
@@ -1940,14 +1945,25 @@ function renderInventory() {
     return;
   }
   list.innerHTML = "";
+  const STATE_LABEL = {wielded:"i hånden", worn:"båret", stored:"opbevaret", dropped:"droppet"};
   inventoryData.forEach((item, idx) => {
     const row = document.createElement("div");
     row.className = "inv-row";
     const tw = (item.weight * item.qty).toFixed(1);
+    const ref = item.is_ref;
+    const lbl = STATE_LABEL[item.state] || "";
+    const badge = lbl ? `<span class="inv-state st-${item.state}">${lbl}</span>` : "";
+    // Katalog-genstande: navn/vægt slås op og redigeres ikke inline (kun antal/tilstand).
+    const nameCell = ref
+      ? `<span title="Katalog-genstand">${escHtml(item.name)}</span>`
+      : `<span class="inv-editable" onclick="openItemDetail(${idx})" title="Klik for detaljer / rediger">${escHtml(item.name)}</span>`;
+    const wtCell = ref
+      ? `<span class="inv-weight" title="Vægt fra katalog (størrelses-justeret)">${tw} lbs</span>`
+      : `<span class="inv-weight inv-editable" onclick="editInvField(this,${idx},'weight')" title="Klik for at redigere vægt">${tw} lbs</span>`;
     let html =
-      `<span class="inv-editable" onclick="openItemDetail(${idx})" title="Klik for detaljer / rediger">${escHtml(item.name)}</span>
+      `<div class="inv-c1">${nameCell}${badge}</div>
        <span class="inv-qty inv-editable" onclick="editInvField(this,${idx},'qty')" title="Klik for at redigere antal">×${item.qty}</span>
-       <span class="inv-weight inv-editable" onclick="editInvField(this,${idx},'weight')" title="Klik for at redigere vægt">${tw} lbs</span>
+       ${wtCell}
        <button class="inv-remove" onclick="removeItem(${idx})" title="Fjern">×</button>`;
     if (item.notes) html += `<span class="inv-notes" style="cursor:pointer" onclick="openItemDetail(${idx})">${escHtml(item.notes)}</span>`;
     row.innerHTML = html;
@@ -1962,8 +1978,12 @@ function openItemDetail(idx) {
   document.getElementById("item-modal-weight").value = item.weight;
   document.getElementById("item-modal-qty").value    = item.qty;
   document.getElementById("item-modal-notes").value  = item.notes || "";
+  // Katalog-genstande: navn + vægt er låst (slås op i kataloget); kun antal/noter redigeres.
+  const nameEl = document.getElementById("item-modal-name");
+  const wtEl   = document.getElementById("item-modal-weight");
+  nameEl.disabled = wtEl.disabled = !!item.is_ref;
   document.getElementById("item-modal-overlay").classList.add("open");
-  document.getElementById("item-modal-name").focus();
+  (item.is_ref ? document.getElementById("item-modal-qty") : nameEl).focus();
 }
 
 function saveItemDetail() {
