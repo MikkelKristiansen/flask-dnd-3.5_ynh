@@ -457,8 +457,8 @@ def save_character(path: str, updates: dict) -> None:
 
     if "companion_hp_current" in updates:
         comp = data.get("companion")
-        if isinstance(comp, dict) and isinstance(comp.get("hp"), dict):
-            comp["hp"]["current"] = int(updates["companion_hp_current"])
+        if isinstance(comp, dict):
+            comp["hp_current"] = int(updates["companion_hp_current"])
 
     if "gold" in updates:
         data["gold"] = dict(updates["gold"])

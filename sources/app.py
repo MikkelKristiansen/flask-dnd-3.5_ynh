@@ -12,6 +12,7 @@ from ruamel.yaml import YAML
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import character as char_module
+import companion as companion_module
 import db
 import dice as dice_module
 
@@ -647,10 +648,14 @@ def karakter(name):
                     "used": bool(char.domain_spells_used.get(lvl, False)),
                 }
 
+    # Companion: beregn det fulde statblok fra den tynde reference (eller None).
+    companion = companion_module.build_companion(char, db)
+
     return render_template(
         "character.html",
         name=name,
         char=char,
+        companion=companion,
         abilities=abilities,
         saves=saves,
         skill_data=skill_data,
@@ -966,11 +971,11 @@ def api_companion_hp():
     if not path.exists():
         return jsonify({"error": "not found"}), 404
     char = char_module.load_character(str(path))
-    comp = char.companion
+    comp = companion_module.build_companion(char, db)
     if not comp:
         return jsonify({"error": "no companion"}), 400
-    hp_max = (comp.get("hp") or {}).get("max", 0)
-    hp_cur = (comp.get("hp") or {}).get("current", 0)
+    hp_max = comp["hp_max"]
+    hp_cur = comp["hp_current"]
     new_hp = max(-9, min(hp_max, hp_cur + delta))
     char_module.save_character(str(path), {"companion_hp_current": new_hp})
     return jsonify({"hp_current": new_hp, "hp_max": hp_max})

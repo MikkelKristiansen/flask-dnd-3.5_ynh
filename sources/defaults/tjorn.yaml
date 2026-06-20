@@ -129,16 +129,13 @@ gold:
   sp: 12
   cp: 3
 
+# Tynd reference — basis-dyret ligger i animals-kataloget; alt (HP/AC/angreb/
+# saves/skills) beregnes i companion.py ud fra druideniveau. Kun hp_current og
+# de valgte tricks er rå data.
 companion:
   name: Varg
-  type: Riding Dog
-  ac: 13
-  hp:
-    current: 12
-    max: 13
-  attack_bite: +3 to hit, 1d6+3
-  trip: Str check +1 (provokes no AoO)
-  speed: 40
+  animal: riding_dog
+  hp_current: 12
   tricks:
   - Attack
   - Come
@@ -147,31 +144,12 @@ companion:
   - Down
   - Guard
   - Heel
-  special:
-  - Link (+4 Handle Animal med Tjørn)
-  - Share Spells
-
-  skills:
-  - name: Jump
-    total: 8
-  - name: Listen
-    total: 5
-  - name: Spot
-    total: 5
-  - name: Swim
-    total: 3
-  - name: Survival
-    total: 1
-    note: +5 ved tracking by scent (+4 racial)
-  feats:
-  - Alertness
-  - Track
 class_features:
   nature_sense: +2 Knowledge (Nature) og Survival
   wild_empathy: 1d20 + 2 (level) + 0 (CHA) — Diplomacy mod dyr
   woodland_stride: Bevæger sig normalt igennem naturligt svært terræn
   spontaneous_casting: Kan ofre forberedt spell → Summon Nature's Ally (1 fuld runde)
-  animal_companion: Varg (Wolf)
+  animal_companion: Varg (Riding Dog)
 
 racial_traits:
   stat_mods: +2 CON, -2 STR
