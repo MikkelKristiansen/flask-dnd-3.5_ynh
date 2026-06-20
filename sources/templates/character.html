@@ -19,6 +19,10 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .header-top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.4rem;}
 .char-name{font-size:1.4rem;color:var(--accent);font-weight:bold;}
 .char-sub{color:var(--muted);font-size:.85rem;}
+.portrait{width:56px;height:56px;border-radius:8px;object-fit:cover;flex:0 0 auto;
+          border:2px solid var(--accent);background:var(--card);}
+.portrait-placeholder{display:flex;align-items:center;justify-content:center;
+          font-size:1.6rem;border-style:dashed;border-color:var(--border);}
 
 /* HP bar + controls */
 .hp-control{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;}
@@ -359,9 +363,16 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 <!-- ── Header ── -->
 <div class="header">
   <div class="header-top">
-    <div>
-      <div class="char-name">{{ char.name }}</div>
-      <div class="char-sub">{{ char.race }} {{ char.cls }}, Level {{ char.level }}{% if char.alignment %} · {{ char.alignment }}{% endif %}{% if char.deity %} · {{ char.deity }}{% endif %}</div>
+    <div style="display:flex;align-items:center;gap:.7rem">
+      {% if has_portrait %}
+      <img src="{{ url_for('portrait', slug=slug) }}" alt="{{ char.name }}" class="portrait">
+      {% else %}
+      <div class="portrait portrait-placeholder" title="Læg et billede i data-mappen: portraits/{{ slug }}.jpg">🧙</div>
+      {% endif %}
+      <div>
+        <div class="char-name">{{ char.name }}</div>
+        <div class="char-sub">{{ char.race }} {{ char.cls }}, Level {{ char.level }}{% if char.alignment %} · {{ char.alignment }}{% endif %}{% if char.deity %} · {{ char.deity }}{% endif %}</div>
+      </div>
     </div>
     <a href="{{ url_for('index') }}" style="color:var(--muted);font-size:.8rem;text-decoration:none;">← Alle</a>
   </div>

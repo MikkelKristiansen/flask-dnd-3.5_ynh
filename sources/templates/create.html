@@ -49,8 +49,6 @@ input[type=text],input[type=number],select{width:100%;background:var(--card);
 .feat-row label,.dom-row label{margin:0;color:var(--text);font-size:.85rem;cursor:pointer;}
 .feat-row .pre{color:var(--muted);font-size:.72rem;font-style:italic;}
 .hint{color:var(--muted);font-size:.75rem;margin-top:.4rem;}
-.weapon-row{display:grid;grid-template-columns:1.6fr .9fr 1fr .8fr;gap:.4rem;margin-bottom:.4rem;}
-.weapon-row input,.weapon-row select{font-size:.8rem;padding:.3rem;}
 .add-btn,.submit-btn{background:var(--card);border:1px solid var(--border);color:var(--text);
   font-family:Georgia,serif;border-radius:6px;cursor:pointer;}
 .add-btn{font-size:.8rem;padding:.35rem .8rem;}
@@ -167,9 +165,28 @@ input[type=text],input[type=number],select{width:100%;background:var(--card);
         </select>
       </div>
     </div>
-    <label>Våben</label>
-    <div id="weapons"></div>
+    <label>Våben <span style="color:var(--muted);font-size:.75rem">(vælg fra katalog — angreb afledes automatisk)</span></label>
+    <div class="row">
+      <div>
+        <select id="weapon-pick">
+          <option value="">— vælg våben —</option>
+          {% for grp, items in weapons|groupby('group') %}
+          <optgroup label="{{ grp }}">
+            {% for w in items %}<option value="{{ w.ref }}">{{ w.name }}</option>{% endfor %}
+          </optgroup>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <select id="weapon-state">
+          <option value="wielded">i hånden</option>
+          <option value="backpack">rygsæk</option>
+          <option value="stored">opbevaret</option>
+        </select>
+      </div>
+    </div>
     <button type="button" class="add-btn" onclick="addWeapon()">+ Tilføj våben</button>
+    <div id="weapons" style="margin-top:.5rem"></div>
     <label style="margin-top:.8rem">Startguld</label>
     <div class="gold-grid">
       {% for coin in ['pp','gp','sp','cp'] %}
@@ -237,23 +254,25 @@ function buildSkillList(){
   document.getElementById('skill-list').innerHTML = html;
 }
 
+const STATE_LABELS = {wielded:'i hånden', backpack:'rygsæk', stored:'opbevaret'};
 function addWeapon(){
+  const pick = document.getElementById('weapon-pick');
+  const ref = pick.value;
+  if(!ref) return;
+  const name = pick.options[pick.selectedIndex].text.trim();
+  const state = document.getElementById('weapon-state').value;
   const div = document.createElement('div');
-  div.className = 'weapon-row';
+  div.className = 'weapon-chip';
+  div.style.cssText = 'display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem;'
+    + 'background:var(--panel,#222);border:1px solid var(--border);border-radius:4px;margin-bottom:.3rem';
   div.innerHTML = `
-    <input type="text" name="weapon_name" placeholder="Navn">
-    <select name="weapon_kind"><option value="melee">melee</option><option value="ranged">ranged</option></select>
-    <input type="text" name="weapon_damage" placeholder="1d8">
-    <input type="text" name="weapon_crit" placeholder="x2">`;
-  // skjulte felter for str-mult/type/range med fornuftige defaults
-  const extra = document.createElement('div');
-  extra.className = 'weapon-row';
-  extra.innerHTML = `
-    <input type="text" name="weapon_type" placeholder="Slashing/Piercing/…" style="grid-column:span 2">
-    <input type="text" name="weapon_str_mult" placeholder="Str-mult (1)" >
-    <input type="text" name="weapon_range" placeholder="Range (ranged)">`;
+    <input type="hidden" name="weapon_ref" value="${ref}">
+    <input type="hidden" name="weapon_state" value="${state}">
+    <span style="flex:1">${name} <span style="color:var(--muted);font-size:.78rem">(${STATE_LABELS[state]||state})</span></span>
+    <button type="button" class="add-btn" style="padding:.1rem .5rem"
+            onclick="this.parentElement.remove()">✕</button>`;
   document.getElementById('weapons').appendChild(div);
-  document.getElementById('weapons').appendChild(extra);
+  pick.value = '';
 }
 
 function onUpdate(){

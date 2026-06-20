@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 
 from flask import (Flask, Response, abort, jsonify, redirect, render_template,
-                   request, url_for)
+                   request, send_from_directory, url_for)
 from ruamel.yaml import YAML
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -26,10 +26,26 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
 app.config["MAX_CONTENT_LENGTH"] = 512 * 1024
 CHARACTERS_DIR = Path(os.environ.get("DND_CHARACTERS_DIR",
                                      str(Path(__file__).parent / "characters")))
+# Portrætter lægges manuelt i data-mappen (ved siden af characters/), ikke i
+# sources/static/ som overskrives ved upgrade. Konvention: portraits/<slug>.<ext>.
+PORTRAITS_DIR = CHARACTERS_DIR.parent / "portraits"
+PORTRAIT_EXTS = ("jpg", "jpeg", "png", "webp")
 
 
 def _char_path(slug: str) -> Path:
     return CHARACTERS_DIR / f"{slug}.yaml"
+
+
+def _portrait_path(slug: str) -> Path | None:
+    """Find karakterens portrætfil i data-mappen, hvis en findes (slug.<ext>)."""
+    safe = _safe_slug(slug)
+    if not safe:
+        return None
+    for ext in PORTRAIT_EXTS:
+        p = PORTRAITS_DIR / f"{safe}.{ext}"
+        if p.exists():
+            return p
+    return None
 
 
 def _safe_slug(text: str) -> str:
@@ -190,6 +206,8 @@ def _gen_context() -> dict:
     }
     all_feats = db.get_all_feats()
     armor = db.get_all_armor()
+    weapons = [{"ref": f"weapons/{w['id']}", "name": w["name"], "group": w["category"]}
+               for w in db.get_all_weapons()]
     return {
         "races": GEN_RACES,
         "classes": GEN_CLASSES,
@@ -197,6 +215,7 @@ def _gen_context() -> dict:
         "feats": all_feats,
         "armors": [a for a in armor if a.get("type") != "shield"],
         "shields": [a for a in armor if a.get("type") == "shield"],
+        "weapons": weapons,
         "domains": db.get_domains(GEN_DOMAINS),
         "races_json": races_json,
         "classes_json": classes_json,
@@ -291,31 +310,34 @@ def create_character():
         else:
             domains = []
 
-        # Udstyr: rustning/skjold (valgfri) + våben-rækker → attacks.
+        # Udstyr → forenet inventar (refs + tilstand). Rustning/skjold = worn,
+        # våben = wielded; afledte angreb + AC + vægt udregnes fra inventaret.
         armor_id = f.get("armor", "").strip()
         shield_id = f.get("shield", "").strip()
-        attacks = []
-        wn = f.getlist("weapon_name")
-        wk, wd = f.getlist("weapon_kind"), f.getlist("weapon_damage")
-        wm, wc = f.getlist("weapon_str_mult"), f.getlist("weapon_crit")
-        wt, wr = f.getlist("weapon_type"), f.getlist("weapon_range")
-        for i, nm in enumerate(wn):
-            nm = nm.strip()
-            if not nm:
+        valid_armor = {a["id"] for a in db.get_all_armor()}
+        valid_weapons = {w["id"] for w in db.get_all_weapons()}
+        inventory = []
+        if armor_id:
+            if armor_id not in valid_armor:
+                raise ValueError("Ukendt rustning valgt.")
+            inventory.append({"ref": f"armor/{armor_id}", "state": "worn"})
+        if shield_id:
+            if shield_id not in valid_armor:
+                raise ValueError("Ukendt skjold valgt.")
+            inventory.append({"ref": f"armor/{shield_id}", "state": "worn"})
+        wrefs = f.getlist("weapon_ref")
+        wstates = f.getlist("weapon_state")
+        for i, ref in enumerate(wrefs):
+            ref = ref.strip()
+            if not ref:
                 continue
-
-            def _g(lst, default=""):
-                return (lst[i].strip() if i < len(lst) and lst[i].strip() else default)
-            attacks.append({
-                "name": nm,
-                "kind": _g(wk, "melee"),
-                "base_damage": _g(wd, "1d6"),
-                "str_damage_mult": float(_g(wm, "1") or "1"),
-                "bonus": 0,
-                "crit": _g(wc, "x2"),
-                "type": _g(wt),
-                "range": _g(wr),
-            })
+            table, _, wid = ref.partition("/")
+            if table != "weapons" or wid not in valid_weapons:
+                raise ValueError(f"Ukendt våben: {ref}.")
+            state = wstates[i].strip() if i < len(wstates) else "wielded"
+            if state not in char_module.INVENTORY_STATES:
+                state = "wielded"
+            inventory.append({"ref": ref, "state": state})
 
         # Afledte rå-værdier (én gang, gemmes som rå data).
         cl1 = db.get_class_level(cls.lower(), 1) or {}
@@ -334,10 +356,6 @@ def create_character():
 
         gold = {k: int(f.get(f"gold_{k}", "") or 0) for k in ("pp", "gp", "sp", "cp")}
         combat = {"bab": int(cl1.get("bab", 0)), "speed": rd.get("speed", 30)}
-        if armor_id:
-            combat["armor"] = armor_id
-        if shield_id:
-            combat["shield"] = shield_id
 
         data = {
             "name": name,
@@ -354,13 +372,13 @@ def create_character():
                       "reflex": int(cl1.get("ref", 0)),
                       "will": int(cl1.get("will", 0))},
             "combat": combat,
-            "attacks": attacks,
+            "attacks": [],
             "skills": list(skills_out.values()),
             "feats": feats_out,
             "conditions": [],
             "spells_prepared": {},
             "spells_used": {},
-            "inventory": [],
+            "inventory": inventory,
             "gold": gold,
             "class_features": class_features,
             "racial_traits": rd.get("traits", {}),
@@ -664,7 +682,18 @@ def karakter(name):
         all_skills_json=all_skills_json,
         cls_skills_json=cls_skills_json,
         snapshots=_snapshots_for(name),
+        slug=name,
+        has_portrait=_portrait_path(name) is not None,
     )
+
+
+@app.route("/portrait/<slug>")
+def portrait(slug):
+    """Server karakterens portræt fra data-mappen (uden for Flasks static/)."""
+    path = _portrait_path(slug)
+    if path is None:
+        abort(404)
+    return send_from_directory(str(PORTRAITS_DIR), path.name)
 
 
 # ── API ────────────────────────────────────────────────────────────────────
