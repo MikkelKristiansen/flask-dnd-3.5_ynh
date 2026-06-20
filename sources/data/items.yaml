@@ -741,21 +741,25 @@
   cost_cp: 100
   weight: 3.0
   small_quarter: 0
+  bundle: 20
 - id: crossbow_bolts_10
   name: Crossbow bolts (10)
   category: ammunition
   cost_cp: 100
   weight: 1.0
   small_quarter: 0
+  bundle: 10
 - id: crossbow_bolts_5
   name: Crossbow bolts (5)
   category: ammunition
   cost_cp: 100
   weight: 1.0
   small_quarter: 0
+  bundle: 5
 - id: sling_bullets_10
   name: Sling bullets (10)
   category: ammunition
   cost_cp: 10
   weight: 5.0
   small_quarter: 0
+  bundle: 10

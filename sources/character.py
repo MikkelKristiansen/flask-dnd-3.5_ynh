@@ -777,6 +777,11 @@ def resolve_item(item: InventoryItem, db, size: str = "medium") -> dict:
                 kind = "half"
             elif table == "items":
                 kind = "quarter" if record.get("small_quarter") else "none"
+                # Bundter (ammo) opgives per bundt i kataloget; qty = enkelte
+                # enheder, så vægten regnes per styk.
+                bundle = record.get("bundle") or 1
+                if bundle > 1:
+                    base_weight = base_weight / bundle
     unit = weight_for_size(base_weight, kind, size)
     return {
         "name": name,

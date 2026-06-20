@@ -102,6 +102,7 @@ inventory:
   state: worn
   notes: Masterwork (MWK→ACP 0; MWK endnu ikke modelleret, ACP er −1)
 - ref: items/sling_bullets_10
+  qty: 10
 - ref: items/healer_s_kit
   notes: 7 brug tilbage, +2 Heal
 - ref: items/holly_and_mistletoe

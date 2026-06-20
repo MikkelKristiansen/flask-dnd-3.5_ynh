@@ -167,7 +167,8 @@ CREATE TABLE items (
     category TEXT NOT NULL,   -- adventuring_gear | substance | tool | clothing | food | ammunition
     cost_cp       INTEGER,    -- pris i kobber; NULL = variabel / —
     weight        REAL NOT NULL DEFAULT 0,    -- pund (Medium-version)
-    small_quarter INTEGER NOT NULL DEFAULT 0  -- 1 = vejer ¼ for Small (SRD fodnote 1); 0 = uændret
+    small_quarter INTEGER NOT NULL DEFAULT 0, -- 1 = vejer ¼ for Small (SRD fodnote 1); 0 = uændret
+    bundle        INTEGER     -- antal enheder som vægt/pris dækker (ammo: 10/20/5); NULL = per styk
 );
 
 DROP TABLE IF EXISTS animals;

@@ -37,6 +37,26 @@ def _char_path(slug: str) -> Path:
     return CHARACTERS_DIR / f"{slug}.yaml"
 
 
+def _inv_row(item, r: dict) -> dict:
+    """Byg en inventar-række til JSON (delt af render + /api/inventory).
+
+    Markerer ammunition (is_ammo) og fjerner katalogets bundtstørrelse "(N)"
+    fra navnet, da qty nu tæller enkelte skud, ikke bundter.
+    """
+    name = r["name"]
+    rec = r.get("record")
+    is_ammo = bool(r.get("source") == "items" and rec
+                   and rec.get("category") == "ammunition")
+    if is_ammo:
+        name = re.sub(r"\s*\(\d+\)\s*$", "", name)
+    return {
+        "name": name, "weight": r["unit_weight"], "qty": item.qty,
+        "notes": item.notes, "state": item.state, "is_ref": bool(item.ref),
+        "ref": item.ref, "bonus": item.bonus, "str_mult": item.str_mult,
+        "is_ammo": is_ammo,
+    }
+
+
 def _portrait_path(slug: str) -> Path | None:
     """Find karakterens portrætfil i data-mappen, hvis en findes (slug.<ext>)."""
     safe = _safe_slug(slug)
@@ -508,14 +528,8 @@ def karakter(name):
     base_speed = char.combat.get("speed", 30)
     # Beriget inventar-visning: navn/vægt slås op i kataloget for ref-poster,
     # størrelses-justeres, og state vises. is_ref => navn/vægt redigeres ikke i UI.
-    inventory_json = []
-    for i in char.inventory:
-        r = char_module.resolve_item(i, db, char.size)
-        inventory_json.append({
-            "name": r["name"], "weight": r["unit_weight"], "qty": i.qty,
-            "notes": i.notes, "state": i.state, "is_ref": bool(i.ref),
-            "ref": i.ref, "bonus": i.bonus, "str_mult": i.str_mult,
-        })
+    inventory_json = [_inv_row(i, char_module.resolve_item(i, db, char.size))
+                      for i in char.inventory]
 
     # Katalog til "tilføj fra katalog"-vælgeren (ref, navn, gruppe pr. type)
     catalog_json = {
@@ -914,14 +928,8 @@ def api_inventory():
     ab     = char.ability_scores
     weight = char_module.carried_weight(inventory, db, char.size)
     enc    = char_module.encumbrance_level(ab.str, weight, char.size)
-    inv_rows = []
-    for i in inventory:
-        r = char_module.resolve_item(i, db, char.size)
-        inv_rows.append({
-            "name": r["name"], "weight": r["unit_weight"], "qty": i.qty,
-            "notes": i.notes, "state": i.state, "is_ref": bool(i.ref),
-            "ref": i.ref, "bonus": i.bonus, "str_mult": i.str_mult,
-        })
+    inv_rows = [_inv_row(i, char_module.resolve_item(i, db, char.size))
+               for i in inventory]
     return jsonify({
         "inventory":  inv_rows,
         "weight":     weight,

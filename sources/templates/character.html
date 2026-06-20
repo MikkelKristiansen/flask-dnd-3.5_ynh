@@ -177,6 +177,10 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .ii-row{display:flex;justify-content:space-between;gap:1rem;font-size:.82rem;padding:.12rem 0;}
 .ii-k{color:var(--muted);}
 .ii-v{color:var(--text);text-align:right;}
+.ammo-row{display:flex;justify-content:space-between;align-items:center;
+          padding:.25rem 0;border-bottom:1px solid var(--border);font-size:.88rem;}
+.ammo-row:last-child{border-bottom:none;}
+.ammo-empty{color:var(--red);}
 .inv-weight{color:var(--accent);font-size:.8rem;min-width:3.5rem;text-align:right;}
 .inv-notes{color:var(--muted);font-size:.75rem;grid-column:1/-1;padding-left:.5rem;}
 .inv-remove{background:none;border:none;color:var(--muted);cursor:pointer;
@@ -533,6 +537,12 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     {% endfor %}
   </div>
   {% endif %}
+
+  <!-- Ammunition — client-renderet fra inventaret; vises kun når der er ammo -->
+  <div class="section" id="ammo-section" style="display:none">
+    <div class="section-title">Ammunition <span style="color:var(--muted);font-size:.7rem;font-style:italic">(antal skud)</span></div>
+    <div id="ammo-strip"></div>
+  </div>
 
   {% if char.class_features %}
   <div class="section">
@@ -2157,9 +2167,37 @@ function itemInfoHtml(d, dtype) {
     r("Vægt", d.weight + " lb"); r("Pris", formatCost(d.cost_cp));
   } else {
     r("Kategori", d.category);
-    r("Vægt", d.weight + " lb"); r("Pris", formatCost(d.cost_cp));
+    const bundle = d.bundle || 1;
+    if (bundle > 1) {  // ammo: vægt/pris per skud
+      r("Vægt", +(d.weight / bundle).toFixed(3) + " lb/skud");
+      r("Pris", (d.cost_cp === null ? "—" : formatCost(Math.round(d.cost_cp / bundle))) + " /skud");
+    } else {
+      r("Vægt", d.weight + " lb"); r("Pris", formatCost(d.cost_cp));
+    }
   }
   return `<div class="item-info">${rows.join("")}</div>`;
+}
+
+// Ammo-strip på Oversigt: ammunition fra inventaret med −/+ (styrer samme qty
+// som Udstyr, så de to faner deler tæller).
+function renderAmmo() {
+  const sec = document.getElementById("ammo-section");
+  const strip = document.getElementById("ammo-strip");
+  if (!strip) return;
+  const ammo = inventoryData
+    .map((it, idx) => ({it, idx}))
+    .filter(x => x.it.is_ammo);
+  if (!ammo.length) { sec.style.display = "none"; return; }
+  sec.style.display = "";
+  strip.innerHTML = ammo.map(({it, idx}) =>
+    `<div class="ammo-row">
+       <span class="ammo-name${it.qty === 0 ? ' ammo-empty' : ''}">🎯 ${escHtml(it.name)}</span>
+       <span class="inv-qty-stepper">
+         <button class="inv-step" onclick="adjQty(${idx},-1)" title="−1 skud">−</button>
+         <span class="inv-qty" title="Klik i Udstyr for at indtaste">${it.qty}</span>
+         <button class="inv-step" onclick="adjQty(${idx},1)" title="+1 skud">+</button>
+       </span>
+     </div>`).join("");
 }
 
 function openItemDetail(idx) {
@@ -2311,6 +2349,7 @@ function updateInventoryDisplay(data) {
   encLimits     = data.enc_limits;
 
   renderInventory();
+  renderAmmo();
 
   document.getElementById("total-weight").textContent = currentWeight.toFixed(1) + " lbs";
   const badge = document.getElementById("enc-badge");
