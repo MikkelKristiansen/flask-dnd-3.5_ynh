@@ -14,3 +14,6 @@ sources/srd35.db
 
 # Snapshots af karakterfiler (skrives ved siden af characters/ ved gem) — runtime-data
 backups/
+
+# Egne tanker og ideer
+overvejelser-og-briefs/
