@@ -1,0 +1,632 @@
+# items — SRD v3.5 (OGL v1.0a), parset fra equipment.md. Kilden til sandheden.
+# cost_cp = pris i kobber (1 gp = 100 cp; null = — / variabel). weight = pund.
+- id: backpack_empty
+  name: Backpack (empty)
+  category: adventuring_gear
+  cost_cp: 200
+  weight: 2.0
+- id: barrel_empty
+  name: Barrel (empty)
+  category: adventuring_gear
+  cost_cp: 200
+  weight: 30.0
+- id: basket_empty
+  name: Basket (empty)
+  category: adventuring_gear
+  cost_cp: 40
+  weight: 1.0
+- id: bedroll
+  name: Bedroll
+  category: adventuring_gear
+  cost_cp: 10
+  weight: 5.0
+- id: bell
+  name: Bell
+  category: adventuring_gear
+  cost_cp: 100
+  weight: 0.0
+- id: blanket_winter
+  name: Blanket, winter
+  category: adventuring_gear
+  cost_cp: 50
+  weight: 3.0
+- id: block_and_tackle
+  name: Block and tackle
+  category: adventuring_gear
+  cost_cp: 500
+  weight: 5.0
+- id: bottle_wine_glass
+  name: Bottle, wine, glass
+  category: adventuring_gear
+  cost_cp: 200
+  weight: 0.0
+- id: bucket_empty
+  name: Bucket (empty)
+  category: adventuring_gear
+  cost_cp: 50
+  weight: 2.0
+- id: caltrops
+  name: Caltrops
+  category: adventuring_gear
+  cost_cp: 100
+  weight: 2.0
+- id: candle
+  name: Candle
+  category: adventuring_gear
+  cost_cp: 1
+  weight: 0.0
+- id: canvas_sq_yd
+  name: Canvas (sq. yd.)
+  category: adventuring_gear
+  cost_cp: 10
+  weight: 1.0
+- id: case_map_or_scroll
+  name: Case, map or scroll
+  category: adventuring_gear
+  cost_cp: 100
+  weight: 0.5
+- id: chain_10_ft
+  name: Chain (10 ft.)
+  category: adventuring_gear
+  cost_cp: 3000
+  weight: 2.0
+- id: chalk_1_piece
+  name: Chalk, 1 piece
+  category: adventuring_gear
+  cost_cp: 1
+  weight: 0.0
+- id: chest_empty
+  name: Chest (empty)
+  category: adventuring_gear
+  cost_cp: 200
+  weight: 25.0
+- id: crowbar
+  name: Crowbar
+  category: adventuring_gear
+  cost_cp: 200
+  weight: 5.0
+- id: firewood_per_day
+  name: Firewood (per day)
+  category: adventuring_gear
+  cost_cp: 1
+  weight: 20.0
+- id: fishhook
+  name: Fishhook
+  category: adventuring_gear
+  cost_cp: 10
+  weight: 0.0
+- id: fishing_net_25_sq_ft
+  name: Fishing net, 25 sq. ft.
+  category: adventuring_gear
+  cost_cp: 400
+  weight: 5.0
+- id: flask_empty
+  name: Flask (empty)
+  category: adventuring_gear
+  cost_cp: 3
+  weight: 1.5
+- id: flint_and_steel
+  name: Flint and steel
+  category: adventuring_gear
+  cost_cp: 100
+  weight: 0.0
+- id: grappling_hook
+  name: Grappling hook
+  category: adventuring_gear
+  cost_cp: 100
+  weight: 4.0
+- id: hammer
+  name: Hammer
+  category: adventuring_gear
+  cost_cp: 50
+  weight: 2.0
+- id: ink_1_oz_vial
+  name: Ink (1 oz. vial)
+  category: adventuring_gear
+  cost_cp: 800
+  weight: 0.0
+- id: inkpen
+  name: Inkpen
+  category: adventuring_gear
+  cost_cp: 10
+  weight: 0.0
+- id: jug_clay
+  name: Jug, clay
+  category: adventuring_gear
+  cost_cp: 3
+  weight: 9.0
+- id: ladder_10_foot
+  name: Ladder, 10-foot
+  category: adventuring_gear
+  cost_cp: 5
+  weight: 20.0
+- id: lamp_common
+  name: Lamp, common
+  category: adventuring_gear
+  cost_cp: 10
+  weight: 1.0
+- id: lantern_bullseye
+  name: Lantern, bullseye
+  category: adventuring_gear
+  cost_cp: 1200
+  weight: 3.0
+- id: lantern_hooded
+  name: Lantern, hooded
+  category: adventuring_gear
+  cost_cp: 700
+  weight: 2.0
+- id: lock_very_simple
+  name: Lock, very simple
+  category: adventuring_gear
+  cost_cp: 2000
+  weight: 1.0
+- id: lock_average
+  name: Lock, average
+  category: adventuring_gear
+  cost_cp: 4000
+  weight: 1.0
+- id: lock_good
+  name: Lock, good
+  category: adventuring_gear
+  cost_cp: 8000
+  weight: 1.0
+- id: lock_amazing
+  name: Lock, amazing
+  category: adventuring_gear
+  cost_cp: 15000
+  weight: 1.0
+- id: manacles
+  name: Manacles
+  category: adventuring_gear
+  cost_cp: 1500
+  weight: 2.0
+- id: manacles_masterwork
+  name: Manacles, masterwork
+  category: adventuring_gear
+  cost_cp: 5000
+  weight: 2.0
+- id: mirror_small_steel
+  name: Mirror, small steel
+  category: adventuring_gear
+  cost_cp: 1000
+  weight: 0.5
+- id: mug_tankard_clay
+  name: Mug/Tankard, clay
+  category: adventuring_gear
+  cost_cp: 2
+  weight: 1.0
+- id: oil_1_pint_flask
+  name: Oil (1-pint flask)
+  category: adventuring_gear
+  cost_cp: 10
+  weight: 1.0
+- id: paper_sheet
+  name: Paper (sheet)
+  category: adventuring_gear
+  cost_cp: 40
+  weight: 0.0
+- id: parchment_sheet
+  name: Parchment (sheet)
+  category: adventuring_gear
+  cost_cp: 20
+  weight: 0.0
+- id: pick_miner_s
+  name: Pick, miner’s
+  category: adventuring_gear
+  cost_cp: 300
+  weight: 10.0
+- id: pitcher_clay
+  name: Pitcher, clay
+  category: adventuring_gear
+  cost_cp: 2
+  weight: 5.0
+- id: piton
+  name: Piton
+  category: adventuring_gear
+  cost_cp: 10
+  weight: 0.5
+- id: pole_10_foot
+  name: Pole, 10-foot
+  category: adventuring_gear
+  cost_cp: 20
+  weight: 8.0
+- id: pot_iron
+  name: Pot, iron
+  category: adventuring_gear
+  cost_cp: 50
+  weight: 10.0
+- id: pouch_belt_empty
+  name: Pouch, belt (empty)
+  category: adventuring_gear
+  cost_cp: 100
+  weight: 0.5
+- id: ram_portable
+  name: Ram, portable
+  category: adventuring_gear
+  cost_cp: 1000
+  weight: 20.0
+- id: rations_trail_per_day
+  name: Rations, trail (per day)
+  category: adventuring_gear
+  cost_cp: 50
+  weight: 1.0
+- id: rope_hempen_50_ft
+  name: Rope, hempen (50 ft.)
+  category: adventuring_gear
+  cost_cp: 100
+  weight: 10.0
+- id: rope_silk_50_ft
+  name: Rope, silk (50 ft.)
+  category: adventuring_gear
+  cost_cp: 1000
+  weight: 5.0
+- id: sack_empty
+  name: Sack (empty)
+  category: adventuring_gear
+  cost_cp: 10
+  weight: 0.5
+- id: sealing_wax
+  name: Sealing wax
+  category: adventuring_gear
+  cost_cp: 100
+  weight: 1.0
+- id: sewing_needle
+  name: Sewing needle
+  category: adventuring_gear
+  cost_cp: 50
+  weight: 0.0
+- id: signal_whistle
+  name: Signal whistle
+  category: adventuring_gear
+  cost_cp: 80
+  weight: 0.0
+- id: signet_ring
+  name: Signet ring
+  category: adventuring_gear
+  cost_cp: 500
+  weight: 0.0
+- id: sledge
+  name: Sledge
+  category: adventuring_gear
+  cost_cp: 100
+  weight: 10.0
+- id: soap_per_lb
+  name: Soap (per lb.)
+  category: adventuring_gear
+  cost_cp: 50
+  weight: 1.0
+- id: spade_or_shovel
+  name: Spade or shovel
+  category: adventuring_gear
+  cost_cp: 200
+  weight: 8.0
+- id: spyglass
+  name: Spyglass
+  category: adventuring_gear
+  cost_cp: 100000
+  weight: 1.0
+- id: tent
+  name: Tent
+  category: adventuring_gear
+  cost_cp: 1000
+  weight: 20.0
+- id: torch
+  name: Torch
+  category: adventuring_gear
+  cost_cp: 1
+  weight: 1.0
+- id: vial_ink_or_potion
+  name: Vial, ink or potion
+  category: adventuring_gear
+  cost_cp: 100
+  weight: 0.1
+- id: waterskin
+  name: Waterskin
+  category: adventuring_gear
+  cost_cp: 100
+  weight: 4.0
+- id: whetstone
+  name: Whetstone
+  category: adventuring_gear
+  cost_cp: 2
+  weight: 1.0
+- id: acid_flask
+  name: Acid (flask)
+  category: substance
+  cost_cp: 1000
+  weight: 1.0
+- id: alchemist_s_fire_flask
+  name: Alchemist’s fire (flask)
+  category: substance
+  cost_cp: 2000
+  weight: 1.0
+- id: antitoxin_vial
+  name: Antitoxin (vial)
+  category: substance
+  cost_cp: 5000
+  weight: 0.0
+- id: everburning_torch
+  name: Everburning torch
+  category: substance
+  cost_cp: 11000
+  weight: 1.0
+- id: holy_water_flask
+  name: Holy water (flask)
+  category: substance
+  cost_cp: 2500
+  weight: 1.0
+- id: smokestick
+  name: Smokestick
+  category: substance
+  cost_cp: 2000
+  weight: 0.5
+- id: sunrod
+  name: Sunrod
+  category: substance
+  cost_cp: 200
+  weight: 1.0
+- id: tanglefoot_bag
+  name: Tanglefoot bag
+  category: substance
+  cost_cp: 5000
+  weight: 4.0
+- id: thunderstone
+  name: Thunderstone
+  category: substance
+  cost_cp: 3000
+  weight: 1.0
+- id: tindertwig
+  name: Tindertwig
+  category: substance
+  cost_cp: 100
+  weight: 0.0
+- id: alchemist_s_lab
+  name: Alchemist’s lab
+  category: tool
+  cost_cp: 50000
+  weight: 40.0
+- id: artisan_s_tools
+  name: Artisan’s tools
+  category: tool
+  cost_cp: 500
+  weight: 5.0
+- id: artisan_s_tools_masterwork
+  name: Artisan’s tools, masterwork
+  category: tool
+  cost_cp: 5500
+  weight: 5.0
+- id: climber_s_kit
+  name: Climber’s kit
+  category: tool
+  cost_cp: 8000
+  weight: 5.0
+- id: disguise_kit
+  name: Disguise kit
+  category: tool
+  cost_cp: 5000
+  weight: 8.0
+- id: healer_s_kit
+  name: Healer’s kit
+  category: tool
+  cost_cp: 5000
+  weight: 1.0
+- id: holly_and_mistletoe
+  name: Holly and mistletoe
+  category: tool
+  cost_cp:
+  weight: 0.0
+- id: holy_symbol_wooden
+  name: Holy symbol, wooden
+  category: tool
+  cost_cp: 100
+  weight: 0.0
+- id: holy_symbol_silver
+  name: Holy symbol, silver
+  category: tool
+  cost_cp: 2500
+  weight: 1.0
+- id: hourglass
+  name: Hourglass
+  category: tool
+  cost_cp: 2500
+  weight: 1.0
+- id: magnifying_glass
+  name: Magnifying glass
+  category: tool
+  cost_cp: 10000
+  weight: 0.0
+- id: musical_instrument_common
+  name: Musical instrument, common
+  category: tool
+  cost_cp: 500
+  weight: 3.0
+- id: musical_instrument_masterwork
+  name: Musical instrument, masterwork
+  category: tool
+  cost_cp: 10000
+  weight: 3.0
+- id: scale_merchant_s
+  name: Scale, merchant’s
+  category: tool
+  cost_cp: 200
+  weight: 1.0
+- id: spell_component_pouch
+  name: Spell component pouch
+  category: tool
+  cost_cp: 500
+  weight: 2.0
+- id: spellbook_wizard_s_blank
+  name: Spellbook, wizard’s (blank)
+  category: tool
+  cost_cp: 1500
+  weight: 3.0
+- id: thieves_tools
+  name: Thieves’ tools
+  category: tool
+  cost_cp: 3000
+  weight: 1.0
+- id: thieves_tools_masterwork
+  name: Thieves’ tools, masterwork
+  category: tool
+  cost_cp: 10000
+  weight: 2.0
+- id: tool_masterwork
+  name: Tool, masterwork
+  category: tool
+  cost_cp: 5000
+  weight: 1.0
+- id: water_clock
+  name: Water clock
+  category: tool
+  cost_cp: 100000
+  weight: 200.0
+- id: artisan_s_outfit
+  name: Artisan’s outfit
+  category: clothing
+  cost_cp: 100
+  weight: 4.0
+- id: cleric_s_vestments
+  name: Cleric’s vestments
+  category: clothing
+  cost_cp: 500
+  weight: 6.0
+- id: cold_weather_outfit
+  name: Cold weather outfit
+  category: clothing
+  cost_cp: 800
+  weight: 7.0
+- id: courtier_s_outfit
+  name: Courtier’s outfit
+  category: clothing
+  cost_cp: 3000
+  weight: 6.0
+- id: entertainer_s_outfit
+  name: Entertainer’s outfit
+  category: clothing
+  cost_cp: 300
+  weight: 4.0
+- id: explorer_s_outfit
+  name: Explorer’s outfit
+  category: clothing
+  cost_cp: 1000
+  weight: 8.0
+- id: monk_s_outfit
+  name: Monk’s outfit
+  category: clothing
+  cost_cp: 500
+  weight: 2.0
+- id: noble_s_outfit
+  name: Noble’s outfit
+  category: clothing
+  cost_cp: 7500
+  weight: 10.0
+- id: peasant_s_outfit
+  name: Peasant’s outfit
+  category: clothing
+  cost_cp: 10
+  weight: 2.0
+- id: royal_outfit
+  name: Royal outfit
+  category: clothing
+  cost_cp: 20000
+  weight: 15.0
+- id: scholar_s_outfit
+  name: Scholar’s outfit
+  category: clothing
+  cost_cp: 500
+  weight: 6.0
+- id: traveler_s_outfit
+  name: Traveler’s outfit
+  category: clothing
+  cost_cp: 100
+  weight: 5.0
+- id: ale_gallon
+  name: Ale, gallon
+  category: food
+  cost_cp: 20
+  weight: 8.0
+- id: ale_mug
+  name: Ale, mug
+  category: food
+  cost_cp: 4
+  weight: 1.0
+- id: banquet_per_person
+  name: Banquet (per person)
+  category: food
+  cost_cp: 1000
+  weight: 0.0
+- id: bread_per_loaf
+  name: Bread, per loaf
+  category: food
+  cost_cp: 2
+  weight: 0.5
+- id: cheese_hunk_of
+  name: Cheese, hunk of
+  category: food
+  cost_cp: 10
+  weight: 0.5
+- id: inn_stay_per_day_good
+  name: Inn stay (per day), good
+  category: food
+  cost_cp: 200
+  weight: 0.0
+- id: inn_stay_per_day_common
+  name: Inn stay (per day), common
+  category: food
+  cost_cp: 50
+  weight: 0.0
+- id: inn_stay_per_day_poor
+  name: Inn stay (per day), poor
+  category: food
+  cost_cp: 20
+  weight: 0.0
+- id: meals_per_day_good
+  name: Meals (per day), good
+  category: food
+  cost_cp: 50
+  weight: 0.0
+- id: meals_per_day_common
+  name: Meals (per day), common
+  category: food
+  cost_cp: 30
+  weight: 0.0
+- id: meals_per_day_poor
+  name: Meals (per day), poor
+  category: food
+  cost_cp: 10
+  weight: 0.0
+- id: meat_chunk_of
+  name: Meat, chunk of
+  category: food
+  cost_cp: 30
+  weight: 0.5
+- id: wine_common_pitcher
+  name: Wine, common (pitcher)
+  category: food
+  cost_cp: 20
+  weight: 6.0
+- id: wine_fine_bottle
+  name: Wine, fine (bottle)
+  category: food
+  cost_cp: 1000
+  weight: 1.5
+- id: arrows_20
+  name: Arrows (20)
+  category: ammunition
+  cost_cp: 100
+  weight: 3.0
+- id: crossbow_bolts_10
+  name: Crossbow bolts (10)
+  category: ammunition
+  cost_cp: 100
+  weight: 1.0
+- id: crossbow_bolts_5
+  name: Crossbow bolts (5)
+  category: ammunition
+  cost_cp: 100
+  weight: 1.0
+- id: sling_bullets_10
+  name: Sling bullets (10)
+  category: ammunition
+  cost_cp: 10
+  weight: 5.0

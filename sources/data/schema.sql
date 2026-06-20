@@ -142,3 +142,27 @@ CREATE TABLE armor (
     druid_ok      INTEGER NOT NULL DEFAULT 1, -- 0 = forbudt for druider (metal); jf. _DRUID_PROHIBITED_ARMOR
     type          TEXT NOT NULL               -- light | medium | heavy | shield
 );
+
+DROP TABLE IF EXISTS weapons;
+CREATE TABLE weapons (
+    id           TEXT PRIMARY KEY,
+    name         TEXT NOT NULL,
+    category     TEXT NOT NULL,              -- simple | martial | exotic
+    weapon_class TEXT NOT NULL,              -- unarmed | light | one-handed | two-handed | ranged
+    cost_cp      INTEGER,                    -- pris i kobber (1 gp = 100 cp); NULL = — / special
+    dmg_s        TEXT,                       -- skade, Small-version
+    dmg_m        TEXT,                       -- skade, Medium-version (a/b for dobbeltvåben)
+    critical     TEXT,                       -- fx "19–20/x2"
+    range_ft     INTEGER,                    -- range increment i fod; NULL = ren nærkamp
+    weight       REAL NOT NULL DEFAULT 0,    -- pund (Medium-version)
+    damage_type  TEXT                        -- bludgeoning | piercing | slashing | kombinationer
+);
+
+DROP TABLE IF EXISTS items;
+CREATE TABLE items (
+    id       TEXT PRIMARY KEY,
+    name     TEXT NOT NULL,
+    category TEXT NOT NULL,   -- adventuring_gear | substance | tool | clothing | food | ammunition
+    cost_cp  INTEGER,         -- pris i kobber; NULL = variabel / —
+    weight   REAL NOT NULL DEFAULT 0  -- pund
+);

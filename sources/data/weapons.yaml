@@ -1,0 +1,805 @@
+# weapons — SRD v3.5 (OGL v1.0a), parset fra equipment.md. Kilden til sandheden.
+# cost_cp = pris i kobber (1 gp = 100 cp; null = — / variabel). weight = pund.
+- id: gauntlet
+  name: Gauntlet
+  category: simple
+  weapon_class: unarmed
+  cost_cp: 200
+  dmg_s: 1d2
+  dmg_m: 1d3
+  critical: x2
+  range_ft:
+  weight: 1.0
+  damage_type: Bludgeoning
+- id: unarmed_strike
+  name: Unarmed strike
+  category: simple
+  weapon_class: unarmed
+  cost_cp:
+  dmg_s: 1d2
+  dmg_m: 1d3
+  critical: x2
+  range_ft:
+  weight: 0.0
+  damage_type: Bludgeoning
+- id: dagger
+  name: Dagger
+  category: simple
+  weapon_class: light
+  cost_cp: 200
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: 19–20/x2
+  range_ft: 10
+  weight: 1.0
+  damage_type: Piercing or slashing
+- id: dagger_punching
+  name: Dagger, punching
+  category: simple
+  weapon_class: light
+  cost_cp: 200
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: x3
+  range_ft:
+  weight: 1.0
+  damage_type: Piercing
+- id: gauntlet_spiked
+  name: Gauntlet, spiked
+  category: simple
+  weapon_class: light
+  cost_cp: 500
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: x2
+  range_ft:
+  weight: 1.0
+  damage_type: Piercing
+- id: mace_light
+  name: Mace, light
+  category: simple
+  weapon_class: light
+  cost_cp: 500
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft:
+  weight: 4.0
+  damage_type: Bludgeoning
+- id: sickle
+  name: Sickle
+  category: simple
+  weapon_class: light
+  cost_cp: 600
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft:
+  weight: 2.0
+  damage_type: Slashing
+- id: club
+  name: Club
+  category: simple
+  weapon_class: one-handed
+  cost_cp:
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft: 10
+  weight: 3.0
+  damage_type: Bludgeoning
+- id: mace_heavy
+  name: Mace, heavy
+  category: simple
+  weapon_class: one-handed
+  cost_cp: 1200
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: x2
+  range_ft:
+  weight: 8.0
+  damage_type: Bludgeoning
+- id: morningstar
+  name: Morningstar
+  category: simple
+  weapon_class: one-handed
+  cost_cp: 800
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: x2
+  range_ft:
+  weight: 6.0
+  damage_type: Bludgeoning and piercing
+- id: shortspear
+  name: Shortspear
+  category: simple
+  weapon_class: one-handed
+  cost_cp: 100
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft: 20
+  weight: 3.0
+  damage_type: Piercing
+- id: longspear
+  name: Longspear
+  category: simple
+  weapon_class: two-handed
+  cost_cp: 500
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: x3
+  range_ft:
+  weight: 9.0
+  damage_type: Piercing
+- id: quarterstaff
+  name: Quarterstaff
+  category: simple
+  weapon_class: two-handed
+  cost_cp:
+  dmg_s: 1d4/1d4
+  dmg_m: 1d6/1d6
+  critical: x2
+  range_ft:
+  weight: 4.0
+  damage_type: Bludgeoning
+- id: spear
+  name: Spear
+  category: simple
+  weapon_class: two-handed
+  cost_cp: 200
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: x3
+  range_ft: 20
+  weight: 6.0
+  damage_type: Piercing
+- id: crossbow_heavy
+  name: Crossbow, heavy
+  category: simple
+  weapon_class: ranged
+  cost_cp: 5000
+  dmg_s: 1d8
+  dmg_m: 1d10
+  critical: 19–20/x2
+  range_ft: 120
+  weight: 8.0
+  damage_type: Piercing
+- id: crossbow_light
+  name: Crossbow, light
+  category: simple
+  weapon_class: ranged
+  cost_cp: 3500
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: 19–20/x2
+  range_ft: 80
+  weight: 4.0
+  damage_type: Piercing
+- id: dart
+  name: Dart
+  category: simple
+  weapon_class: ranged
+  cost_cp: 50
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: x2
+  range_ft: 20
+  weight: 0.5
+  damage_type: Piercing
+- id: javelin
+  name: Javelin
+  category: simple
+  weapon_class: ranged
+  cost_cp: 100
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft: 30
+  weight: 2.0
+  damage_type: Piercing
+- id: sling
+  name: Sling
+  category: simple
+  weapon_class: ranged
+  cost_cp:
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: x2
+  range_ft: 50
+  weight: 0.0
+  damage_type: Bludgeoning
+- id: axe_throwing
+  name: Axe, throwing
+  category: martial
+  weapon_class: light
+  cost_cp: 800
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft: 10
+  weight: 2.0
+  damage_type: Slashing
+- id: hammer_light
+  name: Hammer, light
+  category: martial
+  weapon_class: light
+  cost_cp: 100
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: x2
+  range_ft: 20
+  weight: 2.0
+  damage_type: Bludgeoning
+- id: handaxe
+  name: Handaxe
+  category: martial
+  weapon_class: light
+  cost_cp: 600
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x3
+  range_ft:
+  weight: 3.0
+  damage_type: Slashing
+- id: kukri
+  name: Kukri
+  category: martial
+  weapon_class: light
+  cost_cp: 800
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: 18–20/x2
+  range_ft:
+  weight: 2.0
+  damage_type: Slashing
+- id: pick_light
+  name: Pick, light
+  category: martial
+  weapon_class: light
+  cost_cp: 400
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: x4
+  range_ft:
+  weight: 3.0
+  damage_type: Piercing
+- id: sap
+  name: Sap
+  category: martial
+  weapon_class: light
+  cost_cp: 100
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft:
+  weight: 2.0
+  damage_type: Bludgeoning
+- id: shield_light
+  name: Shield, light
+  category: martial
+  weapon_class: light
+  cost_cp:
+  dmg_s: 1d2
+  dmg_m: 1d3
+  critical: x2
+  range_ft:
+  weight: 0.0
+  damage_type: Bludgeoning
+- id: spiked_armor
+  name: Spiked armor
+  category: martial
+  weapon_class: light
+  cost_cp:
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft:
+  weight: 0.0
+  damage_type: Piercing
+- id: spiked_shield_light
+  name: Spiked shield, light
+  category: martial
+  weapon_class: light
+  cost_cp:
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: x2
+  range_ft:
+  weight: 0.0
+  damage_type: Piercing
+- id: sword_short
+  name: Sword, short
+  category: martial
+  weapon_class: light
+  cost_cp: 1000
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: 19–20/x2
+  range_ft:
+  weight: 2.0
+  damage_type: Piercing
+- id: battleaxe
+  name: Battleaxe
+  category: martial
+  weapon_class: one-handed
+  cost_cp: 1000
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: x3
+  range_ft:
+  weight: 6.0
+  damage_type: Slashing
+- id: flail
+  name: Flail
+  category: martial
+  weapon_class: one-handed
+  cost_cp: 800
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: x2
+  range_ft:
+  weight: 5.0
+  damage_type: Bludgeoning
+- id: longsword
+  name: Longsword
+  category: martial
+  weapon_class: one-handed
+  cost_cp: 1500
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: 19–20/x2
+  range_ft:
+  weight: 4.0
+  damage_type: Slashing
+- id: pick_heavy
+  name: Pick, heavy
+  category: martial
+  weapon_class: one-handed
+  cost_cp: 800
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x4
+  range_ft:
+  weight: 6.0
+  damage_type: Piercing
+- id: rapier
+  name: Rapier
+  category: martial
+  weapon_class: one-handed
+  cost_cp: 2000
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: 18–20/x2
+  range_ft:
+  weight: 2.0
+  damage_type: Piercing
+- id: scimitar
+  name: Scimitar
+  category: martial
+  weapon_class: one-handed
+  cost_cp: 1500
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: 18–20/x2
+  range_ft:
+  weight: 4.0
+  damage_type: Slashing
+- id: shield_heavy
+  name: Shield, heavy
+  category: martial
+  weapon_class: one-handed
+  cost_cp:
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: x2
+  range_ft:
+  weight: 0.0
+  damage_type: Bludgeoning
+- id: spiked_shield_heavy
+  name: Spiked shield, heavy
+  category: martial
+  weapon_class: one-handed
+  cost_cp:
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft:
+  weight: 0.0
+  damage_type: Piercing
+- id: trident
+  name: Trident
+  category: martial
+  weapon_class: one-handed
+  cost_cp: 1500
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: x2
+  range_ft: 10
+  weight: 4.0
+  damage_type: Piercing
+- id: warhammer
+  name: Warhammer
+  category: martial
+  weapon_class: one-handed
+  cost_cp: 1200
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: x3
+  range_ft:
+  weight: 5.0
+  damage_type: Bludgeoning
+- id: falchion
+  name: Falchion
+  category: martial
+  weapon_class: two-handed
+  cost_cp: 7500
+  dmg_s: 1d6
+  dmg_m: 2d4
+  critical: 18–20/x2
+  range_ft:
+  weight: 8.0
+  damage_type: Slashing
+- id: glaive
+  name: Glaive
+  category: martial
+  weapon_class: two-handed
+  cost_cp: 800
+  dmg_s: 1d8
+  dmg_m: 1d10
+  critical: x3
+  range_ft:
+  weight: 10.0
+  damage_type: Slashing
+- id: greataxe
+  name: Greataxe
+  category: martial
+  weapon_class: two-handed
+  cost_cp: 2000
+  dmg_s: 1d10
+  dmg_m: 1d12
+  critical: x3
+  range_ft:
+  weight: 12.0
+  damage_type: Slashing
+- id: greatclub
+  name: Greatclub
+  category: martial
+  weapon_class: two-handed
+  cost_cp: 500
+  dmg_s: 1d8
+  dmg_m: 1d10
+  critical: x2
+  range_ft:
+  weight: 8.0
+  damage_type: Bludgeoning
+- id: flail_heavy
+  name: Flail, heavy
+  category: martial
+  weapon_class: two-handed
+  cost_cp: 1500
+  dmg_s: 1d8
+  dmg_m: 1d10
+  critical: 19–20/x2
+  range_ft:
+  weight: 10.0
+  damage_type: Bludgeoning
+- id: greatsword
+  name: Greatsword
+  category: martial
+  weapon_class: two-handed
+  cost_cp: 5000
+  dmg_s: 1d10
+  dmg_m: 2d6
+  critical: 19–20/x2
+  range_ft:
+  weight: 8.0
+  damage_type: Slashing
+- id: guisarme
+  name: Guisarme
+  category: martial
+  weapon_class: two-handed
+  cost_cp: 900
+  dmg_s: 1d6
+  dmg_m: 2d4
+  critical: x3
+  range_ft:
+  weight: 12.0
+  damage_type: Slashing
+- id: halberd
+  name: Halberd
+  category: martial
+  weapon_class: two-handed
+  cost_cp: 1000
+  dmg_s: 1d8
+  dmg_m: 1d10
+  critical: x3
+  range_ft:
+  weight: 12.0
+  damage_type: Piercing or slashing
+- id: lance
+  name: Lance
+  category: martial
+  weapon_class: two-handed
+  cost_cp: 1000
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: x3
+  range_ft:
+  weight: 10.0
+  damage_type: Piercing
+- id: ranseur
+  name: Ranseur
+  category: martial
+  weapon_class: two-handed
+  cost_cp: 1000
+  dmg_s: 1d6
+  dmg_m: 2d4
+  critical: x3
+  range_ft:
+  weight: 12.0
+  damage_type: Piercing
+- id: scythe
+  name: Scythe
+  category: martial
+  weapon_class: two-handed
+  cost_cp: 1800
+  dmg_s: 1d6
+  dmg_m: 2d4
+  critical: x4
+  range_ft:
+  weight: 10.0
+  damage_type: Piercing or slashing
+- id: longbow
+  name: Longbow
+  category: martial
+  weapon_class: ranged
+  cost_cp: 7500
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: x3
+  range_ft: 100
+  weight: 3.0
+  damage_type: Piercing
+- id: longbow_composite
+  name: Longbow, composite
+  category: martial
+  weapon_class: ranged
+  cost_cp: 10000
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: x3
+  range_ft: 110
+  weight: 3.0
+  damage_type: Piercing
+- id: shortbow
+  name: Shortbow
+  category: martial
+  weapon_class: ranged
+  cost_cp: 3000
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x3
+  range_ft: 60
+  weight: 2.0
+  damage_type: Piercing
+- id: shortbow_composite
+  name: Shortbow, composite
+  category: martial
+  weapon_class: ranged
+  cost_cp: 7500
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x3
+  range_ft: 70
+  weight: 2.0
+  damage_type: Piercing
+- id: kama
+  name: Kama
+  category: exotic
+  weapon_class: light
+  cost_cp: 200
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft:
+  weight: 2.0
+  damage_type: Slashing
+- id: nunchaku
+  name: Nunchaku
+  category: exotic
+  weapon_class: light
+  cost_cp: 200
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft:
+  weight: 2.0
+  damage_type: Bludgeoning
+- id: sai
+  name: Sai
+  category: exotic
+  weapon_class: light
+  cost_cp: 100
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: x2
+  range_ft: 10
+  weight: 1.0
+  damage_type: Bludgeoning
+- id: siangham
+  name: Siangham
+  category: exotic
+  weapon_class: light
+  cost_cp: 300
+  dmg_s: 1d4
+  dmg_m: 1d6
+  critical: x2
+  range_ft:
+  weight: 1.0
+  damage_type: Piercing
+- id: sword_bastard
+  name: Sword, bastard
+  category: exotic
+  weapon_class: one-handed
+  cost_cp: 3500
+  dmg_s: 1d8
+  dmg_m: 1d10
+  critical: 19–20/x2
+  range_ft:
+  weight: 6.0
+  damage_type: Slashing
+- id: waraxe_dwarven
+  name: Waraxe, dwarven
+  category: exotic
+  weapon_class: one-handed
+  cost_cp: 3000
+  dmg_s: 1d8
+  dmg_m: 1d10
+  critical: x3
+  range_ft:
+  weight: 8.0
+  damage_type: Slashing
+- id: whip
+  name: Whip
+  category: exotic
+  weapon_class: one-handed
+  cost_cp: 100
+  dmg_s: 1d2
+  dmg_m: 1d3
+  critical: x2
+  range_ft:
+  weight: 2.0
+  damage_type: Slashing
+- id: axe_orc_double
+  name: Axe, orc double
+  category: exotic
+  weapon_class: two-handed
+  cost_cp: 6000
+  dmg_s: 1d6/1d6
+  dmg_m: 1d8/1d8
+  critical: x3
+  range_ft:
+  weight: 15.0
+  damage_type: Slashing
+- id: chain_spiked
+  name: Chain, spiked
+  category: exotic
+  weapon_class: two-handed
+  cost_cp: 2500
+  dmg_s: 1d6
+  dmg_m: 2d4
+  critical: x2
+  range_ft:
+  weight: 10.0
+  damage_type: Piercing
+- id: flail_dire
+  name: Flail, dire
+  category: exotic
+  weapon_class: two-handed
+  cost_cp: 9000
+  dmg_s: 1d6/1d6
+  dmg_m: 1d8/1d8
+  critical: x2
+  range_ft:
+  weight: 10.0
+  damage_type: Bludgeoning
+- id: hammer_gnome_hooked
+  name: Hammer,  gnome hooked
+  category: exotic
+  weapon_class: two-handed
+  cost_cp: 2000
+  dmg_s: 1d6/1d4
+  dmg_m: 1d8/1d6
+  critical: x3/x4
+  range_ft:
+  weight: 6.0
+  damage_type: Bludgeoning and piercing
+- id: sword_two_bladed
+  name: Sword, two-bladed
+  category: exotic
+  weapon_class: two-handed
+  cost_cp: 10000
+  dmg_s: 1d6/1d6
+  dmg_m: 1d8/1d8
+  critical: 19–20/x2
+  range_ft:
+  weight: 10.0
+  damage_type: Slashing
+- id: urgrosh_dwarven
+  name: Urgrosh, dwarven
+  category: exotic
+  weapon_class: two-handed
+  cost_cp: 5000
+  dmg_s: 1d6/1d4
+  dmg_m: 1d8/1d6
+  critical: x3
+  range_ft:
+  weight: 12.0
+  damage_type: Slashing or piercing
+- id: bolas
+  name: Bolas
+  category: exotic
+  weapon_class: ranged
+  cost_cp: 500
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: x2
+  range_ft: 10
+  weight: 2.0
+  damage_type: Bludgeoning
+- id: crossbow_hand
+  name: Crossbow, hand
+  category: exotic
+  weapon_class: ranged
+  cost_cp: 10000
+  dmg_s: 1d3
+  dmg_m: 1d4
+  critical: 19–20/x2
+  range_ft: 30
+  weight: 2.0
+  damage_type: Piercing
+- id: crossbow_repeating_heavy
+  name: Crossbow,  repeating heavy
+  category: exotic
+  weapon_class: ranged
+  cost_cp: 40000
+  dmg_s: 1d8
+  dmg_m: 1d10
+  critical: 19–20/x2
+  range_ft: 120
+  weight: 12.0
+  damage_type: Piercing
+- id: crossbow_repeating_light
+  name: Crossbow,  repeating light
+  category: exotic
+  weapon_class: ranged
+  cost_cp: 25000
+  dmg_s: 1d6
+  dmg_m: 1d8
+  critical: 19–20/x2
+  range_ft: 80
+  weight: 6.0
+  damage_type: Piercing
+- id: net
+  name: Net
+  category: exotic
+  weapon_class: ranged
+  cost_cp: 2000
+  dmg_s:
+  dmg_m:
+  critical: 10 ft.
+  range_ft:
+  weight: 0.0
+  damage_type:
+- id: shuriken_5
+  name: Shuriken (5)
+  category: exotic
+  weapon_class: ranged
+  cost_cp: 100
+  dmg_s: '1'
+  dmg_m: 1d2
+  critical: x2
+  range_ft: 10
+  weight: 0.5
+  damage_type: Piercing

@@ -40,6 +40,8 @@ TABLES = [
     "domains",
     "domain_spells",
     "armor",
+    "weapons",
+    "items",
 ]
 
 
