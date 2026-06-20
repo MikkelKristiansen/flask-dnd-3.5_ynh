@@ -140,7 +140,9 @@ CREATE TABLE armor (
     armor_check   INTEGER NOT NULL DEFAULT 0, -- ACP (negativ); anvendes på Str/Dex-skills
     spell_failure INTEGER NOT NULL DEFAULT 0, -- arcane spell failure % (kun arcane casters; gemt til senere)
     druid_ok      INTEGER NOT NULL DEFAULT 1, -- 0 = forbudt for druider (metal); jf. _DRUID_PROHIBITED_ARMOR
-    type          TEXT NOT NULL               -- light | medium | heavy | shield
+    type          TEXT NOT NULL,              -- light | medium | heavy | shield
+    cost_cp       INTEGER,                    -- pris i kobber (1 gp = 100 cp)
+    weight        REAL NOT NULL DEFAULT 0     -- pund (Medium); Small ×½, Large ×2 udregnes
 );
 
 DROP TABLE IF EXISTS weapons;
@@ -163,6 +165,7 @@ CREATE TABLE items (
     id       TEXT PRIMARY KEY,
     name     TEXT NOT NULL,
     category TEXT NOT NULL,   -- adventuring_gear | substance | tool | clothing | food | ammunition
-    cost_cp  INTEGER,         -- pris i kobber; NULL = variabel / —
-    weight   REAL NOT NULL DEFAULT 0  -- pund
+    cost_cp       INTEGER,    -- pris i kobber; NULL = variabel / —
+    weight        REAL NOT NULL DEFAULT 0,    -- pund (Medium-version)
+    small_quarter INTEGER NOT NULL DEFAULT 0  -- 1 = vejer ¼ for Small (SRD fodnote 1); 0 = uændret
 );

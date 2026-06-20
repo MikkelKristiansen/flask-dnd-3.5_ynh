@@ -1,4 +1,5 @@
-# armor — SRD v3.5 data (OGL v1.0a). Genereret fra importer.py, herefter kilden til sandheden.
+# armor — SRD v3.5 data (OGL v1.0a). Kilden til sandheden.
+# cost_cp = pris i kobber (1 gp = 100 cp). weight = pund (Medium); Small ×½, Large ×2 udregnes.
 - id: padded
   name: Padded
   armor_bonus: 1
@@ -7,6 +8,8 @@
   spell_failure: 5
   druid_ok: 1
   type: light
+  cost_cp: 500
+  weight: 10.0
 - id: leather
   name: Leather
   armor_bonus: 2
@@ -15,6 +18,8 @@
   spell_failure: 10
   druid_ok: 1
   type: light
+  cost_cp: 1000
+  weight: 15.0
 - id: studded_leather
   name: Studded Leather
   armor_bonus: 3
@@ -23,6 +28,8 @@
   spell_failure: 15
   druid_ok: 1
   type: light
+  cost_cp: 2500
+  weight: 20.0
 - id: chain_shirt
   name: Chain Shirt
   armor_bonus: 4
@@ -31,6 +38,8 @@
   spell_failure: 20
   druid_ok: 0
   type: light
+  cost_cp: 10000
+  weight: 25.0
 - id: hide
   name: Hide
   armor_bonus: 3
@@ -39,6 +48,8 @@
   spell_failure: 20
   druid_ok: 1
   type: medium
+  cost_cp: 1500
+  weight: 25.0
 - id: scale_mail
   name: Scale Mail
   armor_bonus: 4
@@ -47,6 +58,8 @@
   spell_failure: 25
   druid_ok: 0
   type: medium
+  cost_cp: 5000
+  weight: 30.0
 - id: chainmail
   name: Chainmail
   armor_bonus: 5
@@ -55,6 +68,8 @@
   spell_failure: 30
   druid_ok: 0
   type: medium
+  cost_cp: 15000
+  weight: 40.0
 - id: breastplate
   name: Breastplate
   armor_bonus: 5
@@ -63,6 +78,8 @@
   spell_failure: 25
   druid_ok: 0
   type: medium
+  cost_cp: 20000
+  weight: 30.0
 - id: banded_mail
   name: Banded Mail
   armor_bonus: 6
@@ -71,6 +88,8 @@
   spell_failure: 35
   druid_ok: 0
   type: heavy
+  cost_cp: 25000
+  weight: 35.0
 - id: splint_mail
   name: Splint Mail
   armor_bonus: 6
@@ -79,6 +98,8 @@
   spell_failure: 40
   druid_ok: 0
   type: heavy
+  cost_cp: 20000
+  weight: 45.0
 - id: half_plate
   name: Half-Plate
   armor_bonus: 7
@@ -87,6 +108,8 @@
   spell_failure: 40
   druid_ok: 0
   type: heavy
+  cost_cp: 60000
+  weight: 50.0
 - id: full_plate
   name: Full Plate
   armor_bonus: 8
@@ -95,6 +118,8 @@
   spell_failure: 35
   druid_ok: 0
   type: heavy
+  cost_cp: 150000
+  weight: 50.0
 - id: buckler
   name: Buckler
   armor_bonus: 1
@@ -103,6 +128,8 @@
   spell_failure: 5
   druid_ok: 0
   type: shield
+  cost_cp: 1500
+  weight: 5.0
 - id: light_wooden_shield
   name: Light Wooden Shield
   armor_bonus: 1
@@ -111,6 +138,8 @@
   spell_failure: 5
   druid_ok: 1
   type: shield
+  cost_cp: 300
+  weight: 5.0
 - id: light_steel_shield
   name: Light Steel Shield
   armor_bonus: 1
@@ -119,6 +148,8 @@
   spell_failure: 5
   druid_ok: 0
   type: shield
+  cost_cp: 900
+  weight: 6.0
 - id: heavy_wooden_shield
   name: Heavy Wooden Shield
   armor_bonus: 2
@@ -127,6 +158,8 @@
   spell_failure: 15
   druid_ok: 1
   type: shield
+  cost_cp: 700
+  weight: 10.0
 - id: heavy_steel_shield
   name: Heavy Steel Shield
   armor_bonus: 2
@@ -135,6 +168,8 @@
   spell_failure: 15
   druid_ok: 0
   type: shield
+  cost_cp: 2000
+  weight: 15.0
 - id: tower_shield
   name: Tower Shield
   armor_bonus: 4
@@ -143,3 +178,5 @@
   spell_failure: 50
   druid_ok: 0
   type: shield
+  cost_cp: 3000
+  weight: 45.0
