@@ -147,6 +147,24 @@ input[type=text],input[type=number],select{width:100%;background:var(--card);
     <div class="err-inline" id="domain-err"></div>
   </div>
 
+  <div class="section hidden" id="companion-section">
+    <div class="section-title">Dyreledsager <span style="color:var(--muted);font-size:.75rem">(valgfrit — kan også vælges senere)</span></div>
+    <div class="row">
+      <div>
+        <label for="companion_animal">Dyr</label>
+        <select id="companion_animal" name="companion_animal">
+          <option value="">— ingen —</option>
+          {% for a in animals %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="companion_name">Navn</label>
+        <input type="text" id="companion_name" name="companion_name" placeholder="(valgfrit)">
+      </div>
+    </div>
+    <div style="color:var(--muted);font-size:.75rem;margin-top:.3rem">Statblok (HP/AC/angreb/skills) beregnes automatisk fra druideniveau.</div>
+  </div>
+
   <div class="section">
     <div class="section-title">Udstyr <span style="color:var(--muted);font-size:.75rem">(valgfrit — kan også udfyldes på arket)</span></div>
     <div class="row">
@@ -343,6 +361,9 @@ function onUpdate(){
 
   // Favored enemy-felt (kun ranger)
   document.getElementById('favored-wrap').classList.toggle('hidden', cls!=='Ranger');
+
+  // Dyreledsager (kun klasser med companion ved level 1 = druide)
+  document.getElementById('companion-section').classList.toggle('hidden', !cd.has_companion);
 
   // Submit-spærring
   const valid = ok && spent<=budget && featsOk && domOk;

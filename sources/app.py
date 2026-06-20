@@ -202,6 +202,8 @@ def _gen_context() -> dict:
             "bonus_feats": char_module.class_bonus_feats(c),
             "bab1": int((db.get_class_level(c.lower(), 1) or {}).get("bab", 0)),
             "turn_undead": char_module.class_can_turn_undead(c),
+            # Companion ved level 1 (kun druide; ranger får først ved level 4).
+            "has_companion": companion_module.companion_effective_level(c, 1) > 0,
         }
         for c in GEN_CLASSES
     }
@@ -217,6 +219,7 @@ def _gen_context() -> dict:
         "armors": [a for a in armor if a.get("type") != "shield"],
         "shields": [a for a in armor if a.get("type") == "shield"],
         "weapons": weapons,
+        "animals": [{"id": a["id"], "name": a["name"]} for a in db.get_all_animals()],
         "domains": db.get_domains(GEN_DOMAINS),
         "races_json": races_json,
         "classes_json": classes_json,
@@ -311,6 +314,19 @@ def create_character():
         else:
             domains = []
 
+        # Dyreledsager (valgfri, kun klasser med companion ved level 1 = druide).
+        # Tynd reference: hp_current = beregnet max ved oprettelse; resten afledes.
+        gen_companion = None
+        animal_id = f.get("companion_animal", "").strip()
+        if animal_id and companion_module.companion_effective_level(cls, 1) > 0:
+            animal = db.get_animal(animal_id)
+            if not animal:
+                raise ValueError("Ukendt dyreledsager.")
+            comp_name = f.get("companion_name", "").strip() or animal["name"]
+            hp_max = companion_module.advance_companion(animal, 1, db)["hp_max"]
+            gen_companion = {"name": comp_name, "animal": animal_id,
+                             "hp_current": hp_max, "tricks": []}
+
         # Udstyr → forenet inventar (refs + tilstand). Rustning/skjold = worn,
         # våben = wielded; afledte angreb + AC + vægt udregnes fra inventaret.
         armor_id = f.get("armor", "").strip()
@@ -388,6 +404,8 @@ def create_character():
             data["domains"] = domains
             data["domain_spells_prepared"] = {}
             data["domain_spells_used"] = {}
+        if gen_companion:
+            data["companion"] = gen_companion
 
         slug = _safe_slug(name)
         if not slug:
