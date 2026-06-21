@@ -552,8 +552,27 @@ def karakter(name):
     path = _char_path(name)
     if not path.exists():
         abort(404)
-
     char = char_module.load_character(str(path))
+    return render_template(
+        "character.html",
+        name=name,
+        char=char,
+        slug=name,
+        snapshots=_snapshots_for(name),
+        has_portrait=_portrait_path(name) is not None,
+        **build_character_view(char, db),
+    )
+
+
+def build_character_view(char, db):
+    """Byg hele view-modellen (alle template-kwargs) for et karakterark ud fra
+    en indlæst karakter + katalog-db.
+
+    Ren udledning ved render: aktive effekter -> effektive scores -> alle afledte
+    tal, udstyr/encumbrance, spells/domæner, angreb, companion og effekt-vælgerens
+    kataloger. Indeholder ingen request-/slug-afhængige felter (name/slug/
+    snapshots/portræt lægger route'en på), så den er uafhængig af Flask-konteksten.
+    """
     ab = char.ability_scores
 
     # Mekaniske effekter: aktive buffs/tilstande → modifiers → effektive ability
@@ -927,54 +946,48 @@ def karakter(name):
     # Effekt-vælgerens kataloger bygges fra effects-tabellen (kilden til sandheden).
     buff_catalog, damage_catalog = effects.picker_catalogs()
 
-    return render_template(
-        "character.html",
-        name=name,
-        char=char,
-        companion=companion,
-        abilities=abilities,
-        saves=saves,
-        skill_data=skill_data,
-        feat_data=feat_data,
-        char_feat_ids=char_feat_ids,
-        spell_data=spell_data,
-        slots=slots,
-        condition_data=condition_data,
-        all_conditions=all_conditions,
-        buff_catalog=buff_catalog,
-        damage_catalog=damage_catalog,
-        xp_info=xp_info,
-        weight=weight,
-        enc_limits=enc_limits,
-        enc=enc,
-        base_speed=base_speed,
-        attack_rows=attack_rows,
-        attacks_json=attacks_json,
-        grapple=grapple,
-        initiative=initiative,
-        ac=ac,
-        ac_delta=ac_delta,
-        speed=speed,
-        conditional_notes=conditional_notes,
-        effect_flags=riders["flags"],
-        temp_hp=temp_hp,
-        druid_armor_block=druid_armor_block,
-        inventory_json=inventory_json,
-        catalog_json=catalog_json,
-        available_spells=available_spells,
-        domain_slots=domain_slots,
-        domains_info=domains_info,
-        domain_available=domain_available,
-        domain_prepared=domain_prepared,
-        sla_data=sla_data,
-        levelup_info=levelup_info,
-        all_feats_json=all_feats_json,
-        all_skills_json=all_skills_json,
-        cls_skills_json=cls_skills_json,
-        snapshots=_snapshots_for(name),
-        slug=name,
-        has_portrait=_portrait_path(name) is not None,
-    )
+    return {
+        "companion": companion,
+        "abilities": abilities,
+        "saves": saves,
+        "skill_data": skill_data,
+        "feat_data": feat_data,
+        "char_feat_ids": char_feat_ids,
+        "spell_data": spell_data,
+        "slots": slots,
+        "condition_data": condition_data,
+        "all_conditions": all_conditions,
+        "buff_catalog": buff_catalog,
+        "damage_catalog": damage_catalog,
+        "xp_info": xp_info,
+        "weight": weight,
+        "enc_limits": enc_limits,
+        "enc": enc,
+        "base_speed": base_speed,
+        "attack_rows": attack_rows,
+        "attacks_json": attacks_json,
+        "grapple": grapple,
+        "initiative": initiative,
+        "ac": ac,
+        "ac_delta": ac_delta,
+        "speed": speed,
+        "conditional_notes": conditional_notes,
+        "effect_flags": riders["flags"],
+        "temp_hp": temp_hp,
+        "druid_armor_block": druid_armor_block,
+        "inventory_json": inventory_json,
+        "catalog_json": catalog_json,
+        "available_spells": available_spells,
+        "domain_slots": domain_slots,
+        "domains_info": domains_info,
+        "domain_available": domain_available,
+        "domain_prepared": domain_prepared,
+        "sla_data": sla_data,
+        "levelup_info": levelup_info,
+        "all_feats_json": all_feats_json,
+        "all_skills_json": all_skills_json,
+        "cls_skills_json": cls_skills_json,
+    }
 
 
 @app.route("/portrait/<slug>")
