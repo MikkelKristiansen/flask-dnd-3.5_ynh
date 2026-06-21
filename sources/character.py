@@ -679,8 +679,13 @@ def skill_total(skill: Skill, ability_scores: AbilityScores, db,
             + skill.misc + synergy_bonus + acp_applied)
 
 
-def save_total(base: int, ability_score: int) -> int:
-    return base + (ability_score - 10) // 2
+def save_total(base: int, ability_score: int, racial: int = 0) -> int:
+    """Save = klasse-base + ability-mod + evt. racial bonus (fx halfling +1 på alle).
+
+    racial holdes som rå race-data (race_data()['save_bonus']) og lægges på her —
+    aldrig gemt sammen med klasse-basen i YAML.
+    """
+    return base + (ability_score - 10) // 2 + racial
 
 
 # ---------------------------------------------------------------------------
@@ -1233,6 +1238,26 @@ _RACES: dict[str, dict] = {
                 {"id": "ghost_sound", "freq": "1/dag"},
                 {"id": "prestidigitation", "freq": "1/dag"},
             ],
+        },
+    },
+    "halfling": {
+        "size": "small", "speed": 20,
+        "ability_adjust": {"dex": 2, "str": -2},
+        # Racial skill-affinitet (ikke størrelses-Hide — den er kun tekst, som hos gnome).
+        "skill_bonuses": {"climb": 2, "jump": 2, "move_silently": 2, "listen": 2},
+        "languages": {"automatic": ["Common", "Halfling"],
+                      "bonus": ["Dwarven", "Elven", "Gnome", "Goblin", "Orc"]},
+        "save_bonus": 1,                  # +1 på ALLE saves (racial, lægges på i save_total)
+        "bonus_feats": 0,
+        "traits": {
+            "stat_mods": "+2 DEX, -2 STR",
+            "size": "Small",
+            "size_bonuses": "+1 AC, +1 angreb, +4 Hide",
+            "saves": "+1 på alle saves (medregnet i tallene)",
+            "fear_save_bonus": "+2 morale mod frygt (oveni racial +1)",
+            "thrown_attack_bonus": "+1 angreb med kastevåben og slynge",
+            "skill_affinity": "+2 Climb, Jump og Move Silently; +2 Listen",
+            "favored_class": "Rogue",
         },
     },
 }

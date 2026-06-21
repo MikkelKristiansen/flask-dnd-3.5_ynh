@@ -18,7 +18,7 @@ import dice as dice_module
 
 # Klasser/racer generatoren understøtter (v1: de motoren er bevist mod + ranger).
 GEN_CLASSES = ["Cleric", "Druid", "Ranger", "Rogue"]
-GEN_RACES = ["Human", "Elf", "Gnome"]
+GEN_RACES = ["Human", "Elf", "Gnome", "Halfling"]
 GEN_DOMAINS = ["healing", "protection", "war", "knowledge", "good", "luck"]
 
 # Kuraterede buff-hurtigvalg (KUN tracking — tallene anvendes ikke mekanisk).
@@ -598,10 +598,11 @@ def karakter(name):
     # Druide i metalrustning/-skjold mister spellcasting (+ su/sp-evner) i 24t
     druid_armor_block = char_module.druid_armor_violations(char.cls, armor_row, shield_row)
 
+    racial_save = int(char_module.race_data(char.race).get("save_bonus", 0))
     saves = {
-        "Fortitude": char_module.save_total(char.saves.get("fortitude", 0), ab.con),
-        "Reflex":    char_module.save_total(char.saves.get("reflex",    0), ab.dex),
-        "Will":      char_module.save_total(char.saves.get("will",      0), ab.wis),
+        "Fortitude": char_module.save_total(char.saves.get("fortitude", 0), ab.con, racial_save),
+        "Reflex":    char_module.save_total(char.saves.get("reflex",    0), ab.dex, racial_save),
+        "Will":      char_module.save_total(char.saves.get("will",      0), ab.wis, racial_save),
     }
 
     synergy_bonuses = char_module.compute_synergy_bonuses(char.skills)
