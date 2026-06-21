@@ -128,6 +128,20 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .buff-badge.buff-negative{background:var(--red);}
 .cond-note{font-size:.72rem;color:var(--accent);font-style:italic;margin-top:.25rem;}
 .cond-note-src{color:var(--muted);font-style:normal;}
+/* Aktive ryttere/flag (ikke-numeriske effekter, advarsler) */
+.flags-box{background:rgba(155,40,40,.12);border:1px solid var(--red);border-left:5px solid var(--red);
+           border-radius:6px;padding:.5rem .65rem;margin-bottom:.8rem;font-size:.82rem;}
+.flags-lead{color:var(--red);font-weight:bold;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;}
+.flags-item{display:block;margin-top:.25rem;line-height:1.35;}
+.flags-item.buff{color:var(--text);}
+.flags-name{font-weight:bold;}
+.flags-item.buff .flags-name{color:var(--green);}
+.flags-item.condition .flags-name{color:var(--red);}
+/* Guidance tap-to-apply */
+.guidance-chip{display:none;align-items:center;gap:.4rem;cursor:pointer;margin:.4rem 0 .6rem;
+               padding:.4rem .6rem;border-radius:6px;font-size:.85rem;
+               background:rgba(74,110,28,.16);border:1px solid var(--green);color:var(--green);font-weight:bold;}
+.guidance-chip.armed{background:var(--green);color:#fff;box-shadow:0 0 0 2px rgba(74,110,28,.4);}
 
 /* Attacks */
 .attack-row{display:grid;grid-template-columns:1fr auto auto auto;gap:.5rem;
@@ -588,6 +602,19 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   {# Delta-markør: lille ▲/▼ ved et tal som en aktiv effekt har ændret. #}
   {% macro dmark(d) %}{% if d.changed %}<span class="eff-delta {{ 'up' if d.up else 'down' }}" title="Basis: {{ d.base }} — ændret af aktiv effekt">{{ '▲' if d.up else '▼' }}</span>{% endif %}{% endmacro %}
 
+  {# Guidance: +1 på ÉT angreb/save/skill — armes og forbruges på næste rul. #}
+  <div id="guidance-chip" class="guidance-chip" onclick="toggleGuidance()"></div>
+
+  {# Aktive ryttere/flag: ikke-numeriske effekter + mekaniske påmindelser. #}
+  {% if effect_flags %}
+  <div class="flags-box">
+    <span class="flags-lead">⚑ Aktive flag</span>
+    {% for f in effect_flags %}
+    <span class="flags-item {{ f.kind }}"><span class="flags-name">{{ f.name }}:</span> {{ f.note }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <div class="section">
     <div class="section-title">Evnescores <span style="color:var(--muted);font-size:.7rem;font-style:italic">(▲/▼ = ændret af effekt · tap for detaljer)</span></div>
     <div class="ability-grid">
@@ -608,7 +635,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       <div class="section-title">Saves <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for at slå)</span></div>
       <div id="buff-rem-saves-character" class="buff-reminder" style="display:none"></div>
       {% for s in saves %}
-      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(s.val) }}','{{ s.name }} Save')" title="Slå {{ s.name }} Save">
+      <div class="stat-row roll-tap" onclick="guidedRoll('1d20{{ "%+d"|format(s.val) }}','{{ s.name }} Save')" title="Slå {{ s.name }} Save">
         <span class="stat-label">{{ s.name }}</span>
         <span class="stat-val">{{ "%+d"|format(s.val) }}{{ dmark(s) }}</span>
       </div>
@@ -648,7 +675,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
         {% if row.alt_note %}<span class="attack-alt">{{ row.alt_note }}</span>{% endif %}
       </span>
       <span class="attack-bonus roll-tap"
-            onclick="quickRoll('1d20{{ "%+d"|format(row.to_hit) }}','{{ atk.name }} angreb')"
+            onclick="guidedRoll('1d20{{ "%+d"|format(row.to_hit) }}','{{ atk.name }} angreb')"
             title="{% if row.hit_changed %}Basis {{ "%+d"|format(row.base_to_hit) }} — ændret af effekt{% else %}Slå angrebsbonus{% endif %}">{{ "%+d"|format(row.to_hit) }}{% if row.hit_changed %}<span class="eff-delta {{ 'up' if row.hit_up else 'down' }}">{{ '▲' if row.hit_up else '▼' }}</span>{% endif %}</span>
       <span class="attack-dmg roll-tap"
             onclick="quickRoll('{{ row.damage }}','{{ atk.name }} skade', 1)"
@@ -879,14 +906,14 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
         {% if item.usable %}
         {% if item.synergy > 0 %}
         <span class="skill-total roll-tap"
-              onclick="event.stopPropagation();quickRoll('1d20{{ "%+d"|format(item.base_total) }}','{{ defn.name if defn else s.id }}')"
+              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.base_total) }}','{{ defn.name if defn else s.id }}')"
               title="Slå {{ defn.name if defn else s.id }} (uden synergi){% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.base_total) }}</span>
         <span class="skill-total roll-tap" style="color:var(--green);font-size:.82rem"
-              onclick="event.stopPropagation();quickRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }} (m. synergi)')"
+              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }} (m. synergi)')"
               title="Slå {{ defn.name if defn else s.id }} inkl. +{{ item.synergy }} situationsbestemt synergi">{{ "%+d"|format(item.total) }}⟳{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect}) }}</span>
         {% else %}
         <span class="skill-total roll-tap"
-              onclick="event.stopPropagation();quickRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }}')"
+              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }}')"
               title="Slå {{ defn.name if defn else s.id }}{% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.total) }}{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect}) }}</span>
         {% endif %}
         {% else %}
@@ -1943,6 +1970,53 @@ function quickRoll(expr, label, min) {
     }, 80);
   }
 }
+
+// ── Guidance: +1 competence på ÉT angreb/save/skill (engangs) ───────────────
+let guidanceIdx = charBuffs.findIndex(b => b && b.spell_id === "guidance");
+let guidanceArmed = false;
+
+function renderGuidanceChip() {
+  const el = document.getElementById("guidance-chip");
+  if (!el) return;
+  if (guidanceIdx < 0) { el.style.display = "none"; return; }
+  el.style.display = "inline-flex";
+  el.classList.toggle("armed", guidanceArmed);
+  el.textContent = guidanceArmed
+    ? "⚡ Guidance armet — næste angreb/save/skill får +1 (tap = fortryd)"
+    : "⚡ Guidance klar — tap for at lægge +1 på næste angreb/save/skill";
+}
+
+function toggleGuidance() {
+  if (guidanceIdx < 0) return;
+  guidanceArmed = !guidanceArmed;
+  renderGuidanceChip();
+}
+
+// Læg delta til den efterstillede modifier i et terninge-udtryk ("1d20+5" → +6).
+function addToMod(expr, delta) {
+  const mm = expr.match(/([+-]\d+)\s*$/);
+  if (mm) {
+    const n = parseInt(mm[1], 10) + delta;
+    return expr.slice(0, mm.index) + (n >= 0 ? "+" : "") + n;
+  }
+  return expr + (delta >= 0 ? "+" : "") + delta;
+}
+
+// Rul der kan modtage Guidance. Er buffen armet, lægges +1 på dette ENE rul og
+// buffen forbruges (fjernes server-side, hvorefter siden genindlæses).
+function guidedRoll(expr, label, min) {
+  if (guidanceArmed && guidanceIdx >= 0) {
+    quickRoll(addToMod(expr, 1), (label || "") + " (+1 Guidance)", min);
+    guidanceArmed = false;
+    fetch(BASE + "/api/buffs", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({char: CHAR, action: "remove", target: "character", index: guidanceIdx})
+    }).then(() => setTimeout(() => location.reload(), 1500));
+    return;
+  }
+  quickRoll(expr, label, min);
+}
+renderGuidanceChip();
 
 // ── Gold ──────────────────────────────────────────────────────────────────
 function editGold(coin) {

@@ -632,7 +632,7 @@ def _collect_active_effects(char):
             mods = [{**md, "value": instance_value} for md in mods]
         modifiers.extend(mods)
         sources.append({"name": effect["name"], "kind": effect.get("kind"),
-                        "modifiers": mods})
+                        "modifiers": mods, "riders": effect.get("riders") or []})
 
     for b in char.buffs:
         sid = b.get("spell_id")
@@ -658,6 +658,29 @@ def _ability_breakdown(sources):
             if t in out and not m.get("only_vs"):
                 out[t].append({"name": src["name"], "value": int(m.get("value", 0))})
     return out
+
+
+def _collect_riders(sources):
+    """Aktive ryttere → mekaniske flag (lose_dex/half_speed) + en visningsliste.
+
+    Mekaniske ryttere anvendes i beregningen OG vises som flag; rene noter (uden
+    type) vises kun som påmindelse/advarsel. flags bærer effektnavn + kind, så de
+    kan farves (tilstand=rød, buff=grøn) i visningen.
+    """
+    lose_dex = half_speed = False
+    flags = []
+    for src in sources:
+        for r in src.get("riders") or []:
+            rtype = (r.get("type") or "").lower()
+            if rtype == "lose_dex":
+                lose_dex = True
+            elif rtype == "half_speed":
+                half_speed = True
+            # roll_only (Guidance) håndteres af tap-to-apply, ikke som flag.
+            note = r.get("note")
+            if note and rtype != "roll_only":
+                flags.append({"name": src["name"], "kind": src.get("kind"), "note": note})
+    return {"lose_dex": lose_dex, "half_speed": half_speed, "flags": flags}
 
 
 def _damage_bonus(damage: str) -> int:
@@ -703,6 +726,8 @@ def karakter(name):
                 "name": src["name"], "target": m["target"],
                 "value": int(m.get("value", 0)), "only_vs": m["only_vs"],
             })
+    # Ikke-numeriske ryttere: mekaniske flag (lose_dex/half_speed) + advarsler.
+    riders = _collect_riders(effect_sources)
 
     # Equipped rustning/skjold → bruges til både AC og rustnings-tjekstraf (ACP).
     # Udledes fra inventaret (worn-poster); falder tilbage til combat.armor/shield
@@ -895,17 +920,23 @@ def karakter(name):
     grapple = _delta_row("Grapple",
                          char_module.grapple_total(bab, eff.str, char.size),
                          char_module.grapple_total(bab, ab.str, char.size))
+    init_misc = int(char.combat.get("initiative_misc", 0))
     initiative = _delta_row(
         "Init",
-        char_module.initiative_total(eff, char.feats, int(char.combat.get("initiative_misc", 0))),
-        char_module.initiative_total(ab, char.feats, int(char.combat.get("initiative_misc", 0))))
-    ac = char_module.armor_class(eff, char.size, **_ac_common, **ac_bonuses)
+        char_module.initiative_total(eff, char.feats, init_misc, net.get("init", 0)),
+        char_module.initiative_total(ab, char.feats, init_misc))
+    ac = char_module.armor_class(eff, char.size, **_ac_common, **ac_bonuses,
+                                 lose_dex=riders["lose_dex"])
     ac_base = char_module.armor_class(ab, char.size, **_ac_common, **_combat_ac)
-    # Pr. AC-tal: er det ændret af en effekt? (Dex + typede AC-bonusser.)
+    # Pr. AC-tal: er det ændret af en effekt? (Dex + typede AC-bonusser + lose_dex.)
     ac_delta = {k: _delta_row(k, ac[k], ac_base[k]) for k in ("ac", "touch", "flat_footed")}
 
-    # Speed: longstrider m.fl. (effekt-bonus til land-bevægelse).
-    speed = _delta_row("Speed", base_speed + net.get("speed", 0), base_speed)
+    # Speed: longstrider (+) m.fl., derefter halvering hvis en rytter kræver det
+    # (blinded/entangled/exhausted). base er karakterens rå hastighed.
+    eff_speed = base_speed + net.get("speed", 0)
+    if riders["half_speed"]:
+        eff_speed //= 2
+    speed = _delta_row("Speed", eff_speed, base_speed)
 
     # Evnescores vises effektivt med basis + breakdown når en effekt ændrede dem.
     ability_breakdown = _ability_breakdown(effect_sources)
@@ -1061,6 +1092,7 @@ def karakter(name):
         ac_delta=ac_delta,
         speed=speed,
         conditional_notes=conditional_notes,
+        effect_flags=riders["flags"],
         druid_armor_block=druid_armor_block,
         inventory_json=inventory_json,
         catalog_json=catalog_json,

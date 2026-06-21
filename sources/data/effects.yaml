@@ -85,7 +85,7 @@
   name: Guidance
   kind: buff
   source_spell_id: guidance
-  riders: '[{"note": "+1 competence på ÉT angreb, save eller skill (engangs — tap-to-apply)"}]'
+  riders: '[{"type": "roll_only", "note": "+1 competence på ÉT angreb, save eller skill (engangs — tap-to-apply)"}]'
 
 - id: virtue
   name: Virtue
@@ -121,6 +121,130 @@
   name: Fatigued
   kind: condition
   modifiers: '[{"target": "str", "type": "penalty", "value": -2}, {"target": "dex", "type": "penalty", "value": -2}]'
+
+# Exhausted = −6 Str og −6 Dex (kaskaderer) + halv fart.
+- id: exhausted
+  name: Exhausted
+  kind: condition
+  modifiers: '[{"target": "str", "type": "penalty", "value": -6}, {"target": "dex", "type": "penalty", "value": -6}]'
+  riders: '[{"type": "half_speed", "note": "Halv bevægelse"}]'
+
+# ── Mister Dex-til-AC (lose_dex) + −2 AC ────────────────────────────────────
+- id: blinded
+  name: Blinded
+  kind: condition
+  modifiers: '[{"target": "ac", "type": "penalty", "value": -2}]'
+  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"type": "half_speed", "note": "Halv bevægelse"}, {"note": "50% miss chance (alle modstandere har total concealment)"}, {"note": "−4 på Search og de fleste Str/Dex-skills"}]'
+
+- id: cowering
+  name: Cowering
+  kind: condition
+  modifiers: '[{"target": "ac", "type": "penalty", "value": -2}]'
+  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"note": "Frosset af frygt — kan ikke handle"}]'
+
+- id: stunned
+  name: Stunned
+  kind: condition
+  modifiers: '[{"target": "ac", "type": "penalty", "value": -2}]'
+  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"note": "Kan ikke handle; taber alt i hænderne"}]'
+
+- id: flat_footed
+  name: Flat-footed
+  kind: condition
+  modifiers: '[]'
+  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"note": "Kan ikke lave attacks of opportunity"}]'
+
+# ── Ability-/attack-straffe der kaskaderer (resten er flag) ─────────────────
+- id: entangled
+  name: Entangled
+  kind: condition
+  modifiers: '[{"target": "dex", "type": "penalty", "value": -4}, {"target": "attack", "type": "penalty", "value": -2}]'
+  riders: '[{"type": "half_speed", "note": "Halv fart; kan ikke løbe eller charge"}, {"note": "Spells kræver Concentration-check (DC 15)"}]'
+
+- id: grappled
+  name: Grappled
+  kind: condition
+  modifiers: '[{"target": "dex", "type": "penalty", "value": -4}]'
+  riders: '[{"note": "−4 attack med lette våben; kan ikke bevæge sig"}, {"note": "Spells kræver Concentration"}]'
+
+- id: dazzled
+  name: Dazzled
+  kind: condition
+  modifiers: '[{"target": "attack", "type": "penalty", "value": -1}]'
+  riders: '[{"note": "−1 på syns-baserede Spot-checks"}]'
+
+- id: frightened
+  name: Frightened
+  kind: condition
+  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "save_all", "type": "penalty", "value": -2}, {"target": "skill_all", "type": "penalty", "value": -2}]'
+  riders: '[{"note": "Flygter fra kilden hvis muligt"}]'
+
+- id: panicked
+  name: Panicked
+  kind: condition
+  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "save_all", "type": "penalty", "value": -2}, {"target": "skill_all", "type": "penalty", "value": -2}]'
+  riders: '[{"note": "Taber alt i hænderne og flygter"}]'
+
+- id: deafened
+  name: Deafened
+  kind: condition
+  modifiers: '[{"target": "init", "type": "penalty", "value": -4}]'
+  riders: '[{"note": "20% spell failure (verbale komponenter)"}, {"note": "Fejler automatisk Listen-checks"}]'
+
+# ── Rene flag (ikke-numeriske / betingede / handlingsøkonomi) ───────────────
+- id: prone
+  name: Prone
+  kind: condition
+  modifiers: '[]'
+  riders: '[{"note": "−4 på melee-angreb"}, {"note": "+4 AC mod ranged, −4 AC mod melee"}]'
+
+- id: helpless
+  name: Helpless
+  kind: condition
+  modifiers: '[]'
+  riders: '[{"note": "Behandles som Dex 0; coup de grace muligt"}, {"note": "Modstandere i nærkamp får +4 til angreb"}]'
+
+- id: paralyzed
+  name: Paralyzed
+  kind: condition
+  modifiers: '[]'
+  riders: '[{"note": "Str og Dex behandles som 0; helpless"}, {"note": "Coup de grace muligt for modstandere"}]'
+
+- id: nauseated
+  name: Nauseated
+  kind: condition
+  modifiers: '[]'
+  riders: '[{"note": "Kun én move-action pr. runde; ingen angreb/spells"}]'
+
+- id: confused
+  name: Confused
+  kind: condition
+  modifiers: '[]'
+  riders: '[{"note": "Tilfældig handling hver runde (slå d%)"}]'
+
+- id: disabled
+  name: Disabled
+  kind: condition
+  modifiers: '[]'
+  riders: '[{"note": "0 HP: én handling/runde; anstrengelse koster 1 skade"}]'
+
+- id: fascinated
+  name: Fascinated
+  kind: condition
+  modifiers: '[]'
+  riders: '[{"note": "−4 på Spot og Listen; tager ingen handlinger"}]'
+
+- id: staggered
+  name: Staggered
+  kind: condition
+  modifiers: '[]'
+  riders: '[{"note": "Kun én handling/runde (move eller standard)"}]'
+
+- id: unconscious
+  name: Unconscious
+  kind: condition
+  modifiers: '[]'
+  riders: '[{"note": "Bevidstløs og hjælpeløs"}]'
 
 # ── Ability-skade-skabeloner (kaskaderer; value redigerbar pr. instans) ─────
 # value er en standardstraf; den faktiske skade vælges når effekten tilføjes.

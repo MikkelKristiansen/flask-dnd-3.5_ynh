@@ -884,23 +884,29 @@ def grapple_total(bab: int, str_score: int, size: str) -> int:
     return bab + (str_score - 10) // 2 + size_mod_grapple(size)
 
 
-def initiative_total(ability_scores: AbilityScores, feats: list, misc: int = 0) -> int:
-    """Initiativ: Dex-mod + Improved Initiative (+4 hvis feat'en haves) + misc."""
+def initiative_total(ability_scores: AbilityScores, feats: list, misc: int = 0,
+                     effect_bonus: int = 0) -> int:
+    """Initiativ: Dex-mod + Improved Initiative (+4 hvis feat'en haves) + misc
+    + effekt-bonus (fx deafened −4)."""
     feat_bonus = 4 if "improved_initiative" in {feat_id(f).lower() for f in feats} else 0
-    return ability_scores.modifier("dex") + feat_bonus + misc
+    return ability_scores.modifier("dex") + feat_bonus + misc + effect_bonus
 
 
 def armor_class(ability_scores: AbilityScores, size: str, *,
                 armor: dict | None = None, shield: dict | None = None,
                 enc_max_dex: int | None = None,
                 natural: int = 0, deflection: int = 0,
-                dodge: int = 0, misc: int = 0) -> dict:
+                dodge: int = 0, misc: int = 0, lose_dex: bool = False) -> dict:
     """Beregn AC, touch-AC og flat-footed-AC (3.5 SRD).
 
     armor/shield er rækker fra armor-tabellen (dict) eller None. Dex-bonus til AC
     cappes af det laveste af rustningens/skjoldets max_dex og encumbrance-max_dex
     (en Dex-straf rammer altid fuldt). Touch ignorerer rustning/skjold/naturlig
     armor; flat-footed mister Dex-bonus og dodge (men beholder en Dex-straf).
+
+    lose_dex (blinded/cowering/stunned/flat-footed-tilstand): den normale AC og
+    touch mister også Dex-bonus og dodge — som flat-footed — men beholder en
+    Dex-STRAF. Flat-footed-tallet er uændret.
     """
     armor_bonus = (armor["armor_bonus"] if armor else 0) \
         + (shield["armor_bonus"] if shield else 0)
@@ -915,8 +921,13 @@ def armor_class(ability_scores: AbilityScores, size: str, *,
     dex_to_ac = min([dex, *caps]) if caps else dex
     dex_penalty = min(dex_to_ac, 0)   # bevares når flat-footed
 
-    full = 10 + armor_bonus + dex_to_ac + size_mod + natural + deflection + dodge + misc
-    touch = 10 + dex_to_ac + size_mod + deflection + dodge + misc
+    # Mister man Dex-til-AC (blinded m.fl.), behandles normal-AC/touch som
+    # flat-footed: ingen Dex-bonus, ingen dodge — kun en evt. Dex-straf.
+    ac_dex = dex_penalty if lose_dex else dex_to_ac
+    ac_dodge = 0 if lose_dex else dodge
+
+    full = 10 + armor_bonus + ac_dex + size_mod + natural + deflection + ac_dodge + misc
+    touch = 10 + ac_dex + size_mod + deflection + ac_dodge + misc
     flat = 10 + armor_bonus + size_mod + natural + deflection + misc + dex_penalty
     return {"ac": full, "touch": touch, "flat_footed": flat}
 

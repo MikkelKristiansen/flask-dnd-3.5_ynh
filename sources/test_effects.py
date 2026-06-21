@@ -8,7 +8,8 @@ isoleret i resolve_modifiers og dækket grundigt her.
 from character import (AbilityScores, effective_ability_scores,
                        resolve_modifiers, save_total, attack_total, Attack,
                        grapple_total, resolve_ac_bonuses, save_effect_bonus,
-                       skill_effect_bonus, conditional_modifiers)
+                       skill_effect_bonus, conditional_modifiers,
+                       armor_class, initiative_total)
 
 
 def m(target, type, value, **extra):
@@ -216,3 +217,32 @@ def test_conditional_modifiers_extracted():
     assert len(cond) == 1 and cond[0]["only_vs"] == "fear"
     # …og den betingede ryger IKKE i nettotallet.
     assert resolve_modifiers(mods) == {"attack": 1}
+
+
+# ── Fase 3: lose_dex + init-effekt ──────────────────────────────────────────
+
+def test_lose_dex_drops_dex_bonus_to_ac():
+    ab = AbilityScores(dex=16)  # +3
+    normal = armor_class(ab, "medium")
+    blinded = armor_class(ab, "medium", lose_dex=True)
+    assert normal["ac"] == 13           # 10 + 3 Dex
+    assert blinded["ac"] == 10          # mister Dex-bonus
+    assert blinded["ac"] == normal["flat_footed"]
+
+
+def test_lose_dex_keeps_dex_penalty():
+    # En Dex-STRAF beholdes selv når man mister Dex-bonus.
+    ab = AbilityScores(dex=8)  # -1
+    assert armor_class(ab, "medium", lose_dex=True)["ac"] == 9
+
+
+def test_lose_dex_also_drops_dodge():
+    ab = AbilityScores(dex=14)  # +2
+    assert armor_class(ab, "medium", dodge=1)["ac"] == 13       # 10+2+1
+    assert armor_class(ab, "medium", dodge=1, lose_dex=True)["ac"] == 10
+
+
+def test_initiative_effect_bonus():
+    ab = AbilityScores(dex=14)  # +2
+    assert initiative_total(ab, [], 0) == 2
+    assert initiative_total(ab, [], 0, effect_bonus=-4) == -2   # deafened
