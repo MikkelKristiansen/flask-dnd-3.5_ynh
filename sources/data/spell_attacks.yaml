@@ -46,3 +46,21 @@
   range_ft: 20
   charges: 3
   alt_note: 2d6+2 mod udøde
+
+# Flame Blade — 3-fods ildklinge i hånden; nærkamps-touch-angreb (druid 2).
+# 1d8 + 1 ild pr. 2 casterniveauer (max +10). Per-2-niveauer kan den nuværende
+# per-niveau-formel ikke udregne, så grundskaden (1d8) udledes og skaleringen
+# står i alt_note til manuel tillægning.
+- spell_id: flame_blade
+  label: Flame Blade (nærkamp)
+  kind: melee_touch
+  base_damage: 1d8
+  dmg_per_level:
+  dmg_per_level_max:
+  dmg_bonus:
+  to_hit:
+  crit: x2
+  dmg_type: Ild
+  range_ft:
+  charges:
+  alt_note: +1 ild pr. 2 casterniveauer (max +10) — lægges til manuelt
