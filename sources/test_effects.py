@@ -9,7 +9,7 @@ from character import (AbilityScores, effective_ability_scores,
                        resolve_modifiers, save_total, attack_total, Attack,
                        grapple_total, resolve_ac_bonuses, save_effect_bonus,
                        skill_effect_bonus, conditional_modifiers,
-                       armor_class, initiative_total)
+                       armor_class, initiative_total, con_temp_hp)
 
 
 def m(target, type, value, **extra):
@@ -254,3 +254,24 @@ def test_initiative_effect_bonus():
     ab = AbilityScores(dex=14)  # +2
     assert initiative_total(ab, [], 0) == 2
     assert initiative_total(ab, [], 0, effect_bonus=-4) == -2   # deafened
+
+
+# ── Bear's Endurance: midlertidigt HP fra hævet Con ─────────────────────────
+
+def test_con_temp_hp_bears_endurance():
+    base = AbilityScores(con=12)                                  # +1
+    eff = effective_ability_scores(base, [m("con", "enhancement", 4)])  # 16 → +3
+    # +4 Con = +2 mod → 2 HP pr. HD.
+    assert con_temp_hp(base, eff, level=1) == 2
+    assert con_temp_hp(base, eff, level=5) == 10
+
+
+def test_con_temp_hp_only_on_increase():
+    base = AbilityScores(con=14)                                  # +2
+    eff = effective_ability_scores(base, [m("con", "penalty", -4)])     # 10 → 0
+    assert con_temp_hp(base, eff, level=5) == 0                   # Con-skade giver ikke temp-HP
+
+
+def test_con_temp_hp_none_when_unchanged():
+    base = AbilityScores(con=13)
+    assert con_temp_hp(base, base, level=8) == 0

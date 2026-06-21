@@ -637,18 +637,21 @@ def _ability_breakdown(sources):
     return out
 
 
-def _temp_hp_from_modifiers(active_modifiers) -> int:
-    """Midlertidigt HP fra aktive effekter (target hp_temp). Temp-HP STACKER ikke
-    (SRD) — den højeste kilde gælder. 0 hvis ingen."""
-    vals = [int(m.get("value", 0)) for m in (active_modifiers or [])
-            if m.get("target") == "hp_temp" and not m.get("only_vs")]
-    return max(vals) if vals else 0
+def _temp_hp_from_modifiers(active_modifiers, base=None, eff=None, level=1) -> int:
+    """Samlet midlertidigt HP: faste hp_temp-modifiers (Virtue) + Con-afledt temp-HP
+    (Bear's Endurance). Temp-HP STACKER ikke (SRD) — den højeste kilde gælder."""
+    sources = [int(m.get("value", 0)) for m in (active_modifiers or [])
+               if m.get("target") == "hp_temp" and not m.get("only_vs")]
+    if base is not None and eff is not None:
+        sources.append(char_module.con_temp_hp(base, eff, level))
+    return max(sources) if sources else 0
 
 
 def _temp_hp(char) -> int:
-    """Midlertidigt HP for en karakter ud fra dens aktive effekter."""
+    """Midlertidigt HP for en karakter ud fra dens aktive effekter (fast + Con-afledt)."""
     mods, _ = _collect_active_effects(char)
-    return _temp_hp_from_modifiers(mods)
+    eff = char_module.effective_ability_scores(char.ability_scores, mods)
+    return _temp_hp_from_modifiers(mods, char.ability_scores, eff, char.level)
 
 
 def _collect_riders(sources):
@@ -738,8 +741,9 @@ def karakter(name):
             })
     # Ikke-numeriske ryttere: mekaniske flag (lose_dex/half_speed) + advarsler.
     riders = _collect_riders(effect_sources)
-    # Midlertidigt HP (Virtue m.fl.): hæver HP-loftet, så det kan tracking-bruges.
-    temp_hp = _temp_hp_from_modifiers(active_modifiers)
+    # Midlertidigt HP (Virtue + Bear's Endurance fra hævet Con): hæver HP-loftet,
+    # så det kan tracking-bruges.
+    temp_hp = _temp_hp_from_modifiers(active_modifiers, ab, eff, char.level)
 
     # Equipped rustning/skjold → bruges til både AC og rustnings-tjekstraf (ACP).
     # Udledes fra inventaret (worn-poster); falder tilbage til combat.armor/shield

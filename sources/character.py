@@ -751,6 +751,17 @@ def conditional_modifiers(mods: list[dict]) -> list[dict]:
     return [m for m in (mods or []) if m.get("only_vs")]
 
 
+def con_temp_hp(base: AbilityScores, eff: AbilityScores, level: int) -> int:
+    """Midlertidigt HP fra en hævet Con (Bear's Endurance m.fl.).
+
+    SRD: en midlertidig Con-stigning giver temp-HP = Hit Dice × stigningen i
+    Con-modifier (Bear's +4 Con = +2 mod → 2 HP pr. HD). Single-class: HD = level.
+    Kun en Con-STIGNING tæller (en Con-skade reducerer i stedet HP — ikke modelleret).
+    """
+    con_delta = eff.modifier("con") - base.modifier("con")
+    return max(0, con_delta) * max(1, level)
+
+
 def effective_ability_scores(base: AbilityScores,
                              active_modifiers: list[dict]) -> AbilityScores:
     """Base ability scores + ability-target modifiers → effektive scores.
