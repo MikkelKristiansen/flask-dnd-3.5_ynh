@@ -688,6 +688,19 @@ def karakter(name):
     attack_rows += [_row(a, True, i) for i, a in enumerate(char.attacks)
                     if char_module.attack_visible(a, active_keys)]
 
+    # Udledte spell-angreb: fra spells på "I brug" via spell_attacks-kataloget.
+    # Bærer evt. ladnings-info (Magic Stone: 3 sten) til nedtælling i UI'en.
+    for d in char_module.derive_spell_attacks(char, db):
+        atk = d["attack"]
+        attack_rows.append({
+            "attack": atk, "manual": False, "idx": None,
+            **char_module.attack_total(atk, ab, bab, char.size),
+            "charges_max": d["charges_max"],
+            "charges_remaining": d["charges_remaining"],
+            "charge_level": d["level"], "charge_index": d["index"],
+            "alt_note": d["alt_note"],
+        })
+
     # Rå felter for alle manuelle angreb → redigering i browseren (også de slukkede).
     attacks_json = [{
         "idx": i, "name": a.name, "kind": a.kind, "bonus": a.bonus,
@@ -930,6 +943,7 @@ def api_spells():
     char = char_module.load_character(str(path))
     spells_used = {k: list(v) for k, v in char.spells_used.items()}
     spells_active = {k: list(v) for k, v in char.spells_active.items()}
+    spell_charges = dict(char.spell_charges)
 
     # Tre-tilstands-spells (self_duration) sender "state" = free|active|used.
     # To-tilstands-spells sender som før "used" = true/false.
@@ -938,13 +952,22 @@ def api_spells():
         for d in (spells_used, spells_active):
             if level in d and spell_index in d[level]:
                 d[level].remove(spell_index)
+        key = char_module.spell_charge_key(level, spell_index)
+        spell_charges.pop(key, None)
         if state == "active":
             spells_active.setdefault(level, []).append(spell_index)
+            # Init ladninger fra kataloget (fx Magic Stone: 3 sten).
+            sid = char.spells_prepared.get(level, [])
+            if 0 <= spell_index < len(sid):
+                maxc = char_module.spell_max_charges(sid[spell_index], db)
+                if maxc:
+                    spell_charges[key] = maxc
         elif state == "used":
             spells_used.setdefault(level, []).append(spell_index)
         # state == "free": fjernet fra begge ovenfor
         char_module.save_character(
-            str(path), {"spells_used": spells_used, "spells_active": spells_active})
+            str(path), {"spells_used": spells_used, "spells_active": spells_active,
+                        "spell_charges": spell_charges})
     else:
         if mark_used:
             spells_used.setdefault(level, [])
@@ -958,6 +981,50 @@ def api_spells():
     return jsonify({
         "spells_used": {str(k): v for k, v in spells_used.items()},
         "spells_active": {str(k): v for k, v in spells_active.items()},
+        "spell_charges": spell_charges,
+    })
+
+
+@app.route("/api/spell_charge", methods=["POST"])
+def api_spell_charge():
+    """Tæl en spells ladninger op/ned (Magic Stone: brug en sten).
+
+    Rammer ladningerne 0, er spellen opbrugt → flyt fra "I brug" til "Brugt".
+    """
+    data        = request.get_json()
+    slug        = data.get("char")
+    level       = int(data.get("level"))
+    spell_index = int(data.get("spell_index", 0))
+    delta       = int(data.get("delta", -1))
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+
+    char = char_module.load_character(str(path))
+    spells_used = {k: list(v) for k, v in char.spells_used.items()}
+    spells_active = {k: list(v) for k, v in char.spells_active.items()}
+    spell_charges = dict(char.spell_charges)
+    key = char_module.spell_charge_key(level, spell_index)
+
+    new = max(0, spell_charges.get(key, 0) + delta)
+    if new <= 0:
+        # Opbrugt → ladning væk, spell fra "I brug" til "Brugt".
+        spell_charges.pop(key, None)
+        if level in spells_active and spell_index in spells_active[level]:
+            spells_active[level].remove(spell_index)
+        spells_used.setdefault(level, [])
+        if spell_index not in spells_used[level]:
+            spells_used[level].append(spell_index)
+    else:
+        spell_charges[key] = new
+
+    char_module.save_character(
+        str(path), {"spells_used": spells_used, "spells_active": spells_active,
+                    "spell_charges": spell_charges})
+    return jsonify({
+        "spells_used": {str(k): v for k, v in spells_used.items()},
+        "spells_active": {str(k): v for k, v in spells_active.items()},
+        "spell_charges": spell_charges,
     })
 
 
@@ -1290,7 +1357,8 @@ def api_newday():
         return jsonify({"error": "not found"}), 404
     char_module.save_character(
         str(path),
-        {"spells_used": {}, "spells_active": {}, "domain_spells_used": {}})
+        {"spells_used": {}, "spells_active": {}, "spell_charges": {},
+         "domain_spells_used": {}})
     return jsonify({"ok": True})
 
 

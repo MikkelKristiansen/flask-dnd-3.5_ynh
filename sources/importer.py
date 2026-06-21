@@ -40,6 +40,7 @@ TABLES = [
     "rogue_levels",
     "domains",
     "domain_spells",
+    "spell_attacks",
     "armor",
     "weapons",
     "items",

@@ -129,6 +129,11 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
             margin-top:.6rem;padding-top:.5rem;border-top:1px dashed var(--border);}
 .attack-row.spell-attack{opacity:.72;}
 .attack-row.spell-attack .attack-bonus,.attack-row.spell-attack .attack-dmg{font-weight:normal;}
+.attack-name-cell{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;}
+.charge-badge{background:var(--yellow);color:#fff;border-radius:10px;font-size:.72rem;
+              padding:.1rem .45rem;cursor:pointer;white-space:nowrap;}
+.charge-badge:hover{filter:brightness(1.15);}
+.attack-alt{color:var(--muted);font-size:.7rem;font-style:italic;}
 .spell-attack-hint{color:var(--muted);font-size:.75rem;font-style:italic;margin-top:.5rem;
             padding-top:.45rem;border-top:1px dashed var(--border);}
 .spell-attack-hint b{color:var(--accent);font-style:normal;font-weight:normal;}
@@ -603,11 +608,18 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   {% macro attack_row(row, extra_class="") %}
     {% set atk = row.attack %}
     <div class="attack-row {{ extra_class }}">
-      {% if row.manual %}
-      <span class="attack-name-edit" onclick="editAttack({{ row.idx }})" title="Rediger angreb">{{ atk.name }}</span>
-      {% else %}
-      <span>{{ atk.name }}</span>
-      {% endif %}
+      <span class="attack-name-cell">
+        {% if row.manual %}
+        <span class="attack-name-edit" onclick="editAttack({{ row.idx }})" title="Rediger angreb">{{ atk.name }}</span>
+        {% else %}
+        <span>{{ atk.name }}</span>
+        {% endif %}
+        {% if row.charges_max %}
+        <span class="charge-badge" onclick="spendCharge({{ row.charge_level }},{{ row.charge_index }})"
+              title="Brug en — klik for at tælle ned (0 = Brugt)">🪨 {{ row.charges_remaining }}/{{ row.charges_max }}</span>
+        {% endif %}
+        {% if row.alt_note %}<span class="attack-alt">{{ row.alt_note }}</span>{% endif %}
+      </span>
       <span class="attack-bonus roll-tap"
             onclick="quickRoll('1d20{{ "%+d"|format(row.to_hit) }}','{{ atk.name }} angreb')"
             title="Slå angrebsbonus">{{ "%+d"|format(row.to_hit) }}</span>
@@ -1790,6 +1802,16 @@ function cycleSpell(level, idx) {
     if (selfDur) { location.reload(); return; }
     updateSpellDisplay(level);
   });
+}
+
+// Brug en ladning (fx en Magic Stone-sten). Rammer den 0 → spell bliver "Brugt".
+// Angreb er server-renderet, så vi reloader bagefter.
+function spendCharge(level, spellIndex) {
+  fetch(BASE + "/api/spell_charge", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, level, spell_index: spellIndex, delta: -1})
+  }).then(() => location.reload());
 }
 
 function updateSpellDisplay(level) {

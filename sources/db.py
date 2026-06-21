@@ -216,6 +216,15 @@ def get_domain_spells(
     return [dict(r) for r in rows]
 
 
+def get_spell_attacks(spell_id: str) -> list[dict]:
+    """Katalog-angreb for én spell (0..n rækker). Tom liste hvis ingen."""
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM spell_attacks WHERE spell_id = ?", (spell_id,)
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 _CLASS_LEVEL_TABLES = {
     "druid": "druid_levels",
     "cleric": "cleric_levels",

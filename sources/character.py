@@ -123,6 +123,7 @@ class Character:
     spells_prepared: dict = field(default_factory=dict)
     spells_used: dict = field(default_factory=dict)
     spells_active: dict = field(default_factory=dict)  # spells "I brug" (varighed kører) — {level: [index]}
+    spell_charges: dict = field(default_factory=dict)  # ladninger tilbage pr. aktiv spell — {"level-index": antal}
     conditions: list = field(default_factory=list)
     buffs: list = field(default_factory=list)  # aktive positive effekter: {name, note, affects, spell_id?}
     inventory: list = field(default_factory=list)
@@ -246,6 +247,13 @@ def load_character(path: str) -> Character:
     spells_used = _index_map(data.get("spells_used"))
     spells_active = _index_map(data.get("spells_active"))
 
+    spell_charges: dict[str, int] = {}
+    for k, v in (data.get("spell_charges") or {}).items():
+        try:
+            spell_charges[str(k)] = int(v)
+        except (ValueError, TypeError):
+            pass
+
     conditions = list(data.get("conditions") or [])
     buffs = list(data.get("buffs") or [])
 
@@ -277,6 +285,7 @@ def load_character(path: str) -> Character:
         spells_prepared=spells_prepared,
         spells_used=spells_used,
         spells_active=spells_active,
+        spell_charges=spell_charges,
         conditions=conditions,
         buffs=buffs,
         inventory=inventory,
@@ -488,6 +497,11 @@ def save_character(path: str, updates: dict) -> None:
     if "spells_active" in updates:
         data["spells_active"] = {
             int(k): list(v) for k, v in updates["spells_active"].items() if v
+        }
+
+    if "spell_charges" in updates:
+        data["spell_charges"] = {
+            str(k): int(v) for k, v in updates["spell_charges"].items()
         }
 
     if "domain_spells_prepared" in updates:
@@ -924,6 +938,73 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium") -> 
             range=f"{w['range_ft']} ft." if w["range_ft"] else "",
         ))
     return attacks
+
+
+def spell_charge_key(level: int, index: int) -> str:
+    """Nøgle til spell_charges-dict'en for en spell på (level, index)."""
+    return f"{level}-{index}"
+
+
+def spell_attack_damage(row: dict, caster_level: int) -> str:
+    """Udregn skade-strengen for et katalog-spell-angreb (gemmes aldrig).
+
+    base_damage + min(caster_level * dmg_per_level, dmg_per_level_max) + dmg_bonus.
+    Produce Flame (1d6, +1/niv, cap 5) ved niveau 2 → "1d6+2".
+    Magic Stone (1d6, +1 flad) → "1d6+1".
+    """
+    bonus = int(row.get("dmg_bonus") or 0)
+    per = int(row.get("dmg_per_level") or 0)
+    if per:
+        lvl_bonus = caster_level * per
+        cap = row.get("dmg_per_level_max")
+        if cap is not None:
+            lvl_bonus = min(lvl_bonus, int(cap))
+        bonus += lvl_bonus
+    base = row["base_damage"]
+    return f"{base}{bonus:+d}" if bonus else base
+
+
+def derive_spell_attacks(char: "Character", db) -> list[dict]:
+    """Lav angreb ud fra spells der står på "I brug" via spell_attacks-kataloget.
+
+    Hver post: {attack, level, index, spell_id, charges_max, charges_remaining,
+    alt_note}. charges_max=None betyder ubegrænset (ingen nedtælling).
+    """
+    out: list[dict] = []
+    for lvl, indices in (char.spells_active or {}).items():
+        prepared = char.spells_prepared.get(lvl, [])
+        for idx in indices:
+            if not (0 <= idx < len(prepared)):
+                continue
+            sid = prepared[idx]
+            for r in db.get_spell_attacks(sid):
+                atk = Attack(
+                    name=r["label"],
+                    kind=r["kind"],
+                    str_damage_mult=0,
+                    fixed_damage=spell_attack_damage(r, char.level),
+                    bonus=int(r.get("to_hit") or 0),
+                    crit=r.get("crit") or "x2",
+                    type=r.get("dmg_type") or "",
+                    range=f"{r['range_ft']} ft." if r.get("range_ft") else "",
+                    source="spell",
+                )
+                charges_max = r.get("charges")
+                key = spell_charge_key(lvl, idx)
+                remaining = (char.spell_charges.get(key, charges_max)
+                             if charges_max else None)
+                out.append({
+                    "attack": atk, "level": lvl, "index": idx, "spell_id": sid,
+                    "charges_max": charges_max, "charges_remaining": remaining,
+                    "alt_note": r.get("alt_note") or "",
+                })
+    return out
+
+
+def spell_max_charges(spell_id: str, db) -> int | None:
+    """Største ladnings-tal blandt en spells katalog-angreb (None hvis ingen)."""
+    vals = [r["charges"] for r in db.get_spell_attacks(spell_id) if r.get("charges")]
+    return max(vals) if vals else None
 
 
 def _effective_armor_row(rec: dict, item: InventoryItem) -> dict:

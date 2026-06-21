@@ -1,0 +1,48 @@
+# spell_attacks — angreb der udledes når en spell står på "I brug".
+# Skade udregnes i koden: base_damage + min(niveau*dmg_per_level, dmg_per_level_max) + dmg_bonus.
+# charges (tom = ubegrænset varighed) giver en nedtælling pr. ramt på arket.
+
+# Produce Flame — flamme i hånden; nærkamps-touch ELLER kastet ranged-touch.
+# 1d6 +1/casterniveau, cappet ved +5 (druid 2 → 1d6+2).
+- spell_id: produce_flame
+  label: Produce Flame (nærkamp)
+  kind: melee_touch
+  base_damage: 1d6
+  dmg_per_level: 1
+  dmg_per_level_max: 5
+  dmg_bonus:
+  to_hit:
+  crit: x2
+  dmg_type: Ild
+  range_ft:
+  charges:
+  alt_note:
+- spell_id: produce_flame
+  label: Produce Flame (kastet)
+  kind: ranged_touch
+  base_damage: 1d6
+  dmg_per_level: 1
+  dmg_per_level_max: 5
+  dmg_bonus:
+  to_hit:
+  crit: x2
+  dmg_type: Ild
+  range_ft: 120
+  charges:
+  alt_note:
+
+# Magic Stone — op til 3 sten, +1 til-hit og skade, kastet (rækkeforøgelse 20 ft).
+# Hver sten aflades når den rammer → 3 ladninger. 2d6+2 mod udøde.
+- spell_id: magic_stone
+  label: Magic Stone (kastet)
+  kind: ranged
+  base_damage: 1d6
+  dmg_per_level:
+  dmg_per_level_max:
+  dmg_bonus: 1
+  to_hit: 1
+  crit: x2
+  dmg_type: Bludgeoning
+  range_ft: 20
+  charges: 3
+  alt_note: 2d6+2 mod udøde

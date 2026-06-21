@@ -34,24 +34,10 @@ combat:
 
 # Våben-angreb udledes nu af wielded-genstande i inventory (quarterstaff, sling).
 # Her står kun rene spell-/touch-angreb (Produce Flame) som ikke er genstande.
-attacks:
-- name: Produce Flame (melee touch)
-  kind: melee_touch
-  str_damage_mult: 0
-  fixed_damage: 1d6+2     # 1d6 +1/casterniveau (druid 2) — sat af spellen
-  crit: x2
-  type: Fire
-  source: spell           # betinget angreb — vises kun når buffen 'Produce Flame' er aktiv
-  requires: Produce Flame
-- name: Produce Flame (ranged touch)
-  kind: ranged_touch
-  str_damage_mult: 0
-  fixed_damage: 1d6+2
-  crit: x2
-  type: Fire
-  range: 120 ft     # kastet op til 120 ft som ranged touch (ingen range-penalty) — SRD
-  source: spell
-  requires: Produce Flame
+# Produce Flame- og Magic Stone-angrebene udledes automatisk fra spell_attacks-
+# kataloget når spellen står på "I brug" (se data/spell_attacks.yaml). Kun
+# angreb der IKKE kommer fra et våben eller en katalog-spell håndskrives her.
+attacks: []
 
 skills:
 - id: concentration
