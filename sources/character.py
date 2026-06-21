@@ -126,6 +126,7 @@ class Character:
     spell_charges: dict = field(default_factory=dict)  # ladninger tilbage pr. aktiv spell — {"level-index": antal}
     conditions: list = field(default_factory=list)
     buffs: list = field(default_factory=list)  # aktive positive effekter: {name, note, affects, spell_id?}
+    languages: list = field(default_factory=list)  # kendte sprog (automatiske + valgte bonussprog)
     inventory: list = field(default_factory=list)
     gold: dict = field(default_factory=dict)
     notes: str = ""
@@ -288,6 +289,7 @@ def load_character(path: str) -> Character:
         spell_charges=spell_charges,
         conditions=conditions,
         buffs=buffs,
+        languages=[str(x) for x in (data.get("languages") or [])],
         inventory=inventory,
         gold=dict(data.get("gold") or {}),
         notes=str(data.get("notes") or ""),
@@ -1178,6 +1180,9 @@ _RACES: dict[str, dict] = {
         "size": "medium", "speed": 30,
         "ability_adjust": {},
         "skill_bonuses": {},
+        # Sprog: automatiske kan altid; bonus vælges (antal = Int-mod). Human kan
+        # vælge et hvilket som helst standardsprog (sættes dynamisk = STANDARD_LANGUAGES).
+        "languages": {"automatic": ["Common"], "bonus": "any"},
         "bonus_feats": 1,                 # ekstra feat ved level 1 (skill point håndteres i skill_points_per_level)
         "traits": {
             "bonus_feat": "1 ekstra feat ved level 1",
@@ -1190,6 +1195,8 @@ _RACES: dict[str, dict] = {
         "size": "medium", "speed": 30,
         "ability_adjust": {"dex": 2, "con": -2},
         "skill_bonuses": {"listen": 2, "spot": 2, "search": 2},
+        "languages": {"automatic": ["Common", "Elven"],
+                      "bonus": ["Draconic", "Gnoll", "Gnome", "Goblin", "Orc", "Sylvan"]},
         "bonus_feats": 0,
         "traits": {
             "stat_mods": "+2 DEX, -2 CON",
@@ -1204,6 +1211,8 @@ _RACES: dict[str, dict] = {
         "size": "small", "speed": 20,
         "ability_adjust": {"con": 2, "str": -2},
         "skill_bonuses": {"listen": 2},
+        "languages": {"automatic": ["Common", "Gnome"],
+                      "bonus": ["Draconic", "Dwarven", "Elven", "Giant", "Goblin", "Orc"]},
         "bonus_feats": 0,
         "traits": {
             "stat_mods": "+2 CON, -2 STR",
@@ -1229,6 +1238,62 @@ _RACES: dict[str, dict] = {
 def race_data(race: str) -> dict:
     """Race-data (size, speed, ability-justeringer, skill-bonusser, traits) eller {}."""
     return _RACES.get(race.lower(), {})
+
+
+# Standardsprog i SRD. Druidic er hemmeligt (kun druider) og er IKKE i "any"-puljen
+# — det gives kun gennem klassen.
+STANDARD_LANGUAGES = [
+    "Abyssal", "Aquan", "Auran", "Celestial", "Common", "Draconic", "Dwarven",
+    "Elven", "Giant", "Gnoll", "Gnome", "Goblin", "Halfling", "Ignan",
+    "Infernal", "Orc", "Sylvan", "Terran", "Undercommon",
+]
+
+# Klasse-sprog: 'automatic' gives gratis (tæller ikke mod Int-bonus), 'bonus' kan
+# vælges som et af bonussprogene. Klasser uden særlige sprog står ikke her.
+_CLASS_LANGUAGES: dict[str, dict] = {
+    "druid":  {"automatic": ["Druidic"], "bonus": ["Sylvan"]},
+    "cleric": {"automatic": [], "bonus": ["Abyssal", "Celestial", "Infernal"]},
+    "wizard": {"automatic": [], "bonus": ["Draconic"]},
+}
+
+
+def class_languages(cls: str) -> dict:
+    """Klassens sprog ({'automatic': [...], 'bonus': [...]}) eller tomt."""
+    return _CLASS_LANGUAGES.get(cls.lower(), {"automatic": [], "bonus": []})
+
+
+def race_bonus_languages(race: str) -> list[str]:
+    """Racens bonussprog-liste ('any' → alle standardsprog)."""
+    bonus = race_data(race).get("languages", {}).get("bonus", [])
+    return list(STANDARD_LANGUAGES) if bonus == "any" else list(bonus)
+
+
+def automatic_languages(race: str, cls: str) -> list[str]:
+    """Sprog karakteren altid kan (race + klasse), uden at bruge Int-bonus."""
+    langs = list(race_data(race).get("languages", {}).get("automatic", []))
+    for lang in _CLASS_LANGUAGES.get(cls.lower(), {}).get("automatic", []):
+        if lang not in langs:
+            langs.append(lang)
+    return langs
+
+
+def bonus_language_pool(race: str, cls: str) -> list[str]:
+    """De bonussprog man må vælge imellem (race + klasse), minus de automatiske.
+
+    Human ('bonus': 'any') må vælge et hvilket som helst standardsprog.
+    """
+    race_bonus = race_data(race).get("languages", {}).get("bonus", [])
+    pool = list(STANDARD_LANGUAGES) if race_bonus == "any" else list(race_bonus)
+    for lang in _CLASS_LANGUAGES.get(cls.lower(), {}).get("bonus", []):
+        if lang not in pool:
+            pool.append(lang)
+    auto = set(automatic_languages(race, cls))
+    return [lang for lang in pool if lang not in auto]
+
+
+def bonus_language_count(int_modifier: int) -> int:
+    """Antal bonussprog = Int-mod (aldrig negativt)."""
+    return max(0, int_modifier)
 
 
 def apply_racial_adjustments(base_scores: dict, race: str) -> dict:

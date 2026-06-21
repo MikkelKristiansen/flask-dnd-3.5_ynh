@@ -51,6 +51,9 @@ feats:
 - improved_initiative
 - extend_spell
 conditions: []
+# Human (Common). Int 10 (mod 0) = ingen bonussprog.
+languages:
+- Common
 spells_prepared:
   0:
   - guidance

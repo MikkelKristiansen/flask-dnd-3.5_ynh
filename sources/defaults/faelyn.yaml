@@ -93,6 +93,11 @@ feats:
 - two_weapon_fighting   # level-1 feat (Dex 17 opfylder Dex 15-kravet)
 
 conditions: []
+# Elf (Common, Elven). Int 12 (mod +1) = 1 bonussprog: Sylvan.
+languages:
+- Common
+- Elven
+- Sylvan
 
 # Ingen spells: rangere får først divine spells ved level 4.
 spells_prepared: {}

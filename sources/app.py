@@ -295,6 +295,8 @@ def _gen_context() -> dict:
             "size": char_module.race_data(r).get("size", "medium"),
             "speed": char_module.race_data(r).get("speed", 30),
             "feat_count": char_module.level1_feat_count(r),
+            "languages_auto": char_module.race_data(r).get("languages", {}).get("automatic", []),
+            "languages_bonus": char_module.race_bonus_languages(r),
         }
         for r in GEN_RACES
     }
@@ -309,6 +311,8 @@ def _gen_context() -> dict:
             "turn_undead": char_module.class_can_turn_undead(c),
             # Companion ved level 1 (kun druide; ranger får først ved level 4).
             "has_companion": companion_module.companion_effective_level(c, 1) > 0,
+            "languages_auto": char_module.class_languages(c).get("automatic", []),
+            "languages_bonus": char_module.class_languages(c).get("bonus", []),
         }
         for c in GEN_CLASSES
     }
@@ -438,6 +442,20 @@ def create_character():
         else:
             domains = []
 
+        # Sprog: automatiske (race + klasse) er gratis; antal bonussprog = Int-mod,
+        # valgt fra race/klasse-puljen. Resultatet gemmes som én rå liste.
+        auto_langs = char_module.automatic_languages(race, cls)
+        pool = char_module.bonus_language_pool(race, cls)
+        need_langs = char_module.bonus_language_count(int_mod)
+        chosen_langs = [s.strip() for s in f.getlist("languages") if s.strip()]
+        if len(chosen_langs) != need_langs:
+            raise ValueError(f"Vælg præcis {need_langs} bonussprog (Int-mod {int_mod:+d}).")
+        if len(set(chosen_langs)) != len(chosen_langs):
+            raise ValueError("Samme bonussprog valgt flere gange.")
+        if any(lang not in pool for lang in chosen_langs):
+            raise ValueError("Ugyldigt bonussprog valgt.")
+        languages = auto_langs + chosen_langs
+
         # Dyreledsager (valgfri, kun klasser med companion ved level 1 = druide).
         # Tynd reference: hp_current = beregnet max ved oprettelse; resten afledes.
         gen_companion = None
@@ -517,6 +535,7 @@ def create_character():
             "skills": list(skills_out.values()),
             "feats": feats_out,
             "conditions": [],
+            "languages": languages,
             "spells_prepared": {},
             "spells_used": {},
             "inventory": inventory,

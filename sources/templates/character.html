@@ -134,6 +134,9 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
               padding:.1rem .45rem;cursor:pointer;white-space:nowrap;}
 .charge-badge:hover{filter:brightness(1.15);}
 .attack-alt{color:var(--muted);font-size:.7rem;font-style:italic;}
+.lang-list{display:flex;flex-wrap:wrap;gap:.35rem;}
+.lang-chip{background:var(--card);border:1px solid var(--border);color:var(--text);
+           border-radius:10px;padding:.12rem .55rem;font-size:.8rem;}
 .spell-attack-hint{color:var(--muted);font-size:.75rem;font-style:italic;margin-top:.5rem;
             padding-top:.45rem;border-top:1px dashed var(--border);}
 .spell-attack-hint b{color:var(--accent);font-style:normal;font-weight:normal;}
@@ -688,6 +691,15 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     </div>
     {% endif %}
     {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if char.languages %}
+  <div class="section">
+    <div class="section-title">Sprog</div>
+    <div class="lang-list">
+      {% for lang in char.languages %}<span class="lang-chip">{{ lang }}</span>{% endfor %}
+    </div>
   </div>
   {% endif %}
 
