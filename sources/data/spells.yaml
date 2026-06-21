@@ -1032,11 +1032,17 @@
 
     _Aura Strength:_ An aura’s power depends on a spell’s functioning spell level or an item’s caster level. If an aura falls into more than one category, _detect magic_ indicates the stronger of the two.
 
-    <table data-debug="no-caption" class="half-width-table"><tbody><tr><td></td><th colspan="4" class="middle-line">Aura Power</th></tr><tr><th>Spell or Object</th><th>Faint</th><th>Moderate</th><th>Strong</th><th>Overwhelming</th></tr><tr><td>Functioning spell (spell level)</td><td>3rd or lower</td><td>4th–6th</td><td>7th–9th</td><td>10th+ (deity-level)</td></tr><tr><td>Magic item (caster level)</td><td>5th or lower</td><td>6th–11th</td><td>12th–20th</td><td>21st+ (artifact)</td></tr></tbody></table>
+    Aura Power — Faint / Moderate / Strong / Overwhelming:
+    - Functioning spell (spell level): 3rd or lower / 4th–6th / 7th–9th / 10th+ (deity-level)
+    - Magic item (caster level): 5th or lower / 6th–11th / 12th–20th / 21st+ (artifact)
 
     _Lingering Aura:_ A magical aura lingers after its original source dissipates (in the case of a spell) or is destroyed (in the case of a magic item). If _detect magic_ is cast and directed at such a location, the spell indicates an aura strength of dim (even weaker than a faint aura). How long the aura lingers at this dim level depends on its original power:
 
-    <table data-debug="no-caption" class="half-width-table"><tbody><tr><th>Original Strength</th><th>Duration of Lingering Aura</th></tr><tr><td>Faint</td><td>1d6 rounds</td></tr><tr><td>Moderate</td><td>1d6 minutes</td></tr><tr><td>Strong</td><td>1d6x10 minutes</td></tr><tr><td>Overwhelming</td><td>1d6 days</td></tr></tbody></table>
+    Lingering aura duration by original strength:
+    - Faint: 1d6 rounds
+    - Moderate: 1d6 minutes
+    - Strong: 1d6×10 minutes
+    - Overwhelming: 1d6 days
 
     Outsiders and elementals are not magical in themselves, but if they are summoned, the conjuration spell registers.
 
