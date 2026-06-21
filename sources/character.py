@@ -625,16 +625,26 @@ ABILITIES = ("str", "dex", "con", "int", "wis", "cha")
 _STACKING_TYPES = {"dodge", "circumstance", "untyped", "penalty"}
 
 
+def _combine(values: list[int], btype: str) -> int:
+    """Kombinér flere modifier-værdier af SAMME type efter SRD-stacking.
+
+    Stacking-typer (dodge/circumstance/untyped/penalty) summeres. Øvrige
+    navngivne typer stacker ikke: den højeste bonus + den værste straf tæller
+    (en bonus og en straf af samme type tælles hver for sig).
+    """
+    if btype in _STACKING_TYPES:
+        return sum(values)
+    pos = [v for v in values if v > 0]
+    neg = [v for v in values if v < 0]
+    return (max(pos) if pos else 0) + (min(neg) if neg else 0)
+
+
 def resolve_modifiers(mods: list[dict]) -> dict[str, int]:
     """Reducér en liste af modifiers til nettobonus pr. target (SRD stacking).
 
-    Regler:
-    - Grupér pr. (target, bonustype).
-    - Stacking-typer (dodge/circumstance/untyped/penalty): summér alle kilder.
-    - Øvrige typer: tag den højeste bonus + den værste straf (samme type stacker
-      ikke; en bonus og en straf af samme type tælles dog hver for sig).
-    - only_vs-modifiers udelades (betingede → vises som note, ikke i tallet).
-    - value 0 / manglende target ignoreres.
+    Grupér pr. (target, bonustype), kombinér hver gruppe med _combine, og læg
+    grupperne for samme target sammen. only_vs-modifiers udelades (betingede →
+    vises som note, ikke i tallet); value 0 / manglende target ignoreres.
 
     Returnerer {target: net_int}. En ren funktion uden sideeffekter — al den
     fiddly stacking er isoleret her og dækket af unit-tests.
@@ -657,15 +667,66 @@ def resolve_modifiers(mods: list[dict]) -> dict[str, int]:
 
     net: dict[str, int] = {}
     for (target, btype), values in grouped.items():
-        if btype in _STACKING_TYPES:
-            contribution = sum(values)
-        else:
-            # Samme navngivne type stacker ikke: højeste bonus + værste straf.
-            pos = [v for v in values if v > 0]
-            neg = [v for v in values if v < 0]
-            contribution = (max(pos) if pos else 0) + (min(neg) if neg else 0)
-        net[target] = net.get(target, 0) + contribution
+        net[target] = net.get(target, 0) + _combine(values, btype)
     return net
+
+
+def resolve_ac_bonuses(combat_ac: dict, ac_modifiers: list[dict]) -> dict[str, int]:
+    """Saml AC-bonusser pr. type (karakterens combat-felter + aktive effekter).
+
+    AC kan ikke koges ned til ét tal som resolve_modifiers gør, fordi touch- og
+    flat-footed-AC behandler typerne forskelligt (touch ignorerer natural; flat-
+    footed mister dodge). Derfor stackes pr. type her og returneres delt op i de
+    parametre armor_class() forventer: natural/deflection/dodge/misc.
+
+    combat_ac: {'natural', 'deflection', 'dodge', 'misc'} fra char.combat.
+    ac_modifiers: modifiers med target == 'ac' (typede). only_vs udelades.
+    Ukendte AC-typer (luck/insight/sacred …) lægges i misc (de stacker indbyrdes).
+    """
+    by_type: dict[str, list[int]] = {}
+    seed = (("natural", combat_ac.get("natural", 0)),
+            ("deflection", combat_ac.get("deflection", 0)),
+            ("dodge", combat_ac.get("dodge", 0)),
+            ("untyped", combat_ac.get("misc", 0)))
+    for btype, value in seed:
+        if value:
+            by_type.setdefault(btype, []).append(int(value))
+    for m in ac_modifiers or []:
+        if m.get("only_vs") or m.get("target") != "ac":
+            continue
+        try:
+            value = int(m.get("value", 0))
+        except (TypeError, ValueError):
+            continue
+        if value:
+            by_type.setdefault(str(m.get("type", "untyped")).lower(), []).append(value)
+
+    net = {t: _combine(v, t) for t, v in by_type.items()}
+    return {
+        "natural": net.pop("natural", 0),
+        "deflection": net.pop("deflection", 0),
+        "dodge": net.pop("dodge", 0),
+        "misc": sum(net.values()),   # untyped + alle øvrige typer
+    }
+
+
+# Mål-præfikser for saves: en modifier kan ramme alle saves (save_all) eller én.
+SAVE_TARGETS = {"fortitude": "save_fort", "reflex": "save_ref", "will": "save_will"}
+
+
+def save_effect_bonus(net: dict[str, int], which: str) -> int:
+    """Effekt-bonus til ét save (save_all + det specifikke target) fra et net-dict."""
+    return net.get("save_all", 0) + net.get(SAVE_TARGETS.get(which, ""), 0)
+
+
+def skill_effect_bonus(net: dict[str, int], skill_id: str) -> int:
+    """Effekt-bonus til én skill (skill_all + skill:<id>) fra et net-dict."""
+    return net.get("skill_all", 0) + net.get(f"skill:{skill_id}", 0)
+
+
+def conditional_modifiers(mods: list[dict]) -> list[dict]:
+    """De betingede (only_vs) modifiers — vises som noter, ikke i overskriftstallet."""
+    return [m for m in (mods or []) if m.get("only_vs")]
 
 
 def effective_ability_scores(base: AbilityScores,
@@ -743,26 +804,29 @@ def druid_armor_violations(cls: str, armor: dict | None = None,
 
 
 def skill_total(skill: Skill, ability_scores: AbilityScores, db,
-                synergy_bonus: int = 0, acp: int = 0) -> int:
+                synergy_bonus: int = 0, acp: int = 0, effect_bonus: int = 0) -> int:
     skill_def = db.get_skill(skill.id)
     if skill_def is None:
-        return int(skill.ranks) + skill.misc + synergy_bonus
+        return int(skill.ranks) + skill.misc + synergy_bonus + effect_bonus
     # ACP rammer kun Str/Dex-skills markeret i db'en; Swim tæller dobbelt (=2).
     acp_applied = acp * int(skill_def.get("armor_check", 0) or 0)
     ability = skill_def["ability"]
     if ability == "none":
-        return int(skill.ranks) + skill.misc + synergy_bonus + acp_applied
+        return int(skill.ranks) + skill.misc + synergy_bonus + acp_applied + effect_bonus
     return (int(skill.ranks) + ability_scores.modifier(ability)
-            + skill.misc + synergy_bonus + acp_applied)
+            + skill.misc + synergy_bonus + acp_applied + effect_bonus)
 
 
-def save_total(base: int, ability_score: int, racial: int = 0) -> int:
-    """Save = klasse-base + ability-mod + evt. racial bonus (fx halfling +1 på alle).
+def save_total(base: int, ability_score: int, racial: int = 0,
+               effect_bonus: int = 0) -> int:
+    """Save = klasse-base + ability-mod + evt. racial bonus + effekt-bonus.
 
     racial holdes som rå race-data (race_data()['save_bonus']) og lægges på her —
-    aldrig gemt sammen med klasse-basen i YAML.
+    aldrig gemt sammen med klasse-basen i YAML. effect_bonus er nettobonus fra
+    aktive effekter (Resistance, shaken/sickened …); kun-mod-X-bonusser hører
+    IKKE med her (de vises som betinget note).
     """
-    return base + (ability_score - 10) // 2 + racial
+    return base + (ability_score - 10) // 2 + racial + effect_bonus
 
 
 # ---------------------------------------------------------------------------
@@ -788,25 +852,29 @@ def size_mod_grapple(size: str) -> int:
 
 
 def attack_total(attack: Attack, ability_scores: AbilityScores,
-                 bab: int, size: str) -> dict:
+                 bab: int, size: str, extra_bonus: int = 0,
+                 extra_damage: int = 0) -> dict:
     """Beregn til-hit og skade-streng for ét angreb.
 
-    Til-hit: bab + ability-mod (Str for melee, Dex for ranged) + størrelse + bonus.
-    Skade: fixed_damage hvis sat (spell/touch), ellers base_damage + floor(Str-mod ·
-    str_damage_mult). Str-delen skjules helt når den er 0.
+    Til-hit: bab + ability-mod (Str for melee, Dex for ranged) + størrelse + bonus
+    + extra_bonus (Bless, Magic Fang, Divine Favor, shaken/sickened-straffe).
+    Skade: fixed_damage hvis sat (spell/touch — extra_damage tæller ikke, det er
+    ikke våbenskade), ellers base_damage + floor(Str-mod · str_damage_mult)
+    + extra_damage. Skade-tillægget skjules når totalbonus er 0.
     """
     hit_ability = "dex" if attack.kind in ("ranged", "ranged_touch") else "str"
     to_hit = (bab + ability_scores.modifier(hit_ability)
-              + size_mod_attack(size) + attack.bonus)
+              + size_mod_attack(size) + attack.bonus + extra_bonus)
 
     if attack.fixed_damage:
         damage = attack.fixed_damage
     else:
         str_bonus = math.floor(ability_scores.modifier("str") * attack.str_damage_mult)
-        if attack.str_damage_mult == 0 or str_bonus == 0:
+        total_bonus = str_bonus + extra_damage
+        if total_bonus == 0:
             damage = attack.base_damage
         else:
-            damage = f"{attack.base_damage}{str_bonus:+d}"
+            damage = f"{attack.base_damage}{total_bonus:+d}"
 
     return {"to_hit": to_hit, "damage": damage}
 

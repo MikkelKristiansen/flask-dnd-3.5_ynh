@@ -47,6 +47,8 @@ BUFF_CATALOG = [
      "note": "+4 Wis — Will-save, Wis-skills, druide-spell-DC'er"},
     {"name": "Magic Fang", "spell_id": "magic_fang", "affects": ["attack"],
      "note": "+1 angreb og skade på ÉT naturligt våben (godt til companion)"},
+    {"name": "Divine Favor", "spell_id": "divine_favor", "affects": ["attack"],
+     "note": "+1 luck på angreb og skade (+1 pr. 3 casterniveauer)"},
     {"name": "Produce Flame", "spell_id": "produce_flame", "affects": ["attack"],
      "note": "Flamme i hånden — nærkamp/kast-angreb 1d6 +1/niveau (låser spell-angreb op)"},
     {"name": "Longstrider", "spell_id": "longstrider", "affects": ["speed"],
@@ -690,6 +692,17 @@ def karakter(name):
     # bevidst de rå scores — en midlertidig buff må ikke påvirke dem.
     active_modifiers, effect_sources = _collect_active_effects(char)
     eff = char_module.effective_ability_scores(ab, active_modifiers)
+    # Direkte (ikke-ability) bonusser: nettobonus pr. target (attack/damage/
+    # save_*/skill_*/speed). AC behandles separat (typerne skal holdes adskilt).
+    net = char_module.resolve_modifiers(active_modifiers)
+    # Betingede bonusser (kun-mod-X, fx Bless vs frygt) — vises som note, ikke i tallet.
+    conditional_notes = []
+    for src in effect_sources:
+        for m in char_module.conditional_modifiers(src["modifiers"]):
+            conditional_notes.append({
+                "name": src["name"], "target": m["target"],
+                "value": int(m.get("value", 0)), "only_vs": m["only_vs"],
+            })
 
     # Equipped rustning/skjold → bruges til både AC og rustnings-tjekstraf (ACP).
     # Udledes fra inventaret (worn-poster); falder tilbage til combat.armor/shield
@@ -708,8 +721,10 @@ def karakter(name):
     for label, skey, akey in (("Fortitude", "fortitude", "con"),
                               ("Reflex", "reflex", "dex"),
                               ("Will", "will", "wis")):
+        eff_bonus = char_module.save_effect_bonus(net, skey)
         base_v = char_module.save_total(char.saves.get(skey, 0), getattr(ab, akey), racial_save)
-        eff_v = char_module.save_total(char.saves.get(skey, 0), getattr(eff, akey), racial_save)
+        eff_v = char_module.save_total(char.saves.get(skey, 0), getattr(eff, akey),
+                                       racial_save, eff_bonus)
         saves.append(_delta_row(label, eff_v, base_v))
 
     synergy_bonuses = char_module.compute_synergy_bonuses(char.skills)
@@ -720,7 +735,10 @@ def karakter(name):
         synergy = synergy_bonuses.get(s.id, 0)
         ranked = int(s.ranks) > 0
         trained_only = bool(defn.get("trained_only"))
-        total = char_module.skill_total(s, eff, db, synergy, acp)
+        eff_bonus = char_module.skill_effect_bonus(net, s.id)
+        total = char_module.skill_total(s, eff, db, synergy, acp, eff_bonus)
+        # Basis (uden aktive effekter) → ▲/▼-markør når en effekt ændrede skill'en.
+        pre_effect = char_module.skill_total(s, ab, db, synergy, acp)
         acp_applied = acp * int(defn.get("armor_check", 0) or 0)
         skill_data.append({
             "skill": s, "defn": defn,
@@ -735,6 +753,9 @@ def karakter(name):
             # Utrænet kan kun bruges hvis skill'en ikke er trained-only,
             # eller hvis Tjørn faktisk har ranks i den.
             "usable": ranked or not trained_only,
+            "effect_changed": total != pre_effect,
+            "effect_up": total > pre_effect,
+            "pre_effect": pre_effect,
         })
     # Feat-poster kan være rene id-strenge eller {id, weapon}; vis label med våben.
     feat_data = []
@@ -803,13 +824,18 @@ def karakter(name):
     active_keys = char_module.active_spell_keys(
         char.spells_prepared, char.spells_active, db)
 
+    # Direkte angrebs-/skade-bonusser (Bless, Magic Fang, Divine Favor,
+    # shaken/sickened-straffe). Ability-delen kaskaderer via eff; disse lægges på.
+    attack_extra = net.get("attack", 0)
+    damage_extra = net.get("damage", 0)
+
     def _atk_fields(atk):
         """Til-hit/skade for et angreb (effektivt) + delta-info vs. basis-scores.
 
-        Bull's Strength m.fl. kaskaderer her: både til-hit og skade-strengen kan
-        ændre sig, og melee touch-spell-angreb påvirkes via Str/Dex.
+        Bull's Strength m.fl. kaskaderer via eff; direkte bonusser (attack/damage)
+        lægges på her. Basis er angrebet helt uden aktive effekter.
         """
-        e = char_module.attack_total(atk, eff, bab, char.size)
+        e = char_module.attack_total(atk, eff, bab, char.size, attack_extra, damage_extra)
         b = char_module.attack_total(atk, ab, bab, char.size)
         return {**e,
                 "hit_changed": e["to_hit"] != b["to_hit"], "hit_up": e["to_hit"] > b["to_hit"],
@@ -850,15 +876,22 @@ def karakter(name):
         "range": a.range, "source": a.source, "requires": a.requires,
     } for i, a in enumerate(char.attacks)]
 
-    _ac_kwargs = dict(
+    # AC: karakterens egne typede bonusser (combat) kombineres med aktive AC-
+    # effekter (Shield of Faith deflection, Barkskin natural …) under stacking-
+    # reglerne, og Dex kommer fra eff. Basis er rå scores + kun combat-felterne.
+    _combat_ac = {
+        "natural": int(char.combat.get("natural_armor", 0)),
+        "deflection": int(char.combat.get("deflection", 0)),
+        "dodge": int(char.combat.get("dodge", 0)),
+        "misc": int(char.combat.get("misc_ac", 0)),
+    }
+    _ac_common = dict(
         armor=armor_row,
         shield=shield_row,
         enc_max_dex=char_module.encumbrance_consequences(enc, base_speed)["max_dex"],
-        natural=int(char.combat.get("natural_armor", 0)),
-        deflection=int(char.combat.get("deflection", 0)),
-        dodge=int(char.combat.get("dodge", 0)),
-        misc=int(char.combat.get("misc_ac", 0)),
     )
+    ac_bonuses = char_module.resolve_ac_bonuses(
+        _combat_ac, [m for m in active_modifiers if m.get("target") == "ac"])
     grapple = _delta_row("Grapple",
                          char_module.grapple_total(bab, eff.str, char.size),
                          char_module.grapple_total(bab, ab.str, char.size))
@@ -866,10 +899,13 @@ def karakter(name):
         "Init",
         char_module.initiative_total(eff, char.feats, int(char.combat.get("initiative_misc", 0))),
         char_module.initiative_total(ab, char.feats, int(char.combat.get("initiative_misc", 0))))
-    ac = char_module.armor_class(eff, char.size, **_ac_kwargs)
-    ac_base = char_module.armor_class(ab, char.size, **_ac_kwargs)
-    # Pr. AC-tal: er det ændret af en effekt? (Dex kaskaderer ind i ac/touch/ff.)
+    ac = char_module.armor_class(eff, char.size, **_ac_common, **ac_bonuses)
+    ac_base = char_module.armor_class(ab, char.size, **_ac_common, **_combat_ac)
+    # Pr. AC-tal: er det ændret af en effekt? (Dex + typede AC-bonusser.)
     ac_delta = {k: _delta_row(k, ac[k], ac_base[k]) for k in ("ac", "touch", "flat_footed")}
+
+    # Speed: longstrider m.fl. (effekt-bonus til land-bevægelse).
+    speed = _delta_row("Speed", base_speed + net.get("speed", 0), base_speed)
 
     # Evnescores vises effektivt med basis + breakdown når en effekt ændrede dem.
     ability_breakdown = _ability_breakdown(effect_sources)
@@ -1023,6 +1059,8 @@ def karakter(name):
         initiative=initiative,
         ac=ac,
         ac_delta=ac_delta,
+        speed=speed,
+        conditional_notes=conditional_notes,
         druid_armor_block=druid_armor_block,
         inventory_json=inventory_json,
         catalog_json=catalog_json,

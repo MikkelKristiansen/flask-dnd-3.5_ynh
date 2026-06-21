@@ -7,7 +7,8 @@ isoleret i resolve_modifiers og dækket grundigt her.
 """
 from character import (AbilityScores, effective_ability_scores,
                        resolve_modifiers, save_total, attack_total, Attack,
-                       grapple_total)
+                       grapple_total, resolve_ac_bonuses, save_effect_bonus,
+                       skill_effect_bonus, conditional_modifiers)
 
 
 def m(target, type, value, **extra):
@@ -137,3 +138,81 @@ def test_removing_buff_returns_to_base():
     without = effective_ability_scores(base, [])
     assert with_buff.wis == 20
     assert without.wis == base.wis == 16
+
+
+# ── Fase 2: direkte bonusser ────────────────────────────────────────────────
+
+def test_save_effect_bonus_param():
+    # Resistance (+1 alle) lægges oveni; uden bonus er det uændret.
+    assert save_total(2, 14, 0) == 4
+    assert save_total(2, 14, 0, effect_bonus=1) == 5
+
+
+def test_save_effect_bonus_combines_all_and_specific():
+    net = {"save_all": 1, "save_will": 1}
+    assert save_effect_bonus(net, "will") == 2
+    assert save_effect_bonus(net, "fortitude") == 1
+
+
+def test_skill_effect_bonus_combines():
+    net = {"skill_all": -2, "skill:hide": 5}
+    assert skill_effect_bonus(net, "hide") == 3
+    assert skill_effect_bonus(net, "spot") == -2
+
+
+def test_attack_extra_bonus_and_damage():
+    s = AbilityScores(str=14)  # +2
+    w = Attack(name="Sword", base_damage="1d8", str_damage_mult=1.0)
+    # Bless +1 attack, Magic Fang +1 damage → to-hit +1, skade +1 oveni Str.
+    r = attack_total(w, s, bab=2, size="medium", extra_bonus=1, extra_damage=1)
+    assert r["to_hit"] == 2 + 2 + 0 + 0 + 1          # bab + str + size + bonus + extra
+    assert r["damage"] == "1d8+3"                    # +2 Str +1 extra
+
+
+def test_attack_extra_damage_skips_fixed():
+    # Spell-angreb (fixed_damage) får ikke våben-skade-bonus.
+    s = AbilityScores(str=14)
+    spell = Attack(name="Flame", fixed_damage="1d6+2", str_damage_mult=0, source="spell")
+    r = attack_total(spell, s, bab=2, size="medium", extra_bonus=1, extra_damage=2)
+    assert r["damage"] == "1d6+2"                     # uændret
+    assert r["to_hit"] == 2 + 2 + 1                   # to-hit får dog extra_bonus
+
+
+def test_resolve_ac_natural_and_deflection_stack():
+    # Barkskin (natural +2) + Shield of Faith (deflection +2) = begge tæller.
+    combat = {"natural": 0, "deflection": 0, "dodge": 0, "misc": 0}
+    mods = [{"target": "ac", "type": "natural", "value": 2},
+            {"target": "ac", "type": "deflection", "value": 2}]
+    out = resolve_ac_bonuses(combat, mods)
+    assert out["natural"] == 2 and out["deflection"] == 2
+
+
+def test_resolve_ac_same_deflection_does_not_stack():
+    # Et deflection-item (combat) + Shield of Faith (deflection) → kun den højeste.
+    combat = {"natural": 0, "deflection": 3, "dodge": 0, "misc": 0}
+    mods = [{"target": "ac", "type": "deflection", "value": 2}]
+    out = resolve_ac_bonuses(combat, mods)
+    assert out["deflection"] == 3
+
+
+def test_resolve_ac_dodge_stacks():
+    combat = {"natural": 0, "deflection": 0, "dodge": 1, "misc": 0}
+    mods = [{"target": "ac", "type": "dodge", "value": 1}]
+    out = resolve_ac_bonuses(combat, mods)
+    assert out["dodge"] == 2
+
+
+def test_resolve_ac_unknown_type_goes_to_misc():
+    combat = {"natural": 0, "deflection": 0, "dodge": 0, "misc": 1}
+    mods = [{"target": "ac", "type": "luck", "value": 2}]
+    out = resolve_ac_bonuses(combat, mods)
+    assert out["misc"] == 3   # untyped 1 + luck 2 (forskellige typer stacker)
+
+
+def test_conditional_modifiers_extracted():
+    mods = [m("attack", "morale", 1),
+            m("save_will", "morale", 1, only_vs="fear")]
+    cond = conditional_modifiers(mods)
+    assert len(cond) == 1 and cond[0]["only_vs"] == "fear"
+    # …og den betingede ryger IKKE i nettotallet.
+    assert resolve_modifiers(mods) == {"attack": 1}

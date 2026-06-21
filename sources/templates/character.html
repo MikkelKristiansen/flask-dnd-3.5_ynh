@@ -126,6 +126,8 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .eff-delta.up{color:var(--green);}
 .eff-delta.down{color:var(--red);}
 .buff-badge.buff-negative{background:var(--red);}
+.cond-note{font-size:.72rem;color:var(--accent);font-style:italic;margin-top:.25rem;}
+.cond-note-src{color:var(--muted);font-style:normal;}
 
 /* Attacks */
 .attack-row{display:grid;grid-template-columns:1fr auto auto auto;gap:.5rem;
@@ -584,7 +586,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 <div id="tab-oversigt" class="tab-panel active">
 
   {# Delta-markør: lille ▲/▼ ved et tal som en aktiv effekt har ændret. #}
-  {% macro dmark(d) %}{% if d.changed %}<span class="eff-delta {{ 'up' if d.up else 'down' }}" title="Basis: {{ "%+d"|format(d.base) }} — ændret af aktiv effekt">{{ '▲' if d.up else '▼' }}</span>{% endif %}{% endmacro %}
+  {% macro dmark(d) %}{% if d.changed %}<span class="eff-delta {{ 'up' if d.up else 'down' }}" title="Basis: {{ d.base }} — ændret af aktiv effekt">{{ '▲' if d.up else '▼' }}</span>{% endif %}{% endmacro %}
 
   <div class="section">
     <div class="section-title">Evnescores <span style="color:var(--muted);font-size:.7rem;font-style:italic">(▲/▼ = ændret af effekt · tap for detaljer)</span></div>
@@ -611,6 +613,10 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
         <span class="stat-val">{{ "%+d"|format(s.val) }}{{ dmark(s) }}</span>
       </div>
       {% endfor %}
+      {% set save_notes = conditional_notes | selectattr("target", "in", ["save_all","save_fort","save_ref","save_will"]) | list %}
+      {% for n in save_notes %}
+      <div class="cond-note">{{ "%+d"|format(n.value) }} {{ {"save_all":"alle saves","save_will":"Will","save_fort":"Fort","save_ref":"Ref"}[n.target] }} mod {{ n.only_vs }} <span class="cond-note-src">({{ n.name }})</span></div>
+      {% endfor %}
     </div>
     <div class="section">
       <div class="section-title">Kamp</div>
@@ -622,7 +628,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(initiative.val) }}','Initiativ')" title="Slå initiativ"><span class="stat-label">Init</span><span class="stat-val">{{ "%+d"|format(initiative.val) }}{{ dmark(initiative) }}</span></div>
       <div class="stat-row"><span class="stat-label">BAB</span><span class="stat-val">{{ "%+d"|format(co.get("bab",0)) }}</span></div>
       <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(grapple.val) }}','Grapple')" title="Slå grapple-check"><span class="stat-label">Grapple</span><span class="stat-val">{{ "%+d"|format(grapple.val) }}{{ dmark(grapple) }}</span></div>
-      <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ co.get("speed",30) }} ft</span></div>
+      <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ speed.val }} ft{{ dmark(speed) }}</span></div>
     </div>
   </div>
 
@@ -877,11 +883,11 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
               title="Slå {{ defn.name if defn else s.id }} (uden synergi){% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.base_total) }}</span>
         <span class="skill-total roll-tap" style="color:var(--green);font-size:.82rem"
               onclick="event.stopPropagation();quickRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }} (m. synergi)')"
-              title="Slå {{ defn.name if defn else s.id }} inkl. +{{ item.synergy }} situationsbestemt synergi">{{ "%+d"|format(item.total) }}⟳</span>
+              title="Slå {{ defn.name if defn else s.id }} inkl. +{{ item.synergy }} situationsbestemt synergi">{{ "%+d"|format(item.total) }}⟳{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect}) }}</span>
         {% else %}
         <span class="skill-total roll-tap"
               onclick="event.stopPropagation();quickRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }}')"
-              title="Slå {{ defn.name if defn else s.id }}{% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.total) }}</span>
+              title="Slå {{ defn.name if defn else s.id }}{% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.total) }}{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect}) }}</span>
         {% endif %}
         {% else %}
         <span class="skill-na" title="Trænet kun — Tjørn har ingen ranks, så denne kan ikke bruges utrænet">—</span>

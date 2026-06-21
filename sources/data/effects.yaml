@@ -72,6 +72,14 @@
   source_spell_id: longstrider
   modifiers: '[{"target": "speed", "type": "enhancement", "value": 10}]'
 
+- id: divine_favor
+  name: Divine Favor
+  kind: buff
+  source_spell_id: divine_favor
+  # +1 luck pr. 3 casterniveauer (min +1). Modelleret fladt +1 (korrekt CL 1–2);
+  # fuld niveauskalering hører til polish-fasen.
+  modifiers: '[{"target": "attack", "type": "luck", "value": 1}, {"target": "damage", "type": "luck", "value": 1}]'
+
 # ── Roll-only / temp-HP / rene tracking-buffs (modifiers tomme indtil Fase 3) ─
 - id: guidance
   name: Guidance
@@ -95,6 +103,24 @@
   name: Endure Elements
   kind: buff
   source_spell_id: endure_elements
+
+# ── Tilstande med typede straffe (id matcher conditions-tabellen) ───────────
+# Tilføjes via tilstands-vælgeren; effekten slås op på samme id og giver tallene.
+- id: shaken
+  name: Shaken
+  kind: condition
+  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "save_all", "type": "penalty", "value": -2}, {"target": "skill_all", "type": "penalty", "value": -2}]'
+
+- id: sickened
+  name: Sickened
+  kind: condition
+  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "damage", "type": "penalty", "value": -2}, {"target": "save_all", "type": "penalty", "value": -2}, {"target": "skill_all", "type": "penalty", "value": -2}]'
+
+# Fatigued = −2 Str og −2 Dex → kaskaderer automatisk via ability-modellen.
+- id: fatigued
+  name: Fatigued
+  kind: condition
+  modifiers: '[{"target": "str", "type": "penalty", "value": -2}, {"target": "dex", "type": "penalty", "value": -2}]'
 
 # ── Ability-skade-skabeloner (kaskaderer; value redigerbar pr. instans) ─────
 # value er en standardstraf; den faktiske skade vælges når effekten tilføjes.
