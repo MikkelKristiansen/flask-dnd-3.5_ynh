@@ -35,6 +35,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 
 /* HP bar + controls */
 .hp-control{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;}
+.hp-temp{color:var(--green);font-weight:bold;font-size:.8rem;margin-left:.35rem;cursor:help;}
 .hp-btn{background:var(--card);border:1px solid var(--border);color:var(--text);
         font-size:1.2rem;width:2.2rem;height:2.2rem;border-radius:4px;cursor:pointer;
         display:flex;align-items:center;justify-content:center;transition:.15s;}
@@ -517,7 +518,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   <div class="hp-control">
     <button class="hp-btn" onclick="hpChange(-1)" title="-1 HP">−</button>
     <button class="hp-btn" onclick="hpChange(-5)" title="-5 HP" style="font-size:.8rem">−5</button>
-    <div class="hp-value">❤ <span id="hp-num">{{ char.hp_current }}</span> / {{ char.hp_max }}<span id="hp-status"></span></div>
+    <div class="hp-value">❤ <span id="hp-num">{{ char.hp_current }}</span> / {{ char.hp_max }}{% if temp_hp %}<span class="hp-temp" title="Midlertidigt HP fra aktiv effekt — kan holde dig op til {{ char.hp_max + temp_hp }}">🛡 +{{ temp_hp }}</span>{% endif %}<span id="hp-status"></span></div>
     <button class="hp-btn" onclick="hpChange(+5)" title="+5 HP" style="font-size:.8rem">+5</button>
     <button class="hp-btn" onclick="hpChange(+1)" title="+1 HP">+</button>
     <div class="bar-group" style="margin-left:.5rem">

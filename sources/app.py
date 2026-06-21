@@ -637,6 +637,20 @@ def _ability_breakdown(sources):
     return out
 
 
+def _temp_hp_from_modifiers(active_modifiers) -> int:
+    """Midlertidigt HP fra aktive effekter (target hp_temp). Temp-HP STACKER ikke
+    (SRD) — den højeste kilde gælder. 0 hvis ingen."""
+    vals = [int(m.get("value", 0)) for m in (active_modifiers or [])
+            if m.get("target") == "hp_temp" and not m.get("only_vs")]
+    return max(vals) if vals else 0
+
+
+def _temp_hp(char) -> int:
+    """Midlertidigt HP for en karakter ud fra dens aktive effekter."""
+    mods, _ = _collect_active_effects(char)
+    return _temp_hp_from_modifiers(mods)
+
+
 def _collect_riders(sources):
     """Aktive ryttere → mekaniske flag (lose_dex/half_speed) + en visningsliste.
 
@@ -724,6 +738,8 @@ def karakter(name):
             })
     # Ikke-numeriske ryttere: mekaniske flag (lose_dex/half_speed) + advarsler.
     riders = _collect_riders(effect_sources)
+    # Midlertidigt HP (Virtue m.fl.): hæver HP-loftet, så det kan tracking-bruges.
+    temp_hp = _temp_hp_from_modifiers(active_modifiers)
 
     # Equipped rustning/skjold → bruges til både AC og rustnings-tjekstraf (ACP).
     # Udledes fra inventaret (worn-poster); falder tilbage til combat.armor/shield
@@ -1101,6 +1117,7 @@ def karakter(name):
         speed=speed,
         conditional_notes=conditional_notes,
         effect_flags=riders["flags"],
+        temp_hp=temp_hp,
         druid_armor_block=druid_armor_block,
         inventory_json=inventory_json,
         catalog_json=catalog_json,
@@ -1157,7 +1174,9 @@ def api_hp():
         return jsonify({"error": "not found"}), 404
 
     char = char_module.load_character(str(path))
-    new_hp = max(-20, min(char.hp_max, char.hp_current + delta))
+    # Midlertidigt HP (Virtue m.fl.) hæver loftet, så HP kan holdes over max.
+    ceiling = char.hp_max + _temp_hp(char)
+    new_hp = max(-20, min(ceiling, char.hp_current + delta))
     char_module.save_character(str(path), {"hp_current": new_hp})
     return jsonify({"hp_current": new_hp, "hp_max": char.hp_max})
 

@@ -131,7 +131,7 @@
   name: Virtue
   kind: buff
   source_spell_id: virtue
-  riders: '[{"note": "+1 midlertidigt HP"}]'
+  modifiers: '[{"target": "hp_temp", "type": "untyped", "value": 1}]'
 
   picker: buff
   note: +1 midlertidigt HP
