@@ -617,13 +617,28 @@ def karakter(name):
         feat_data.append((fid, row, char_module.feat_label(e, row)))
     char_feat_ids = [char_module.feat_id(e) for e in char.feats]
 
+    # Spell-tilstande: selv-varigheds-spells (self_duration) har tre tilstande
+    # (Ledig/I brug/Brugt); øvrige har to (Ledig/Brugt). 'used' = slot brugt
+    # (både I brug og Brugt tæller), bruges kun til slot-optælling i templaten.
     spell_data: dict[int, list] = {}
     for lvl, spell_ids in char.spells_prepared.items():
         used_indices = set(char.spells_used.get(lvl, []))
-        spell_data[lvl] = [
-            {"id": sid, "index": i, "spell": db.get_spell(sid), "used": i in used_indices}
-            for i, sid in enumerate(spell_ids)
-        ]
+        active_indices = set(char.spells_active.get(lvl, []))
+        rows = []
+        for i, sid in enumerate(spell_ids):
+            spell = db.get_spell(sid)
+            if i in active_indices:
+                state = "active"
+            elif i in used_indices:
+                state = "used"
+            else:
+                state = "free"
+            rows.append({
+                "id": sid, "index": i, "spell": spell,
+                "used": state != "free", "state": state,
+                "self_duration": bool(spell and spell.get("self_duration")),
+            })
+        spell_data[lvl] = rows
 
     condition_data  = [(cid, db.get_condition(cid)) for cid in char.conditions]
     all_conditions  = db.get_all_conditions()
@@ -656,8 +671,10 @@ def karakter(name):
     # Combat: beregn til-hit/skade pr. angreb + grapple + initiativ (gemmes aldrig i YAML).
     # Angreb = eksplicitte (spells/unarmed) + afledte fra våben i hånden (wielded).
     bab = int(char.combat.get("bab", 0))
-    # Betingede spell-angreb (Attack.requires) vises kun når den krævede buff er aktiv.
-    active_keys = char_module.active_buff_keys(char.buffs)
+    # Betingede spell-angreb (Attack.requires) vises kun når den spell der
+    # skaber dem står på "I brug" (varighed kører).
+    active_keys = char_module.active_spell_keys(
+        char.spells_prepared, char.spells_active, db)
 
     def _row(atk, manual, idx):
         return {"attack": atk, "manual": manual, "idx": idx,
@@ -670,14 +687,6 @@ def karakter(name):
                    if char_module.attack_visible(a, active_keys)]
     attack_rows += [_row(a, True, i) for i, a in enumerate(char.attacks)
                     if char_module.attack_visible(a, active_keys)]
-
-    # Slukkede betingede angreb → hint grupperet pr. krævet buff ("tænd som buff").
-    _groups: dict[str, list] = {}
-    for i, atk in enumerate(char.attacks):
-        if (atk.source == "spell" and atk.requires
-                and not char_module.attack_visible(atk, active_keys)):
-            _groups.setdefault(atk.requires, []).append({"idx": i, "name": atk.name})
-    inactive_spell_groups = [{"buff": k, "attacks": v} for k, v in sorted(_groups.items())]
 
     # Rå felter for alle manuelle angreb → redigering i browseren (også de slukkede).
     attacks_json = [{
@@ -842,7 +851,6 @@ def karakter(name):
         enc=enc,
         base_speed=base_speed,
         attack_rows=attack_rows,
-        inactive_spell_groups=inactive_spell_groups,
         attacks_json=attacks_json,
         grapple=grapple,
         initiative=initiative,
@@ -921,17 +929,36 @@ def api_spells():
 
     char = char_module.load_character(str(path))
     spells_used = {k: list(v) for k, v in char.spells_used.items()}
+    spells_active = {k: list(v) for k, v in char.spells_active.items()}
 
-    if mark_used:
-        spells_used.setdefault(level, [])
-        if spell_index not in spells_used[level]:
-            spells_used[level].append(spell_index)
+    # Tre-tilstands-spells (self_duration) sender "state" = free|active|used.
+    # To-tilstands-spells sender som før "used" = true/false.
+    state = data.get("state")
+    if state is not None:
+        for d in (spells_used, spells_active):
+            if level in d and spell_index in d[level]:
+                d[level].remove(spell_index)
+        if state == "active":
+            spells_active.setdefault(level, []).append(spell_index)
+        elif state == "used":
+            spells_used.setdefault(level, []).append(spell_index)
+        # state == "free": fjernet fra begge ovenfor
+        char_module.save_character(
+            str(path), {"spells_used": spells_used, "spells_active": spells_active})
     else:
-        if level in spells_used and spell_index in spells_used[level]:
-            spells_used[level].remove(spell_index)
+        if mark_used:
+            spells_used.setdefault(level, [])
+            if spell_index not in spells_used[level]:
+                spells_used[level].append(spell_index)
+        else:
+            if level in spells_used and spell_index in spells_used[level]:
+                spells_used[level].remove(spell_index)
+        char_module.save_character(str(path), {"spells_used": spells_used})
 
-    char_module.save_character(str(path), {"spells_used": spells_used})
-    return jsonify({"spells_used": {str(k): v for k, v in spells_used.items()}})
+    return jsonify({
+        "spells_used": {str(k): v for k, v in spells_used.items()},
+        "spells_active": {str(k): v for k, v in spells_active.items()},
+    })
 
 
 @app.route("/api/conditions", methods=["POST"])
@@ -1261,7 +1288,9 @@ def api_newday():
     path = _char_path(slug)
     if not path.exists():
         return jsonify({"error": "not found"}), 404
-    char_module.save_character(str(path), {"spells_used": {}, "domain_spells_used": {}})
+    char_module.save_character(
+        str(path),
+        {"spells_used": {}, "spells_active": {}, "domain_spells_used": {}})
     return jsonify({"ok": True})
 
 

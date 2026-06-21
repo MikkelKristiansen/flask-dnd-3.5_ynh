@@ -122,6 +122,7 @@ class Character:
     attacks: list = field(default_factory=list)
     spells_prepared: dict = field(default_factory=dict)
     spells_used: dict = field(default_factory=dict)
+    spells_active: dict = field(default_factory=dict)  # spells "I brug" (varighed kører) — {level: [index]}
     conditions: list = field(default_factory=list)
     buffs: list = field(default_factory=list)  # aktive positive effekter: {name, note, affects, spell_id?}
     inventory: list = field(default_factory=list)
@@ -228,17 +229,22 @@ def load_character(path: str) -> Character:
     for k, v in (data.get("spells_prepared") or {}).items():
         spells_prepared[int(k)] = list(v) if v else []
 
-    spells_used: dict[int, list[int]] = {}
-    for k, v in (data.get("spells_used") or {}).items():
-        if v:
-            indices = []
-            for item in v:
-                try:
-                    indices.append(int(item))
-                except (ValueError, TypeError):
-                    pass
-            if indices:
-                spells_used[int(k)] = indices
+    def _index_map(raw) -> dict[int, list[int]]:
+        out: dict[int, list[int]] = {}
+        for k, v in (raw or {}).items():
+            if v:
+                indices = []
+                for item in v:
+                    try:
+                        indices.append(int(item))
+                    except (ValueError, TypeError):
+                        pass
+                if indices:
+                    out[int(k)] = indices
+        return out
+
+    spells_used = _index_map(data.get("spells_used"))
+    spells_active = _index_map(data.get("spells_active"))
 
     conditions = list(data.get("conditions") or [])
     buffs = list(data.get("buffs") or [])
@@ -270,6 +276,7 @@ def load_character(path: str) -> Character:
         attacks=attacks,
         spells_prepared=spells_prepared,
         spells_used=spells_used,
+        spells_active=spells_active,
         conditions=conditions,
         buffs=buffs,
         inventory=inventory,
@@ -476,6 +483,11 @@ def save_character(path: str, updates: dict) -> None:
     if "spells_used" in updates:
         data["spells_used"] = {
             int(k): list(v) for k, v in updates["spells_used"].items()
+        }
+
+    if "spells_active" in updates:
+        data["spells_active"] = {
+            int(k): list(v) for k, v in updates["spells_active"].items() if v
         }
 
     if "domain_spells_prepared" in updates:
@@ -958,11 +970,33 @@ def active_buff_keys(buffs: list) -> set:
     return keys
 
 
+def active_spell_keys(spells_prepared: dict, spells_active: dict, db) -> set:
+    """Identiteter for spells der står på 'I brug' — spell-id og navn, lowercased.
+
+    Et betinget spell-angreb (Attack.requires) vises når dets 'requires' matcher
+    et af disse — dvs. når den spell der skaber angrebet er aktiv (varighed kører).
+    Erstatter den tidligere buff-baserede oplåsning.
+    """
+    keys: set[str] = set()
+    for lvl, indices in (spells_active or {}).items():
+        prepared = (spells_prepared or {}).get(lvl, [])
+        for idx in indices:
+            if 0 <= idx < len(prepared):
+                sid = str(prepared[idx]).strip().lower()
+                if sid:
+                    keys.add(sid)
+                row = db.get_spell(prepared[idx])
+                if row and row.get("name"):
+                    keys.add(str(row["name"]).strip().lower())
+    return keys
+
+
 def attack_visible(attack: Attack, active_keys: set) -> bool:
     """Skal et angreb vises på arket?
 
     Våben og spell-angreb uden 'requires' vises altid. Et spell-angreb MED
-    'requires' vises kun når den krævede buff er aktiv (findes i active_keys).
+    'requires' vises kun når den spell der skaber det står på 'I brug'
+    (dens id eller navn findes i active_keys).
     """
     if attack.source == "spell" and attack.requires:
         return attack.requires.strip().lower() in active_keys

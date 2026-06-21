@@ -503,6 +503,7 @@
   range: Personal
   target: You
   duration: 10 min./level
+  self_duration: 1
   save: None
   spell_resistance: No
   components: V, S, M/DF
@@ -667,6 +668,7 @@
   range: Personal
   target: You
   duration: 1 minute
+  self_duration: 1
   save: None
   spell_resistance: No
   components: V, S, DF
@@ -701,6 +703,7 @@
   range: Personal
   target: You
   duration: 1 min./level (D)
+  self_duration: 1
   save: None
   spell_resistance: No
   components: V, S
@@ -1205,6 +1208,7 @@
   range: 0 ft.
   target: Sword-like beam
   duration: 1 min./level (D)
+  self_duration: 1
   save: None
   spell_resistance: Yes
   components: V, S, DF
@@ -1567,6 +1571,7 @@
   range: Personal
   target: You
   duration: 1 hour/level (D)
+  self_duration: 1
   save:
   spell_resistance:
   components: V, S, M
@@ -1607,6 +1612,7 @@
   range: Touch
   target: Up to three pebbles touched
   duration: 30 minutes or until discharged
+  self_duration: 1
   save: Will negates (harmless, object)
   spell_resistance: Yes (harmless, object)
   components: V, S, DF
@@ -1767,6 +1773,7 @@
   range: 0 ft.
   target: Flame in your palm
   duration: 1 min./level (D)
+  self_duration: 1
   save: None
   spell_resistance: Yes
   components: V, S
@@ -1829,6 +1836,7 @@
   range: Personal
   target: You
   duration: 10 min./level
+  self_duration: 1
   save:
   spell_resistance:
   components: V, S, F
@@ -1948,6 +1956,7 @@
   range: Touch
   target: One touched nonmagical oak club or quarterstaff
   duration: 1 min./level
+  self_duration: 1
   save: Will negates (object)
   spell_resistance: Yes (object)
   components: V, S, DF
@@ -2015,6 +2024,7 @@
   range: Personal
   target: You
   duration: 1 min./level
+  self_duration: 1
   save:
   spell_resistance:
   components: V, S
@@ -2177,6 +2187,7 @@
   range: Personal
   target: You
   duration: 1 hour/level (D)
+  self_duration: 1
   save:
   spell_resistance:
   components: V, S, DF
@@ -2436,6 +2447,7 @@
   range: Personal
   target: You
   duration: 10 min./level
+  self_duration: 1
   save:
   spell_resistance:
   components: V, S, DF
@@ -2548,6 +2560,7 @@
   range: Personal
   target: You
   duration: 1 min./level
+  self_duration: 1
   save:
   spell_resistance:
   components: V, S
@@ -3167,6 +3180,7 @@
   range: Personal
   target: You
   duration: 1 hour/level or until expended; see text
+  self_duration: 1
   save:
   spell_resistance:
   components: V, S, DF

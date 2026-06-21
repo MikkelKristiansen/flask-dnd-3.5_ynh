@@ -14,6 +14,9 @@ CREATE TABLE spells (
     range TEXT,
     target TEXT,
     duration TEXT,
+    -- 1 = spell der kun rammer casteren selv og har varighed (ikke instant).
+    -- Får tre tilstande på arket (Ledig/I brug/Brugt) i stedet for to.
+    self_duration INTEGER,
     save TEXT,
     spell_resistance TEXT,
     components TEXT,
