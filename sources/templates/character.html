@@ -117,6 +117,16 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .ability-score{font-size:1.3rem;font-weight:bold;line-height:1.1;}
 .ability-mod{font-size:.85rem;color:var(--accent);}
 
+/* ── Effekt-deltaer: tal ændret af aktive buffs/tilstande ── */
+.ability-box.eff-changed{cursor:pointer;}
+.ability-box.eff-up{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green);}
+.ability-box.eff-down{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red);}
+.eff-base{font-size:.6rem;color:var(--muted);margin-top:.1rem;}
+.eff-delta{font-size:.7rem;font-weight:bold;margin-left:.15rem;vertical-align:middle;cursor:help;}
+.eff-delta.up{color:var(--green);}
+.eff-delta.down{color:var(--red);}
+.buff-badge.buff-negative{background:var(--red);}
+
 /* Attacks */
 .attack-row{display:grid;grid-template-columns:1fr auto auto auto;gap:.5rem;
             align-items:center;padding:.3rem 0;border-bottom:1px solid var(--border);font-size:.85rem;}
@@ -455,6 +465,9 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   <select id="buff-select-{{ target }}" onchange="onBuffPick('{{ target }}')">
     <option value="">— vælg buff —</option>
     {% for b in buff_catalog %}<option value="{{ loop.index0 }}">{{ b.name }} — {{ b.note }}</option>{% endfor %}
+    <optgroup label="Ability-skade (kaskaderer)">
+    {% for b in damage_catalog %}<option value="{{ buff_catalog|length + loop.index0 }}">{{ b.name }}</option>{% endfor %}
+    </optgroup>
     <option value="custom">✏ Egen buff…</option>
   </select>
   <input type="text" id="buff-name-{{ target }}" placeholder="Eget navn" style="display:none">
@@ -542,8 +555,8 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       </span>
     {% endfor %}
     {% for buff in char.buffs %}
-      <span class="buff-badge" onclick="showBuff('character',{{ loop.index0 }})" title="{{ buff.note }}">
-        {{ buff.name }}
+      <span class="buff-badge{% if buff.value and buff.value < 0 %} buff-negative{% endif %}" onclick="showBuff('character',{{ loop.index0 }})" title="{{ buff.note }}">
+        {{ buff.name }}{% if buff.value %} ({{ "%+d"|format(buff.value) }}){% endif %}
         <button class="cond-remove" onclick="event.stopPropagation();removeBuff('character',{{ loop.index0 }})" title="Fjern">×</button>
       </span>
     {% endfor %}
@@ -570,14 +583,19 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 <!-- ══════════════════════════════════════════════ -->
 <div id="tab-oversigt" class="tab-panel active">
 
+  {# Delta-markør: lille ▲/▼ ved et tal som en aktiv effekt har ændret. #}
+  {% macro dmark(d) %}{% if d.changed %}<span class="eff-delta {{ 'up' if d.up else 'down' }}" title="Basis: {{ "%+d"|format(d.base) }} — ændret af aktiv effekt">{{ '▲' if d.up else '▼' }}</span>{% endif %}{% endmacro %}
+
   <div class="section">
-    <div class="section-title">Evnescores</div>
+    <div class="section-title">Evnescores <span style="color:var(--muted);font-size:.7rem;font-style:italic">(▲/▼ = ændret af effekt · tap for detaljer)</span></div>
     <div class="ability-grid">
-      {% for abbr, score, mod in abilities %}
-      <div class="ability-box">
-        <div class="ability-abbr">{{ abbr }}</div>
-        <div class="ability-score">{{ score }}</div>
-        <div class="ability-mod">{{ "%+d"|format(mod) }}</div>
+      {% for a in abilities %}
+      <div class="ability-box{% if a.changed %} eff-changed {{ 'eff-up' if a.up else 'eff-down' }}{% endif %}"
+           {% if a.changed %}onclick="showAbilityBreakdown('{{ a.key }}')"{% endif %}>
+        <div class="ability-abbr">{{ a.abbr }}</div>
+        <div class="ability-score">{{ a.score }}{% if a.changed %}<span class="eff-delta {{ 'up' if a.up else 'down' }}">{{ '▲' if a.up else '▼' }}</span>{% endif %}</div>
+        <div class="ability-mod">{{ "%+d"|format(a.mod) }}</div>
+        {% if a.changed %}<div class="eff-base">basis {{ a.base }}</div>{% endif %}
       </div>
       {% endfor %}
     </div>
@@ -587,10 +605,10 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     <div class="section">
       <div class="section-title">Saves <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for at slå)</span></div>
       <div id="buff-rem-saves-character" class="buff-reminder" style="display:none"></div>
-      {% for sname, val in saves.items() %}
-      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(val) }}','{{ sname }} Save')" title="Slå {{ sname }} Save">
-        <span class="stat-label">{{ sname }}</span>
-        <span class="stat-val">{{ "%+d"|format(val) }}</span>
+      {% for s in saves %}
+      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(s.val) }}','{{ s.name }} Save')" title="Slå {{ s.name }} Save">
+        <span class="stat-label">{{ s.name }}</span>
+        <span class="stat-val">{{ "%+d"|format(s.val) }}{{ dmark(s) }}</span>
       </div>
       {% endfor %}
     </div>
@@ -598,12 +616,12 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       <div class="section-title">Kamp</div>
       <div id="buff-rem-combat-character" class="buff-reminder" style="display:none"></div>
       {% set co = char.combat %}
-      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ ac.ac }}</span></div>
-      <div class="stat-row"><span class="stat-label">Touch</span><span class="stat-val">{{ ac.touch }}</span></div>
-      <div class="stat-row"><span class="stat-label">FF</span><span class="stat-val">{{ ac.flat_footed }}</span></div>
-      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(initiative) }}','Initiativ')" title="Slå initiativ"><span class="stat-label">Init</span><span class="stat-val">{{ "%+d"|format(initiative) }}</span></div>
+      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ ac.ac }}{{ dmark(ac_delta.ac) }}</span></div>
+      <div class="stat-row"><span class="stat-label">Touch</span><span class="stat-val">{{ ac.touch }}{{ dmark(ac_delta.touch) }}</span></div>
+      <div class="stat-row"><span class="stat-label">FF</span><span class="stat-val">{{ ac.flat_footed }}{{ dmark(ac_delta.flat_footed) }}</span></div>
+      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(initiative.val) }}','Initiativ')" title="Slå initiativ"><span class="stat-label">Init</span><span class="stat-val">{{ "%+d"|format(initiative.val) }}{{ dmark(initiative) }}</span></div>
       <div class="stat-row"><span class="stat-label">BAB</span><span class="stat-val">{{ "%+d"|format(co.get("bab",0)) }}</span></div>
-      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(grapple) }}','Grapple')" title="Slå grapple-check"><span class="stat-label">Grapple</span><span class="stat-val">{{ "%+d"|format(grapple) }}</span></div>
+      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(grapple.val) }}','Grapple')" title="Slå grapple-check"><span class="stat-label">Grapple</span><span class="stat-val">{{ "%+d"|format(grapple.val) }}{{ dmark(grapple) }}</span></div>
       <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ co.get("speed",30) }} ft</span></div>
     </div>
   </div>
@@ -625,10 +643,10 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       </span>
       <span class="attack-bonus roll-tap"
             onclick="quickRoll('1d20{{ "%+d"|format(row.to_hit) }}','{{ atk.name }} angreb')"
-            title="Slå angrebsbonus">{{ "%+d"|format(row.to_hit) }}</span>
+            title="{% if row.hit_changed %}Basis {{ "%+d"|format(row.base_to_hit) }} — ændret af effekt{% else %}Slå angrebsbonus{% endif %}">{{ "%+d"|format(row.to_hit) }}{% if row.hit_changed %}<span class="eff-delta {{ 'up' if row.hit_up else 'down' }}">{{ '▲' if row.hit_up else '▼' }}</span>{% endif %}</span>
       <span class="attack-dmg roll-tap"
             onclick="quickRoll('{{ row.damage }}','{{ atk.name }} skade', 1)"
-            title="Slå skade (min. 1 ved træffer)">{{ row.damage }}</span>
+            title="{% if row.dmg_changed %}Basis {{ row.base_dmg }} — ændret af effekt{% else %}Slå skade (min. 1 ved træffer){% endif %}">{{ row.damage }}{% if row.dmg_changed %}<span class="eff-delta {{ 'up' if row.dmg_up else 'down' }}">{{ '▲' if row.dmg_up else '▼' }}</span>{% endif %}</span>
       <span class="attack-type">{{ atk.type }}{% if atk.range %} · {{ atk.range }}{% endif %}</span>
     </div>
   {% endmacro %}
@@ -1428,7 +1446,8 @@ let conditions = {{ char.conditions|tojson }};
 // Buffs (tracking) — data til badge-popups + hurtigvalg
 const charBuffs   = {{ char.buffs|tojson }};
 const compBuffs   = {{ (companion.buffs if companion else [])|tojson }};
-const buffCatalog = {{ buff_catalog|tojson }};
+const buffCatalog = {{ buff_catalog|tojson }}.concat({{ damage_catalog|tojson }});
+const abilityData = {{ abilities|tojson }};
 const AFFECT_LABEL = {attack:"angreb", save:"saves", skill:"skills", ac:"AC", hp:"HP",
                       str:"Str", dex:"Dex", con:"Con", wis:"Wis", int:"Int", cha:"Cha", speed:"speed"};
 
@@ -1701,6 +1720,15 @@ function addBuff(target) {
     buff = buffCatalog[parseInt(sel.value)];
   }
   if (!buff) return;
+  // Ability-skade m.fl.: katalog-effekten har en redigerbar værdi → spørg om
+  // mængden og send den med som instans-override (negativ for skade).
+  if (buff.editable) {
+    const raw = prompt(buff.prompt || "Værdi?", Math.abs(buff.value || 1));
+    if (raw === null) return;
+    const n = parseInt(raw, 10);
+    if (isNaN(n) || n === 0) return;
+    buff = {...buff, value: buff.negative ? -Math.abs(n) : n};
+  }
   fetch(BASE + "/api/buffs", {
     method: "POST", headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, action: "add", target, buff})
@@ -1731,6 +1759,25 @@ function showBuff(target, idx) {
         body.innerHTML += `<div style="margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--border);line-height:1.5;white-space:pre-line">${mdText(d.description)}</div>`;
     });
   }
+}
+
+// Breakdown for en evnescore en aktiv effekt har ændret: basis → effektiv + kilder.
+function showAbilityBreakdown(key) {
+  const a = abilityData.find(x => x.key === key);
+  if (!a) return;
+  document.getElementById("modal-title").textContent = a.abbr;
+  document.getElementById("modal-subtitle").textContent = "Evnescore — basis → effektiv";
+  const arrow = a.up ? "▲" : "▼";
+  const sources = (a.sources || []).map(s =>
+    `<div class="modal-row"><span class="modal-key">${escHtml(s.name)}</span>`
+    + `<span class="modal-val">${s.value > 0 ? "+" : ""}${s.value}</span></div>`).join("");
+  document.getElementById("modal-body").innerHTML =
+    `<div class="modal-row"><span class="modal-key">Basis</span>`
+    + `<span class="modal-val">${a.base} (${a.base_mod >= 0 ? "+" : ""}${a.base_mod})</span></div>`
+    + `<div class="modal-row"><span class="modal-key">Effektiv ${arrow}</span>`
+    + `<span class="modal-val">${a.score} (${a.mod >= 0 ? "+" : ""}${a.mod})</span></div>`
+    + (sources ? `<div style="margin-top:.5rem">${sources}</div>` : "");
+  document.getElementById("modal-overlay").classList.add("open");
 }
 
 // Påmindelse ved sektionerne (del 2): hvilke aktive buffs rammer denne sektion.

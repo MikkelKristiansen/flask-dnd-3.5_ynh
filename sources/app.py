@@ -55,6 +55,36 @@ BUFF_CATALOG = [
      "note": "Uskadt af varme/kulde fra –50°F til 140°F"},
 ]
 
+# Ability-skade — samme motor som buffs (en effekt med redigerbar value der
+# kaskaderer). spell_id peger på ability-skade-skabelonen i effects-kataloget;
+# 'editable'+'negative' fortæller UI'en at spørge om mængden og gemme den negativ.
+ABILITY_DAMAGE_CATALOG = [
+    {"name": "Str-skade", "spell_id": "str_damage", "affects": ["str"],
+     "note": "Midlertidig Str-skade — kaskaderer i angreb, skade, grapple",
+     "editable": True, "negative": True, "value": 2,
+     "prompt": "Hvor mange point Str-skade?"},
+    {"name": "Dex-skade", "spell_id": "dex_damage", "affects": ["dex"],
+     "note": "Midlertidig Dex-skade — kaskaderer i AC, Reflex, init, ranged",
+     "editable": True, "negative": True, "value": 2,
+     "prompt": "Hvor mange point Dex-skade?"},
+    {"name": "Con-skade", "spell_id": "con_damage", "affects": ["con"],
+     "note": "Midlertidig Con-skade — kaskaderer i Fortitude (og HP)",
+     "editable": True, "negative": True, "value": 2,
+     "prompt": "Hvor mange point Con-skade?"},
+    {"name": "Int-skade", "spell_id": "int_damage", "affects": ["int"],
+     "note": "Midlertidig Int-skade — kaskaderer i Int-skills",
+     "editable": True, "negative": True, "value": 2,
+     "prompt": "Hvor mange point Int-skade?"},
+    {"name": "Wis-skade", "spell_id": "wis_damage", "affects": ["wis"],
+     "note": "Midlertidig Wis-skade — kaskaderer i Will, Wis-skills",
+     "editable": True, "negative": True, "value": 2,
+     "prompt": "Hvor mange point Wis-skade?"},
+    {"name": "Cha-skade", "spell_id": "cha_damage", "affects": ["cha"],
+     "note": "Midlertidig Cha-skade — kaskaderer i Cha-skills",
+     "editable": True, "negative": True, "value": 2,
+     "prompt": "Hvor mange point Cha-skade?"},
+]
+
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
 # Karakterfiler er små (~få KB), men portræt-upload kan være et helt foto.
@@ -628,6 +658,21 @@ def _ability_breakdown(sources):
     return out
 
 
+def _damage_bonus(damage: str) -> int:
+    """Træk den efterstillede flade skade-bonus ud af en skade-streng ("1d8+4" → 4).
+
+    Bruges kun til at vælge ▲/▼-retning når en effekt ændrer skade. Ingen +N → 0.
+    """
+    m = re.search(r"([+-]\d+)\s*$", damage or "")
+    return int(m.group(1)) if m else 0
+
+
+def _delta_row(name, eff_val, base_val):
+    """Et afledt tal med basis-værdi → muliggør ▲/▼-markør i visningen."""
+    return {"name": name, "val": eff_val, "base": base_val,
+            "changed": eff_val != base_val, "up": eff_val > base_val}
+
+
 @app.route("/karakter/<name>")
 def karakter(name):
     path = _char_path(name)
@@ -657,11 +702,15 @@ def karakter(name):
     druid_armor_block = char_module.druid_armor_violations(char.cls, armor_row, shield_row)
 
     racial_save = int(char_module.race_data(char.race).get("save_bonus", 0))
-    saves = {
-        "Fortitude": char_module.save_total(char.saves.get("fortitude", 0), eff.con, racial_save),
-        "Reflex":    char_module.save_total(char.saves.get("reflex",    0), eff.dex, racial_save),
-        "Will":      char_module.save_total(char.saves.get("will",      0), eff.wis, racial_save),
-    }
+    # Saves vises effektivt (eff) men bærer basis-værdien med, så en ▲/▼-markør
+    # kan vise hvornår en aktiv effekt ændrede tallet.
+    saves = []
+    for label, skey, akey in (("Fortitude", "fortitude", "con"),
+                              ("Reflex", "reflex", "dex"),
+                              ("Will", "will", "wis")):
+        base_v = char_module.save_total(char.saves.get(skey, 0), getattr(ab, akey), racial_save)
+        eff_v = char_module.save_total(char.saves.get(skey, 0), getattr(eff, akey), racial_save)
+        saves.append(_delta_row(label, eff_v, base_v))
 
     synergy_bonuses = char_module.compute_synergy_bonuses(char.skills)
     char_skill_map = {s.id: s for s in char.skills}
@@ -754,9 +803,23 @@ def karakter(name):
     active_keys = char_module.active_spell_keys(
         char.spells_prepared, char.spells_active, db)
 
+    def _atk_fields(atk):
+        """Til-hit/skade for et angreb (effektivt) + delta-info vs. basis-scores.
+
+        Bull's Strength m.fl. kaskaderer her: både til-hit og skade-strengen kan
+        ændre sig, og melee touch-spell-angreb påvirkes via Str/Dex.
+        """
+        e = char_module.attack_total(atk, eff, bab, char.size)
+        b = char_module.attack_total(atk, ab, bab, char.size)
+        return {**e,
+                "hit_changed": e["to_hit"] != b["to_hit"], "hit_up": e["to_hit"] > b["to_hit"],
+                "base_to_hit": b["to_hit"],
+                "dmg_changed": e["damage"] != b["damage"],
+                "dmg_up": _damage_bonus(e["damage"]) > _damage_bonus(b["damage"]),
+                "base_dmg": b["damage"]}
+
     def _row(atk, manual, idx):
-        return {"attack": atk, "manual": manual, "idx": idx,
-                **char_module.attack_total(atk, eff, bab, char.size)}
+        return {"attack": atk, "manual": manual, "idx": idx, **_atk_fields(atk)}
 
     # Våben-angreb (udledt af inventaret) først, så manuelle angreb fra YAML.
     # Kun manuelle angreb kan redigeres her (idx = position i char.attacks).
@@ -772,7 +835,7 @@ def karakter(name):
         atk = d["attack"]
         attack_rows.append({
             "attack": atk, "manual": False, "idx": None,
-            **char_module.attack_total(atk, eff, bab, char.size),
+            **_atk_fields(atk),
             "charges_max": d["charges_max"],
             "charges_remaining": d["charges_remaining"],
             "charge_level": d["level"], "charge_index": d["index"],
@@ -787,11 +850,7 @@ def karakter(name):
         "range": a.range, "source": a.source, "requires": a.requires,
     } for i, a in enumerate(char.attacks)]
 
-    grapple = char_module.grapple_total(bab, eff.str, char.size)
-    initiative = char_module.initiative_total(
-        eff, char.feats, int(char.combat.get("initiative_misc", 0)))
-    ac = char_module.armor_class(
-        eff, char.size,
+    _ac_kwargs = dict(
         armor=armor_row,
         shield=shield_row,
         enc_max_dex=char_module.encumbrance_consequences(enc, base_speed)["max_dex"],
@@ -800,15 +859,31 @@ def karakter(name):
         dodge=int(char.combat.get("dodge", 0)),
         misc=int(char.combat.get("misc_ac", 0)),
     )
+    grapple = _delta_row("Grapple",
+                         char_module.grapple_total(bab, eff.str, char.size),
+                         char_module.grapple_total(bab, ab.str, char.size))
+    initiative = _delta_row(
+        "Init",
+        char_module.initiative_total(eff, char.feats, int(char.combat.get("initiative_misc", 0))),
+        char_module.initiative_total(ab, char.feats, int(char.combat.get("initiative_misc", 0))))
+    ac = char_module.armor_class(eff, char.size, **_ac_kwargs)
+    ac_base = char_module.armor_class(ab, char.size, **_ac_kwargs)
+    # Pr. AC-tal: er det ændret af en effekt? (Dex kaskaderer ind i ac/touch/ff.)
+    ac_delta = {k: _delta_row(k, ac[k], ac_base[k]) for k in ("ac", "touch", "flat_footed")}
 
-    abilities = [
-        ("STR", ab.str, ab.modifier("str")),
-        ("DEX", ab.dex, ab.modifier("dex")),
-        ("CON", ab.con, ab.modifier("con")),
-        ("INT", ab.int, ab.modifier("int")),
-        ("WIS", ab.wis, ab.modifier("wis")),
-        ("CHA", ab.cha, ab.modifier("cha")),
-    ]
+    # Evnescores vises effektivt med basis + breakdown når en effekt ændrede dem.
+    ability_breakdown = _ability_breakdown(effect_sources)
+    abilities = []
+    for abbr, key in (("STR", "str"), ("DEX", "dex"), ("CON", "con"),
+                      ("INT", "int"), ("WIS", "wis"), ("CHA", "cha")):
+        base_s, eff_s = getattr(ab, key), getattr(eff, key)
+        abilities.append({
+            "abbr": abbr, "key": key,
+            "base": base_s, "score": eff_s,
+            "base_mod": ab.modifier(key), "mod": eff.modifier(key),
+            "sources": ability_breakdown.get(key, []),
+            "changed": eff_s != base_s, "up": eff_s > base_s,
+        })
 
     # Level-up info
     new_level = char.level + 1
@@ -936,6 +1011,7 @@ def karakter(name):
         condition_data=condition_data,
         all_conditions=all_conditions,
         buff_catalog=BUFF_CATALOG,
+        damage_catalog=ABILITY_DAMAGE_CATALOG,
         xp_info=xp_info,
         weight=weight,
         enc_limits=enc_limits,
@@ -946,6 +1022,7 @@ def karakter(name):
         grapple=grapple,
         initiative=initiative,
         ac=ac,
+        ac_delta=ac_delta,
         druid_armor_block=druid_armor_block,
         inventory_json=inventory_json,
         catalog_json=catalog_json,
@@ -1166,6 +1243,13 @@ def api_buffs():
                      "affects": [str(a) for a in (b.get("affects") or [])]}
             if b.get("spell_id"):
                 entry["spell_id"] = str(b["spell_id"])
+            # value-override (fx valgt ability-skade) — bæres med så modifieren
+            # kan slås op med den faktiske mængde. Kun gem hvis den er et tal.
+            if b.get("value") is not None:
+                try:
+                    entry["value"] = int(b["value"])
+                except (TypeError, ValueError):
+                    pass
             buffs.append(entry)
     elif action == "remove":
         i = int(data.get("index", -1))
