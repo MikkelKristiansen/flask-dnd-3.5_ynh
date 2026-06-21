@@ -166,6 +166,28 @@ def get_all_animals() -> list[dict]:
     return [_animal_row(r) for r in rows]
 
 
+def _effect_row(row) -> dict:
+    """Konverter en effects-række til dict og afkod JSON-felterne (modifiers/riders)."""
+    rec = dict(row)
+    rec["modifiers"] = json.loads(rec["modifiers"] or "[]")
+    rec["riders"] = json.loads(rec["riders"] or "[]")
+    return rec
+
+
+def get_effect(effect_id: str) -> dict | None:
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM effects WHERE id = ?", (effect_id,)
+        ).fetchone()
+    return _effect_row(row) if row else None
+
+
+def get_all_effects() -> list[dict]:
+    with _connect() as conn:
+        rows = conn.execute("SELECT * FROM effects ORDER BY name").fetchall()
+    return [_effect_row(r) for r in rows]
+
+
 def get_domain(domain_id: str) -> dict | None:
     with _connect() as conn:
         row = conn.execute(

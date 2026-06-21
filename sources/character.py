@@ -607,6 +607,83 @@ def save_character(path: str, updates: dict) -> None:
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
+# Mekaniske effekter — modifiers → nettobonus pr. target (buffs & tilstande).
+#
+# Princip: effekter er rå data; nettobonusset udregnes ved render, gemmes aldrig.
+# Ability-ændringer (str..cha) føres gennem effective_ability_scores og kaskaderer
+# automatisk ud i ALLE afledte tal (angreb, skade, saves, skills, grapple, init,
+# AC). Direkte bonusser (ac/save_*/attack/...) lægges på i deres egen beregning.
+# ---------------------------------------------------------------------------
+
+ABILITIES = ("str", "dex", "con", "int", "wis", "cha")
+
+# Bonustyper der STACKER med sig selv (flere kilder lægges sammen). Alle øvrige
+# navngivne typer (enhancement, morale, deflection, …) stacker ikke: kun den
+# højeste bonus / værste straf af hver type tæller. "penalty" er vores
+# pseudo-type for generiske tilstandsstraffe og stacker (jf. SRD: utypede
+# straffe lægges sammen).
+_STACKING_TYPES = {"dodge", "circumstance", "untyped", "penalty"}
+
+
+def resolve_modifiers(mods: list[dict]) -> dict[str, int]:
+    """Reducér en liste af modifiers til nettobonus pr. target (SRD stacking).
+
+    Regler:
+    - Grupér pr. (target, bonustype).
+    - Stacking-typer (dodge/circumstance/untyped/penalty): summér alle kilder.
+    - Øvrige typer: tag den højeste bonus + den værste straf (samme type stacker
+      ikke; en bonus og en straf af samme type tælles dog hver for sig).
+    - only_vs-modifiers udelades (betingede → vises som note, ikke i tallet).
+    - value 0 / manglende target ignoreres.
+
+    Returnerer {target: net_int}. En ren funktion uden sideeffekter — al den
+    fiddly stacking er isoleret her og dækket af unit-tests.
+    """
+    grouped: dict[tuple[str, str], list[int]] = {}
+    for m in mods or []:
+        if m.get("only_vs"):
+            continue
+        target = m.get("target")
+        if not target:
+            continue
+        try:
+            value = int(m.get("value", 0))
+        except (TypeError, ValueError):
+            continue
+        if value == 0:
+            continue
+        btype = str(m.get("type", "untyped")).lower()
+        grouped.setdefault((target, btype), []).append(value)
+
+    net: dict[str, int] = {}
+    for (target, btype), values in grouped.items():
+        if btype in _STACKING_TYPES:
+            contribution = sum(values)
+        else:
+            # Samme navngivne type stacker ikke: højeste bonus + værste straf.
+            pos = [v for v in values if v > 0]
+            neg = [v for v in values if v < 0]
+            contribution = (max(pos) if pos else 0) + (min(neg) if neg else 0)
+        net[target] = net.get(target, 0) + contribution
+    return net
+
+
+def effective_ability_scores(base: AbilityScores,
+                             active_modifiers: list[dict]) -> AbilityScores:
+    """Base ability scores + ability-target modifiers → effektive scores.
+
+    Kun ability-targets (str..cha) anvendes her; direkte bonusser håndteres i
+    deres egne beregninger. Scores klampes til ≥ 0 (ability-skade kan ikke gøre
+    en evne negativ). Når der ingen ability-modifiers er, returneres de samme
+    værdier som base — så afledte tal er bit-uændrede uden aktive effekter.
+    """
+    net = resolve_modifiers(active_modifiers)
+    return AbilityScores(**{
+        a: max(0, getattr(base, a) + net.get(a, 0)) for a in ABILITIES
+    })
+
+
+# ---------------------------------------------------------------------------
 # D&D 3.5 SRD skill synergies — aktiveres ved ≥5 ranks i kildefærdighed
 # ---------------------------------------------------------------------------
 SKILL_SYNERGIES: dict[str, list[tuple[str, int]]] = {

@@ -45,6 +45,7 @@ TABLES = [
     "weapons",
     "items",
     "animals",
+    "effects",
 ]
 
 

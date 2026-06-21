@@ -1,0 +1,129 @@
+# effects — mekaniske effekter (buffs & tilstande) som modifiers. Kilden til sandheden.
+#
+# Hver effekt har 0..n modifiers og 0..n riders, gemt som JSON-TEKST (samme mønster
+# som animals' JSON-felter — afkodes i db._effect_row). En modifier:
+#   {target, type, value, only_vs?, note?}
+# Ability-targets (str..cha) KASKADERER via effective_ability_scores → angreb, skade,
+# saves, skills, grapple, init, AC. Direkte targets (ac/save_*/attack/damage/...) lægges
+# på i deres egen beregning (Fase 2+). only_vs-modifiers ryger IKKE i overskriftstallet.
+#
+# id matcher buffens spell_id (fra BUFF_CATALOG) hhv. tilstandens id, så app.py kan
+# slå effekten op ud fra en aktiv buff/condition.
+
+# ── Ability-buffs (kaskaderer fuldt — aktive fra Fase 1) ────────────────────
+- id: bull_strength
+  name: Bull's Strength
+  kind: buff
+  source_spell_id: bull_strength
+  modifiers: '[{"target": "str", "type": "enhancement", "value": 4}]'
+
+- id: cat_grace
+  name: Cat's Grace
+  kind: buff
+  source_spell_id: cat_grace
+  modifiers: '[{"target": "dex", "type": "enhancement", "value": 4}]'
+
+- id: bear_endurance
+  name: Bear's Endurance
+  kind: buff
+  source_spell_id: bear_endurance
+  modifiers: '[{"target": "con", "type": "enhancement", "value": 4}]'
+
+- id: owl_wisdom
+  name: Owl's Wisdom
+  kind: buff
+  source_spell_id: owl_wisdom
+  modifiers: '[{"target": "wis", "type": "enhancement", "value": 4}]'
+
+# ── Direkte bonusser (data klar — anvendes mekanisk fra Fase 2) ─────────────
+- id: resistance
+  name: Resistance
+  kind: buff
+  source_spell_id: resistance
+  modifiers: '[{"target": "save_all", "type": "resistance", "value": 1}]'
+
+- id: bless
+  name: Bless
+  kind: buff
+  source_spell_id: bless
+  modifiers: '[{"target": "attack", "type": "morale", "value": 1}, {"target": "save_will", "type": "morale", "value": 1, "only_vs": "fear"}]'
+
+- id: shield_of_faith
+  name: Shield of Faith
+  kind: buff
+  source_spell_id: shield_of_faith
+  modifiers: '[{"target": "ac", "type": "deflection", "value": 2}]'
+
+- id: barkskin
+  name: Barkskin
+  kind: buff
+  source_spell_id: barkskin
+  modifiers: '[{"target": "ac", "type": "natural", "value": 2}]'
+
+- id: magic_fang
+  name: Magic Fang
+  kind: buff
+  source_spell_id: magic_fang
+  modifiers: '[{"target": "attack", "type": "enhancement", "value": 1}, {"target": "damage", "type": "enhancement", "value": 1}]'
+
+- id: longstrider
+  name: Longstrider
+  kind: buff
+  source_spell_id: longstrider
+  modifiers: '[{"target": "speed", "type": "enhancement", "value": 10}]'
+
+# ── Roll-only / temp-HP / rene tracking-buffs (modifiers tomme indtil Fase 3) ─
+- id: guidance
+  name: Guidance
+  kind: buff
+  source_spell_id: guidance
+  riders: '[{"note": "+1 competence på ÉT angreb, save eller skill (engangs — tap-to-apply)"}]'
+
+- id: virtue
+  name: Virtue
+  kind: buff
+  source_spell_id: virtue
+  riders: '[{"note": "+1 midlertidigt HP"}]'
+
+- id: produce_flame
+  name: Produce Flame
+  kind: buff
+  source_spell_id: produce_flame
+  riders: '[{"note": "Låser et spell-angreb op (se Angreb)"}]'
+
+- id: endure_elements
+  name: Endure Elements
+  kind: buff
+  source_spell_id: endure_elements
+
+# ── Ability-skade-skabeloner (kaskaderer; value redigerbar pr. instans) ─────
+# value er en standardstraf; den faktiske skade vælges når effekten tilføjes.
+- id: str_damage
+  name: Str-skade
+  kind: condition
+  modifiers: '[{"target": "str", "type": "penalty", "value": -2}]'
+
+- id: dex_damage
+  name: Dex-skade
+  kind: condition
+  modifiers: '[{"target": "dex", "type": "penalty", "value": -2}]'
+
+- id: con_damage
+  name: Con-skade
+  kind: condition
+  modifiers: '[{"target": "con", "type": "penalty", "value": -2}]'
+
+- id: int_damage
+  name: Int-skade
+  kind: condition
+  modifiers: '[{"target": "int", "type": "penalty", "value": -2}]'
+
+- id: wis_damage
+  name: Wis-skade
+  kind: condition
+  modifiers: '[{"target": "wis", "type": "penalty", "value": -2}]'
+
+- id: cha_damage
+  name: Cha-skade
+  kind: condition
+  modifiers: '[{"target": "cha", "type": "penalty", "value": -2}]'

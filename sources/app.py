@@ -579,6 +579,55 @@ def create_character():
     return redirect(url_for("karakter", name=slug))
 
 
+def _collect_active_effects(char):
+    """Slå aktive buffs/tilstande op i effekt-kataloget → (modifiers, sources).
+
+    Buffs identificeres via deres spell_id, tilstande via deres id. En buff-instans
+    kan bære et 'value'-override (fx valgt ability-skade), der erstatter værdien i
+    katalogets modifiers. ``modifiers`` er den flade liste til resolve_modifiers;
+    ``sources`` bevarer pr.-effekt-info (navn/kind/modifiers) til breakdown-visningen.
+    Effekter uden katalog-match (fritekst-buffs, endnu-umekaniske tilstande) er ren
+    tracking og bidrager ikke med tal.
+    """
+    modifiers: list[dict] = []
+    sources: list[dict] = []
+
+    def add(effect, instance_value=None):
+        if not effect:
+            return
+        mods = effect.get("modifiers") or []
+        if instance_value is not None:
+            mods = [{**md, "value": instance_value} for md in mods]
+        modifiers.extend(mods)
+        sources.append({"name": effect["name"], "kind": effect.get("kind"),
+                        "modifiers": mods})
+
+    for b in char.buffs:
+        sid = b.get("spell_id")
+        if not sid:
+            continue
+        val = b.get("value")
+        add(db.get_effect(sid), int(val) if val is not None else None)
+    for cid in char.conditions:
+        add(db.get_effect(cid))
+    return modifiers, sources
+
+
+def _ability_breakdown(sources):
+    """Pr. ability (str..cha): liste af {name, value} der bidrager til den.
+
+    Bruges til ▲/▼-breakdown i visningen. Kun ability-targets (de der kaskaderer);
+    only_vs-modifiers udelades — de hører ikke til i overskriftstallet.
+    """
+    out: dict[str, list] = {a: [] for a in char_module.ABILITIES}
+    for src in sources:
+        for m in src["modifiers"]:
+            t = m.get("target")
+            if t in out and not m.get("only_vs"):
+                out[t].append({"name": src["name"], "value": int(m.get("value", 0))})
+    return out
+
+
 @app.route("/karakter/<name>")
 def karakter(name):
     path = _char_path(name)
@@ -587,6 +636,15 @@ def karakter(name):
 
     char = char_module.load_character(str(path))
     ab = char.ability_scores
+
+    # Mekaniske effekter: aktive buffs/tilstande → modifiers → effektive ability
+    # scores (eff), der kaskaderer ud i alle afledte tal (angreb, skade, saves,
+    # skills, grapple, init, AC-Dex). Direkte ikke-ability-bonusser udskydes til
+    # en senere fase. Uden aktive effekter er eff == ab, så tallene er uændrede.
+    # Permanente planlægningstal (level-up, encumbrance, racial SLA-DC) bruger
+    # bevidst de rå scores — en midlertidig buff må ikke påvirke dem.
+    active_modifiers, effect_sources = _collect_active_effects(char)
+    eff = char_module.effective_ability_scores(ab, active_modifiers)
 
     # Equipped rustning/skjold → bruges til både AC og rustnings-tjekstraf (ACP).
     # Udledes fra inventaret (worn-poster); falder tilbage til combat.armor/shield
@@ -600,9 +658,9 @@ def karakter(name):
 
     racial_save = int(char_module.race_data(char.race).get("save_bonus", 0))
     saves = {
-        "Fortitude": char_module.save_total(char.saves.get("fortitude", 0), ab.con, racial_save),
-        "Reflex":    char_module.save_total(char.saves.get("reflex",    0), ab.dex, racial_save),
-        "Will":      char_module.save_total(char.saves.get("will",      0), ab.wis, racial_save),
+        "Fortitude": char_module.save_total(char.saves.get("fortitude", 0), eff.con, racial_save),
+        "Reflex":    char_module.save_total(char.saves.get("reflex",    0), eff.dex, racial_save),
+        "Will":      char_module.save_total(char.saves.get("will",      0), eff.wis, racial_save),
     }
 
     synergy_bonuses = char_module.compute_synergy_bonuses(char.skills)
@@ -613,7 +671,7 @@ def karakter(name):
         synergy = synergy_bonuses.get(s.id, 0)
         ranked = int(s.ranks) > 0
         trained_only = bool(defn.get("trained_only"))
-        total = char_module.skill_total(s, ab, db, synergy, acp)
+        total = char_module.skill_total(s, eff, db, synergy, acp)
         acp_applied = acp * int(defn.get("armor_check", 0) or 0)
         skill_data.append({
             "skill": s, "defn": defn,
@@ -698,7 +756,7 @@ def karakter(name):
 
     def _row(atk, manual, idx):
         return {"attack": atk, "manual": manual, "idx": idx,
-                **char_module.attack_total(atk, ab, bab, char.size)}
+                **char_module.attack_total(atk, eff, bab, char.size)}
 
     # Våben-angreb (udledt af inventaret) først, så manuelle angreb fra YAML.
     # Kun manuelle angreb kan redigeres her (idx = position i char.attacks).
@@ -714,7 +772,7 @@ def karakter(name):
         atk = d["attack"]
         attack_rows.append({
             "attack": atk, "manual": False, "idx": None,
-            **char_module.attack_total(atk, ab, bab, char.size),
+            **char_module.attack_total(atk, eff, bab, char.size),
             "charges_max": d["charges_max"],
             "charges_remaining": d["charges_remaining"],
             "charge_level": d["level"], "charge_index": d["index"],
@@ -729,11 +787,11 @@ def karakter(name):
         "range": a.range, "source": a.source, "requires": a.requires,
     } for i, a in enumerate(char.attacks)]
 
-    grapple = char_module.grapple_total(bab, ab.str, char.size)
+    grapple = char_module.grapple_total(bab, eff.str, char.size)
     initiative = char_module.initiative_total(
-        ab, char.feats, int(char.combat.get("initiative_misc", 0)))
+        eff, char.feats, int(char.combat.get("initiative_misc", 0)))
     ac = char_module.armor_class(
-        ab, char.size,
+        eff, char.size,
         armor=armor_row,
         shield=shield_row,
         enc_max_dex=char_module.encumbrance_consequences(enc, base_speed)["max_dex"],

@@ -237,3 +237,22 @@ CREATE TABLE animals (
     skills            TEXT NOT NULL,              -- JSON: [{id, misc, note?}] (misc = total − basis-abilitymod)
     feats             TEXT NOT NULL               -- JSON: liste af feat-navne (strenge)
 );
+
+-- Mekaniske effekter: buffs & tilstande oversat til modifiers, så de ændrer de
+-- faktiske tal (ability scores kaskaderer; direkte bonusser lægges på pr. tal).
+-- modifiers/riders gemmes som JSON-tekst og afkodes i db._effect_row.
+--   modifier = {target, type, value, only_vs?, note?}
+--     target: str|dex|con|int|wis|cha (kaskaderer) · ac|ac_touch|attack|damage
+--             · save_fort|save_ref|save_will|save_all · skill:<id> · speed · init · hp_temp
+--     type:   enhancement morale dodge luck insight deflection natural competence
+--             resistance size circumstance sacred profane untyped penalty
+--   rider    = ikke-numerisk effekt (flag/tekst), fx "mister Dex til AC".
+DROP TABLE IF EXISTS effects;
+CREATE TABLE effects (
+    id              TEXT PRIMARY KEY,           -- = buffens spell_id eller tilstandens id
+    name            TEXT NOT NULL,
+    kind            TEXT NOT NULL,              -- buff | condition
+    source_spell_id TEXT,                       -- FK til spells.id for SRD-beskrivelse (kan være NULL)
+    modifiers       TEXT NOT NULL DEFAULT '[]', -- JSON: liste af modifier-objekter
+    riders          TEXT NOT NULL DEFAULT '[]'  -- JSON: liste af ikke-numeriske ryttere
+);
