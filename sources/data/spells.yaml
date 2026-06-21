@@ -1893,7 +1893,22 @@
 
     A creature that has been turned into an undead creature or killed by a death effect can’t be returned to life by this spell. Constructs, elementals, outsiders, and undead creatures can’t be reincarnated. The spell cannot bring back a creature who has died of old age.
 
-    <table data-debug="no-caption" class="half-width-table"><tbody><tr><th>d%</th><th>Incarnation</th><th>Str</th><th>Dex</th><th>Con</th></tr><tr><td>01</td><td>Bugbear</td><td>+4</td><td>+2</td><td>+2</td></tr><tr><td>02–13</td><td>Dwarf</td><td>+0</td><td>+0</td><td>+2</td></tr><tr><td>14–25</td><td>Elf</td><td>+0</td><td>+2</td><td>–2</td></tr><tr><td>26</td><td>Gnoll</td><td>+4</td><td>+0</td><td>+2</td></tr><tr><td>27–38</td><td>Gnome</td><td>–2</td><td>+0</td><td>+2</td></tr><tr><td>39–42</td><td>Goblin</td><td>–2</td><td>+2</td><td>+0</td></tr><tr><td>43–52</td><td>Half-elf</td><td>+0</td><td>+0</td><td>+0</td></tr><tr><td>53–62</td><td>Half-orc</td><td>+2</td><td>+0</td><td>+0</td></tr><tr><td>63–74</td><td>Halfling</td><td>–2</td><td>+2</td><td>+0</td></tr><tr><td>75–89</td><td>Human</td><td>+0</td><td>+0</td><td>+0</td></tr><tr><td>90–93</td><td>Kobold</td><td>–4</td><td>+2</td><td>–2</td></tr><tr><td>94</td><td>Lizardfolk</td><td>+2</td><td>+0</td><td>+2</td></tr><tr><td>95–98</td><td>Orc</td><td>+4</td><td>+0</td><td>+0</td></tr><tr><td>99</td><td>Troglodyte</td><td>+0</td><td>–2</td><td>+4</td></tr><tr><td>100</td><td>Other</td><td>?</td><td>?</td><td>?</td></tr></tbody></table>
+    d% — incarnation (Str / Dex / Con):
+    - 01: Bugbear (+4 / +2 / +2)
+    - 02–13: Dwarf (+0 / +0 / +2)
+    - 14–25: Elf (+0 / +2 / –2)
+    - 26: Gnoll (+4 / +0 / +2)
+    - 27–38: Gnome (–2 / +0 / +2)
+    - 39–42: Goblin (–2 / +2 / +0)
+    - 43–52: Half-elf (+0 / +0 / +0)
+    - 53–62: Half-orc (+2 / +0 / +0)
+    - 63–74: Halfling (–2 / +2 / +0)
+    - 75–89: Human (+0 / +0 / +0)
+    - 90–93: Kobold (–4 / +2 / –2)
+    - 94: Lizardfolk (+2 / +0 / +2)
+    - 95–98: Orc (+4 / +0 / +0)
+    - 99: Troglodyte (+0 / –2 / +4)
+    - 100: Other (? / ? / ?)
 
     The reincarnated creature gains all abilities associated with its new form, including forms of movement and speeds, natural armor, natural attacks, extraordinary abilities, and the like, but it doesn’t automatically speak the language of the new form.
 
@@ -2338,7 +2353,16 @@
   description: |-
     The subject contracts a disease selected from the table below, which strikes immediately (no incubation period). The DC noted is for the subsequent saves (use _contagion_’s normal save DC for the initial saving throw).
 
-    <table data-debug="no-caption" class="full-width-table"><tbody><tr><th>Disease</th><th>DC</th><th>Damage</th></tr><tr><td>Blinding sickness</td><td>16</td><td>1d4 Str<sup>1</sup></td></tr><tr><td>Cackle fever</td><td>16</td><td>1d6 Wis</td></tr><tr><td>Filth fever</td><td>12</td><td>1d3 Dex and 1d3 Con</td></tr><tr><td>Mindfire</td><td>12</td><td>1d4 Int</td></tr><tr><td>Red ache</td><td>15</td><td>1d6 Str</td></tr><tr><td>Shakes</td><td>13</td><td>1d8 Dex</td></tr><tr><td>Slimy doom</td><td>14</td><td>1d4 Con</td></tr><tr><td colspan="3">1 Each time a victim takes 2 or more points of Strength damage from blinding sickness, he or she must make another Fortitude save (using the disease’s save DC) or be permanently blinded.</td></tr></tbody></table>
+    Disease — DC / ability damage on a failed save:
+    - Blinding sickness: DC 16, 1d4 Str¹
+    - Cackle fever: DC 16, 1d6 Wis
+    - Filth fever: DC 12, 1d3 Dex and 1d3 Con
+    - Mindfire: DC 12, 1d4 Int
+    - Red ache: DC 15, 1d6 Str
+    - Shakes: DC 13, 1d8 Dex
+    - Slimy doom: DC 14, 1d4 Con
+
+    ¹ Each time a victim takes 2 or more points of Strength damage from blinding sickness, he or she must make another Fortitude save (using the disease's save DC) or be permanently blinded.
 - id: daylight
   name: Daylight
   level_druid: 3
@@ -2762,7 +2786,12 @@
 
     Any giant vermin created by this spell do not attempt to harm you, but your control of such creatures is limited to simple commands (“Attack,” “Defend,” “Stop,” and so forth). Orders to attack a certain creature when it appears or guard against a particular occurrence are too complex for the vermin to understand. Unless commanded to do otherwise, the giant vermin attack whoever or whatever is near them.
 
-    <table data-debug="no-caption" class="half-width-table"><tbody><tr><th>Caster Level</th><th>Vermin Size</th></tr><tr><td>9th or lower</td><td>Medium</td></tr><tr><td>10th–13th</td><td>Large</td></tr><tr><td>14th–17th</td><td>Huge</td></tr><tr><td>18th–19th</td><td>Gargantuan</td></tr><tr><td>20th or higher</td><td>Colossal</td></tr></tbody></table>
+    Vermin size by caster level:
+    - 9th or lower: Medium
+    - 10th–13th: Large
+    - 14th–17th: Huge
+    - 18th–19th: Gargantuan
+    - 20th or higher: Colossal
 - id: repel_vermin
   name: Repel Vermin
   level_druid: 4
@@ -2828,7 +2857,18 @@
   description: |-
     You can see and hear some creature, which may be at any distance. If the subject succeeds on a Will save, the scrying attempt simply fails. The difficulty of the save depends on how well you know the subject and what sort of physical connection (if any) you have to that creature. Furthermore, if the subject is on another plane, it gets a +5 bonus on its Will save.
 
-    <table data-debug="no-caption" class="half-width-table"><tbody><tr><th>Knowledge</th><th>Will Save Modifier</th></tr><tr><td>None<sup>1</sup></td><td>+10</td></tr><tr><td>Secondhand (you have heard of the subject)</td><td>+5</td></tr><tr><td>Firsthand (you have met the subject)</td><td>+0</td></tr><tr><td>Familiar (you know the subject well)</td><td>–5</td></tr><tr><td colspan="2">1 You must have some sort of connection to a creature you have no knowledge of.</td></tr><tr><th>Connection</th><th>Will Save Modifier</th></tr><tr><td>Likeness or picture</td><td>–2</td></tr><tr><td>Possession or garment</td><td>–4</td></tr><tr><td>Body part, lock of hair, bit of nail, etc.</td><td>–10</td></tr></tbody></table>
+    Will save modifier by your knowledge of the subject:
+    - None¹: +10
+    - Secondhand (you have heard of the subject): +5
+    - Firsthand (you have met the subject): +0
+    - Familiar (you know the subject well): –5
+
+    ¹ You must have some sort of connection to a creature you have no knowledge of.
+
+    Will save modifier by your connection to the subject:
+    - Likeness or picture: –2
+    - Possession or garment: –4
+    - Body part, lock of hair, bit of nail, etc.: –10
 
     If the save fails, you can see and hear the subject and the subject’s immediate surroundings (approximately 10 feet in all directions of the subject). If the subject moves, the sensor follows at a speed of up to 150 feet.
 
@@ -3188,7 +3228,12 @@
   description: |-
     You gain the ability to enter trees and move from inside one tree to inside another tree. The first tree you enter and all others you enter must be of the same kind, must be living, and must have girth at least equal to yours. By moving into an oak tree (for example), you instantly know the location of all other oak trees within transport range (see below) and may choose whether you want to pass into one or simply step back out of the tree you moved into. You may choose to pass to any tree of the appropriate kind within the transport range as shown on the following table.
 
-    <table data-debug="no-caption" class="half-width-table"><tbody><tr><th>Type of Tree</th><th>Transport Range</th></tr><tr><td>Oak, ash, yew</td><td>3,000 feet</td></tr><tr><td>Elm, linden</td><td>2,000 feet</td></tr><tr><td>Other deciduous</td><td>1,500 feet</td></tr><tr><td>Any coniferous</td><td>1,000 feet</td></tr><tr><td>All other trees</td><td>500 feet</td></tr></tbody></table>
+    Transport range by type of tree:
+    - Oak, ash, yew: 3,000 feet
+    - Elm, linden: 2,000 feet
+    - Other deciduous: 1,500 feet
+    - Any coniferous: 1,000 feet
+    - All other trees: 500 feet
 
     You may move into a tree up to one time per caster level (passing from one tree to another counts only as moving into one tree). The spell lasts until the duration expires or you exit a tree. Each transport is a full-round action.
 
