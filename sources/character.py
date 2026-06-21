@@ -950,14 +950,17 @@ def spell_charge_key(level: int, index: int) -> str:
 def spell_attack_damage(row: dict, caster_level: int) -> str:
     """Udregn skade-strengen for et katalog-spell-angreb (gemmes aldrig).
 
-    base_damage + min(caster_level * dmg_per_level, dmg_per_level_max) + dmg_bonus.
+    base_damage + min(floor(caster_level * dmg_per_level / dmg_per_level_div),
+                      dmg_per_level_max) + dmg_bonus.
     Produce Flame (1d6, +1/niv, cap 5) ved niveau 2 → "1d6+2".
+    Flame Blade (1d8, +1/2 niv, cap 10) ved niveau 5 → "1d8+2".
     Magic Stone (1d6, +1 flad) → "1d6+1".
     """
     bonus = int(row.get("dmg_bonus") or 0)
     per = int(row.get("dmg_per_level") or 0)
     if per:
-        lvl_bonus = caster_level * per
+        div = int(row.get("dmg_per_level_div") or 1)
+        lvl_bonus = (caster_level * per) // div
         cap = row.get("dmg_per_level_max")
         if cap is not None:
             lvl_bonus = min(lvl_bonus, int(cap))

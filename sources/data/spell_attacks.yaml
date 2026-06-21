@@ -1,5 +1,7 @@
 # spell_attacks — angreb der udledes når en spell står på "I brug".
-# Skade udregnes i koden: base_damage + min(niveau*dmg_per_level, dmg_per_level_max) + dmg_bonus.
+# Skade udregnes i koden:
+#   base_damage + min(floor(niveau*dmg_per_level/dmg_per_level_div), dmg_per_level_max) + dmg_bonus
+# dmg_per_level_div tom = 1 (skalér pr. niveau); 2 = +X pr. 2 niveauer osv.
 # charges (tom = ubegrænset varighed) giver en nedtælling pr. ramt på arket.
 
 # Produce Flame — flamme i hånden; nærkamps-touch ELLER kastet ranged-touch.
@@ -9,6 +11,7 @@
   kind: melee_touch
   base_damage: 1d6
   dmg_per_level: 1
+  dmg_per_level_div:
   dmg_per_level_max: 5
   dmg_bonus:
   to_hit:
@@ -22,6 +25,7 @@
   kind: ranged_touch
   base_damage: 1d6
   dmg_per_level: 1
+  dmg_per_level_div:
   dmg_per_level_max: 5
   dmg_bonus:
   to_hit:
@@ -38,6 +42,7 @@
   kind: ranged
   base_damage: 1d6
   dmg_per_level:
+  dmg_per_level_div:
   dmg_per_level_max:
   dmg_bonus: 1
   to_hit: 1
@@ -48,19 +53,19 @@
   alt_note: 2d6+2 mod udøde
 
 # Flame Blade — 3-fods ildklinge i hånden; nærkamps-touch-angreb (druid 2).
-# 1d8 + 1 ild pr. 2 casterniveauer (max +10). Per-2-niveauer kan den nuværende
-# per-niveau-formel ikke udregne, så grundskaden (1d8) udledes og skaleringen
-# står i alt_note til manuel tillægning.
+# 1d8 +1 ild pr. 2 casterniveauer (max +10) → druid 5 = 1d8+2. Skalerer nu
+# fuldautomatisk via dmg_per_level_div: 2.
 - spell_id: flame_blade
   label: Flame Blade (nærkamp)
   kind: melee_touch
   base_damage: 1d8
-  dmg_per_level:
-  dmg_per_level_max:
+  dmg_per_level: 1
+  dmg_per_level_div: 2
+  dmg_per_level_max: 10
   dmg_bonus:
   to_hit:
   crit: x2
   dmg_type: Ild
   range_ft:
   charges:
-  alt_note: +1 ild pr. 2 casterniveauer (max +10) — lægges til manuelt
+  alt_note:

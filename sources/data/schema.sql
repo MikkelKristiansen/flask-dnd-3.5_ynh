@@ -157,7 +157,8 @@ CREATE TABLE domain_spells (
 );
 
 -- Angreb en spell kan lave (Produce Flame, Magic Stone …). 0..n rækker pr. spell.
--- Skade udregnes (gemmes aldrig): base_damage + min(niveau*dmg_per_level, max) + dmg_bonus.
+-- Skade udregnes (gemmes aldrig):
+--   base_damage + min(floor(niveau*dmg_per_level/dmg_per_level_div), max) + dmg_bonus.
 DROP TABLE IF EXISTS spell_attacks;
 CREATE TABLE spell_attacks (
     spell_id          TEXT NOT NULL,   -- FK til spells.id
@@ -165,6 +166,7 @@ CREATE TABLE spell_attacks (
     kind              TEXT NOT NULL,   -- melee | ranged | melee_touch | ranged_touch
     base_damage       TEXT NOT NULL,   -- terningen, fx "1d6"
     dmg_per_level     INTEGER,         -- skade-bonus pr. casterniveau (Produce Flame 1)
+    dmg_per_level_div INTEGER,         -- del niveauet med dette først (tom=1); Flame Blade 2 = +1 pr. 2 niveauer
     dmg_per_level_max INTEGER,         -- cap på niveau-bonus (Produce Flame 5)
     dmg_bonus         INTEGER,         -- flad skade-bonus (Magic Stone +1)
     to_hit            INTEGER,         -- flad til-hit-bonus (Magic Stone +1)
