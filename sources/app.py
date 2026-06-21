@@ -21,71 +21,34 @@ GEN_CLASSES = ["Cleric", "Druid", "Ranger", "Rogue"]
 GEN_RACES = ["Human", "Elf", "Gnome", "Halfling"]
 GEN_DOMAINS = ["healing", "protection", "war", "knowledge", "good", "luck"]
 
-# Kuraterede buff-hurtigvalg (KUN tracking — tallene anvendes ikke mekanisk).
-# Hver: navn + virkningstekst + hvilke rul den rammer (affects) + spell_id til
-# fuld SRD-beskrivelse i popuppen. Fritekst-buffs kan tilføjes ved siden af.
-BUFF_CATALOG = [
-    {"name": "Guidance", "spell_id": "guidance", "affects": ["attack", "save", "skill"],
-     "note": "+1 competence på ÉT angreb, save eller skill-check (engangs)"},
-    {"name": "Virtue", "spell_id": "virtue", "affects": ["hp"],
-     "note": "+1 midlertidigt HP"},
-    {"name": "Resistance", "spell_id": "resistance", "affects": ["save"],
-     "note": "+1 resistance på alle saves"},
-    {"name": "Bless", "spell_id": "bless", "affects": ["attack", "save"],
-     "note": "+1 på angrebsrul og +1 saves mod frygt"},
-    {"name": "Shield of Faith", "spell_id": "shield_of_faith", "affects": ["ac"],
-     "note": "+2 deflection-bonus til AC (mere ved højere niveau)"},
-    {"name": "Barkskin", "spell_id": "barkskin", "affects": ["ac"],
-     "note": "+2 naturlig rustning til AC (mere ved højere niveau)"},
-    {"name": "Bull's Strength", "spell_id": "bull_strength", "affects": ["str"],
-     "note": "+4 Str — alle Str-rul: angreb, skade, grapple, Str-skills"},
-    {"name": "Cat's Grace", "spell_id": "cat_grace", "affects": ["dex"],
-     "note": "+4 Dex — AC, Reflex, init, Dex-skills, ranged angreb"},
-    {"name": "Bear's Endurance", "spell_id": "bear_endurance", "affects": ["con"],
-     "note": "+4 Con — HP, Fortitude-save, Con-checks"},
-    {"name": "Owl's Wisdom", "spell_id": "owl_wisdom", "affects": ["wis"],
-     "note": "+4 Wis — Will-save, Wis-skills, druide-spell-DC'er"},
-    {"name": "Magic Fang", "spell_id": "magic_fang", "affects": ["attack"],
-     "note": "+1 angreb og skade på ÉT naturligt våben (godt til companion)"},
-    {"name": "Divine Favor", "spell_id": "divine_favor", "affects": ["attack"],
-     "note": "+1 luck på angreb og skade (+1 pr. 3 casterniveauer)"},
-    {"name": "Produce Flame", "spell_id": "produce_flame", "affects": ["attack"],
-     "note": "Flamme i hånden — nærkamp/kast-angreb 1d6 +1/niveau (låser spell-angreb op)"},
-    {"name": "Longstrider", "spell_id": "longstrider", "affects": ["speed"],
-     "note": "+10 ft. til land-bevægelse"},
-    {"name": "Endure Elements", "spell_id": "endure_elements", "affects": [],
-     "note": "Uskadt af varme/kulde fra –50°F til 140°F"},
-]
+# Default-mængde for redigerbar ability-skade (prompt-forslag).
+_DAMAGE_DEFAULT = 2
 
-# Ability-skade — samme motor som buffs (en effekt med redigerbar value der
-# kaskaderer). spell_id peger på ability-skade-skabelonen i effects-kataloget;
-# 'editable'+'negative' fortæller UI'en at spørge om mængden og gemme den negativ.
-ABILITY_DAMAGE_CATALOG = [
-    {"name": "Str-skade", "spell_id": "str_damage", "affects": ["str"],
-     "note": "Midlertidig Str-skade — kaskaderer i angreb, skade, grapple",
-     "editable": True, "negative": True, "value": 2,
-     "prompt": "Hvor mange point Str-skade?"},
-    {"name": "Dex-skade", "spell_id": "dex_damage", "affects": ["dex"],
-     "note": "Midlertidig Dex-skade — kaskaderer i AC, Reflex, init, ranged",
-     "editable": True, "negative": True, "value": 2,
-     "prompt": "Hvor mange point Dex-skade?"},
-    {"name": "Con-skade", "spell_id": "con_damage", "affects": ["con"],
-     "note": "Midlertidig Con-skade — kaskaderer i Fortitude (og HP)",
-     "editable": True, "negative": True, "value": 2,
-     "prompt": "Hvor mange point Con-skade?"},
-    {"name": "Int-skade", "spell_id": "int_damage", "affects": ["int"],
-     "note": "Midlertidig Int-skade — kaskaderer i Int-skills",
-     "editable": True, "negative": True, "value": 2,
-     "prompt": "Hvor mange point Int-skade?"},
-    {"name": "Wis-skade", "spell_id": "wis_damage", "affects": ["wis"],
-     "note": "Midlertidig Wis-skade — kaskaderer i Will, Wis-skills",
-     "editable": True, "negative": True, "value": 2,
-     "prompt": "Hvor mange point Wis-skade?"},
-    {"name": "Cha-skade", "spell_id": "cha_damage", "affects": ["cha"],
-     "note": "Midlertidig Cha-skade — kaskaderer i Cha-skills",
-     "editable": True, "negative": True, "value": 2,
-     "prompt": "Hvor mange point Cha-skade?"},
-]
+# Rækkefølge for ability-skade i vælgeren (Str..Cha frem for alfabetisk).
+_ABILITY_ORDER = {a: i for i, a in enumerate(("str", "dex", "con", "int", "wis", "cha"))}
+
+
+def _picker_catalogs():
+    """Byg buff- og ability-skade-katalogerne til effekt-vælgeren ud fra effects-
+    tabellen (kilden til sandheden). Erstatter de tidligere hardkodede lister.
+
+    buff-kataloget sorteres efter navn; ability-skade efter Str..Cha-rækkefølgen.
+    """
+    buffs, damage = [], []
+    for e in db.get_all_effects():
+        picker = e.get("picker")
+        entry = {"name": e["name"], "spell_id": e["id"],
+                 "affects": e.get("affects") or [], "note": e.get("note") or ""}
+        if picker == "buff":
+            buffs.append(entry)
+        elif picker == "damage":
+            entry.update(editable=bool(e.get("editable")), negative=bool(e.get("negative")),
+                         value=_DAMAGE_DEFAULT, prompt=e.get("prompt") or "Værdi?")
+            damage.append(entry)
+    buffs.sort(key=lambda b: b["name"].lower())
+    damage.sort(key=lambda d: _ABILITY_ORDER.get((d["affects"] or ["zzz"])[0], 99))
+    return buffs, damage
+
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
@@ -611,12 +574,20 @@ def create_character():
     return redirect(url_for("karakter", name=slug))
 
 
+# Effekter hvis værdi skalerer med karakteren (beregnes ved render). Divine Favor:
+# +1 luck pr. 3 casterniveauer (min +1, max +5).
+_EFFECT_SCALING = {
+    "divine_favor": lambda char: max(1, min(5, char.level // 3)),
+}
+
+
 def _collect_active_effects(char):
     """Slå aktive buffs/tilstande op i effekt-kataloget → (modifiers, sources).
 
     Buffs identificeres via deres spell_id, tilstande via deres id. En buff-instans
     kan bære et 'value'-override (fx valgt ability-skade), der erstatter værdien i
-    katalogets modifiers. ``modifiers`` er den flade liste til resolve_modifiers;
+    katalogets modifiers; ellers skaleres niveau-afhængige effekter (Divine Favor)
+    via _EFFECT_SCALING. ``modifiers`` er den flade liste til resolve_modifiers;
     ``sources`` bevarer pr.-effekt-info (navn/kind/modifiers) til breakdown-visningen.
     Effekter uden katalog-match (fritekst-buffs, endnu-umekaniske tilstande) er ren
     tracking og bidrager ikke med tal.
@@ -639,7 +610,13 @@ def _collect_active_effects(char):
         if not sid:
             continue
         val = b.get("value")
-        add(db.get_effect(sid), int(val) if val is not None else None)
+        if val is not None:
+            instance_value = int(val)
+        elif sid in _EFFECT_SCALING:
+            instance_value = _EFFECT_SCALING[sid](char)
+        else:
+            instance_value = None
+        add(db.get_effect(sid), instance_value)
     for cid in char.conditions:
         add(db.get_effect(cid))
     return modifiers, sources
@@ -692,10 +669,29 @@ def _damage_bonus(damage: str) -> int:
     return int(m.group(1)) if m else 0
 
 
-def _delta_row(name, eff_val, base_val):
-    """Et afledt tal med basis-værdi → muliggør ▲/▼-markør i visningen."""
-    return {"name": name, "val": eff_val, "base": base_val,
-            "changed": eff_val != base_val, "up": eff_val > base_val}
+def _stat_sources(effect_sources, targets, ability=None):
+    """Navngivne effekt-kilder der påvirker et afledt tal: direkte targets + evt.
+    den ability tallet bygger på (ability-buffs vises med deres rå ability-værdi,
+    da det er dér de kommer ind via kaskaden). only_vs udelades."""
+    out = []
+    for src in effect_sources:
+        for m in src["modifiers"]:
+            if m.get("only_vs"):
+                continue
+            t = m.get("target")
+            if t in targets or (ability and t == ability):
+                out.append({"name": src["name"], "value": int(m.get("value", 0))})
+    return out
+
+
+def _delta_row(name, eff_val, base_val, sources=None):
+    """Et afledt tal med basis-værdi → ▲/▼-markør. sources (liste af {name,value})
+    giver en breakdown-tekst i tooltippen, så man kan se hvilke effekter der bidrog."""
+    row = {"name": name, "val": eff_val, "base": base_val,
+           "changed": eff_val != base_val, "up": eff_val > base_val}
+    if sources:
+        row["detail"] = " · ".join(f"{s['name']} {s['value']:+d}" for s in sources)
+    return row
 
 
 @app.route("/karakter/<name>")
@@ -746,11 +742,12 @@ def karakter(name):
     for label, skey, akey in (("Fortitude", "fortitude", "con"),
                               ("Reflex", "reflex", "dex"),
                               ("Will", "will", "wis")):
-        eff_bonus = char_module.save_effect_bonus(net, skey)
+        eff_bonus = char_module.save_effect_bonus(active_modifiers, skey)
         base_v = char_module.save_total(char.saves.get(skey, 0), getattr(ab, akey), racial_save)
         eff_v = char_module.save_total(char.saves.get(skey, 0), getattr(eff, akey),
                                        racial_save, eff_bonus)
-        saves.append(_delta_row(label, eff_v, base_v))
+        src = _stat_sources(effect_sources, {"save_all", char_module.SAVE_TARGETS[skey]}, akey)
+        saves.append(_delta_row(label, eff_v, base_v, src))
 
     synergy_bonuses = char_module.compute_synergy_bonuses(char.skills)
     char_skill_map = {s.id: s for s in char.skills}
@@ -760,7 +757,7 @@ def karakter(name):
         synergy = synergy_bonuses.get(s.id, 0)
         ranked = int(s.ranks) > 0
         trained_only = bool(defn.get("trained_only"))
-        eff_bonus = char_module.skill_effect_bonus(net, s.id)
+        eff_bonus = char_module.skill_effect_bonus(active_modifiers, s.id)
         total = char_module.skill_total(s, eff, db, synergy, acp, eff_bonus)
         # Basis (uden aktive effekter) → ▲/▼-markør når en effekt ændrede skill'en.
         pre_effect = char_module.skill_total(s, ab, db, synergy, acp)
@@ -781,6 +778,9 @@ def karakter(name):
             "effect_changed": total != pre_effect,
             "effect_up": total > pre_effect,
             "pre_effect": pre_effect,
+            "effect_detail": " · ".join(
+                f"{x['name']} {x['value']:+d}" for x in _stat_sources(
+                    effect_sources, {"skill_all", f"skill:{s.id}"}, defn.get("ability"))),
         })
     # Feat-poster kan være rene id-strenge eller {id, weapon}; vis label med våben.
     feat_data = []
@@ -917,26 +917,31 @@ def karakter(name):
     )
     ac_bonuses = char_module.resolve_ac_bonuses(
         _combat_ac, [m for m in active_modifiers if m.get("target") == "ac"])
-    grapple = _delta_row("Grapple",
-                         char_module.grapple_total(bab, eff.str, char.size),
-                         char_module.grapple_total(bab, ab.str, char.size))
     init_misc = int(char.combat.get("initiative_misc", 0))
     initiative = _delta_row(
         "Init",
         char_module.initiative_total(eff, char.feats, init_misc, net.get("init", 0)),
-        char_module.initiative_total(ab, char.feats, init_misc))
+        char_module.initiative_total(ab, char.feats, init_misc),
+        _stat_sources(effect_sources, {"init"}, "dex"))
     ac = char_module.armor_class(eff, char.size, **_ac_common, **ac_bonuses,
                                  lose_dex=riders["lose_dex"])
     ac_base = char_module.armor_class(ab, char.size, **_ac_common, **_combat_ac)
     # Pr. AC-tal: er det ændret af en effekt? (Dex + typede AC-bonusser + lose_dex.)
-    ac_delta = {k: _delta_row(k, ac[k], ac_base[k]) for k in ("ac", "touch", "flat_footed")}
+    ac_src = _stat_sources(effect_sources, {"ac"}, "dex")
+    ac_delta = {k: _delta_row(k, ac[k], ac_base[k], ac_src) for k in ("ac", "touch", "flat_footed")}
+
+    grapple = _delta_row("Grapple",
+                         char_module.grapple_total(bab, eff.str, char.size),
+                         char_module.grapple_total(bab, ab.str, char.size),
+                         _stat_sources(effect_sources, set(), "str"))
 
     # Speed: longstrider (+) m.fl., derefter halvering hvis en rytter kræver det
     # (blinded/entangled/exhausted). base er karakterens rå hastighed.
     eff_speed = base_speed + net.get("speed", 0)
     if riders["half_speed"]:
         eff_speed //= 2
-    speed = _delta_row("Speed", eff_speed, base_speed)
+    speed = _delta_row("Speed", eff_speed, base_speed,
+                       _stat_sources(effect_sources, {"speed"}))
 
     # Evnescores vises effektivt med basis + breakdown når en effekt ændrede dem.
     ability_breakdown = _ability_breakdown(effect_sources)
@@ -1063,6 +1068,9 @@ def karakter(name):
     # Companion: beregn det fulde statblok fra den tynde reference (eller None).
     companion = companion_module.build_companion(char, db)
 
+    # Effekt-vælgerens kataloger bygges fra effects-tabellen (kilden til sandheden).
+    buff_catalog, damage_catalog = _picker_catalogs()
+
     return render_template(
         "character.html",
         name=name,
@@ -1077,8 +1085,8 @@ def karakter(name):
         slots=slots,
         condition_data=condition_data,
         all_conditions=all_conditions,
-        buff_catalog=BUFF_CATALOG,
-        damage_catalog=ABILITY_DAMAGE_CATALOG,
+        buff_catalog=buff_catalog,
+        damage_catalog=damage_catalog,
         xp_info=xp_info,
         weight=weight,
         enc_limits=enc_limits,

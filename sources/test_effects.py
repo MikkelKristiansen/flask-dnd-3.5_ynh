@@ -149,16 +149,24 @@ def test_save_effect_bonus_param():
     assert save_total(2, 14, 0, effect_bonus=1) == 5
 
 
-def test_save_effect_bonus_combines_all_and_specific():
-    net = {"save_all": 1, "save_will": 1}
-    assert save_effect_bonus(net, "will") == 2
-    assert save_effect_bonus(net, "fortitude") == 1
+def test_save_effect_bonus_same_type_across_aliases_no_stack():
+    # save_all resistance +1 + save_will resistance +1 → IKKE +2 (samme type
+    # stacker ikke, heller ikke på tværs af save_all/save_will).
+    mods = [m("save_all", "resistance", 1), m("save_will", "resistance", 1)]
+    assert save_effect_bonus(mods, "will") == 1
+    assert save_effect_bonus(mods, "fortitude") == 1
+
+
+def test_save_effect_bonus_different_types_stack():
+    mods = [m("save_all", "resistance", 1), m("save_all", "penalty", -2)]
+    assert save_effect_bonus(mods, "will") == -1
 
 
 def test_skill_effect_bonus_combines():
-    net = {"skill_all": -2, "skill:hide": 5}
-    assert skill_effect_bonus(net, "hide") == 3
-    assert skill_effect_bonus(net, "spot") == -2
+    # skill_all penalty -2 + skill:hide competence +5 → forskellige typer → +3.
+    mods = [m("skill_all", "penalty", -2), m("skill:hide", "competence", 5)]
+    assert skill_effect_bonus(mods, "hide") == 3
+    assert skill_effect_bonus(mods, "spot") == -2
 
 
 def test_attack_extra_bonus_and_damage():

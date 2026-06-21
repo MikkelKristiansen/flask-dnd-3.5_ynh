@@ -714,14 +714,36 @@ def resolve_ac_bonuses(combat_ac: dict, ac_modifiers: list[dict]) -> dict[str, i
 SAVE_TARGETS = {"fortitude": "save_fort", "reflex": "save_ref", "will": "save_will"}
 
 
-def save_effect_bonus(net: dict[str, int], which: str) -> int:
-    """Effekt-bonus til ét save (save_all + det specifikke target) fra et net-dict."""
-    return net.get("save_all", 0) + net.get(SAVE_TARGETS.get(which, ""), 0)
+def resolve_target(mods: list[dict], *targets: str) -> int:
+    """Nettobonus til ÉT konkret mål, hvor flere alias-targets deler stacking.
+
+    Fx får et Will-save bidrag fra både ``save_all`` og ``save_will``; en
+    resistance-bonus fra hver af dem stacker IKKE (samme type), så de skal
+    kombineres SAMMEN — ikke summes hver for sig. Derfor grupperes på tværs af
+    alle aliasserne pr. type og kombineres med _combine. only_vs udelades.
+    """
+    want = set(targets)
+    by_type: dict[str, list[int]] = {}
+    for m in mods or []:
+        if m.get("only_vs") or m.get("target") not in want:
+            continue
+        try:
+            value = int(m.get("value", 0))
+        except (TypeError, ValueError):
+            continue
+        if value:
+            by_type.setdefault(str(m.get("type", "untyped")).lower(), []).append(value)
+    return sum(_combine(vs, t) for t, vs in by_type.items())
 
 
-def skill_effect_bonus(net: dict[str, int], skill_id: str) -> int:
-    """Effekt-bonus til én skill (skill_all + skill:<id>) fra et net-dict."""
-    return net.get("skill_all", 0) + net.get(f"skill:{skill_id}", 0)
+def save_effect_bonus(mods: list[dict], which: str) -> int:
+    """Effekt-bonus til ét save (save_all + det specifikke) med korrekt stacking."""
+    return resolve_target(mods, "save_all", SAVE_TARGETS.get(which, "save_all"))
+
+
+def skill_effect_bonus(mods: list[dict], skill_id: str) -> int:
+    """Effekt-bonus til én skill (skill_all + skill:<id>) med korrekt stacking."""
+    return resolve_target(mods, "skill_all", f"skill:{skill_id}")
 
 
 def conditional_modifiers(mods: list[dict]) -> list[dict]:

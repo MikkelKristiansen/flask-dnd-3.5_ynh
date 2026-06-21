@@ -167,10 +167,11 @@ def get_all_animals() -> list[dict]:
 
 
 def _effect_row(row) -> dict:
-    """Konverter en effects-række til dict og afkod JSON-felterne (modifiers/riders)."""
+    """Konverter en effects-række til dict og afkod JSON-felterne (modifiers/riders/affects)."""
     rec = dict(row)
     rec["modifiers"] = json.loads(rec["modifiers"] or "[]")
     rec["riders"] = json.loads(rec["riders"] or "[]")
+    rec["affects"] = json.loads(rec["affects"] or "[]")
     return rec
 
 

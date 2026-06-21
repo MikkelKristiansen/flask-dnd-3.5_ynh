@@ -16,7 +16,52 @@ tricks og særlige evner (Link → Evasion → Devotion → Multiattack → …)
 """
 import math
 
-from character import AbilityScores, armor_class, size_mod_attack, size_mod_grapple
+from character import (AbilityScores, armor_class, size_mod_attack,
+                       size_mod_grapple, effective_ability_scores,
+                       resolve_modifiers, resolve_ac_bonuses,
+                       save_effect_bonus, skill_effect_bonus)
+
+
+def collect_companion_effects(comp: dict, db) -> tuple[list, dict]:
+    """Aktive effekter for en companion → (modifiers, riders).
+
+    Companion'ens buffs (via spell_id) og tilstande (via id) slås op i effekt-
+    kataloget — samme motor som hovedkarakteren. En buff-instans kan bære et
+    value-override. riders giver {lose_dex, half_speed, flags} til visning.
+    """
+    modifiers: list[dict] = []
+    flags: list[dict] = []
+    state = {"lose_dex": False, "half_speed": False}
+
+    def add(effect, instance_value=None):
+        if not effect:
+            return
+        mods = effect.get("modifiers") or []
+        if instance_value is not None:
+            mods = [{**md, "value": instance_value} for md in mods]
+        modifiers.extend(mods)
+        for r in effect.get("riders") or []:
+            rtype = (r.get("type") or "").lower()
+            if rtype == "lose_dex":
+                state["lose_dex"] = True
+            elif rtype == "half_speed":
+                state["half_speed"] = True
+            if r.get("note") and rtype != "roll_only":
+                flags.append({"name": effect["name"], "kind": effect.get("kind"),
+                              "note": r["note"]})
+
+    for b in comp.get("buffs") or []:
+        sid = b.get("spell_id")
+        if not sid:
+            continue
+        val = b.get("value")
+        add(db.get_effect(sid), int(val) if val is not None else None)
+    for cid in comp.get("conditions") or []:
+        add(db.get_effect(cid))
+
+    riders = {"lose_dex": state["lose_dex"], "half_speed": state["half_speed"],
+              "flags": flags}
+    return modifiers, riders
 
 # Companion-avancement pr. EFFEKTIVT druideniveau. Universel regel-tabel (ikke
 # katalog-data), derfor en konstant her ligesom SIZE_MOD_* i character.py.
@@ -76,22 +121,35 @@ def _str_damage(str_mod: int, mult: float) -> int:
     return str_mod
 
 
-def advance_companion(animal: dict, eff_level: int, db) -> dict:
+def advance_companion(animal: dict, eff_level: int, db,
+                      active_modifiers: list | None = None,
+                      riders: dict | None = None) -> dict:
     """Udregn det fulde companion-statblok fra et basis-dyr + effektivt niveau.
 
     Alle tal afledes (SRD): BAB = ¾ × HD; saves = god Fort/Ref + dårlig Will som
     et væsen hvis niveau = HD; HP = gennemsnit pr. HD + Con; AC = 10 + størrelse
     + Dex + naturlig rustning. Angreb bruger Dex ved Weapon Finesse, ellers Str;
     sekundære angreb får −5 og ½ Str; et ENESTE primært angreb får ×1,5 Str.
+
+    active_modifiers/riders: aktive effekter (samme motor som hovedkarakteren).
+    Ability-ændringer kaskaderer via effektive scores; direkte bonusser (attack/
+    save/AC/init) lægges på, og lose_dex fjerner Dex-til-AC. Uden effekter er alt
+    uændret.
     """
+    active_modifiers = active_modifiers or []
+    riders = riders or {"lose_dex": False, "half_speed": False, "flags": []}
+    net = resolve_modifiers(active_modifiers)
+
     _, bonus_hd, na_bonus, ability_bonus, bonus_tricks, specials = _tier(eff_level)
 
     total_hd = animal["base_hd"] + bonus_hd
-    scores = AbilityScores(
+    base_scores = AbilityScores(
         str=animal["str"] + ability_bonus,
         dex=animal["dex"] + ability_bonus,
         con=animal["con"], int=animal["int"], wis=animal["wis"], cha=animal["cha"],
     )
+    # Effekt-ability-ændringer (Bull's Strength, ability-skade …) kaskaderer.
+    scores = effective_ability_scores(base_scores, active_modifiers)
     con_mod = scores.modifier("con")
     str_mod = scores.modifier("str")
     dex_mod = scores.modifier("dex")
@@ -100,18 +158,25 @@ def advance_companion(animal: dict, eff_level: int, db) -> dict:
 
     bab = total_hd * 3 // 4
     natural = animal["natural_armor"] + na_bonus
+    # HP bruger den effektive Con (Bear's Endurance/Con-skade slår igennem på HP).
     hp_max = max(1, math.floor(4.5 * total_hd) + con_mod * total_hd)
 
-    ac = armor_class(scores, size, natural=natural)
+    ac_bonuses = resolve_ac_bonuses(
+        {"natural": natural, "deflection": 0, "dodge": 0, "misc": 0},
+        [m for m in active_modifiers if m.get("target") == "ac"])
+    ac = armor_class(scores, size, lose_dex=riders.get("lose_dex", False), **ac_bonuses)
     grapple = bab + str_mod + size_mod_grapple(size)
-    initiative = dex_mod + (4 if _has_feat(feats, "improved initiative") else 0)
+    initiative = (dex_mod + (4 if _has_feat(feats, "improved initiative") else 0)
+                  + net.get("init", 0))
     saves = {
-        "fort": _good_save(total_hd) + con_mod,
-        "ref": _good_save(total_hd) + dex_mod,
-        "will": _poor_save(total_hd) + scores.modifier("wis"),
+        "fort": _good_save(total_hd) + con_mod + save_effect_bonus(active_modifiers, "fortitude"),
+        "ref": _good_save(total_hd) + dex_mod + save_effect_bonus(active_modifiers, "reflex"),
+        "will": _poor_save(total_hd) + scores.modifier("wis") + save_effect_bonus(active_modifiers, "will"),
     }
 
-    # Angreb: til-hit + skade pr. naturligt våben.
+    # Angreb: til-hit + skade pr. naturligt våben (+ direkte attack-/skade-bonus).
+    attack_extra = net.get("attack", 0)
+    damage_extra = net.get("damage", 0)
     attack_list = animal["attacks"]
     finesse = _has_feat(feats, "weapon finesse")
     lone_primary = (len(attack_list) == 1
@@ -122,9 +187,10 @@ def advance_companion(animal: dict, eff_level: int, db) -> dict:
         secondary = atk.get("group") == "secondary"
         hit_mod = dex_mod if finesse else str_mod
         focus = 1 if _has_feat(feats, f"weapon focus ({atk['name'].lower()})") else 0
-        to_hit = bab + size_mod_attack(size) + hit_mod + focus + (-5 if secondary else 0)
+        to_hit = (bab + size_mod_attack(size) + hit_mod + focus
+                  + (-5 if secondary else 0) + attack_extra)
         mult = 1.5 if lone_primary else (0.5 if secondary else 1.0)
-        bonus = _str_damage(str_mod, mult)
+        bonus = _str_damage(str_mod, mult) + damage_extra
         damage = f"{atk['damage']}{bonus:+d}" if bonus else atk["damage"]
         count = atk.get("count", 1)
         attacks.append({
@@ -132,8 +198,9 @@ def advance_companion(animal: dict, eff_level: int, db) -> dict:
             "damage": damage, "group": atk.get("group", "primary"),
         })
 
-    # Skills: total = misc + ability-mod (fra skill-definitionen), så de følger
-    # med når avancement hæver Str/Dex. misc har ranks + racial bagt ind.
+    # Skills: total = misc + ability-mod (fra skill-definitionen) + effekt-bonus,
+    # så de følger med når avancement/effekter hæver Str/Dex. misc har ranks +
+    # racial bagt ind.
     skills = []
     for sk in animal["skills"]:
         sd = db.get_skill(sk["id"])
@@ -141,7 +208,7 @@ def advance_companion(animal: dict, eff_level: int, db) -> dict:
         mod = scores.modifier(ability) if ability and ability != "none" else 0
         skills.append({
             "name": sd["name"] if sd else sk["id"],
-            "total": sk["misc"] + mod,
+            "total": sk["misc"] + mod + skill_effect_bonus(active_modifiers, sk["id"]),
             "note": sk.get("note", ""),
         })
 
@@ -173,6 +240,7 @@ def advance_companion(animal: dict, eff_level: int, db) -> dict:
         "feats": feats,
         "specials": specials,
         "bonus_tricks": bonus_tricks,
+        "effect_flags": riders.get("flags", []),
     }
 
 
@@ -192,7 +260,9 @@ def build_companion(char, db) -> dict | None:
         return None
 
     eff_level = companion_effective_level(char.cls, char.level)
-    stat = advance_companion(animal, max(1, eff_level), db)
+    # Aktive effekter (samme motor som hovedkarakteren) → mekaniske tal.
+    active_modifiers, riders = collect_companion_effects(comp, db)
+    stat = advance_companion(animal, max(1, eff_level), db, active_modifiers, riders)
     stat["name"] = comp.get("name") or animal["name"]
     stat["tricks"] = list(comp.get("tricks") or [])
     hp_max = stat["hp_max"]

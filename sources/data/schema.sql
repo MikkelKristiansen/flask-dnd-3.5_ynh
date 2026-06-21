@@ -254,5 +254,12 @@ CREATE TABLE effects (
     kind            TEXT NOT NULL,              -- buff | condition
     source_spell_id TEXT,                       -- FK til spells.id for SRD-beskrivelse (kan være NULL)
     modifiers       TEXT NOT NULL DEFAULT '[]', -- JSON: liste af modifier-objekter
-    riders          TEXT NOT NULL DEFAULT '[]'  -- JSON: liste af ikke-numeriske ryttere
+    riders          TEXT NOT NULL DEFAULT '[]', -- JSON: liste af ikke-numeriske ryttere
+    -- Picker-metadata: hvor/hvordan effekten tilbydes i effekt-vælgeren.
+    picker          TEXT,                       -- buff | damage | NULL (NULL = vises ikke i picker)
+    note            TEXT,                       -- kort virkningstekst i vælgeren
+    affects         TEXT NOT NULL DEFAULT '[]', -- JSON: hvilke sektioner buffen markerer (attack/save/...)
+    editable        INTEGER NOT NULL DEFAULT 0, -- 1 = spørg om en værdi ved tilføjelse (ability-skade)
+    negative        INTEGER NOT NULL DEFAULT 0, -- 1 = gem værdien negativ (skade)
+    prompt          TEXT                        -- spørgsmålstekst når editable
 );

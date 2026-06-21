@@ -600,7 +600,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 <div id="tab-oversigt" class="tab-panel active">
 
   {# Delta-markør: lille ▲/▼ ved et tal som en aktiv effekt har ændret. #}
-  {% macro dmark(d) %}{% if d.changed %}<span class="eff-delta {{ 'up' if d.up else 'down' }}" title="Basis: {{ d.base }} — ændret af aktiv effekt">{{ '▲' if d.up else '▼' }}</span>{% endif %}{% endmacro %}
+  {% macro dmark(d) %}{% if d.changed %}<span class="eff-delta {{ 'up' if d.up else 'down' }}" title="Basis: {{ d.base }}{% if d.detail %} — {{ d.detail }}{% else %} — ændret af aktiv effekt{% endif %}">{{ '▲' if d.up else '▼' }}</span>{% endif %}{% endmacro %}
 
   {# Guidance: +1 på ÉT angreb/save/skill — armes og forbruges på næste rul. #}
   <div id="guidance-chip" class="guidance-chip" onclick="toggleGuidance()"></div>
@@ -763,6 +763,15 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 {% set cp = companion %}
 <div id="tab-companion" class="tab-panel">
 
+  {% if cp.effect_flags %}
+  <div class="flags-box">
+    <span class="flags-lead">⚑ Aktive flag</span>
+    {% for f in cp.effect_flags %}
+    <span class="flags-item {{ f.kind }}"><span class="flags-name">{{ f.name }}:</span> {{ f.note }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <div class="section">
     <div class="section-title">{{ cp.name }} — {{ cp.animal_name }}
       <span style="color:var(--muted);font-size:.7rem;font-style:italic;text-transform:none">
@@ -910,11 +919,11 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
               title="Slå {{ defn.name if defn else s.id }} (uden synergi){% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.base_total) }}</span>
         <span class="skill-total roll-tap" style="color:var(--green);font-size:.82rem"
               onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }} (m. synergi)')"
-              title="Slå {{ defn.name if defn else s.id }} inkl. +{{ item.synergy }} situationsbestemt synergi">{{ "%+d"|format(item.total) }}⟳{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect}) }}</span>
+              title="Slå {{ defn.name if defn else s.id }} inkl. +{{ item.synergy }} situationsbestemt synergi">{{ "%+d"|format(item.total) }}⟳{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect, "detail": item.effect_detail}) }}</span>
         {% else %}
         <span class="skill-total roll-tap"
               onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }}')"
-              title="Slå {{ defn.name if defn else s.id }}{% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.total) }}{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect}) }}</span>
+              title="Slå {{ defn.name if defn else s.id }}{% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.total) }}{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect, "detail": item.effect_detail}) }}</span>
         {% endif %}
         {% else %}
         <span class="skill-na" title="Trænet kun — Tjørn har ingen ranks, så denne kan ikke bruges utrænet">—</span>

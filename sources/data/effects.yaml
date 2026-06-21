@@ -17,18 +17,27 @@
   source_spell_id: bull_strength
   modifiers: '[{"target": "str", "type": "enhancement", "value": 4}]'
 
+  picker: buff
+  note: '+4 Str — alle Str-rul: angreb, skade, grapple, Str-skills'
+  affects: '["str"]'
 - id: cat_grace
   name: Cat's Grace
   kind: buff
   source_spell_id: cat_grace
   modifiers: '[{"target": "dex", "type": "enhancement", "value": 4}]'
 
+  picker: buff
+  note: +4 Dex — AC, Reflex, init, Dex-skills, ranged angreb
+  affects: '["dex"]'
 - id: bear_endurance
   name: Bear's Endurance
   kind: buff
   source_spell_id: bear_endurance
   modifiers: '[{"target": "con", "type": "enhancement", "value": 4}]'
 
+  picker: buff
+  note: +4 Con — HP, Fortitude-save, Con-checks
+  affects: '["con"]'
 - id: owl_wisdom
   name: Owl's Wisdom
   kind: buff
@@ -36,69 +45,107 @@
   modifiers: '[{"target": "wis", "type": "enhancement", "value": 4}]'
 
 # ── Direkte bonusser (data klar — anvendes mekanisk fra Fase 2) ─────────────
+  picker: buff
+  note: +4 Wis — Will-save, Wis-skills, druide-spell-DC'er
+  affects: '["wis"]'
 - id: resistance
   name: Resistance
   kind: buff
   source_spell_id: resistance
   modifiers: '[{"target": "save_all", "type": "resistance", "value": 1}]'
 
+  picker: buff
+  note: +1 resistance på alle saves
+  affects: '["save"]'
 - id: bless
   name: Bless
   kind: buff
   source_spell_id: bless
-  modifiers: '[{"target": "attack", "type": "morale", "value": 1}, {"target": "save_will", "type": "morale", "value": 1, "only_vs": "fear"}]'
+  modifiers: '[{"target": "attack", "type": "morale", "value": 1}, {"target": "save_will",
+    "type": "morale", "value": 1, "only_vs": "fear"}]'
 
+  picker: buff
+  note: +1 på angrebsrul og +1 saves mod frygt
+  affects: '["attack", "save"]'
 - id: shield_of_faith
   name: Shield of Faith
   kind: buff
   source_spell_id: shield_of_faith
   modifiers: '[{"target": "ac", "type": "deflection", "value": 2}]'
 
+  picker: buff
+  note: +2 deflection-bonus til AC (mere ved højere niveau)
+  affects: '["ac"]'
 - id: barkskin
   name: Barkskin
   kind: buff
   source_spell_id: barkskin
   modifiers: '[{"target": "ac", "type": "natural", "value": 2}]'
 
+  picker: buff
+  note: +2 naturlig rustning til AC (mere ved højere niveau)
+  affects: '["ac"]'
 - id: magic_fang
   name: Magic Fang
   kind: buff
   source_spell_id: magic_fang
-  modifiers: '[{"target": "attack", "type": "enhancement", "value": 1}, {"target": "damage", "type": "enhancement", "value": 1}]'
+  modifiers: '[{"target": "attack", "type": "enhancement", "value": 1}, {"target":
+    "damage", "type": "enhancement", "value": 1}]'
 
+  picker: buff
+  note: +1 angreb og skade på ÉT naturligt våben (godt til companion)
+  affects: '["attack"]'
 - id: longstrider
   name: Longstrider
   kind: buff
   source_spell_id: longstrider
   modifiers: '[{"target": "speed", "type": "enhancement", "value": 10}]'
 
+  picker: buff
+  note: +10 ft. til land-bevægelse
+  affects: '["speed"]'
 - id: divine_favor
   name: Divine Favor
   kind: buff
   source_spell_id: divine_favor
   # +1 luck pr. 3 casterniveauer (min +1). Modelleret fladt +1 (korrekt CL 1–2);
   # fuld niveauskalering hører til polish-fasen.
-  modifiers: '[{"target": "attack", "type": "luck", "value": 1}, {"target": "damage", "type": "luck", "value": 1}]'
+  modifiers: '[{"target": "attack", "type": "luck", "value": 1}, {"target": "damage",
+    "type": "luck", "value": 1}]'
 
 # ── Roll-only / temp-HP / rene tracking-buffs (modifiers tomme indtil Fase 3) ─
+  picker: buff
+  note: +1 luck på angreb og skade (+1 pr. 3 casterniveauer)
+  affects: '["attack"]'
 - id: guidance
   name: Guidance
   kind: buff
   source_spell_id: guidance
-  riders: '[{"type": "roll_only", "note": "+1 competence på ÉT angreb, save eller skill (engangs — tap-to-apply)"}]'
+  riders: '[{"type": "roll_only", "note": "+1 competence på ÉT angreb, save eller
+    skill (engangs — tap-to-apply)"}]'
 
+  picker: buff
+  note: +1 competence på ÉT angreb, save eller skill (engangs)
+  affects: '["attack", "save", "skill"]'
 - id: virtue
   name: Virtue
   kind: buff
   source_spell_id: virtue
   riders: '[{"note": "+1 midlertidigt HP"}]'
 
+  picker: buff
+  note: +1 midlertidigt HP
+  affects: '["hp"]'
 - id: produce_flame
   name: Produce Flame
   kind: buff
   source_spell_id: produce_flame
   riders: '[{"note": "Låser et spell-angreb op (se Angreb)"}]'
 
+  picker: buff
+  note: Flamme i hånden — nærkamp/kast-angreb 1d6 +1/niveau (låser spell-angreb 
+    op)
+  affects: '["attack"]'
 - id: endure_elements
   name: Endure Elements
   kind: buff
@@ -106,27 +153,36 @@
 
 # ── Tilstande med typede straffe (id matcher conditions-tabellen) ───────────
 # Tilføjes via tilstands-vælgeren; effekten slås op på samme id og giver tallene.
+  picker: buff
+  note: Uskadt af varme/kulde fra –50°F til 140°F
+  affects: '[]'
 - id: shaken
   name: Shaken
   kind: condition
-  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "save_all", "type": "penalty", "value": -2}, {"target": "skill_all", "type": "penalty", "value": -2}]'
+  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "save_all",
+    "type": "penalty", "value": -2}, {"target": "skill_all", "type": "penalty", "value":
+    -2}]'
 
 - id: sickened
   name: Sickened
   kind: condition
-  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "damage", "type": "penalty", "value": -2}, {"target": "save_all", "type": "penalty", "value": -2}, {"target": "skill_all", "type": "penalty", "value": -2}]'
+  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "damage",
+    "type": "penalty", "value": -2}, {"target": "save_all", "type": "penalty", "value":
+    -2}, {"target": "skill_all", "type": "penalty", "value": -2}]'
 
 # Fatigued = −2 Str og −2 Dex → kaskaderer automatisk via ability-modellen.
 - id: fatigued
   name: Fatigued
   kind: condition
-  modifiers: '[{"target": "str", "type": "penalty", "value": -2}, {"target": "dex", "type": "penalty", "value": -2}]'
+  modifiers: '[{"target": "str", "type": "penalty", "value": -2}, {"target": "dex",
+    "type": "penalty", "value": -2}]'
 
 # Exhausted = −6 Str og −6 Dex (kaskaderer) + halv fart.
 - id: exhausted
   name: Exhausted
   kind: condition
-  modifiers: '[{"target": "str", "type": "penalty", "value": -6}, {"target": "dex", "type": "penalty", "value": -6}]'
+  modifiers: '[{"target": "str", "type": "penalty", "value": -6}, {"target": "dex",
+    "type": "penalty", "value": -6}]'
   riders: '[{"type": "half_speed", "note": "Halv bevægelse"}]'
 
 # ── Mister Dex-til-AC (lose_dex) + −2 AC ────────────────────────────────────
@@ -134,38 +190,46 @@
   name: Blinded
   kind: condition
   modifiers: '[{"target": "ac", "type": "penalty", "value": -2}]'
-  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"type": "half_speed", "note": "Halv bevægelse"}, {"note": "50% miss chance (alle modstandere har total concealment)"}, {"note": "−4 på Search og de fleste Str/Dex-skills"}]'
+  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"type": "half_speed",
+    "note": "Halv bevægelse"}, {"note": "50% miss chance (alle modstandere har total
+    concealment)"}, {"note": "−4 på Search og de fleste Str/Dex-skills"}]'
 
 - id: cowering
   name: Cowering
   kind: condition
   modifiers: '[{"target": "ac", "type": "penalty", "value": -2}]'
-  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"note": "Frosset af frygt — kan ikke handle"}]'
+  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"note": "Frosset
+    af frygt — kan ikke handle"}]'
 
 - id: stunned
   name: Stunned
   kind: condition
   modifiers: '[{"target": "ac", "type": "penalty", "value": -2}]'
-  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"note": "Kan ikke handle; taber alt i hænderne"}]'
+  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"note": "Kan
+    ikke handle; taber alt i hænderne"}]'
 
 - id: flat_footed
   name: Flat-footed
   kind: condition
   modifiers: '[]'
-  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"note": "Kan ikke lave attacks of opportunity"}]'
+  riders: '[{"type": "lose_dex", "note": "Mister Dex-bonus til AC"}, {"note": "Kan
+    ikke lave attacks of opportunity"}]'
 
 # ── Ability-/attack-straffe der kaskaderer (resten er flag) ─────────────────
 - id: entangled
   name: Entangled
   kind: condition
-  modifiers: '[{"target": "dex", "type": "penalty", "value": -4}, {"target": "attack", "type": "penalty", "value": -2}]'
-  riders: '[{"type": "half_speed", "note": "Halv fart; kan ikke løbe eller charge"}, {"note": "Spells kræver Concentration-check (DC 15)"}]'
+  modifiers: '[{"target": "dex", "type": "penalty", "value": -4}, {"target": "attack",
+    "type": "penalty", "value": -2}]'
+  riders: '[{"type": "half_speed", "note": "Halv fart; kan ikke løbe eller charge"},
+    {"note": "Spells kræver Concentration-check (DC 15)"}]'
 
 - id: grappled
   name: Grappled
   kind: condition
   modifiers: '[{"target": "dex", "type": "penalty", "value": -4}]'
-  riders: '[{"note": "−4 attack med lette våben; kan ikke bevæge sig"}, {"note": "Spells kræver Concentration"}]'
+  riders: '[{"note": "−4 attack med lette våben; kan ikke bevæge sig"}, {"note": "Spells
+    kræver Concentration"}]'
 
 - id: dazzled
   name: Dazzled
@@ -176,39 +240,47 @@
 - id: frightened
   name: Frightened
   kind: condition
-  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "save_all", "type": "penalty", "value": -2}, {"target": "skill_all", "type": "penalty", "value": -2}]'
+  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "save_all",
+    "type": "penalty", "value": -2}, {"target": "skill_all", "type": "penalty", "value":
+    -2}]'
   riders: '[{"note": "Flygter fra kilden hvis muligt"}]'
 
 - id: panicked
   name: Panicked
   kind: condition
-  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "save_all", "type": "penalty", "value": -2}, {"target": "skill_all", "type": "penalty", "value": -2}]'
+  modifiers: '[{"target": "attack", "type": "penalty", "value": -2}, {"target": "save_all",
+    "type": "penalty", "value": -2}, {"target": "skill_all", "type": "penalty", "value":
+    -2}]'
   riders: '[{"note": "Taber alt i hænderne og flygter"}]'
 
 - id: deafened
   name: Deafened
   kind: condition
   modifiers: '[{"target": "init", "type": "penalty", "value": -4}]'
-  riders: '[{"note": "20% spell failure (verbale komponenter)"}, {"note": "Fejler automatisk Listen-checks"}]'
+  riders: '[{"note": "20% spell failure (verbale komponenter)"}, {"note": "Fejler
+    automatisk Listen-checks"}]'
 
 # ── Rene flag (ikke-numeriske / betingede / handlingsøkonomi) ───────────────
 - id: prone
   name: Prone
   kind: condition
   modifiers: '[]'
-  riders: '[{"note": "−4 på melee-angreb"}, {"note": "+4 AC mod ranged, −4 AC mod melee"}]'
+  riders: '[{"note": "−4 på melee-angreb"}, {"note": "+4 AC mod ranged, −4 AC mod
+    melee"}]'
 
 - id: helpless
   name: Helpless
   kind: condition
   modifiers: '[]'
-  riders: '[{"note": "Behandles som Dex 0; coup de grace muligt"}, {"note": "Modstandere i nærkamp får +4 til angreb"}]'
+  riders: '[{"note": "Behandles som Dex 0; coup de grace muligt"}, {"note": "Modstandere
+    i nærkamp får +4 til angreb"}]'
 
 - id: paralyzed
   name: Paralyzed
   kind: condition
   modifiers: '[]'
-  riders: '[{"note": "Str og Dex behandles som 0; helpless"}, {"note": "Coup de grace muligt for modstandere"}]'
+  riders: '[{"note": "Str og Dex behandles som 0; helpless"}, {"note": "Coup de grace
+    muligt for modstandere"}]'
 
 - id: nauseated
   name: Nauseated
@@ -253,27 +325,63 @@
   kind: condition
   modifiers: '[{"target": "str", "type": "penalty", "value": -2}]'
 
+  picker: damage
+  note: Midlertidig Str-skade — kaskaderer i angreb, skade, grapple
+  affects: '["str"]'
+  editable: 1
+  negative: 1
+  prompt: Hvor mange point Str-skade?
 - id: dex_damage
   name: Dex-skade
   kind: condition
   modifiers: '[{"target": "dex", "type": "penalty", "value": -2}]'
 
+  picker: damage
+  note: Midlertidig Dex-skade — kaskaderer i AC, Reflex, init, ranged
+  affects: '["dex"]'
+  editable: 1
+  negative: 1
+  prompt: Hvor mange point Dex-skade?
 - id: con_damage
   name: Con-skade
   kind: condition
   modifiers: '[{"target": "con", "type": "penalty", "value": -2}]'
 
+  picker: damage
+  note: Midlertidig Con-skade — kaskaderer i Fortitude (og HP)
+  affects: '["con"]'
+  editable: 1
+  negative: 1
+  prompt: Hvor mange point Con-skade?
 - id: int_damage
   name: Int-skade
   kind: condition
   modifiers: '[{"target": "int", "type": "penalty", "value": -2}]'
 
+  picker: damage
+  note: Midlertidig Int-skade — kaskaderer i Int-skills
+  affects: '["int"]'
+  editable: 1
+  negative: 1
+  prompt: Hvor mange point Int-skade?
 - id: wis_damage
   name: Wis-skade
   kind: condition
   modifiers: '[{"target": "wis", "type": "penalty", "value": -2}]'
 
+  picker: damage
+  note: Midlertidig Wis-skade — kaskaderer i Will, Wis-skills
+  affects: '["wis"]'
+  editable: 1
+  negative: 1
+  prompt: Hvor mange point Wis-skade?
 - id: cha_damage
   name: Cha-skade
   kind: condition
   modifiers: '[{"target": "cha", "type": "penalty", "value": -2}]'
+  picker: damage
+  note: Midlertidig Cha-skade — kaskaderer i Cha-skills
+  affects: '["cha"]'
+  editable: 1
+  negative: 1
+  prompt: Hvor mange point Cha-skade?
