@@ -20,48 +20,8 @@ from character import (AbilityScores, armor_class, size_mod_attack,
                        size_mod_grapple, effective_ability_scores,
                        resolve_modifiers, resolve_ac_bonuses,
                        save_effect_bonus, skill_effect_bonus)
+from effects import collect_active_effects, collect_riders
 
-
-def collect_companion_effects(comp: dict, db) -> tuple[list, dict]:
-    """Aktive effekter for en companion → (modifiers, riders).
-
-    Companion'ens buffs (via spell_id) og tilstande (via id) slås op i effekt-
-    kataloget — samme motor som hovedkarakteren. En buff-instans kan bære et
-    value-override. riders giver {lose_dex, half_speed, flags} til visning.
-    """
-    modifiers: list[dict] = []
-    flags: list[dict] = []
-    state = {"lose_dex": False, "half_speed": False}
-
-    def add(effect, instance_value=None):
-        if not effect:
-            return
-        mods = effect.get("modifiers") or []
-        if instance_value is not None:
-            mods = [{**md, "value": instance_value} for md in mods]
-        modifiers.extend(mods)
-        for r in effect.get("riders") or []:
-            rtype = (r.get("type") or "").lower()
-            if rtype == "lose_dex":
-                state["lose_dex"] = True
-            elif rtype == "half_speed":
-                state["half_speed"] = True
-            if r.get("note") and rtype != "roll_only":
-                flags.append({"name": effect["name"], "kind": effect.get("kind"),
-                              "note": r["note"]})
-
-    for b in comp.get("buffs") or []:
-        sid = b.get("spell_id")
-        if not sid:
-            continue
-        val = b.get("value")
-        add(db.get_effect(sid), int(val) if val is not None else None)
-    for cid in comp.get("conditions") or []:
-        add(db.get_effect(cid))
-
-    riders = {"lose_dex": state["lose_dex"], "half_speed": state["half_speed"],
-              "flags": flags}
-    return modifiers, riders
 
 # Companion-avancement pr. EFFEKTIVT druideniveau. Universel regel-tabel (ikke
 # katalog-data), derfor en konstant her ligesom SIZE_MOD_* i character.py.
@@ -261,7 +221,11 @@ def build_companion(char, db) -> dict | None:
 
     eff_level = companion_effective_level(char.cls, char.level)
     # Aktive effekter (samme motor som hovedkarakteren) → mekaniske tal.
-    active_modifiers, riders = collect_companion_effects(comp, db)
+    # Samme effekt-motor som hovedkarakteren (ingen skalering: companion har ikke
+    # et karakter-niveau). sources → riders giver {lose_dex, half_speed, flags}.
+    active_modifiers, sources = collect_active_effects(
+        comp.get("buffs"), comp.get("conditions"), db)
+    riders = collect_riders(sources)
     stat = advance_companion(animal, max(1, eff_level), db, active_modifiers, riders)
     stat["name"] = comp.get("name") or animal["name"]
     stat["tricks"] = list(comp.get("tricks") or [])
