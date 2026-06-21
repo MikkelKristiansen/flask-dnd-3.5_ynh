@@ -49,6 +49,11 @@ input[type=text],input[type=number],select{width:100%;background:var(--card);
 .feat-row label,.dom-row label{margin:0;color:var(--text);font-size:.85rem;cursor:pointer;}
 .feat-row .pre{color:var(--muted);font-size:.72rem;font-style:italic;}
 .hint{color:var(--muted);font-size:.75rem;margin-top:.4rem;}
+.portrait-field{display:flex;gap:.8rem;align-items:center;margin-bottom:.6rem;}
+.portrait-preview{width:72px;height:72px;flex:0 0 72px;border-radius:8px;border:1px solid var(--border);
+  object-fit:cover;background:var(--card);}
+.portrait-empty{display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--muted);}
+input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
 .add-btn,.submit-btn{background:var(--card);border:1px solid var(--border);color:var(--text);
   font-family:Georgia,serif;border-radius:6px;cursor:pointer;}
 .add-btn{font-size:.8rem;padding:.35rem .8rem;}
@@ -68,10 +73,18 @@ input[type=text],input[type=number],select{width:100%;background:var(--card);
 
 {% if error %}<div class="banner-err" style="max-width:640px;width:100%">⚠ {{ error }}</div>{% endif %}
 
-<form id="gen-form" action="{{ url_for('create_character') }}" method="post">
+<form id="gen-form" action="{{ url_for('create_character') }}" method="post" enctype="multipart/form-data">
 
   <div class="section">
     <div class="section-title">Identitet</div>
+    <div class="portrait-field">
+      <div class="portrait-preview portrait-empty" id="portrait-preview" title="Vælg et portræt">🧙</div>
+      <div style="flex:1">
+        <label for="portrait">Portræt (valgfrit)</label>
+        <input type="file" id="portrait" name="portrait" accept="image/png,image/jpeg,image/webp" onchange="previewPortrait(this)">
+        <div class="hint">JPG, PNG eller WEBP · maks. 8 MB</div>
+      </div>
+    </div>
     <label for="name">Navn</label>
     <input type="text" id="name" name="name" required>
     <div class="row">
@@ -123,11 +136,24 @@ input[type=text],input[type=number],select{width:100%;background:var(--card);
     <div class="budget" id="feat-budget"></div>
     <div id="feat-note" class="hint"></div>
     <div class="feat-list">
+      {% set weapon_choice_feats = ['weapon_focus','weapon_specialization','improved_critical'] %}
       {% for ft in feats %}
-      <div class="feat-row">
-        <input type="checkbox" id="feat_{{ ft.id }}" name="feats" value="{{ ft.id }}" onchange="onUpdate()">
+      <div class="feat-row" style="flex-wrap:wrap">
+        <input type="checkbox" id="feat_{{ ft.id }}" name="feats" value="{{ ft.id }}"
+               onchange="onUpdate(){% if ft.id in weapon_choice_feats %};toggleFeatWeapon('{{ ft.id }}'){% endif %}">
         <label for="feat_{{ ft.id }}">{{ ft.name }}{% if ft.prerequisites and ft.prerequisites != 'None' %}
           <span class="pre">— {{ ft.prerequisites }}</span>{% endif %}</label>
+        {% if ft.id in weapon_choice_feats %}
+        <select name="feat_weapon_{{ ft.id }}" id="featwpn_{{ ft.id }}"
+                style="display:none;flex-basis:100%;margin-top:.25rem" onchange="onUpdate()">
+          <option value="">— vælg våben —</option>
+          {% for grp in ['simple','martial','exotic'] %}
+          <optgroup label="{{ grp|capitalize }}">
+            {% for w in weapons if w.group == grp %}<option value="{{ w.name }}">{{ w.name }}</option>{% endfor %}
+          </optgroup>
+          {% endfor %}
+        </select>
+        {% endif %}
       </div>
       {% endfor %}
     </div>
@@ -219,15 +245,37 @@ input[type=text],input[type=number],select{width:100%;background:var(--card);
 </form>
 
 <script>
+// Live thumbnail af det valgte portræt (vises kun lokalt før upload).
+function previewPortrait(input){
+  const box = document.getElementById('portrait-preview');
+  const file = input.files && input.files[0];
+  if(!file){ box.style.backgroundImage=''; box.classList.add('portrait-empty'); box.textContent='🧙'; return; }
+  box.textContent='';
+  box.classList.remove('portrait-empty');
+  box.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
+  box.style.backgroundSize = 'cover';
+  box.style.backgroundPosition = 'center';
+}
+
 const RACES = {{ races_json|tojson }};
 const CLASSES = {{ classes_json|tojson }};
 const SKILLS = {{ skills|tojson }};
 const FEAT_PREREQS = {{ feat_prereqs|tojson }};
 const FEAT_NAME_TO_ID = {{ feat_name_to_id|tojson }};
 const FEAT_ID_TO_NAME = Object.fromEntries(Object.entries(FEAT_NAME_TO_ID).map(([n,i])=>[i,n]));
+const WEAPON_CHOICE_FEATS = ['weapon_focus','weapon_specialization','improved_critical'];
+// Vis/skjul våben-dropdown når en våben-feat krydses af/fra.
+function toggleFeatWeapon(fid){
+  const cb = document.getElementById('feat_'+fid);
+  const sel = document.getElementById('featwpn_'+fid);
+  if(!cb || !sel) return;
+  sel.style.display = cb.checked ? 'block' : 'none';
+  if(!cb.checked) sel.value = '';
+}
 
 const ABILITY_RE = /^(str|dex|con|int|wis|cha)\s+(\d+)$/i;
 const BAB_RE = /(?:base attack bonus|bab)\s*\+?(\d+)/i;
+const LEVEL_RE = /level\s+(\d+)/i;
 
 function mod(score){ return Math.floor((score - 10) / 2); }
 
@@ -241,6 +289,8 @@ function featUnmet(prereq, owned, finalScores, bab, canTurn){
     if(m){ if((finalScores[m[1].toLowerCase()]||10) < parseInt(m[2])) unmet.push(cl); return; }
     m=cl.match(BAB_RE);
     if(m){ if(bab < parseInt(m[1])) unmet.push(cl); return; }
+    m=cl.match(LEVEL_RE);
+    if(m){ if(parseInt(m[1]) > 1) unmet.push(cl); return; }  // generatoren er altid level 1
     const low=cl.toLowerCase();
     if(low.includes('turn') && low.includes('undead')){ if(!canTurn) unmet.push(cl); return; }
     if(low.includes('wild shape')){ unmet.push(cl); return; }  // ingen klasse har wild shape ved level 1
@@ -340,6 +390,11 @@ function onUpdate(){
   checkedEls.forEach(e=>{
     const miss = featUnmet(FEAT_PREREQS[e.value]||'', owned, finalScores, cd.bab1, cd.turn_undead);
     if (miss.length) prereqProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value} kræver: ${miss.join(', ')}`);
+    // Våben-feats: et våben skal være valgt.
+    if (WEAPON_CHOICE_FEATS.includes(e.value)) {
+      const sel = document.getElementById('featwpn_'+e.value);
+      if (sel && !sel.value) prereqProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value}: vælg et våben`);
+    }
   });
   let featErr = '';
   if (chosen !== need) featErr = `Skal være ${need}.`;

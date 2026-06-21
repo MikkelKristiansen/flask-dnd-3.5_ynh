@@ -220,6 +220,7 @@ _CLASS_LEVEL_TABLES = {
     "druid": "druid_levels",
     "cleric": "cleric_levels",
     "ranger": "ranger_levels",
+    "rogue": "rogue_levels",
 }
 
 

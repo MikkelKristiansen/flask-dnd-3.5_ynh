@@ -41,13 +41,17 @@ attacks:
   fixed_damage: 1d6+2     # 1d6 +1/casterniveau (druid 2) — sat af spellen
   crit: x2
   type: Fire
+  source: spell           # betinget angreb — vises kun når buffen 'Produce Flame' er aktiv
+  requires: Produce Flame
 - name: Produce Flame (ranged touch)
   kind: ranged_touch
   str_damage_mult: 0
   fixed_damage: 1d6+2
   crit: x2
   type: Fire
-  range: 25 ft
+  range: 120 ft     # kastet op til 120 ft som ranged touch (ingen range-penalty) — SRD
+  source: spell
+  requires: Produce Flame
 
 skills:
 - id: concentration
@@ -100,7 +104,7 @@ inventory:
   str_mult: 1
 - ref: armor/studded_leather
   state: worn
-  notes: Masterwork (MWK→ACP 0; MWK endnu ikke modelleret, ACP er −1)
+  masterwork: true
 - ref: items/sling_bullets_10
   qty: 10
 - ref: items/healer_s_kit

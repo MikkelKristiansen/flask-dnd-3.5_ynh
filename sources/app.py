@@ -17,7 +17,7 @@ import db
 import dice as dice_module
 
 # Klasser/racer generatoren understøtter (v1: de motoren er bevist mod + ranger).
-GEN_CLASSES = ["Cleric", "Druid", "Ranger"]
+GEN_CLASSES = ["Cleric", "Druid", "Ranger", "Rogue"]
 GEN_RACES = ["Human", "Elf", "Gnome"]
 GEN_DOMAINS = ["healing", "protection", "war", "knowledge", "good", "luck"]
 
@@ -47,6 +47,8 @@ BUFF_CATALOG = [
      "note": "+4 Wis — Will-save, Wis-skills, druide-spell-DC'er"},
     {"name": "Magic Fang", "spell_id": "magic_fang", "affects": ["attack"],
      "note": "+1 angreb og skade på ÉT naturligt våben (godt til companion)"},
+    {"name": "Produce Flame", "spell_id": "produce_flame", "affects": ["attack"],
+     "note": "Flamme i hånden — nærkamp/kast-angreb 1d6 +1/niveau (låser spell-angreb op)"},
     {"name": "Longstrider", "spell_id": "longstrider", "affects": ["speed"],
      "note": "+10 ft. til land-bevægelse"},
     {"name": "Endure Elements", "spell_id": "endure_elements", "affects": [],
@@ -55,8 +57,9 @@ BUFF_CATALOG = [
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
-# Karakterfiler er små (~få KB) — en beskeden grænse beskytter import-ruten.
-app.config["MAX_CONTENT_LENGTH"] = 512 * 1024
+# Karakterfiler er små (~få KB), men portræt-upload kan være et helt foto.
+# 8 MB rummer rigeligt et almindeligt billede og holder stadig grænsen for store.
+app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024
 CHARACTERS_DIR = Path(os.environ.get("DND_CHARACTERS_DIR",
                                      str(Path(__file__).parent / "characters")))
 # Portrætter lægges manuelt i data-mappen (ved siden af characters/), ikke i
@@ -85,6 +88,7 @@ def _inv_row(item, r: dict) -> dict:
         "name": name, "weight": r["unit_weight"], "qty": item.qty,
         "notes": item.notes, "state": item.state, "is_ref": bool(item.ref),
         "ref": item.ref, "bonus": item.bonus, "str_mult": item.str_mult,
+        "masterwork": item.masterwork, "enhancement": item.enhancement,
         "is_ammo": is_ammo,
     }
 
@@ -99,6 +103,55 @@ def _portrait_path(slug: str) -> Path | None:
         if p.exists():
             return p
     return None
+
+
+def _sniff_image_ext(raw: bytes) -> str | None:
+    """Genkend billedformat ud fra magic-bytes (imghdr er fjernet i Python 3.13+).
+
+    Returnerer en endelse fra PORTRAIT_EXTS hvis indholdet er et understøttet
+    billede, ellers None. Vi stoler på indholdet, ikke på filnavnets endelse.
+    """
+    if raw[:3] == b"\xff\xd8\xff":
+        return "jpg"
+    if raw[:8] == b"\x89PNG\r\n\x1a\n":
+        return "png"
+    if raw[:4] == b"RIFF" and raw[8:12] == b"WEBP":
+        return "webp"
+    return None
+
+
+def _validate_portrait(file) -> bytes | None:
+    """Læs + valider et uploadet portræt. Returnerer rå bytes, eller None hvis
+    der ikke blev uploadet nogen fil. Rejser ValueError hvis filen ikke er et
+    understøttet billede — så opretteren kan afvise FØR karakteren skrives.
+    """
+    if file is None or not file.filename:
+        return None
+    raw = file.read()
+    if not raw:
+        raise ValueError("Portrætfilen er tom.")
+    if _sniff_image_ext(raw) is None:
+        raise ValueError("Portrættet skal være et JPG-, PNG- eller WEBP-billede.")
+    return raw
+
+
+def _write_portrait(slug: str, raw: bytes) -> None:
+    """Skriv et valideret portræt som portraits/<slug>.<ext>.
+
+    Endelsen bestemmes af det faktiske billedindhold (magic-bytes), ikke af
+    filnavnet. Et eksisterende portræt for samme slug (uanset endelse) ryddes
+    først, så vi ikke ender med både .png og .jpg for samme karakter.
+    """
+    safe = _safe_slug(slug)
+    ext = _sniff_image_ext(raw)
+    if not safe or ext is None:
+        raise ValueError("Ugyldigt portræt.")
+    PORTRAITS_DIR.mkdir(parents=True, exist_ok=True)
+    for old in PORTRAIT_EXTS:
+        old_path = PORTRAITS_DIR / f"{safe}.{old}"
+        if old_path.exists():
+            old_path.unlink()
+    (PORTRAITS_DIR / f"{safe}.{ext}").write_bytes(raw)
 
 
 def _safe_slug(text: str) -> str:
@@ -290,6 +343,9 @@ def create_character():
     """Byg en ny level-1-karakter fra formularen, valider mod reglerne og skriv YAML."""
     f = request.form
     try:
+        # Valider et evt. portræt FØR vi skriver karakteren, så en ugyldig fil
+        # afvises uden at efterlade en halvfærdig karakter.
+        portrait_raw = _validate_portrait(request.files.get("portrait"))
         name = f.get("name", "").strip()
         if not name:
             raise ValueError("Navn mangler.")
@@ -344,16 +400,32 @@ def create_character():
         valid_feats = {x["id"] for x in all_feats}
         if any(x not in valid_feats for x in chosen):
             raise ValueError("Ukendt feat valgt.")
-        feats_out = list(dict.fromkeys(chosen + char_module.class_bonus_feats(cls)))
+        # Byg feat-poster: våben-feats gemmes som {id, weapon}, resten som id-streng.
+        # Dedup på id (klassens gratis feats lægges efter de valgte).
+        name_by_id = {x["id"]: x["name"] for x in all_feats}
+        feats_out: list = []
+        seen_ids: set[str] = set()
+        weapon_names = {w["name"] for w in db.get_all_weapons()}
+        for fid in chosen + char_module.class_bonus_feats(cls):
+            if fid in seen_ids:
+                continue
+            seen_ids.add(fid)
+            if fid in char_module.WEAPON_CHOICE_FEATS:
+                wpn = f.get(f"feat_weapon_{fid}", "").strip()
+                if wpn not in weapon_names:
+                    raise ValueError(f"Vælg et gyldigt våben til {name_by_id.get(fid, fid)}.")
+                feats_out.append({"id": fid, "weapon": wpn})
+            else:
+                feats_out.append(fid)
+        owned_ids = [char_module.feat_id(e) for e in feats_out]
 
         # Håndhæv feat-prerequisites (fx Augment Summoning kræver Spell Focus (Conjuration)).
         name_to_id = {x["name"].lower(): x["id"] for x in all_feats}
         prereq_by_id = {x["id"]: x.get("prerequisites") for x in all_feats}
-        name_by_id = {x["id"]: x["name"] for x in all_feats}
         bab1 = int((db.get_class_level(cls.lower(), 1) or {}).get("bab", 0))
         for fid in chosen:
             missing = char_module.feat_prereq_unmet(
-                prereq_by_id.get(fid) or "", feats_out, final, cls, 1, bab1, name_to_id)
+                prereq_by_id.get(fid) or "", owned_ids, final, cls, 1, bab1, name_to_id)
             if missing:
                 raise ValueError(f"{name_by_id.get(fid, fid)} kræver: {', '.join(missing)}.")
 
@@ -480,6 +552,8 @@ def create_character():
                 os.unlink(tmp)
 
         char_module.write_character_file(str(_char_path(slug)), raw)
+        if portrait_raw is not None:
+            _write_portrait(slug, portrait_raw)
     except (ValueError, KeyError) as e:
         return redirect(url_for("create_form", error=str(e)))
 
@@ -535,7 +609,13 @@ def karakter(name):
             # eller hvis Tjørn faktisk har ranks i den.
             "usable": ranked or not trained_only,
         })
-    feat_data  = [(fid, db.get_feat(fid)) for fid in char.feats]
+    # Feat-poster kan være rene id-strenge eller {id, weapon}; vis label med våben.
+    feat_data = []
+    for e in char.feats:
+        fid = char_module.feat_id(e)
+        row = db.get_feat(fid)
+        feat_data.append((fid, row, char_module.feat_label(e, row)))
+    char_feat_ids = [char_module.feat_id(e) for e in char.feats]
 
     spell_data: dict[int, list] = {}
     for lvl, spell_ids in char.spells_prepared.items():
@@ -576,11 +656,37 @@ def karakter(name):
     # Combat: beregn til-hit/skade pr. angreb + grapple + initiativ (gemmes aldrig i YAML).
     # Angreb = eksplicitte (spells/unarmed) + afledte fra våben i hånden (wielded).
     bab = int(char.combat.get("bab", 0))
-    all_attacks = char_module.derive_attacks(char.inventory, db, char.size) + list(char.attacks)
-    attack_rows = [
-        {"attack": atk, **char_module.attack_total(atk, ab, bab, char.size)}
-        for atk in all_attacks
-    ]
+    # Betingede spell-angreb (Attack.requires) vises kun når den krævede buff er aktiv.
+    active_keys = char_module.active_buff_keys(char.buffs)
+
+    def _row(atk, manual, idx):
+        return {"attack": atk, "manual": manual, "idx": idx,
+                **char_module.attack_total(atk, ab, bab, char.size)}
+
+    # Våben-angreb (udledt af inventaret) først, så manuelle angreb fra YAML.
+    # Kun manuelle angreb kan redigeres her (idx = position i char.attacks).
+    attack_rows = [_row(a, False, None)
+                   for a in char_module.derive_attacks(char.inventory, db, char.size)
+                   if char_module.attack_visible(a, active_keys)]
+    attack_rows += [_row(a, True, i) for i, a in enumerate(char.attacks)
+                    if char_module.attack_visible(a, active_keys)]
+
+    # Slukkede betingede angreb → hint grupperet pr. krævet buff ("tænd som buff").
+    _groups: dict[str, list] = {}
+    for i, atk in enumerate(char.attacks):
+        if (atk.source == "spell" and atk.requires
+                and not char_module.attack_visible(atk, active_keys)):
+            _groups.setdefault(atk.requires, []).append({"idx": i, "name": atk.name})
+    inactive_spell_groups = [{"buff": k, "attacks": v} for k, v in sorted(_groups.items())]
+
+    # Rå felter for alle manuelle angreb → redigering i browseren (også de slukkede).
+    attacks_json = [{
+        "idx": i, "name": a.name, "kind": a.kind, "bonus": a.bonus,
+        "base_damage": a.base_damage, "fixed_damage": a.fixed_damage,
+        "str_damage_mult": a.str_damage_mult, "crit": a.crit, "type": a.type,
+        "range": a.range, "source": a.source, "requires": a.requires,
+    } for i, a in enumerate(char.attacks)]
+
     grapple = char_module.grapple_total(bab, ab.str, char.size)
     initiative = char_module.initiative_total(
         ab, char.feats, int(char.combat.get("initiative_misc", 0)))
@@ -724,6 +830,7 @@ def karakter(name):
         saves=saves,
         skill_data=skill_data,
         feat_data=feat_data,
+        char_feat_ids=char_feat_ids,
         spell_data=spell_data,
         slots=slots,
         condition_data=condition_data,
@@ -735,6 +842,8 @@ def karakter(name):
         enc=enc,
         base_speed=base_speed,
         attack_rows=attack_rows,
+        inactive_spell_groups=inactive_spell_groups,
+        attacks_json=attacks_json,
         grapple=grapple,
         initiative=initiative,
         ac=ac,
@@ -764,6 +873,22 @@ def portrait(slug):
     if path is None:
         abort(404)
     return send_from_directory(str(PORTRAITS_DIR), path.name)
+
+
+@app.route("/api/portrait", methods=["POST"])
+def api_portrait():
+    """Skift/tilføj portræt på en eksisterende karakter (multipart-upload)."""
+    slug = request.form.get("char", "")
+    if not _char_path(slug).exists():
+        return jsonify({"error": "not found"}), 404
+    try:
+        raw = _validate_portrait(request.files.get("portrait"))
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    if raw is None:
+        return jsonify({"error": "Ingen fil valgt."}), 400
+    _write_portrait(slug, raw)
+    return jsonify({"ok": True})
 
 
 # ── API ────────────────────────────────────────────────────────────────────
@@ -1001,6 +1126,10 @@ def api_inventory():
             if "str_mult" in data:
                 sm = data.get("str_mult")
                 old.str_mult = None if sm in (None, "") else float(sm)
+            if "masterwork" in data:
+                old.masterwork = bool(data.get("masterwork"))
+            if "enhancement" in data:
+                old.enhancement = int(data.get("enhancement") or 0)
             if not old.ref:
                 old.name   = str(data.get("name", old.name))
                 old.weight = float(data.get("weight", old.weight))
@@ -1017,6 +1146,72 @@ def api_inventory():
         "enc":        enc,
         "enc_limits": char_module.carry_limits(ab.str, char.size),
     })
+
+
+_ATTACK_KINDS = {"melee", "ranged", "melee_touch", "ranged_touch"}
+
+
+def _build_attack(a: dict) -> char_module.Attack:
+    """Byg et Attack-objekt fra rå modal-data. Kilde styrer skade-modellen:
+    spell → fast skade (Str tælles ikke med); våben → terning + Str×mult.
+    """
+    name = str(a.get("name", "")).strip()
+    if not name:
+        raise ValueError("name required")
+    source = str(a.get("source", "weapon")).lower()
+    if source != "spell":
+        source = "weapon"
+    kind = str(a.get("kind", "melee")).lower()
+    if kind not in _ATTACK_KINDS:
+        kind = "melee"
+    damage = str(a.get("damage", "")).strip()
+    common = dict(
+        name=name, kind=kind, bonus=int(a.get("bonus") or 0),
+        crit=(str(a.get("crit", "")).strip() or "x2"),
+        type=str(a.get("type", "")).strip(),
+        range=str(a.get("range", "")).strip(),
+    )
+    if source == "spell":
+        return char_module.Attack(
+            base_damage="1d4", str_damage_mult=0.0, fixed_damage=damage,
+            source="spell", requires=str(a.get("requires", "")).strip(), **common)
+    sm = a.get("str_mult")
+    sm = 1.0 if sm in (None, "") else float(sm)
+    return char_module.Attack(
+        base_damage=(damage or "1d4"), str_damage_mult=sm, fixed_damage="",
+        source="weapon", requires="", **common)
+
+
+@app.route("/api/attacks", methods=["POST"])
+def api_attacks():
+    data   = request.get_json()
+    slug   = data.get("char")
+    action = data.get("action")        # "add" | "update" | "remove"
+    path   = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+
+    char    = char_module.load_character(str(path))
+    attacks = list(char.attacks)
+
+    if action in ("add", "update"):
+        try:
+            atk = _build_attack(data.get("attack") or {})
+        except (ValueError, TypeError):
+            return jsonify({"error": "ugyldigt angreb"}), 400
+        if action == "add":
+            attacks.append(atk)
+        else:
+            idx = int(data.get("index", -1))
+            if 0 <= idx < len(attacks):
+                attacks[idx] = atk
+    elif action == "remove":
+        idx = int(data.get("index", -1))
+        if 0 <= idx < len(attacks):
+            attacks.pop(idx)
+
+    char_module.save_character(str(path), {"attacks": attacks})
+    return jsonify({"ok": True})
 
 
 @app.route("/api/prepare", methods=["POST"])

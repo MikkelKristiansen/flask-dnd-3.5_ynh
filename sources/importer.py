@@ -37,6 +37,7 @@ TABLES = [
     "druid_levels",
     "cleric_levels",
     "ranger_levels",
+    "rogue_levels",
     "domains",
     "domain_spells",
     "armor",

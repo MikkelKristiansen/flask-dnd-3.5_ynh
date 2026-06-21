@@ -12,7 +12,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
-     font-size:16px;padding-bottom:5rem;}
+     font-size:16px;padding-bottom:5rem;overflow-x:hidden;}
 
 /* ── Header ── */
 .header{background:var(--surface);border-bottom:2px solid var(--accent);padding:.8rem 1rem;}
@@ -27,6 +27,11 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
           border:2px solid var(--accent);background:var(--card);}
 .portrait-placeholder{display:flex;align-items:center;justify-content:center;
           font-size:3rem;border-style:dashed;border-color:var(--border);}
+.portrait-wrap{position:relative;display:inline-block;cursor:pointer;flex:0 0 auto;line-height:0;}
+.portrait-overlay{position:absolute;left:0;right:0;bottom:0;text-align:center;
+          background:rgba(0,0,0,.6);color:var(--accent);font-size:.72rem;line-height:1.4;
+          padding:.15rem 0;border-radius:0 0 8px 8px;opacity:0;transition:opacity .15s;}
+.portrait-wrap:hover .portrait-overlay{opacity:1;}
 
 /* HP bar + controls */
 .hp-control{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;}
@@ -118,6 +123,21 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .attack-bonus{color:var(--accent);font-weight:bold;text-align:right;}
 .attack-dmg{color:var(--red);font-weight:bold;}
 .attack-type{color:var(--muted);font-size:.75rem;}
+/* Spell-angreb: betingede (kræver aktiv spell) — vises dæmpet under våben-angrebene */
+.spell-attacks-label{color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:1px;
+            margin-top:.6rem;padding-top:.5rem;border-top:1px dashed var(--border);}
+.attack-row.spell-attack{opacity:.72;}
+.attack-row.spell-attack .attack-bonus,.attack-row.spell-attack .attack-dmg{font-weight:normal;}
+.spell-attack-hint{color:var(--muted);font-size:.75rem;font-style:italic;margin-top:.5rem;
+            padding-top:.45rem;border-top:1px dashed var(--border);}
+.spell-attack-hint b{color:var(--accent);font-style:normal;font-weight:normal;}
+.hint-edit{cursor:pointer;text-decoration:underline dotted;}
+.hint-edit:hover{color:var(--accent);}
+.attack-name-edit{cursor:pointer;text-decoration:underline dotted var(--border);}
+.attack-name-edit:hover{color:var(--accent);}
+.add-attack-btn{margin-top:.7rem;width:100%;background:transparent;border:1px dashed var(--border);
+            color:var(--muted);padding:.4rem;border-radius:4px;cursor:pointer;font-size:.8rem;}
+.add-attack-btn:hover{color:var(--accent);border-color:var(--accent);}
 
 /* Skills */
 .skill-row{display:flex;justify-content:space-between;align-items:baseline;
@@ -379,6 +399,28 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .modal-val{color:var(--text);text-align:right;max-width:65%;}
 .cond-link{color:var(--accent);border-bottom:1px dotted var(--accent);cursor:pointer;font-weight:600;}
 .cond-link:hover{background:var(--card);}
+
+/* ── Mobil (smalle skærme) ────────────────────────────────────────────────
+   Tre ting flød ud over skærmen på telefon: HP-rækken, fanerne og
+   terningebaren. Her holdes alt inden for skærmbredden. */
+@media(max-width:560px){
+  /* HP-baren får sin egen fulde linje under +/−-knapperne i stedet for at
+     blive mast ud til højre. Knapperne strammes lidt, så alle fem kontroller
+     står på én linje. */
+  /* Mindre portræt → bredere indholds-kolonne, så HP-rækken kan stå på én linje. */
+  .portrait{width:64px;height:64px;}
+  .portrait-overlay{font-size:.6rem;}
+  .hp-control{flex-wrap:wrap;gap:.35rem;}
+  .hp-btn{width:2rem;height:2rem;}
+  .hp-value{min-width:4rem;padding:.3rem .35rem;}
+  .bar-group{flex-basis:100%;min-width:0;margin-left:0!important;margin-top:.2rem;}
+  /* Fanerne bryder til to rækker af tre i stedet for at overlappe hinanden. */
+  .tabs{flex-wrap:wrap;}
+  .tab-btn{flex:1 1 33%;font-size:.8rem;padding:.5rem .3rem;}
+  /* Terningebaren: smallere resultat-felt, så input + knap + resultat passer. */
+  .dice-bar{padding:.5rem .6rem;gap:.4rem;}
+  .dice-result{min-width:3.2rem;font-size:.78rem;}
+}
 </style>
 </head>
 <body>
@@ -413,11 +455,15 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 <!-- ── Header ── -->
 <div class="header">
   <div class="header-flex">
-    {% if has_portrait %}
-    <img src="{{ url_for('portrait', slug=slug) }}" alt="{{ char.name }}" class="portrait">
-    {% else %}
-    <div class="portrait portrait-placeholder" title="Læg et billede i data-mappen: portraits/{{ slug }}.jpg">🧙</div>
-    {% endif %}
+    <label class="portrait-wrap" title="Klik for at skifte portræt">
+      {% if has_portrait %}
+      <img src="{{ url_for('portrait', slug=slug) }}" alt="{{ char.name }}" class="portrait">
+      {% else %}
+      <div class="portrait portrait-placeholder">🧙</div>
+      {% endif %}
+      <span class="portrait-overlay">📷 {% if has_portrait %}Skift{% else %}Tilføj{% endif %}</span>
+      <input type="file" id="portrait-input" accept="image/png,image/jpeg,image/webp" onchange="uploadPortrait(this)" hidden>
+    </label>
     <div class="header-content">
   <div class="header-top">
     <div>
@@ -551,14 +597,14 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     </div>
   </div>
 
-  {% if attack_rows %}
-  <div class="section">
-    <div class="section-title">Angreb <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik bonus/skade for at slå)</span></div>
-    <div id="buff-rem-attacks-character" class="buff-reminder" style="display:none"></div>
-    {% for row in attack_rows %}
+  {% macro attack_row(row, extra_class="") %}
     {% set atk = row.attack %}
-    <div class="attack-row">
+    <div class="attack-row {{ extra_class }}">
+      {% if row.manual %}
+      <span class="attack-name-edit" onclick="editAttack({{ row.idx }})" title="Rediger angreb">{{ atk.name }}</span>
+      {% else %}
       <span>{{ atk.name }}</span>
+      {% endif %}
       <span class="attack-bonus roll-tap"
             onclick="quickRoll('1d20{{ "%+d"|format(row.to_hit) }}','{{ atk.name }} angreb')"
             title="Slå angrebsbonus">{{ "%+d"|format(row.to_hit) }}</span>
@@ -567,9 +613,25 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
             title="Slå skade (min. 1 ved træffer)">{{ row.damage }}</span>
       <span class="attack-type">{{ atk.type }}{% if atk.range %} · {{ atk.range }}{% endif %}</span>
     </div>
+  {% endmacro %}
+  {% set spell_rows = attack_rows | selectattr("attack.source", "equalto", "spell") | list %}
+  <div class="section">
+    <div class="section-title">Angreb <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik bonus/skade for at slå · klik navn for at rette)</span></div>
+    <div id="buff-rem-attacks-character" class="buff-reminder" style="display:none"></div>
+    {% for row in attack_rows if row.attack.source != "spell" %}
+      {{ attack_row(row) }}
     {% endfor %}
+    {% if spell_rows %}
+    <div class="spell-attacks-label">Spell-angreb <span style="font-style:italic;text-transform:none;letter-spacing:0">(aktiv — koster en slot)</span></div>
+    {% for row in spell_rows %}
+      {{ attack_row(row, "spell-attack") }}
+    {% endfor %}
+    {% endif %}
+    {% for g in inactive_spell_groups %}
+    <div class="spell-attack-hint">⚡ Tænd <b>{{ g.buff }}</b> som buff for at bruge: {% for a in g.attacks %}<span class="hint-edit" onclick="editAttack({{ a.idx }})" title="Rediger angreb">{{ a.name }}</span>{% if not loop.last %} · {% endif %}{% endfor %}</div>
+    {% endfor %}
+    <button class="add-attack-btn" onclick="openAttackModal('add')">+ Tilføj angreb</button>
   </div>
-  {% endif %}
 
   <!-- Ammunition — client-renderet fra inventaret; vises kun når der er ammo -->
   <div class="section" id="ammo-section" style="display:none">
@@ -789,9 +851,9 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 
   <div class="section">
     <div class="section-title">Feats <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for detaljer)</span></div>
-    {% for fid, feat in feat_data %}
+    {% for fid, feat, label in feat_data %}
     <div class="feat-item" onclick="showDetail('feat','{{ fid }}')">
-      <div class="feat-name">{{ feat.name if feat else fid }}</div>
+      <div class="feat-name">{{ label }}</div>
       {% if feat and feat.benefit %}
       <div class="feat-benefit">{{ feat.benefit|truncate(90) }}</div>
       {% endif %}
@@ -1133,6 +1195,8 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       <input type="text" class="form-input" id="lu-feat-search" placeholder="Søg feat…"
              oninput="filterLuFeats()" style="margin-bottom:.4rem">
       <select id="lu-feat-sel" class="lu-select" size="5" onchange="pickLuFeat(this.value)"></select>
+      <select id="lu-feat-weapon" class="lu-select" style="display:none;margin-top:.4rem"
+              onchange="luFeatWeapon=this.value"></select>
       <div id="lu-feat-info" style="color:var(--muted);font-size:.78rem;margin-top:.4rem;line-height:1.4"></div>
     </div>
 
@@ -1213,6 +1277,17 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
         <input class="form-input" id="item-modal-strmult" type="number" step="0.5" placeholder="auto">
       </div>
     </div>
+    <div id="item-modal-armor" style="display:none;gap:.5rem;margin-top:.6rem;align-items:flex-end">
+      <div style="flex:1">
+        <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Magisk bonus (+AC)</div>
+        <input class="form-input" id="item-modal-enh" type="number" min="0" max="5" step="1" placeholder="0">
+      </div>
+      <div style="flex:1">
+        <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.85rem;padding:.35rem 0">
+          <input type="checkbox" id="item-modal-mwk" style="width:auto"> Mesterværk (ACP +1)
+        </label>
+      </div>
+    </div>
     <div style="margin-top:.6rem">
       <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Beskrivelse / noter</div>
       <textarea class="notes-textarea" id="item-modal-notes" rows="5"
@@ -1222,6 +1297,74 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     <div class="notes-action-row" style="margin-top:.6rem">
       <button class="notes-save-btn" style="flex:1" onclick="saveItemDetail()">Gem</button>
       <button class="notes-cancel-btn" onclick="document.getElementById('item-modal-overlay').classList.remove('open')">Annuller</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Angrebs-editor ── -->
+<div class="modal-overlay" id="attack-modal-overlay" onclick="closeAttackModalIfOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('attack-modal-overlay').classList.remove('open')">✕</button>
+    <div class="modal-title" id="attack-modal-title">Angreb</div>
+    <input type="hidden" id="attack-modal-idx">
+    <div style="margin-top:.8rem">
+      <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Navn</div>
+      <input class="form-input" id="attack-modal-name" type="text" placeholder="fx Produce Flame (nærkamp)">
+    </div>
+    <div style="display:flex;gap:.5rem;margin-top:.6rem">
+      <div style="flex:1">
+        <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Type</div>
+        <select class="form-input" id="attack-modal-kind">
+          <option value="melee">Nærkamp</option>
+          <option value="ranged">Afstand</option>
+          <option value="melee_touch">Nærkamp-touch</option>
+          <option value="ranged_touch">Afstand-touch</option>
+        </select>
+      </div>
+      <div style="flex:1">
+        <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Kilde</div>
+        <select class="form-input" id="attack-modal-source" onchange="onAttackSourceChange()">
+          <option value="weapon">Våben</option>
+          <option value="spell">Spell</option>
+        </select>
+      </div>
+    </div>
+    <div id="attack-modal-requires-row" style="margin-top:.6rem;display:none">
+      <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Kræver buff (vises kun når tændt)</div>
+      <input class="form-input" id="attack-modal-requires" type="text" placeholder="fx Produce Flame — tom = altid synlig">
+    </div>
+    <div style="display:flex;gap:.5rem;margin-top:.6rem;align-items:flex-end">
+      <div style="flex:1">
+        <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Til-hit bonus</div>
+        <input class="form-input" id="attack-modal-bonus" type="number" step="1" placeholder="0">
+      </div>
+      <div style="flex:2">
+        <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Skade <span id="attack-modal-dmg-hint" style="text-transform:none;letter-spacing:0;font-style:italic"></span></div>
+        <input class="form-input" id="attack-modal-damage" type="text" placeholder="fx 1d6+2">
+      </div>
+      <div style="flex:1" id="attack-modal-strmult-row">
+        <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Str-mult</div>
+        <input class="form-input" id="attack-modal-strmult" type="number" step="0.5" placeholder="1">
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-top:.6rem">
+      <div style="flex:1">
+        <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Krit</div>
+        <input class="form-input" id="attack-modal-crit" type="text" placeholder="x2">
+      </div>
+      <div style="flex:1">
+        <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Skadetype</div>
+        <input class="form-input" id="attack-modal-type" type="text" placeholder="fx Fire">
+      </div>
+      <div style="flex:1">
+        <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Rækkevidde</div>
+        <input class="form-input" id="attack-modal-range" type="text" placeholder="fx 25 ft">
+      </div>
+    </div>
+    <div class="notes-action-row" style="margin-top:.8rem">
+      <button class="notes-save-btn" style="flex:1" onclick="saveAttack()">Gem</button>
+      <button class="notes-cancel-btn" id="attack-modal-remove" onclick="removeAttack()" style="display:none;color:var(--red)">Fjern</button>
+      <button class="notes-cancel-btn" onclick="document.getElementById('attack-modal-overlay').classList.remove('open')">Annuller</button>
     </div>
   </div>
 </div>
@@ -1387,6 +1530,9 @@ function removeTrick(i) {
 
 renderTricks();
 {% endif %}
+
+// ── Manuelle angreb (redigerbare) ─────────────────────────────────────────
+const attacksData = {{ attacks_json|tojson }};
 
 // ── Inventory state ───────────────────────────────────────────────────────
 let inventoryData = {{ inventory_json|tojson }};
@@ -2343,6 +2489,13 @@ function openItemDetail(idx) {
     document.getElementById("item-modal-strmult").value =
       (item.str_mult === null || item.str_mult === undefined) ? "" : item.str_mult;
   }
+  // Rustnings-felter (mesterværk/magi) kun for rustning/skjold i kataloget
+  const isArmor = (item.ref || "").startsWith("armor/");
+  document.getElementById("item-modal-armor").style.display = isArmor ? "flex" : "none";
+  if (isArmor) {
+    document.getElementById("item-modal-enh").value = item.enhancement || 0;
+    document.getElementById("item-modal-mwk").checked = !!item.masterwork;
+  }
   document.getElementById("item-modal-overlay").classList.add("open");
   (item.is_ref ? document.getElementById("item-modal-qty") : nameEl).focus();
 }
@@ -2361,6 +2514,10 @@ function saveItemDetail() {
     const sm = document.getElementById("item-modal-strmult").value.trim();
     payload.str_mult = sm === "" ? "" : parseFloat(sm);
   }
+  if ((inventoryData[idx].ref || "").startsWith("armor/")) {
+    payload.enhancement = Math.max(0, parseInt(document.getElementById("item-modal-enh").value) || 0);
+    payload.masterwork  = document.getElementById("item-modal-mwk").checked;
+  }
   fetch(BASE + "/api/inventory", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
@@ -2378,6 +2535,98 @@ function saveItemDetail() {
 function closeItemModalIfOutside(event) {
   if (event.target === document.getElementById("item-modal-overlay"))
     document.getElementById("item-modal-overlay").classList.remove("open");
+}
+
+// ── Angrebs-editor (manuelle angreb) ──────────────────────────────────────
+// Kilde styrer skade-modellen: spell → fast skade (Str ikke med); våben →
+// terning + Str×mult. Vi gemmer server-side og reloader (angreb påvirker
+// gating/hint), præcis som buffs.
+function onAttackSourceChange() {
+  const spell = document.getElementById("attack-modal-source").value === "spell";
+  document.getElementById("attack-modal-requires-row").style.display = spell ? "block" : "none";
+  document.getElementById("attack-modal-strmult-row").style.display  = spell ? "none" : "block";
+  document.getElementById("attack-modal-dmg-hint").textContent =
+    spell ? "(fast — Str tælles ikke med)" : "(terning; Str lægges til)";
+}
+
+function openAttackModal(mode, idx) {
+  const editing = mode === "edit";
+  const a = editing ? attacksData.find(x => x.idx === idx) : null;
+  document.getElementById("attack-modal-title").textContent = editing ? "Rediger angreb" : "Nyt angreb";
+  document.getElementById("attack-modal-idx").value      = editing ? idx : "";
+  document.getElementById("attack-modal-name").value     = a ? a.name : "";
+  document.getElementById("attack-modal-kind").value     = a ? a.kind : "melee";
+  document.getElementById("attack-modal-source").value   = a ? a.source : "weapon";
+  document.getElementById("attack-modal-requires").value = a ? (a.requires || "") : "";
+  document.getElementById("attack-modal-bonus").value    = a ? a.bonus : 0;
+  // Skade: fast (spell) vises fixed_damage, ellers base_damage.
+  document.getElementById("attack-modal-damage").value =
+    a ? (a.source === "spell" ? a.fixed_damage : a.base_damage) : "";
+  document.getElementById("attack-modal-strmult").value =
+    (a && a.source !== "spell") ? a.str_damage_mult : "";
+  document.getElementById("attack-modal-crit").value  = a ? a.crit : "x2";
+  document.getElementById("attack-modal-type").value  = a ? a.type : "";
+  document.getElementById("attack-modal-range").value = a ? a.range : "";
+  document.getElementById("attack-modal-remove").style.display = editing ? "block" : "none";
+  onAttackSourceChange();
+  document.getElementById("attack-modal-overlay").classList.add("open");
+  document.getElementById("attack-modal-name").focus();
+}
+
+function editAttack(idx) { openAttackModal("edit", idx); }
+
+function saveAttack() {
+  const name = document.getElementById("attack-modal-name").value.trim();
+  if (!name) { document.getElementById("attack-modal-name").focus(); return; }
+  const idxRaw = document.getElementById("attack-modal-idx").value;
+  const editing = idxRaw !== "";
+  const attack = {
+    name,
+    kind:     document.getElementById("attack-modal-kind").value,
+    source:   document.getElementById("attack-modal-source").value,
+    requires: document.getElementById("attack-modal-requires").value.trim(),
+    bonus:    parseInt(document.getElementById("attack-modal-bonus").value) || 0,
+    damage:   document.getElementById("attack-modal-damage").value.trim(),
+    str_mult: document.getElementById("attack-modal-strmult").value.trim(),
+    crit:     document.getElementById("attack-modal-crit").value.trim(),
+    type:     document.getElementById("attack-modal-type").value.trim(),
+    range:    document.getElementById("attack-modal-range").value.trim(),
+  };
+  const payload = {char: CHAR, action: editing ? "update" : "add", attack};
+  if (editing) payload.index = parseInt(idxRaw);
+  fetch(BASE + "/api/attacks", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  }).then(r => r.json()).then(d => { if (!d.error) location.reload(); });
+}
+
+function removeAttack() {
+  const idxRaw = document.getElementById("attack-modal-idx").value;
+  if (idxRaw === "") return;
+  if (!confirm("Fjern dette angreb?")) return;
+  fetch(BASE + "/api/attacks", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "remove", index: parseInt(idxRaw)})
+  }).then(r => r.json()).then(d => { if (!d.error) location.reload(); });
+}
+
+function closeAttackModalIfOutside(event) {
+  if (event.target === document.getElementById("attack-modal-overlay"))
+    document.getElementById("attack-modal-overlay").classList.remove("open");
+}
+
+// Skift/tilføj portræt: upload som multipart og genindlæs så billedet vises.
+function uploadPortrait(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append("char", CHAR);
+  fd.append("portrait", file);
+  fetch(BASE + "/api/portrait", {method: "POST", body: fd})
+    .then(r => r.json())
+    .then(d => { if (d.error) { alert(d.error); input.value = ""; } else { location.reload(); } });
 }
 
 // Hurtig +/− på antal (fx tæl ammo ned). Lever live, ingen reload.
@@ -2557,7 +2806,7 @@ const luBase       = {{ levelup_info|tojson }};
 const allFeats     = {{ all_feats_json|tojson }};
 const allSkillsDB  = {{ all_skills_json|tojson }};
 const clsSkillSet  = new Set({{ cls_skills_json|tojson }});
-const charFeatIds  = new Set({{ char.feats|tojson }});
+const charFeatIds  = new Set({{ char_feat_ids|tojson }});
 const abScores     = { str:{{ char.ability_scores.str }}, dex:{{ char.ability_scores.dex }},
                        con:{{ char.ability_scores.con }}, int:{{ char.ability_scores.int }},
                        wis:{{ char.ability_scores.wis }}, cha:{{ char.ability_scores.cha }} };
@@ -2570,7 +2819,9 @@ const baseRanks = {};
 let luHpRoll      = 0;
 let luSkillDeltas = {};   // {id: delta float}
 let luFeat        = null;
+let luFeatWeapon  = "";   // valgt våben for våben-feats (Weapon Focus m.fl.)
 let luAbBoost     = null;
+const LU_WEAPON_CHOICE_FEATS = ['weapon_focus','weapon_specialization','improved_critical'];
 let luShownSkills = [];   // ordered list of skill IDs shown in modal
 
 function rpc(sid)  { return clsSkillSet.has(sid) ? 1.0 : 0.5; }
@@ -2582,7 +2833,8 @@ function luSPUsed() {
 }
 
 function openLevelUpModal() {
-  luHpRoll = 0; luSkillDeltas = {}; luFeat = null; luAbBoost = null;
+  luHpRoll = 0; luSkillDeltas = {}; luFeat = null; luFeatWeapon = ""; luAbBoost = null;
+  document.getElementById("lu-feat-weapon").style.display = "none";
   luShownSkills = Object.keys(baseRanks);
   document.getElementById("lu-hp-manual").value = "";
   renderLuModal();
@@ -2746,6 +2998,19 @@ function filterLuFeats() {
 function pickLuFeat(fid) {
   luFeat = fid || null;
   showLuFeatInfo(fid);
+  // Våben-feats: vis en våben-dropdown og kræv et valg.
+  const wsel = document.getElementById("lu-feat-weapon");
+  if (luFeat && LU_WEAPON_CHOICE_FEATS.includes(luFeat)) {
+    if (!wsel.options.length) {
+      wsel.innerHTML = '<option value="">— vælg våben —</option>' +
+        (catalogData.weapons || []).map(w => `<option value="${escHtml(w.name)}">${escHtml(w.name)}</option>`).join("");
+    }
+    wsel.value = luFeatWeapon || "";
+    wsel.style.display = "block";
+  } else {
+    wsel.style.display = "none";
+    luFeatWeapon = "";
+  }
 }
 
 function showLuFeatInfo(fid) {
@@ -2776,11 +3041,17 @@ function confirmLevelUp() {
   const warn = document.getElementById("lu-warning");
   warn.textContent = "";
   if (luHpRoll <= 0) { warn.textContent = "⚠ Rul eller angiv HP-stigning først."; return; }
+  // Våben-feat valgt uden våben → bloker.
+  let featPayload = luFeat;
+  if (luFeat && LU_WEAPON_CHOICE_FEATS.includes(luFeat)) {
+    if (!luFeatWeapon) { warn.textContent = "⚠ Vælg et våben til feat'en."; return; }
+    featPayload = {id: luFeat, weapon: luFeatWeapon};
+  }
   fetch(BASE + "/api/levelup", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, hp_roll: luHpRoll,
-      skill_deltas: luSkillDeltas, new_feat: luFeat, ability_boost: luAbBoost})
+      skill_deltas: luSkillDeltas, new_feat: featPayload, ability_boost: luAbBoost})
   })
   .then(r => r.json())
   .then(d => { if (d.ok) window.location.reload(); else warn.textContent = d.error || "Fejl"; });

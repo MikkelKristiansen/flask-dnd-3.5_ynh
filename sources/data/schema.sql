@@ -116,6 +116,28 @@ CREATE TABLE ranger_levels (
     features    TEXT NOT NULL
 );
 
+DROP TABLE IF EXISTS rogue_levels;
+CREATE TABLE rogue_levels (
+    level       INTEGER PRIMARY KEY,
+    hd          TEXT NOT NULL,
+    skill_points INTEGER NOT NULL,
+    bab         INTEGER NOT NULL,
+    fort        INTEGER NOT NULL,
+    ref         INTEGER NOT NULL,
+    will        INTEGER NOT NULL,
+    spells_0    INTEGER NOT NULL,
+    spells_1    INTEGER NOT NULL,
+    spells_2    INTEGER NOT NULL,
+    spells_3    INTEGER NOT NULL,
+    spells_4    INTEGER NOT NULL,
+    spells_5    INTEGER NOT NULL,
+    spells_6    INTEGER NOT NULL,
+    spells_7    INTEGER NOT NULL,
+    spells_8    INTEGER NOT NULL,
+    spells_9    INTEGER NOT NULL,
+    features    TEXT NOT NULL
+);
+
 DROP TABLE IF EXISTS domains;
 CREATE TABLE domains (
     id            TEXT PRIMARY KEY,

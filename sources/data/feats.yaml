@@ -195,3 +195,241 @@
   benefit: You gain a +1 bonus on all attack rolls you make using the selected weapon.
   normal:
   special: You can gain this feat multiple times. Each time it applies to a new weapon.
+- id: weapon_finesse
+  name: Weapon Finesse
+  type: General
+  prerequisites: Base attack bonus +1
+  benefit: With a light weapon, rapier, whip, or spiked chain made for a creature of your size, you may use your Dexterity modifier instead of your Strength modifier on attack rolls.
+  normal:
+  special: Natural weapons are always considered light weapons.
+- id: combat_expertise
+  name: Combat Expertise
+  type: General
+  prerequisites: Int 13
+  benefit: When you use the attack or full-attack action in melee, you can take a penalty of up to -5 on your attack rolls and add the same number (max +5) as a dodge bonus to your AC until your next action.
+  normal:
+  special:
+- id: improved_disarm
+  name: Improved Disarm
+  type: Fighter
+  prerequisites: Int 13, Combat Expertise
+  benefit: You do not provoke an attack of opportunity when you disarm an opponent, and you gain a +4 bonus on the opposed attack roll to disarm.
+  normal:
+  special:
+- id: improved_trip
+  name: Improved Trip
+  type: Fighter
+  prerequisites: Int 13, Combat Expertise
+  benefit: You do not provoke an attack of opportunity when you trip an opponent. You gain a +4 bonus on the Strength check to trip, and may make an immediate melee attack against a foe you trip.
+  normal:
+  special:
+- id: improved_feint
+  name: Improved Feint
+  type: Fighter
+  prerequisites: Int 13, Combat Expertise
+  benefit: You can make a Bluff check to feint in combat as a move action instead of a standard action.
+  normal:
+  special:
+- id: improved_bull_rush
+  name: Improved Bull Rush
+  type: Fighter
+  prerequisites: Str 13, Power Attack
+  benefit: You do not provoke an attack of opportunity when you bull rush an opponent, and you gain a +4 bonus on the opposed Strength check.
+  normal:
+  special:
+- id: improved_sunder
+  name: Improved Sunder
+  type: Fighter
+  prerequisites: Str 13, Power Attack
+  benefit: You do not provoke an attack of opportunity when you strike at an opponent's weapon, and you gain a +4 bonus on the attack roll.
+  normal:
+  special:
+- id: improved_overrun
+  name: Improved Overrun
+  type: Fighter
+  prerequisites: Str 13, Power Attack
+  benefit: When you overrun an opponent, the target may not choose to avoid you. You gain a +4 bonus on the Strength check to knock down your opponent.
+  normal:
+  special:
+- id: great_cleave
+  name: Great Cleave
+  type: Fighter
+  prerequisites: Str 13, Cleave, Power Attack, Base attack bonus +4
+  benefit: As Cleave, except there is no limit to the number of times you can use it per round. Each time you drop an opponent you may make an extra attack.
+  normal:
+  special:
+- id: combat_reflexes
+  name: Combat Reflexes
+  type: General
+  prerequisites: None
+  benefit: You may make a number of additional attacks of opportunity per round equal to your Dexterity bonus, and you can make attacks of opportunity while flat-footed.
+  normal:
+  special:
+- id: quick_draw
+  name: Quick Draw
+  type: Fighter
+  prerequisites: Base attack bonus +1
+  benefit: You can draw a weapon as a free action instead of as a move action.
+  normal:
+  special:
+- id: improved_critical
+  name: Improved Critical
+  type: Fighter
+  prerequisites: Proficiency with weapon, Base attack bonus +8
+  benefit: Choose one type of weapon. With that weapon, your threat range is doubled.
+  normal:
+  special: You can gain this feat multiple times; each time it applies to a new weapon.
+- id: weapon_specialization
+  name: Weapon Specialization
+  type: Fighter
+  prerequisites: Weapon Focus, Fighter level 4
+  benefit: Choose one type of weapon for which you have Weapon Focus. You gain a +2 bonus on damage rolls with that weapon.
+  normal:
+  special: You can gain this feat multiple times; each time it applies to a new weapon.
+- id: improved_two_weapon_fighting
+  name: Improved Two-Weapon Fighting
+  type: Fighter
+  prerequisites: Dex 17, Two-Weapon Fighting, Base attack bonus +6
+  benefit: In addition to the standard single extra off-hand attack, you get a second off-hand attack, albeit at a -5 penalty.
+  normal:
+  special:
+- id: two_weapon_defense
+  name: Two-Weapon Defense
+  type: General
+  prerequisites: Two-Weapon Fighting
+  benefit: When wielding a double weapon or two weapons (not natural weapons), you gain a +1 shield bonus to AC. When fighting defensively or using total defense, this bonus increases to +2.
+  normal:
+  special:
+- id: whirlwind_attack
+  name: Whirlwind Attack
+  type: Fighter
+  prerequisites: Dex 13, Int 13, Combat Expertise, Dodge, Mobility, Spring Attack, Base attack bonus +4
+  benefit: As a full-round action, you may make one melee attack at your full base attack bonus against each opponent within reach.
+  normal:
+  special:
+- id: point_blank_shot
+  name: Point-Blank Shot
+  type: General
+  prerequisites: None
+  benefit: You get a +1 bonus on attack and damage rolls with ranged weapons against targets within 30 feet.
+  normal:
+  special:
+- id: precise_shot
+  name: Precise Shot
+  type: General
+  prerequisites: Point-Blank Shot
+  benefit: You can shoot or throw ranged weapons at an opponent engaged in melee without taking the standard -4 penalty on your attack roll.
+  normal:
+  special:
+- id: rapid_shot
+  name: Rapid Shot
+  type: Fighter
+  prerequisites: Dex 13, Point-Blank Shot
+  benefit: You can get one extra attack per round with a ranged weapon at your highest base attack bonus, but all your ranged attacks that round take a -2 penalty.
+  normal:
+  special:
+- id: far_shot
+  name: Far Shot
+  type: Fighter
+  prerequisites: Point-Blank Shot
+  benefit: When you use a projectile weapon, its range increment increases by one-half (multiply by 1.5). With a thrown weapon, the range increment is doubled.
+  normal:
+  special:
+- id: shot_on_the_run
+  name: Shot on the Run
+  type: Fighter
+  prerequisites: Dex 13, Dodge, Mobility, Point-Blank Shot, Base attack bonus +4
+  benefit: When using the attack action with a ranged weapon, you can move both before and after the attack, as long as your total distance moved is no more than your speed.
+  normal:
+  special:
+- id: manyshot
+  name: Manyshot
+  type: Fighter
+  prerequisites: Dex 17, Point-Blank Shot, Rapid Shot, Base attack bonus +6
+  benefit: As a standard action, you may fire two arrows at a single opponent within 30 feet. Both use the same attack roll (-4 penalty). For every +5 base attack bonus, you may fire one additional arrow.
+  normal:
+  special:
+- id: acrobatic
+  name: Acrobatic
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Jump and Tumble checks.
+  normal:
+  special:
+- id: agile
+  name: Agile
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Balance and Escape Artist checks.
+  normal:
+  special:
+- id: athletic
+  name: Athletic
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Climb and Swim checks.
+  normal:
+  special:
+- id: stealthy
+  name: Stealthy
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Hide and Move Silently checks.
+  normal:
+  special:
+- id: nimble_fingers
+  name: Nimble Fingers
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Disable Device and Open Lock checks.
+  normal:
+  special:
+- id: deft_hands
+  name: Deft Hands
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Sleight of Hand and Use Rope checks.
+  normal:
+  special:
+- id: persuasive
+  name: Persuasive
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Bluff and Intimidate checks.
+  normal:
+  special:
+- id: negotiator
+  name: Negotiator
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Diplomacy and Sense Motive checks.
+  normal:
+  special:
+- id: investigator
+  name: Investigator
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Gather Information and Search checks.
+  normal:
+  special:
+- id: self_sufficient
+  name: Self-Sufficient
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Heal and Survival checks.
+  normal:
+  special:
+- id: animal_affinity
+  name: Animal Affinity
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Handle Animal and Ride checks.
+  normal:
+  special:
+- id: magical_aptitude
+  name: Magical Aptitude
+  type: General
+  prerequisites: None
+  benefit: You get a +2 bonus on all Spellcraft and Use Magic Device checks.
+  normal:
+  special:

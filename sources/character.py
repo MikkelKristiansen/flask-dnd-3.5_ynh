@@ -86,6 +86,8 @@ class Attack:
     crit: str = "x2"
     type: str = ""
     range: str = ""
+    source: str = "weapon"         # weapon | spell — spell-angreb er betingede (kræver aktiv spell)
+    requires: str = ""             # navn på buff der skal være aktiv før angrebet vises (tom = altid)
 
 
 @dataclass
@@ -99,6 +101,8 @@ class InventoryItem:
     bonus: int = 0              # til-hit-bonus på afledte angreb (masterwork/feat/TWF)
     str_mult: float | None = None  # override af Str-til-skade (None = default fra våbentype)
     two_handed: bool = False    # enhåndsvåben brugt tohånds → ×1,5 Str (hvis str_mult ikke sat)
+    masterwork: bool = False    # rustning/skjold: mesterværk → ACP forbedres med +1 (mod 0)
+    enhancement: int = 0        # rustning/skjold: magisk +N til AC (≥1 medfører masterwork)
 
 
 @dataclass
@@ -191,6 +195,8 @@ def load_character(path: str) -> Character:
             crit=str(a.get("crit", "x2")),
             type=str(a.get("type", "")),
             range=str(a.get("range", "")),
+            source=str(a.get("source", "weapon")).lower(),
+            requires=str(a.get("requires", "")).strip(),
         ))
 
     inventory = []
@@ -209,6 +215,8 @@ def load_character(path: str) -> Character:
                 bonus=int(item.get("bonus", 0)),
                 str_mult=(None if item.get("str_mult") is None else float(item["str_mult"])),
                 two_handed=bool(item.get("two_handed", False)),
+                masterwork=bool(item.get("masterwork", False)),
+                enhancement=int(item.get("enhancement", 0) or 0),
             ))
         else:
             # Backwards-compat: plain string
@@ -404,8 +412,42 @@ def _serialize_inventory_item(item: InventoryItem) -> dict:
         out["str_mult"] = item.str_mult
     if item.two_handed:
         out["two_handed"] = item.two_handed
+    if item.masterwork:
+        out["masterwork"] = item.masterwork
+    if item.enhancement:
+        out["enhancement"] = item.enhancement
     if item.notes:
         out["notes"] = item.notes
+    return out
+
+
+def _serialize_attack(a: Attack) -> dict:
+    """Manuelt angreb → minimal YAML-dict. Kun afvigelser fra default skrives.
+
+    Skade gemmes som ENTEN fixed_damage (spell: Str tælles ikke med) ELLER
+    base_damage + str_damage_mult (våben). Navn først, så filen er læsbar.
+    """
+    out: dict = {"name": a.name}
+    if a.kind != "melee":
+        out["kind"] = a.kind
+    if a.fixed_damage:
+        out["fixed_damage"] = a.fixed_damage
+    elif a.base_damage != "1d4":
+        out["base_damage"] = a.base_damage
+    if a.str_damage_mult != 1.0:
+        out["str_damage_mult"] = a.str_damage_mult
+    if a.bonus:
+        out["bonus"] = a.bonus
+    if a.crit != "x2":
+        out["crit"] = a.crit
+    if a.type:
+        out["type"] = a.type
+    if a.range:
+        out["range"] = a.range
+    if a.source != "weapon":
+        out["source"] = a.source
+    if a.requires:
+        out["requires"] = a.requires
     return out
 
 
@@ -465,6 +507,9 @@ def save_character(path: str, updates: dict) -> None:
     if "inventory" in updates:
         data["inventory"] = [_serialize_inventory_item(i) for i in updates["inventory"]]
 
+    if "attacks" in updates:
+        data["attacks"] = [_serialize_attack(a) for a in updates["attacks"]]
+
     if "experience_points" in updates:
         data["experience_points"] = int(updates["experience_points"])
 
@@ -506,9 +551,16 @@ def save_character(path: str, updates: dict) -> None:
 
     if "new_feat" in updates and updates["new_feat"]:
         feats = list(data.get("feats") or [])
-        fid = str(updates["new_feat"])
-        if fid not in feats:
-            feats.append(fid)
+        nf = updates["new_feat"]
+        # new_feat kan være en ren id-streng eller {id, weapon} for våben-feats.
+        if isinstance(nf, dict) and nf.get("weapon"):
+            entry: object = {"id": str(nf["id"]), "weapon": str(nf["weapon"])}
+        else:
+            entry = feat_id(nf)
+        new_key = (feat_id(entry), feat_weapon(entry))
+        existing = {(feat_id(e), feat_weapon(e)) for e in feats}
+        if new_key not in existing:
+            feats.append(entry)
         data["feats"] = feats
 
     if "ability_boost" in updates and updates["ability_boost"]:
@@ -656,7 +708,7 @@ def grapple_total(bab: int, str_score: int, size: str) -> int:
 
 def initiative_total(ability_scores: AbilityScores, feats: list, misc: int = 0) -> int:
     """Initiativ: Dex-mod + Improved Initiative (+4 hvis feat'en haves) + misc."""
-    feat_bonus = 4 if "improved_initiative" in {str(f).lower() for f in feats} else 0
+    feat_bonus = 4 if "improved_initiative" in {feat_id(f).lower() for f in feats} else 0
     return ability_scores.modifier("dex") + feat_bonus + misc
 
 
@@ -862,11 +914,67 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium") -> 
     return attacks
 
 
+def _effective_armor_row(rec: dict, item: InventoryItem) -> dict:
+    """Påfør masterwork/magi på en katalog-række → en effektiv kopi.
+
+    Reglerne (3.5 SRD): mesterværk forbedrer rustnings-tjekstraffen (ACP) med +1
+    mod 0 (aldrig positiv); en enhancement-bonus lægges til AC og medfører altid
+    mesterværk (magisk rustning er pr. definition mesterværk). Resten af rækken
+    (max_dex, spell_failure, druid_ok …) er uændret. Vi kopierer rækken, så
+    db'ens cache aldrig muteres.
+    """
+    masterwork = item.masterwork or item.enhancement >= 1
+    if not masterwork and item.enhancement == 0:
+        return rec
+    eff = dict(rec)
+    if masterwork:
+        eff["armor_check"] = min(0, int(rec.get("armor_check", 0)) + 1)
+    if item.enhancement:
+        eff["armor_bonus"] = int(rec.get("armor_bonus", 0)) + item.enhancement
+    # Vis-navn afspejler tilpasningen (fx "Studded Leather +1 (mesterværk)").
+    label = rec.get("name", "")
+    if item.enhancement:
+        label = f"{label} +{item.enhancement}"
+    if item.masterwork and not item.enhancement:
+        label = f"{label} (mesterværk)"
+    eff["name"] = label
+    return eff
+
+
+def active_buff_keys(buffs: list) -> set:
+    """Identiteter for aktive buffs — buff-navn og evt. spell_id, lowercased.
+
+    Bruges til at afgøre om et betinget spell-angreb (Attack.requires) skal vises:
+    angrebet matcher hvis dets 'requires' står i dette sæt.
+    """
+    keys: set[str] = set()
+    for b in buffs or []:
+        name = str(b.get("name", "")).strip().lower()
+        if name:
+            keys.add(name)
+        sid = str(b.get("spell_id", "")).strip().lower()
+        if sid:
+            keys.add(sid)
+    return keys
+
+
+def attack_visible(attack: Attack, active_keys: set) -> bool:
+    """Skal et angreb vises på arket?
+
+    Våben og spell-angreb uden 'requires' vises altid. Et spell-angreb MED
+    'requires' vises kun når den krævede buff er aktiv (findes i active_keys).
+    """
+    if attack.source == "spell" and attack.requires:
+        return attack.requires.strip().lower() in active_keys
+    return True
+
+
 def equipped_armor(inventory: list[InventoryItem], db):
     """Find båret rustning + skjold i inventaret (state=worn, ref til armor).
 
     Returnerer (armor_row, shield_row) som katalog-dicts eller None. Tager den
     første af hver slags: armor = type light/medium/heavy, shield = type shield.
+    Masterwork/magi fra inventory-posten er påført rækken (se _effective_armor_row).
     """
     armor_row = shield_row = None
     for item in inventory:
@@ -875,6 +983,7 @@ def equipped_armor(inventory: list[InventoryItem], db):
         rec = db.get_armor(item.ref.split("/", 1)[1])
         if not rec:
             continue
+        rec = _effective_armor_row(rec, item)
         if rec["type"] == "shield":
             shield_row = shield_row or rec
         elif rec["type"] in ("light", "medium", "heavy"):
@@ -909,6 +1018,14 @@ _CLASS_SKILLS: dict[str, set[str]] = {
         "hide", "jump", "knowledge_dungeoneering", "knowledge_geography",
         "knowledge_nature", "listen", "move_silently", "profession",
         "ride", "search", "spot", "survival", "swim", "use_rope",
+    },
+    "rogue": {
+        "appraise", "balance", "bluff", "climb", "craft", "decipher_script",
+        "diplomacy", "disable_device", "disguise", "escape_artist", "forgery",
+        "gather_information", "hide", "intimidate", "jump", "knowledge_local",
+        "listen", "move_silently", "open_lock", "perform", "profession",
+        "search", "sense_motive", "sleight_of_hand", "spot", "swim", "tumble",
+        "use_magic_device", "use_rope",
     },
 }
 
@@ -1016,6 +1133,28 @@ def class_bonus_feats(cls: str) -> list[str]:
     return ["track"] if cls.lower() == "ranger" else []
 
 
+# Feats hvor man vælger et specifikt våben (gemmes som {id, weapon} i stedet for
+# en ren id-streng). Bruges af generatoren, level-up og visningen.
+WEAPON_CHOICE_FEATS = {"weapon_focus", "weapon_specialization", "improved_critical"}
+
+
+def feat_id(entry) -> str:
+    """Feat-id'et, uanset om posten er en streng eller en {id, weapon}-dict."""
+    return str(entry["id"] if isinstance(entry, dict) else entry)
+
+
+def feat_weapon(entry) -> str:
+    """Det valgte våben for en feat-post, eller "" hvis ingen."""
+    return str(entry.get("weapon", "")) if isinstance(entry, dict) else ""
+
+
+def feat_label(entry, feat_row: dict | None = None) -> str:
+    """Visningsnavn: feat-navn + evt. valgt våben, fx 'Weapon Focus (Longsword)'."""
+    name = (feat_row or {}).get("name") or feat_id(entry)
+    wpn = feat_weapon(entry)
+    return f"{name} ({wpn})" if wpn else name
+
+
 def class_needs_domains(cls: str) -> bool:
     return cls.lower() == "cleric"
 
@@ -1034,6 +1173,7 @@ def base_skill_points(cls: str) -> int:
 # ---------------------------------------------------------------------------
 _ABILITY_PREREQ_RE = re.compile(r"^(str|dex|con|int|wis|cha)\s+(\d+)$", re.I)
 _BAB_PREREQ_RE = re.compile(r"(?:base attack bonus|bab)\s*\+?(\d+)", re.I)
+_LEVEL_PREREQ_RE = re.compile(r"level\s+(\d+)", re.I)  # fx "Fighter level 4"
 
 
 def class_can_turn_undead(cls: str) -> bool:
@@ -1068,6 +1208,11 @@ def feat_prereq_unmet(prereq_text: str, owned_feat_ids, scores: dict,
         m = _BAB_PREREQ_RE.search(clause)
         if m:
             if bab < int(m.group(1)):
+                unmet.append(clause)
+            continue
+        m = _LEVEL_PREREQ_RE.search(clause)
+        if m:
+            if level < int(m.group(1)):
                 unmet.append(clause)
             continue
         low = clause.lower()
