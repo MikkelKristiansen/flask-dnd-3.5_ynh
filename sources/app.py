@@ -17,8 +17,8 @@ import db
 import dice as dice_module
 import effects
 
-# Klasser generatoren understøtter (v1: de motoren er bevist mod + ranger).
-GEN_CLASSES = ["Cleric", "Druid", "Ranger", "Rogue"]
+# Klasser generatoren understøtter (motoren er bevist mod disse).
+GEN_CLASSES = ["Cleric", "Druid", "Fighter", "Ranger", "Rogue"]
 # Racer udledes fra data/races.yaml — en race er ren data (ingen motor-logik), så
 # enhver race i datafilen er fuldt understøttet. Tilføj en race = tilføj en YAML-blok.
 GEN_RACES = [r.capitalize() for r in char_module.race_ids()]
@@ -277,6 +277,7 @@ def _gen_context() -> dict:
             "hit_die": char_module.hit_die(c),
             "needs_domains": char_module.class_needs_domains(c),
             "bonus_feats": char_module.class_bonus_feats(c),
+            "bonus_feat_choices": char_module.class_bonus_feat_choices(c),
             "bab1": int((db.get_class_level(c.lower(), 1) or {}).get("bab", 0)),
             "turn_undead": char_module.class_can_turn_undead(c),
             # Companion ved level 1 (kun druide; ranger får først ved level 4).
@@ -287,6 +288,9 @@ def _gen_context() -> dict:
         for c in GEN_CLASSES
     }
     all_feats = db.get_all_feats()
+    # Fighter-bonus-feat-pulje (feats med type=Fighter) — vises i en egen sektion
+    # for klasser med bonus_feat_choices > 0.
+    fighter_bonus_feats = db.get_feats_by_type("Fighter")
     armor = db.get_all_armor()
     weapons = [{"ref": f"weapons/{w['id']}", "name": w["name"], "group": w["category"]}
                for w in db.get_all_weapons()]
@@ -295,6 +299,7 @@ def _gen_context() -> dict:
         "classes": GEN_CLASSES,
         "skills": db.get_all_skills(),
         "feats": all_feats,
+        "fighter_bonus_feats": fighter_bonus_feats,
         "armors": [a for a in armor if a.get("type") != "shield"],
         "shields": [a for a in armor if a.get("type") == "shield"],
         "weapons": weapons,
@@ -375,18 +380,32 @@ def create_character():
         valid_feats = {x["id"] for x in all_feats}
         if any(x not in valid_feats for x in chosen):
             raise ValueError("Ukendt feat valgt.")
+        # Fighter-bonus-feats: vælges fra fighter-puljen (type=Fighter), oveni de valgte.
+        bonus_chosen = f.getlist("bonus_feats")
+        bonus_need = char_module.class_bonus_feat_choices(cls)
+        if len(bonus_chosen) != bonus_need:
+            raise ValueError(
+                f"Vælg præcis {bonus_need} bonus-feat(s) — du valgte {len(bonus_chosen)}.")
+        if bonus_need:
+            fighter_pool = {x["id"] for x in db.get_feats_by_type("Fighter")}
+            if any(x not in fighter_pool for x in bonus_chosen):
+                raise ValueError("Ugyldig bonus-feat valgt (skal være en fighter-feat).")
+            if set(bonus_chosen) & set(chosen):
+                raise ValueError("Samme feat valgt som både alm. feat og bonus-feat.")
         # Byg feat-poster: våben-feats gemmes som {id, weapon}, resten som id-streng.
         # Dedup på id (klassens gratis feats lægges efter de valgte).
         name_by_id = {x["id"]: x["name"] for x in all_feats}
         feats_out: list = []
         seen_ids: set[str] = set()
         weapon_names = {w["name"] for w in db.get_all_weapons()}
-        for fid in chosen + char_module.class_bonus_feats(cls):
+        for fid in chosen + bonus_chosen + char_module.class_bonus_feats(cls):
             if fid in seen_ids:
                 continue
             seen_ids.add(fid)
             if fid in char_module.WEAPON_CHOICE_FEATS:
-                wpn = f.get(f"feat_weapon_{fid}", "").strip()
+                # Våben kan komme fra alm. feat-sektion eller fighter-bonus-sektion.
+                wpn = (f.get(f"feat_weapon_{fid}", "")
+                       or f.get(f"bonus_feat_weapon_{fid}", "")).strip()
                 if wpn not in weapon_names:
                     raise ValueError(f"Vælg et gyldigt våben til {name_by_id.get(fid, fid)}.")
                 feats_out.append({"id": fid, "weapon": wpn})
@@ -398,7 +417,7 @@ def create_character():
         name_to_id = {x["name"].lower(): x["id"] for x in all_feats}
         prereq_by_id = {x["id"]: x.get("prerequisites") for x in all_feats}
         bab1 = int((db.get_class_level(cls.lower(), 1) or {}).get("bab", 0))
-        for fid in chosen:
+        for fid in chosen + bonus_chosen:
             missing = char_module.feat_prereq_unmet(
                 prereq_by_id.get(fid) or "", owned_ids, final, cls, 1, bab1, name_to_id)
             if missing:

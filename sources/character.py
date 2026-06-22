@@ -30,6 +30,7 @@ from refdata import (  # noqa: F401
     race_data, race_ids, STANDARD_LANGUAGES, class_languages, race_bonus_languages,
     automatic_languages, bonus_language_pool, bonus_language_count,
     apply_racial_adjustments, level1_feat_count, class_bonus_feats,
+    class_bonus_feat_choices,
     WEAPON_CHOICE_FEATS, feat_id, feat_weapon, feat_label, class_needs_domains,
     base_skill_points, class_can_turn_undead, class_has_wild_shape,
     feat_prereq_unmet, spell_like_dc)

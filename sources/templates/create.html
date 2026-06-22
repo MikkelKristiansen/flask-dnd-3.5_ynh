@@ -164,6 +164,34 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
     <div class="err-inline" id="feat-err"></div>
   </div>
 
+  <div class="section hidden" id="bonus-feat-section">
+    {% set weapon_choice_feats = ['weapon_focus','weapon_specialization','improved_critical'] %}
+    <div class="section-title">Bonus-feat <span style="color:var(--muted);font-size:.75rem">(fighter — vælg fra kampfeat-puljen)</span></div>
+    <div class="budget" id="bonus-feat-budget"></div>
+    <div class="feat-list">
+      {% for ft in fighter_bonus_feats %}
+      <div class="feat-row" style="flex-wrap:wrap">
+        <input type="checkbox" id="bfeat_{{ ft.id }}" name="bonus_feats" value="{{ ft.id }}"
+               onchange="onUpdate(){% if ft.id in weapon_choice_feats %};toggleFeatWeapon('{{ ft.id }}','bfeat'){% endif %}">
+        <label for="bfeat_{{ ft.id }}">{{ ft.name }}{% if ft.prerequisites and ft.prerequisites != 'None' %}
+          <span class="pre">— {{ ft.prerequisites }}</span>{% endif %}</label>
+        {% if ft.id in weapon_choice_feats %}
+        <select name="bonus_feat_weapon_{{ ft.id }}" id="bfeatwpn_{{ ft.id }}"
+                style="display:none;flex-basis:100%;margin-top:.25rem" onchange="onUpdate()">
+          <option value="">— vælg våben —</option>
+          {% for grp in ['simple','martial','exotic'] %}
+          <optgroup label="{{ grp|capitalize }}">
+            {% for w in weapons if w.group == grp %}<option value="{{ w.name }}">{{ w.name }}</option>{% endfor %}
+          </optgroup>
+          {% endfor %}
+        </select>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="err-inline" id="bonus-feat-err"></div>
+  </div>
+
   <div class="section hidden" id="domain-section">
     <div class="section-title">Domæner <span style="color:var(--muted);font-size:.75rem">(vælg præcis 2)</span></div>
     <div>
@@ -276,9 +304,11 @@ const FEAT_NAME_TO_ID = {{ feat_name_to_id|tojson }};
 const FEAT_ID_TO_NAME = Object.fromEntries(Object.entries(FEAT_NAME_TO_ID).map(([n,i])=>[i,n]));
 const WEAPON_CHOICE_FEATS = ['weapon_focus','weapon_specialization','improved_critical'];
 // Vis/skjul våben-dropdown når en våben-feat krydses af/fra.
-function toggleFeatWeapon(fid){
-  const cb = document.getElementById('feat_'+fid);
-  const sel = document.getElementById('featwpn_'+fid);
+// prefix = 'feat' (alm. feats) eller 'bfeat' (fighter-bonus-feats).
+function toggleFeatWeapon(fid, prefix){
+  prefix = prefix || 'feat';
+  const cb = document.getElementById(prefix+'_'+fid);
+  const sel = document.getElementById(prefix+'wpn_'+fid);
   if(!cb || !sel) return;
   sel.style.display = cb.checked ? 'block' : 'none';
   if(!cb.checked) sel.value = '';
@@ -391,12 +421,14 @@ function onUpdate(){
   // Feats — antal + prerequisite-tjek
   const need = rd.feat_count;
   const checkedEls = [...document.querySelectorAll('input[name="feats"]:checked')];
+  const bonusEls = [...document.querySelectorAll('input[name="bonus_feats"]:checked')];
   const chosen = checkedEls.length;
   document.getElementById('feat-budget').innerHTML = `Vælg <b>${need}</b> feat(s) — valgt <b>${chosen}</b>`;
   document.getElementById('feat-note').textContent =
     cd.bonus_feats.length ? `Klassen giver desuden gratis: ${cd.bonus_feats.join(', ')} (tæller ikke med).` : '';
-  // Owned = valgte + klassens gratis feats (feat-kæder gælder når begge er valgt).
-  const owned = new Set(checkedEls.map(e=>e.value).concat(cd.bonus_feats));
+  // Owned = valgte + fighter-bonus + klassens gratis feats (feat-kæder gælder når valgt).
+  const owned = new Set(checkedEls.map(e=>e.value)
+    .concat(bonusEls.map(e=>e.value)).concat(cd.bonus_feats));
   const prereqProblems = [];
   checkedEls.forEach(e=>{
     const miss = featUnmet(FEAT_PREREQS[e.value]||'', owned, finalScores, cd.bab1, cd.turn_undead);
@@ -412,6 +444,32 @@ function onUpdate(){
   else if (prereqProblems.length) featErr = '⚠ ' + prereqProblems.join(' · ');
   document.getElementById('feat-err').textContent = featErr;
   const featsOk = (chosen === need) && prereqProblems.length === 0;
+
+  // Fighter-bonus-feats (kun klasser med bonus_feat_choices > 0)
+  const bfSec = document.getElementById('bonus-feat-section');
+  let bfOk = true;
+  if ((cd.bonus_feat_choices || 0) > 0){
+    bfSec.classList.remove('hidden');
+    const bfNeed = cd.bonus_feat_choices;
+    const bfProblems = [];
+    bonusEls.forEach(e=>{
+      const miss = featUnmet(FEAT_PREREQS[e.value]||'', owned, finalScores, cd.bab1, cd.turn_undead);
+      if (miss.length) bfProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value} kræver: ${miss.join(', ')}`);
+      if (WEAPON_CHOICE_FEATS.includes(e.value)) {
+        const sel = document.getElementById('bfeatwpn_'+e.value);
+        if (sel && !sel.value) bfProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value}: vælg et våben`);
+      }
+    });
+    document.getElementById('bonus-feat-budget').innerHTML =
+      `Vælg <b>${bfNeed}</b> bonus-feat(s) — valgt <b>${bonusEls.length}</b>`;
+    let bfErr = '';
+    if (bonusEls.length !== bfNeed) bfErr = `Skal være ${bfNeed}.`;
+    else if (bfProblems.length) bfErr = '⚠ ' + bfProblems.join(' · ');
+    document.getElementById('bonus-feat-err').textContent = bfErr;
+    bfOk = (bonusEls.length === bfNeed) && bfProblems.length === 0;
+  } else {
+    bfSec.classList.add('hidden');
+  }
 
   // Domæner (kun cleric)
   const domSec = document.getElementById('domain-section');
@@ -435,7 +493,7 @@ function onUpdate(){
   document.getElementById('companion-section').classList.toggle('hidden', !cd.has_companion);
 
   // Submit-spærring
-  const valid = ok && spent<=budget && featsOk && domOk && langOk;
+  const valid = ok && spent<=budget && featsOk && bfOk && domOk && langOk;
   document.getElementById('submit-btn').disabled = !valid;
 }
 

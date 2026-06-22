@@ -24,8 +24,9 @@ barbarian:
 fighter:
   hit_die: 10
   skill_points: 2
-  # Data-komplet, men endnu IKKE i GEN_CLASSES: kræver fighter_levels.yaml (BAB/saves)
-  # + valgt-bonus-feat-mekanik i generatoren. Se BRIEF-fighter.md.
+  # bonus_feat_choices: antal ekstra feats spilleren vælger fra fighter-bonus-puljen
+  # (feats med type=Fighter i feats.yaml), oveni de race-baserede valgte feats.
+  bonus_feat_choices: 1
   class_skills:
     - climb
     - craft

@@ -167,6 +167,11 @@ def class_bonus_feats(cls: str) -> list[str]:
     return list(class_data(cls).get("bonus_feats", []))
 
 
+def class_bonus_feat_choices(cls: str) -> int:
+    """Antal feats spilleren vælger fra fighter-bonus-puljen (0 for de fleste klasser)."""
+    return int(class_data(cls).get("bonus_feat_choices", 0))
+
+
 # Feats hvor man vælger et specifikt våben (gemmes som {id, weapon} i stedet for
 # en ren id-streng). Bruges af generatoren, level-up og visningen.
 WEAPON_CHOICE_FEATS = {"weapon_focus", "weapon_specialization", "improved_critical"}

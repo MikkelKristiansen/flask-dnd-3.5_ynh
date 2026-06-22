@@ -81,6 +81,15 @@ def get_all_feats() -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def get_feats_by_type(feat_type: str) -> list[dict]:
+    """Feats med en given type (fx 'Fighter' = fighter-bonus-feat-puljen)."""
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM feats WHERE type = ? ORDER BY name", (feat_type,)
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def get_condition(condition_id: str) -> dict | None:
     with _connect() as conn:
         row = conn.execute(
