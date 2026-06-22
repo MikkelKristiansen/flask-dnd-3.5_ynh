@@ -173,8 +173,25 @@ def class_bonus_feats(cls: str) -> list[str]:
 
 
 def class_bonus_feat_choices(cls: str) -> int:
-    """Antal feats spilleren vælger fra fighter-bonus-puljen (0 for de fleste klasser)."""
+    """Antal feats spilleren vælger fra klassens bonus-feat-pulje (0 for de fleste)."""
     return int(class_data(cls).get("bonus_feat_choices", 0))
+
+
+def class_bonus_feat_pool(cls: str) -> list | None:
+    """Eksplicit liste af feat-id'er klassens bonus-feat vælges fra (monk), eller
+    None hvis klassen bruger den brede fighter-bonus-pulje (fighter_bonus-flaget)."""
+    pool = class_data(cls).get("bonus_feat_pool")
+    return list(pool) if isinstance(pool, list) else None
+
+
+def class_bonus_feat_ignore_prereqs(cls: str) -> bool:
+    """True hvis klassens bonus-feat gives uden at opfylde prerequisites (monk)."""
+    return bool(class_data(cls).get("bonus_feat_ignore_prereqs", False))
+
+
+def class_ac_ability(cls: str) -> str:
+    """Ability hvis modifier lægges til AC når unarmored (monk: 'wis'), ellers ''."""
+    return str(class_data(cls).get("ac_ability", ""))
 
 
 def class_starting_gold(cls: str) -> str:

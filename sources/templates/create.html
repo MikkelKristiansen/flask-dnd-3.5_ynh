@@ -190,11 +190,11 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
 
   <div class="section hidden" id="bonus-feat-section">
     {% set weapon_choice_feats = ['weapon_focus','weapon_specialization','improved_critical'] %}
-    <div class="section-title">Bonus-feat <span style="color:var(--muted);font-size:.75rem">(fighter — vælg fra kampfeat-puljen)</span></div>
+    <div class="section-title">Bonus-feat <span style="color:var(--muted);font-size:.75rem">(vælg fra klassens bonus-feat-pulje)</span></div>
     <div class="budget" id="bonus-feat-budget"></div>
     <div class="feat-list">
-      {% for ft in fighter_bonus_feats %}
-      <div class="feat-row" style="flex-wrap:wrap">
+      {% for ft in bonus_feat_candidates %}
+      <div class="feat-row" data-pool="{{ ft.eligible }}" style="flex-wrap:wrap">
         <input type="checkbox" id="bfeat_{{ ft.id }}" name="bonus_feats" value="{{ ft.id }}"
                onchange="onUpdate(){% if ft.id in weapon_choice_feats %};toggleFeatWeapon('{{ ft.id }}','bfeat'){% endif %}">
         <label for="bfeat_{{ ft.id }}" title="{{ ft.benefit }}">{{ ft.name }}{% if ft.prerequisites and ft.prerequisites != 'None' %}
@@ -550,28 +550,39 @@ function onUpdate(){
   document.getElementById('feat-err').textContent = featErr;
   const featsOk = (chosen === need) && prereqProblems.length === 0;
 
-  // Fighter-bonus-feats (kun klasser med bonus_feat_choices > 0)
+  // Bonus-feats (klasser med bonus_feat_choices > 0; pulje varierer pr. klasse)
   const bfSec = document.getElementById('bonus-feat-section');
   let bfOk = true;
   if ((cd.bonus_feat_choices || 0) > 0){
     bfSec.classList.remove('hidden');
+    // Vis kun feats i den valgte klasses pulje; afkryds skjulte.
+    const clsLower = cls.toLowerCase();
+    bfSec.querySelectorAll('.feat-row').forEach(row=>{
+      const show = (row.dataset.pool||'').split(' ').includes(clsLower);
+      row.style.display = show ? '' : 'none';
+      if (!show){ const cb = row.querySelector('input[name="bonus_feats"]'); if (cb) cb.checked = false; }
+    });
+    const bfEls = [...bfSec.querySelectorAll('input[name="bonus_feats"]:checked')];
     const bfNeed = cd.bonus_feat_choices;
+    const ignore = cd.bonus_feat_ignore_prereqs;   // monk får sin bonus-feat uden prereqs
     const bfProblems = [];
-    bonusEls.forEach(e=>{
-      const miss = featUnmet(FEAT_PREREQS[e.value]||'', owned, finalScores, cd.bab1, cd.turn_undead);
-      if (miss.length) bfProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value} kræver: ${miss.join(', ')}`);
+    bfEls.forEach(e=>{
+      if (!ignore){
+        const miss = featUnmet(FEAT_PREREQS[e.value]||'', owned, finalScores, cd.bab1, cd.turn_undead);
+        if (miss.length) bfProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value} kræver: ${miss.join(', ')}`);
+      }
       if (WEAPON_CHOICE_FEATS.includes(e.value)) {
         const sel = document.getElementById('bfeatwpn_'+e.value);
         if (sel && !sel.value) bfProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value}: vælg et våben`);
       }
     });
     document.getElementById('bonus-feat-budget').innerHTML =
-      `Vælg <b>${bfNeed}</b> bonus-feat(s) — valgt <b>${bonusEls.length}</b>`;
+      `Vælg <b>${bfNeed}</b> bonus-feat(s) — valgt <b>${bfEls.length}</b>`;
     let bfErr = '';
-    if (bonusEls.length !== bfNeed) bfErr = `Skal være ${bfNeed}.`;
+    if (bfEls.length !== bfNeed) bfErr = `Skal være ${bfNeed}.`;
     else if (bfProblems.length) bfErr = '⚠ ' + bfProblems.join(' · ');
     document.getElementById('bonus-feat-err').textContent = bfErr;
-    bfOk = (bonusEls.length === bfNeed) && bfProblems.length === 0;
+    bfOk = (bfEls.length === bfNeed) && bfProblems.length === 0;
   } else {
     bfSec.classList.add('hidden');
   }

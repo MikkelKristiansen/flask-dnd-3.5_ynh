@@ -280,6 +280,17 @@ def _format_cost(cost_cp) -> str:
     return " ".join(parts)
 
 
+def _class_bonus_feat_ids(cls: str) -> list:
+    """Feat-id'er klassens level-1 bonus-feat vælges fra. Eksplicit pulje (monk:
+    improved_grapple/stunning_fist) eller den brede fighter-bonus-pulje."""
+    pool = char_module.class_bonus_feat_pool(cls)
+    if pool is not None:
+        return pool
+    if char_module.class_bonus_feat_choices(cls):
+        return [f["id"] for f in db.get_fighter_bonus_feats()]
+    return []
+
+
 def _gen_context() -> dict:
     """Data til generatorformularen (klasse/race-lister + regel-data til JS)."""
     races_json = {
@@ -303,6 +314,7 @@ def _gen_context() -> dict:
             "needs_domains": char_module.class_needs_domains(c),
             "bonus_feats": char_module.class_bonus_feats(c),
             "bonus_feat_choices": char_module.class_bonus_feat_choices(c),
+            "bonus_feat_ignore_prereqs": char_module.class_bonus_feat_ignore_prereqs(c),
             "starting_gold": char_module.class_starting_gold(c),
             "age_group": char_module.class_age_group(c),
             "bab1": int((db.get_class_level(c.lower(), 1) or {}).get("bab", 0)),
@@ -315,9 +327,17 @@ def _gen_context() -> dict:
         for c in GEN_CLASSES
     }
     all_feats = db.get_all_feats()
-    # Fighter-bonus-feat-pulje (feats med fighter_bonus=1) — vises i en egen sektion
-    # for klasser med bonus_feat_choices > 0.
-    fighter_bonus_feats = db.get_fighter_bonus_feats()
+    # Bonus-feat-kandidater: foreningen af alle klassers bonus-feat-puljer, hver
+    # tagget med hvilke klasser der må vælge den (vises/skjules pr. klasse i JS).
+    by_id = {f["id"]: f for f in all_feats}
+    bonus_eligible: dict[str, set] = {}
+    for c in GEN_CLASSES:
+        for fid in _class_bonus_feat_ids(c):
+            bonus_eligible.setdefault(fid, set()).add(c.lower())
+    bonus_feat_candidates = sorted(
+        ({**by_id[fid], "eligible": " ".join(sorted(cs))}
+         for fid, cs in bonus_eligible.items() if fid in by_id),
+        key=lambda f: f["name"])
     armor = db.get_all_armor()
     weapons = [{"ref": f"weapons/{w['id']}", "name": w["name"], "group": w["category"],
                 "cost_str": _format_cost(w.get("cost_cp"))}
@@ -327,7 +347,7 @@ def _gen_context() -> dict:
         "classes": GEN_CLASSES,
         "skills": db.get_all_skills(),
         "feats": all_feats,
-        "fighter_bonus_feats": fighter_bonus_feats,
+        "bonus_feat_candidates": bonus_feat_candidates,
         "armors": [{**a, "cost_str": _format_cost(a.get("cost_cp"))}
                    for a in armor if a.get("type") != "shield"],
         "shields": [{**a, "cost_str": _format_cost(a.get("cost_cp"))}
@@ -424,9 +444,9 @@ def create_character():
             raise ValueError(
                 f"Vælg præcis {bonus_need} bonus-feat(s) — du valgte {len(bonus_chosen)}.")
         if bonus_need:
-            fighter_pool = {x["id"] for x in db.get_fighter_bonus_feats()}
-            if any(x not in fighter_pool for x in bonus_chosen):
-                raise ValueError("Ugyldig bonus-feat valgt (skal være en fighter-feat).")
+            pool = set(_class_bonus_feat_ids(cls))
+            if any(x not in pool for x in bonus_chosen):
+                raise ValueError("Ugyldig bonus-feat valgt (ikke i klassens pulje).")
             if set(bonus_chosen) & set(chosen):
                 raise ValueError("Samme feat valgt som både alm. feat og bonus-feat.")
         # Byg feat-poster: våben-feats gemmes som {id, weapon}, resten som id-streng.
@@ -454,7 +474,9 @@ def create_character():
         name_to_id = {x["name"].lower(): x["id"] for x in all_feats}
         prereq_by_id = {x["id"]: x.get("prerequisites") for x in all_feats}
         bab1 = int((db.get_class_level(cls.lower(), 1) or {}).get("bab", 0))
-        for fid in chosen + bonus_chosen:
+        # Monkens bonus-feat gives uden prereqs (SRD) → kun de alm. feats tjekkes for den.
+        prereq_check = chosen if char_module.class_bonus_feat_ignore_prereqs(cls) else chosen + bonus_chosen
+        for fid in prereq_check:
             missing = char_module.feat_prereq_unmet(
                 prereq_by_id.get(fid) or "", owned_ids, final, cls, 1, bab1, name_to_id)
             if missing:
@@ -849,6 +871,11 @@ def build_character_view(char, db):
         "dodge": int(char.combat.get("dodge", 0)),
         "misc": int(char.combat.get("misc_ac", 0)),
     }
+    # Monk AC Bonus (Ex): + ability-mod (Wis) til AC når unarmored og uden skjold.
+    # Data-drevet via klassens ac_ability; en klasse-feature → bygges på base-AC.
+    _ac_ability = char_module.class_ac_ability(char.cls)
+    if _ac_ability and not armor_row and not shield_row:
+        _combat_ac["misc"] += max(0, ab.modifier(_ac_ability))
     _ac_common = dict(
         armor=armor_row,
         shield=shield_row,

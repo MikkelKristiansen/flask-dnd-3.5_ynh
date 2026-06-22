@@ -73,6 +73,12 @@ monk:
   skill_points: 4
   starting_gold: "5d4"
   age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
+  # Level-1 bonus-feat fra en fast 2-feat-pulje; monken får den UDEN at opfylde
+  # prerequisites (SRD). Adskiller sig fra fighter, hvis pulje er fighter_bonus-flaget.
+  bonus_feat_choices: 1
+  bonus_feat_pool: [improved_grapple, stunning_fist]
+  bonus_feat_ignore_prereqs: true
+  ac_ability: wis        # AC Bonus (Ex): + Wis-mod til AC når unarmored
   class_skills:
     - balance
     - climb

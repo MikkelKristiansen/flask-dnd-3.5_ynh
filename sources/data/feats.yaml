@@ -464,3 +464,19 @@
   benefit: You get a +2 bonus on all Spellcraft and Use Magic Device checks.
   normal:
   special:
+- id: improved_grapple
+  name: Improved Grapple
+  type: General
+  prerequisites: Dex 13, Improved Unarmed Strike
+  benefit: You do not provoke an attack of opportunity when you make a touch attack to start a grapple. You also gain a +4 bonus on all grapple checks, regardless of whether you started the grapple.
+  normal: Without this feat, you provoke an attack of opportunity when you make a touch attack to start a grapple.
+  special: A fighter may select Improved Grapple as one of his fighter bonus feats. A monk may select Improved Grapple as a bonus feat at 1st level, even if she does not meet the prerequisites.
+  fighter_bonus: 1
+- id: stunning_fist
+  name: Stunning Fist
+  type: General
+  prerequisites: Dex 13, Wis 13, Improved Unarmed Strike, base attack bonus +8
+  benefit: "You must declare that you are using this feat before you make your attack roll. Stunning Fist forces a foe damaged by your unarmed attack to make a Fortitude saving throw (DC 10 + 1/2 your character level + your Wis modifier), in addition to dealing damage normally. A defender who fails this saving throw is stunned for 1 round. You may attempt a stunning attack once per day for every four levels you have attained, and no more than once per round."
+  normal:
+  special: A monk may select Stunning Fist as a bonus feat at 1st level, even if she does not meet the prerequisites.
+  fighter_bonus: 1
