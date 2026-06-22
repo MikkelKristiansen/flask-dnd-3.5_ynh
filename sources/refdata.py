@@ -3,9 +3,10 @@
 Ren data og små opslag/parsere uden runtime-afhængigheder: race-traits,
 sprogtabeller, klassens hit die / skill points / klassefærdigheder, feat-hjælpere
 og feat-prerequisite-parseren. Ingen karakter-tilstand — kun "hvordan ser
-reglerne/racerne ud". Race-data indlæses fra data/races.yaml ved import (kilden
-til sandheden); resten er små opslag og parsere. Beregninger der bruger en konkret
-karakter bor i character.py (rules); her er kildedataene de slår op i.
+reglerne/racerne ud". Race- og klasse-data indlæses fra data/races.yaml og
+data/classes.yaml ved import (kilden til sandheden); resten er små opslag og
+parsere. Beregninger der bruger en konkret karakter bor i character.py (rules);
+her er kildedataene de slår op i.
 
 character.py re-eksporterer disse navne (façade), så char_module.race_data /
 hit_die / feat_id m.fl. virker uændret.
@@ -24,52 +25,21 @@ def _load_yaml(name: str):
     return yaml.load(_DATA_DIR / f"{name}.yaml") or {}
 
 
-_HIT_DIE = {
-    "barbarian": 12, "fighter": 10, "paladin": 10,
-    "ranger": 8, "cleric": 8, "druid": 8, "monk": 8,
-    "bard": 6, "rogue": 6, "sorcerer": 4, "wizard": 4,
-}
-_SKILL_POINTS = {
-    "rogue": 8, "ranger": 6, "bard": 6,
-    "druid": 4, "barbarian": 4, "monk": 4,
-    "fighter": 2, "paladin": 2, "cleric": 2, "sorcerer": 2, "wizard": 2,
-}
-_CLASS_SKILLS: dict[str, set[str]] = {
-    "druid": {
-        "concentration", "craft", "diplomacy", "handle_animal", "heal",
-        "knowledge_nature", "knowledge_geography", "listen",
-        "profession", "profession_herbalist", "ride",
-        "spellcraft", "spot", "survival", "swim",
-    },
-    "cleric": {
-        "concentration", "craft", "diplomacy", "heal",
-        "knowledge_arcana", "knowledge_history", "knowledge_planes",
-        "knowledge_religion", "profession", "spellcraft",
-    },
-    "ranger": {
-        "climb", "concentration", "craft", "handle_animal", "heal",
-        "hide", "jump", "knowledge_dungeoneering", "knowledge_geography",
-        "knowledge_nature", "listen", "move_silently", "profession",
-        "ride", "search", "spot", "survival", "swim", "use_rope",
-    },
-    "rogue": {
-        "appraise", "balance", "bluff", "climb", "craft", "decipher_script",
-        "diplomacy", "disable_device", "disguise", "escape_artist", "forgery",
-        "gather_information", "hide", "intimidate", "jump", "knowledge_local",
-        "listen", "move_silently", "open_lock", "perform", "profession",
-        "search", "sense_motive", "sleight_of_hand", "spot", "swim", "tumble",
-        "use_magic_device", "use_rope",
-    },
-}
+_CLASSES: dict[str, dict] = _load_yaml("classes")
+
+
+def class_data(cls: str) -> dict:
+    """Klasse-data (hit_die, skill_points, class_skills, languages, …) eller {}."""
+    return _CLASSES.get(cls.lower(), {})
 
 
 def hit_die(cls: str) -> int:
-    return _HIT_DIE.get(cls.lower(), 8)
+    return class_data(cls).get("hit_die", 8)
 
 
 def skill_points_per_level(cls: str, int_modifier: int, race: str = "") -> int:
     race_bonus = race_data(race).get("skill_point_bonus_per_level", 0)
-    return max(1, _SKILL_POINTS.get(cls.lower(), 2) + int_modifier + race_bonus)
+    return max(1, base_skill_points(cls) + int_modifier + race_bonus)
 
 
 def is_feat_level(level: int) -> bool:
@@ -81,7 +51,7 @@ def is_ability_level(level: int) -> bool:
 
 
 def class_skills(cls: str) -> set[str]:
-    return _CLASS_SKILLS.get(cls.lower(), set())
+    return set(class_data(cls).get("class_skills", []))
 
 
 # ---------------------------------------------------------------------------
@@ -112,18 +82,13 @@ STANDARD_LANGUAGES = [
     "Infernal", "Orc", "Sylvan", "Terran", "Undercommon",
 ]
 
-# Klasse-sprog: 'automatic' gives gratis (tæller ikke mod Int-bonus), 'bonus' kan
-# vælges som et af bonussprogene. Klasser uden særlige sprog står ikke her.
-_CLASS_LANGUAGES: dict[str, dict] = {
-    "druid":  {"automatic": ["Druidic"], "bonus": ["Sylvan"]},
-    "cleric": {"automatic": [], "bonus": ["Abyssal", "Celestial", "Infernal"]},
-    "wizard": {"automatic": [], "bonus": ["Draconic"]},
-}
-
-
 def class_languages(cls: str) -> dict:
-    """Klassens sprog ({'automatic': [...], 'bonus': [...]}) eller tomt."""
-    return _CLASS_LANGUAGES.get(cls.lower(), {"automatic": [], "bonus": []})
+    """Klassens sprog ({'automatic': [...], 'bonus': [...]}) eller tomt.
+
+    'automatic' gives gratis (tæller ikke mod Int-bonus), 'bonus' kan vælges som
+    et af bonussprogene. Klasser uden særlige sprog har intet 'languages'-felt.
+    """
+    return class_data(cls).get("languages", {"automatic": [], "bonus": []})
 
 
 def race_bonus_languages(race: str) -> list[str]:
@@ -135,7 +100,7 @@ def race_bonus_languages(race: str) -> list[str]:
 def automatic_languages(race: str, cls: str) -> list[str]:
     """Sprog karakteren altid kan (race + klasse), uden at bruge Int-bonus."""
     langs = list(race_data(race).get("languages", {}).get("automatic", []))
-    for lang in _CLASS_LANGUAGES.get(cls.lower(), {}).get("automatic", []):
+    for lang in class_languages(cls).get("automatic", []):
         if lang not in langs:
             langs.append(lang)
     return langs
@@ -148,7 +113,7 @@ def bonus_language_pool(race: str, cls: str) -> list[str]:
     """
     race_bonus = race_data(race).get("languages", {}).get("bonus", [])
     pool = list(STANDARD_LANGUAGES) if race_bonus == "any" else list(race_bonus)
-    for lang in _CLASS_LANGUAGES.get(cls.lower(), {}).get("bonus", []):
+    for lang in class_languages(cls).get("bonus", []):
         if lang not in pool:
             pool.append(lang)
     auto = set(automatic_languages(race, cls))
@@ -174,7 +139,7 @@ def level1_feat_count(race: str) -> int:
 
 def class_bonus_feats(cls: str) -> list[str]:
     """Feats klassen giver gratis ved level 1 (tæller ikke mod de valgte)."""
-    return ["track"] if cls.lower() == "ranger" else []
+    return list(class_data(cls).get("bonus_feats", []))
 
 
 # Feats hvor man vælger et specifikt våben (gemmes som {id, weapon} i stedet for
@@ -205,7 +170,7 @@ def class_needs_domains(cls: str) -> bool:
 
 def base_skill_points(cls: str) -> int:
     """Klassens skill points pr. level før INT/race (til generatorens budget-preview)."""
-    return _SKILL_POINTS.get(cls.lower(), 2)
+    return class_data(cls).get("skill_points", 2)
 
 
 # ---------------------------------------------------------------------------

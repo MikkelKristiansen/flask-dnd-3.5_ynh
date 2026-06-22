@@ -1,0 +1,146 @@
+# classes — SRD v3.5 data (OGL v1.0a). Kilden til sandheden for klasse-data.
+# Indlæses direkte af refdata.py (IKKE via importer.py/SQLite), fordi dataene er
+# dokument-formede (skill-lister, sprog-grupper) og kun bruges ved karakter-
+# oprettelse/level-up. Tilføj en klasse = tilføj én blok her, ingen Python-ændring.
+#
+# Felter:
+#   hit_die        — terning til HP pr. level (default 8 hvis udeladt)
+#   skill_points   — skill points pr. level før INT/race (default 2 hvis udeladt)
+#   class_skills   — klassefærdigheder (koster 1 point/rank, cap = level+3)
+#   languages      — {automatic: [...], bonus: [...]}; udeladt = ingen klassesprog
+#   bonus_feats    — feats klassen giver gratis ved level 1 (tæller ikke mod valgte)
+#
+# NB: Kun de klasser generatoren er bevist mod (cleric/druid/ranger/rogue) har fuld
+# data (class_skills m.m.). De øvrige har indtil videre kun hit_die + skill_points;
+# manglende felter er bevidste huller, ikke fejl.
+
+barbarian:
+  hit_die: 12
+  skill_points: 4
+
+fighter:
+  hit_die: 10
+  skill_points: 2
+
+paladin:
+  hit_die: 10
+  skill_points: 2
+
+monk:
+  hit_die: 8
+  skill_points: 4
+
+bard:
+  hit_die: 6
+  skill_points: 6
+
+sorcerer:
+  hit_die: 4
+  skill_points: 2
+
+wizard:
+  hit_die: 4
+  skill_points: 2
+  languages:
+    automatic: []
+    bonus: [Draconic]
+
+cleric:
+  hit_die: 8
+  skill_points: 2
+  class_skills:
+    - concentration
+    - craft
+    - diplomacy
+    - heal
+    - knowledge_arcana
+    - knowledge_history
+    - knowledge_planes
+    - knowledge_religion
+    - profession
+    - spellcraft
+  languages:
+    automatic: []
+    bonus: [Abyssal, Celestial, Infernal]
+
+druid:
+  hit_die: 8
+  skill_points: 4
+  class_skills:
+    - concentration
+    - craft
+    - diplomacy
+    - handle_animal
+    - heal
+    - knowledge_nature
+    - knowledge_geography
+    - listen
+    - profession
+    - profession_herbalist
+    - ride
+    - spellcraft
+    - spot
+    - survival
+    - swim
+  languages:
+    automatic: [Druidic]
+    bonus: [Sylvan]
+
+ranger:
+  hit_die: 8
+  skill_points: 6
+  class_skills:
+    - climb
+    - concentration
+    - craft
+    - handle_animal
+    - heal
+    - hide
+    - jump
+    - knowledge_dungeoneering
+    - knowledge_geography
+    - knowledge_nature
+    - listen
+    - move_silently
+    - profession
+    - ride
+    - search
+    - spot
+    - survival
+    - swim
+    - use_rope
+  bonus_feats: [track]
+
+rogue:
+  hit_die: 6
+  skill_points: 8
+  class_skills:
+    - appraise
+    - balance
+    - bluff
+    - climb
+    - craft
+    - decipher_script
+    - diplomacy
+    - disable_device
+    - disguise
+    - escape_artist
+    - forgery
+    - gather_information
+    - hide
+    - intimidate
+    - jump
+    - knowledge_local
+    - listen
+    - move_silently
+    - open_lock
+    - perform
+    - profession
+    - search
+    - sense_motive
+    - sleight_of_hand
+    - spot
+    - swim
+    - tumble
+    - use_magic_device
+    - use_rope
