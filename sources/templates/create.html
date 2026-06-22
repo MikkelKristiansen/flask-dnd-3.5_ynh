@@ -261,14 +261,14 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
         <label for="armor">Rustning</label>
         <select id="armor" name="armor">
           <option value="">— ingen —</option>
-          {% for a in armors %}<option value="{{ a.id }}">{{ a.name }} (+{{ a.armor_bonus }} AC)</option>{% endfor %}
+          {% for a in armors %}<option value="{{ a.id }}">{{ a.name }} (+{{ a.armor_bonus }} AC · {{ a.cost_str }})</option>{% endfor %}
         </select>
       </div>
       <div>
         <label for="shield">Skjold</label>
         <select id="shield" name="shield">
           <option value="">— intet —</option>
-          {% for s in shields %}<option value="{{ s.id }}">{{ s.name }} (+{{ s.armor_bonus }} AC)</option>{% endfor %}
+          {% for s in shields %}<option value="{{ s.id }}">{{ s.name }} (+{{ s.armor_bonus }} AC · {{ s.cost_str }})</option>{% endfor %}
         </select>
       </div>
     </div>
@@ -279,7 +279,7 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
           <option value="">— vælg våben —</option>
           {% for grp, items in weapons|groupby('group') %}
           <optgroup label="{{ grp }}">
-            {% for w in items %}<option value="{{ w.ref }}">{{ w.name }}</option>{% endfor %}
+            {% for w in items %}<option value="{{ w.ref }}">{{ w.name }} — {{ w.cost_str }}</option>{% endfor %}
           </optgroup>
           {% endfor %}
         </select>
@@ -454,7 +454,7 @@ function addWeapon(){
   const pick = document.getElementById('weapon-pick');
   const ref = pick.value;
   if(!ref) return;
-  const name = pick.options[pick.selectedIndex].text.trim();
+  const name = pick.options[pick.selectedIndex].text.split(' — ')[0].trim();
   const state = document.getElementById('weapon-state').value;
   const div = document.createElement('div');
   div.className = 'weapon-chip';

@@ -263,6 +263,23 @@ def import_character():
 
 # ── Karaktergenerator ───────────────────────────────────────────────────────
 
+def _format_cost(cost_cp) -> str:
+    """cp → læsbar pris: 1500→'15 gp', 70→'7 sp', 205→'2 gp 5 cp', 0→'—'."""
+    cp = int(cost_cp or 0)
+    if cp == 0:
+        return "—"
+    gp, rem = divmod(cp, 100)
+    sp, c = divmod(rem, 10)
+    parts = []
+    if gp:
+        parts.append(f"{gp} gp")
+    if sp:
+        parts.append(f"{sp} sp")
+    if c:
+        parts.append(f"{c} cp")
+    return " ".join(parts)
+
+
 def _gen_context() -> dict:
     """Data til generatorformularen (klasse/race-lister + regel-data til JS)."""
     races_json = {
@@ -302,7 +319,8 @@ def _gen_context() -> dict:
     # for klasser med bonus_feat_choices > 0.
     fighter_bonus_feats = db.get_fighter_bonus_feats()
     armor = db.get_all_armor()
-    weapons = [{"ref": f"weapons/{w['id']}", "name": w["name"], "group": w["category"]}
+    weapons = [{"ref": f"weapons/{w['id']}", "name": w["name"], "group": w["category"],
+                "cost_str": _format_cost(w.get("cost_cp"))}
                for w in db.get_all_weapons()]
     return {
         "races": GEN_RACES,
@@ -310,8 +328,10 @@ def _gen_context() -> dict:
         "skills": db.get_all_skills(),
         "feats": all_feats,
         "fighter_bonus_feats": fighter_bonus_feats,
-        "armors": [a for a in armor if a.get("type") != "shield"],
-        "shields": [a for a in armor if a.get("type") == "shield"],
+        "armors": [{**a, "cost_str": _format_cost(a.get("cost_cp"))}
+                   for a in armor if a.get("type") != "shield"],
+        "shields": [{**a, "cost_str": _format_cost(a.get("cost_cp"))}
+                    for a in armor if a.get("type") == "shield"],
         "weapons": weapons,
         "animals": [{"id": a["id"], "name": a["name"]} for a in db.get_all_animals()],
         "domains": db.get_domains(GEN_DOMAINS),
