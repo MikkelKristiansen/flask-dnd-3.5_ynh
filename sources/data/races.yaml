@@ -12,6 +12,8 @@
 #   bonus_feats              — ekstra feats spilleren vælger ved level 1
 #   skill_point_bonus_per_level — ekstra skill points pr. level (human: 1)
 #   save_bonus               — racial bonus på ALLE saves (lægges på i save_total)
+#   bio                      — SRD højde/vægt/alder-tabeller (adulthood, age_dice pr.
+#                              klassegruppe, height/weight base pr. køn + modifier-terning)
 #   traits                   — fri-tekst race-traits, pre-udfyldes på karakteren
 
 human:
@@ -24,6 +26,13 @@ human:
     automatic: [Common]
     bonus: any
   bonus_feats: 1                   # ekstra feat ved level 1
+  bio:
+    adulthood: 15
+    age_dice: {fast: "1d4", medium: "1d6", slow: "2d6"}
+    height_mod: "2d10"
+    weight_mod: "2d4"
+    height_base: {male: 58, female: 53}
+    weight_base: {male: 120, female: 85}
   skill_point_bonus_per_level: 1   # +1 skill point pr. level
   traits:
     bonus_feat: "1 ekstra feat ved level 1"
@@ -40,6 +49,13 @@ elf:
     automatic: [Common, Elven]
     bonus: [Draconic, Gnoll, Gnome, Goblin, Orc, Sylvan]
   bonus_feats: 0
+  bio:
+    adulthood: 110
+    age_dice: {fast: "4d6", medium: "6d6", slow: "10d6"}
+    height_mod: "2d6"
+    weight_mod: "1d6"
+    height_base: {male: 53, female: 53}
+    weight_base: {male: 85, female: 80}
   traits:
     stat_mods: "+2 DEX, -2 CON"
     immunities: "Immun over for magisk sleep; +2 på saves mod enchantment"
@@ -58,6 +74,13 @@ gnome:
     automatic: [Common, Gnome]
     bonus: [Draconic, Dwarven, Elven, Giant, Goblin, Orc]
   bonus_feats: 0
+  bio:
+    adulthood: 40
+    age_dice: {fast: "4d6", medium: "6d6", slow: "9d6"}
+    height_mod: "2d4"
+    weight_mod: "1"
+    height_base: {male: 36, female: 34}
+    weight_base: {male: 40, female: 35}
   traits:
     stat_mods: "+2 CON, -2 STR"
     size: Small
@@ -85,6 +108,13 @@ halfling:
     bonus: [Dwarven, Elven, Gnome, Goblin, Orc]
   save_bonus: 1                    # +1 på ALLE saves (racial)
   bonus_feats: 0
+  bio:
+    adulthood: 20
+    age_dice: {fast: "2d4", medium: "3d6", slow: "4d6"}
+    height_mod: "2d4"
+    weight_mod: "1"
+    height_base: {male: 32, female: 30}
+    weight_base: {male: 30, female: 25}
   traits:
     stat_mods: "+2 DEX, -2 STR"
     size: Small
@@ -106,6 +136,13 @@ dwarf:
     automatic: [Common, Dwarven]
     bonus: [Giant, Gnome, Goblin, Orc, Terran, Undercommon]
   bonus_feats: 0
+  bio:
+    adulthood: 40
+    age_dice: {fast: "3d6", medium: "5d6", slow: "7d6"}
+    height_mod: "2d4"
+    weight_mod: "2d6"
+    height_base: {male: 45, female: 43}
+    weight_base: {male: 130, female: 100}
   traits:
     stat_mods: "+2 CON, -2 CHA"
     size: Medium
@@ -130,6 +167,13 @@ half-orc:
     automatic: [Common, Orc]
     bonus: [Draconic, Giant, Gnoll, Goblin, Abyssal]
   bonus_feats: 0
+  bio:
+    adulthood: 14
+    age_dice: {fast: "1d4", medium: "1d6", slow: "2d6"}
+    height_mod: "2d12"
+    weight_mod: "2d6"
+    height_base: {male: 58, female: 53}
+    weight_base: {male: 150, female: 110}
   traits:
     stat_mods: "+2 STR, -2 INT, -2 CHA"
     size: Medium
@@ -148,6 +192,13 @@ half-elf:
     automatic: [Common, Elven]
     bonus: any
   bonus_feats: 0
+  bio:
+    adulthood: 20
+    age_dice: {fast: "1d6", medium: "2d6", slow: "3d6"}
+    height_mod: "2d8"
+    weight_mod: "2d4"
+    height_base: {male: 55, female: 53}
+    weight_base: {male: 100, female: 80}
   traits:
     stat_mods: "Ingen ability-justeringer"
     size: Medium

@@ -274,6 +274,7 @@ def _gen_context() -> dict:
             "feat_count": char_module.level1_feat_count(r),
             "languages_auto": char_module.race_data(r).get("languages", {}).get("automatic", []),
             "languages_bonus": char_module.race_bonus_languages(r),
+            "bio": char_module.race_bio(r),
         }
         for r in GEN_RACES
     }
@@ -286,6 +287,7 @@ def _gen_context() -> dict:
             "bonus_feats": char_module.class_bonus_feats(c),
             "bonus_feat_choices": char_module.class_bonus_feat_choices(c),
             "starting_gold": char_module.class_starting_gold(c),
+            "age_group": char_module.class_age_group(c),
             "bab1": int((db.get_class_level(c.lower(), 1) or {}).get("bab", 0)),
             "turn_undead": char_module.class_can_turn_undead(c),
             # Companion ved level 1 (kun druide; ranger får først ved level 4).
@@ -528,6 +530,10 @@ def create_character():
             "level": 1,
             "alignment": f.get("alignment", "").strip(),
             "deity": f.get("deity", "").strip(),
+            "gender": f.get("gender", "").strip(),
+            "age": f.get("age", "").strip(),
+            "height": f.get("height", "").strip(),
+            "weight": f.get("weight", "").strip(),
             "size": rd.get("size", "medium"),
             "experience_points": 0,
             "hp": {"current": hp, "max": hp},

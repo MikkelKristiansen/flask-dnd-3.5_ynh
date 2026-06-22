@@ -99,6 +99,11 @@ def race_ids() -> list[str]:
     return list(_RACES.keys())
 
 
+def race_bio(race: str) -> dict:
+    """Racens højde/vægt/alder-tabeldata (adulthood, age_dice, height/weight) eller {}."""
+    return race_data(race).get("bio", {})
+
+
 # Standardsprog i SRD. Druidic er hemmeligt (kun druider) og er IKKE i "any"-puljen
 # — det gives kun gennem klassen.
 STANDARD_LANGUAGES = [
@@ -175,6 +180,11 @@ def class_bonus_feat_choices(cls: str) -> int:
 def class_starting_gold(cls: str) -> str:
     """Klassens start-guld-terning som streng (fx '6d4*10'), eller '' hvis ukendt."""
     return str(class_data(cls).get("starting_gold", ""))
+
+
+def class_age_group(cls: str) -> str:
+    """Klassens SRD startalders-gruppe ('fast'/'medium'/'slow'), default 'medium'."""
+    return str(class_data(cls).get("age_group", "medium"))
 
 
 # Feats hvor man vælger et specifikt våben (gemmes som {id, weapon} i stedet for

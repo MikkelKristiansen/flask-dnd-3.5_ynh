@@ -94,7 +94,7 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
     <div class="row">
       <div>
         <label for="race">Race</label>
-        <select id="race" name="race" onchange="onUpdate()">
+        <select id="race" name="race" onchange="onUpdate();rollBio()">
           {% for r in races %}<option value="{{ r }}">{{ r }}</option>{% endfor %}
         </select>
       </div>
@@ -108,6 +108,19 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
     <div class="row">
       <div><label for="alignment">Alignment</label><input type="text" id="alignment" name="alignment" placeholder="fx Chaotic Good"></div>
       <div><label for="deity">Deity (valgfri)</label><input type="text" id="deity" name="deity"></div>
+    </div>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:.3rem">
+      <div style="flex:0 0 6.5rem">
+        <label for="gender">Køn</label>
+        <select id="gender" name="gender" onchange="rollBio()" style="width:100%">
+          <option value="Mand">Mand</option>
+          <option value="Kvinde">Kvinde</option>
+        </select>
+      </div>
+      <div style="flex:1 1 4rem"><label for="age">Alder</label><input type="text" id="age" name="age" style="width:100%"></div>
+      <div style="flex:1 1 4rem"><label for="height">Højde</label><input type="text" id="height" name="height" style="width:100%"></div>
+      <div style="flex:1 1 5rem"><label for="weight">Vægt</label><input type="text" id="weight" name="weight" style="width:100%"></div>
+      <button type="button" onclick="rollBio()" title="Rul højde/vægt/alder igen" style="font-size:.95rem;padding:.35rem .55rem">🎲</button>
     </div>
     <div id="favored-wrap" class="hidden">
       <label for="favored_enemy">Favored Enemy (ranger)</label>
@@ -346,6 +359,31 @@ function rollGold(){
   let sum = 0;
   for (let i=0;i<+n;i++) sum += 1 + Math.floor(Math.random()*(+die));
   document.getElementById('gold_gp').value = sum * (mult ? +mult : 1);
+}
+
+// Terning fra streng: "2d10" → rul; "1" → tallet selv.
+function rollDice(spec){
+  const m = String(spec||'').match(/(\d+)d(\d+)/);
+  if (!m) return parseInt(spec,10) || 0;
+  let sum = 0; for (let i=0;i<+m[1];i++) sum += 1 + Math.floor(Math.random()*(+m[2]));
+  return sum;
+}
+// Auto-rul højde/vægt/alder fra SRD-tabellen (race + klassegruppe + køn).
+// Samme højde-modifier-rul bruges til både højde og vægt (SRD-reglen).
+function rollBio(){
+  const rd = RACES[document.getElementById('race').value.toLowerCase()];
+  const cd = CLASSES[document.getElementById('cls').value.toLowerCase()];
+  const bio = rd && rd.bio;
+  if (!bio || !bio.adulthood) return;
+  const g = document.getElementById('gender').value === 'Kvinde' ? 'female' : 'male';
+  const group = (cd && cd.age_group) || 'medium';
+  const age = bio.adulthood + rollDice(bio.age_dice[group]);
+  const hmod = rollDice(bio.height_mod);
+  const tot = bio.height_base[g] + hmod;
+  const weight = bio.weight_base[g] + hmod * rollDice(bio.weight_mod);
+  document.getElementById('age').value = age + ' år';
+  document.getElementById('height').value = `${Math.floor(tot/12)}'${tot%12}"`;
+  document.getElementById('weight').value = weight + ' lb';
 }
 
 // Vis/skjul våben-dropdown når en våben-feat krydses af/fra.
@@ -609,11 +647,12 @@ function renderLanguages(race, cls, intMod){
 }
 
 // Genbyg skill-listen når klassen skifter (klasse-markering + caps ændrer sig)
-document.getElementById('cls').addEventListener('change', ()=>{ buildSkillList(); onUpdate(); });
+document.getElementById('cls').addEventListener('change', ()=>{ buildSkillList(); onUpdate(); rollBio(); });
 
 buildSkillList();
 addWeapon();
 onUpdate();
+rollBio();
 </script>
 </body>
 </html>

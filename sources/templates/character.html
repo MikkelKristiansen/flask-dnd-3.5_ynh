@@ -510,6 +510,9 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     <div>
       <div class="char-name">{{ char.name }}</div>
       <div class="char-sub">{{ char.race }} {{ char.cls }}, Level {{ char.level }}{% if char.alignment %} · {{ char.alignment }}{% endif %}{% if char.deity %} · {{ char.deity }}{% endif %}</div>
+      {% if char.gender or char.age or char.height or char.weight %}
+      <div class="char-sub" style="font-size:.72rem">{{ char.gender }}{% if char.age %} · {{ char.age }}{% endif %}{% if char.height %} · {{ char.height }}{% endif %}{% if char.weight %} · {{ char.weight }}{% endif %}</div>
+      {% endif %}
     </div>
     <a href="{{ url_for('index') }}" style="color:var(--muted);font-size:.8rem;text-decoration:none;">← Alle</a>
   </div>

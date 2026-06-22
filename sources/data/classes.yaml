@@ -21,11 +21,13 @@ barbarian:
   hit_die: 12
   skill_points: 4
   starting_gold: "4d4*10"
+  age_group: fast        # SRD startalders-gruppe (fast/medium/slow)
 
 fighter:
   hit_die: 10
   skill_points: 2
   starting_gold: "6d4*10"
+  age_group: medium        # SRD startalders-gruppe (fast/medium/slow)
   # bonus_feat_choices: antal ekstra feats spilleren vælger fra fighter-bonus-puljen
   # (feats med type=Fighter i feats.yaml), oveni de race-baserede valgte feats.
   bonus_feat_choices: 1
@@ -42,26 +44,31 @@ paladin:
   hit_die: 10
   skill_points: 2
   starting_gold: "6d4*10"
+  age_group: medium        # SRD startalders-gruppe (fast/medium/slow)
 
 monk:
   hit_die: 8
   skill_points: 4
   starting_gold: "5d4"
+  age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
 
 bard:
   hit_die: 6
   skill_points: 6
   starting_gold: "4d4*10"
+  age_group: medium        # SRD startalders-gruppe (fast/medium/slow)
 
 sorcerer:
   hit_die: 4
   skill_points: 2
   starting_gold: "3d4*10"
+  age_group: fast        # SRD startalders-gruppe (fast/medium/slow)
 
 wizard:
   hit_die: 4
   skill_points: 2
   starting_gold: "3d4*10"
+  age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
   languages:
     automatic: []
     bonus: [Draconic]
@@ -70,6 +77,7 @@ cleric:
   hit_die: 8
   skill_points: 2
   starting_gold: "5d4*10"
+  age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
   needs_domains: true        # vælger 2 domæner ved oprettelse
   turn_undead: true          # kan turn/rebuke undead
   class_skills:
@@ -91,6 +99,7 @@ druid:
   hit_die: 8
   skill_points: 4
   starting_gold: "2d4*10"
+  age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
   wild_shape_from_level: 5   # wild shape-evne fra og med dette level
   class_skills:
     - concentration
@@ -116,6 +125,7 @@ ranger:
   hit_die: 8
   skill_points: 6
   starting_gold: "6d4*10"
+  age_group: medium        # SRD startalders-gruppe (fast/medium/slow)
   class_skills:
     - climb
     - concentration
@@ -142,6 +152,7 @@ rogue:
   hit_die: 6
   skill_points: 8
   starting_gold: "5d4*10"
+  age_group: fast        # SRD startalders-gruppe (fast/medium/slow)
   class_skills:
     - appraise
     - balance

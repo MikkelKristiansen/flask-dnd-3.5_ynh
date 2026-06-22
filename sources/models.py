@@ -91,6 +91,11 @@ class Character:
     companion: dict = field(default_factory=dict)
     class_features: dict = field(default_factory=dict)
     deity: str = ""
+    alignment: str = ""         # fx Lawful Good (blev tidligere skrevet men aldrig indlæst)
+    gender: str = ""            # fri tekst (mand/kvinde) — bruges til højde/vægt-tabel
+    age: str = ""               # alder i år (fri tekst, flavor)
+    height: str = ""            # fx 5'10" (fri tekst, flavor)
+    weight: str = ""            # fx 180 lb (fri tekst, flavor)
     racial_traits: dict = field(default_factory=dict)
     domains: list = field(default_factory=list)
     domain_spells_prepared: dict = field(default_factory=dict)  # {level: spell_id}
