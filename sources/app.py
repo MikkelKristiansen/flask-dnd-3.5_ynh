@@ -288,9 +288,9 @@ def _gen_context() -> dict:
         for c in GEN_CLASSES
     }
     all_feats = db.get_all_feats()
-    # Fighter-bonus-feat-pulje (feats med type=Fighter) — vises i en egen sektion
+    # Fighter-bonus-feat-pulje (feats med fighter_bonus=1) — vises i en egen sektion
     # for klasser med bonus_feat_choices > 0.
-    fighter_bonus_feats = db.get_feats_by_type("Fighter")
+    fighter_bonus_feats = db.get_fighter_bonus_feats()
     armor = db.get_all_armor()
     weapons = [{"ref": f"weapons/{w['id']}", "name": w["name"], "group": w["category"]}
                for w in db.get_all_weapons()]
@@ -387,7 +387,7 @@ def create_character():
             raise ValueError(
                 f"Vælg præcis {bonus_need} bonus-feat(s) — du valgte {len(bonus_chosen)}.")
         if bonus_need:
-            fighter_pool = {x["id"] for x in db.get_feats_by_type("Fighter")}
+            fighter_pool = {x["id"] for x in db.get_fighter_bonus_feats()}
             if any(x not in fighter_pool for x in bonus_chosen):
                 raise ValueError("Ugyldig bonus-feat valgt (skal være en fighter-feat).")
             if set(bonus_chosen) & set(chosen):

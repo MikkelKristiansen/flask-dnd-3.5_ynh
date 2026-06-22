@@ -81,11 +81,11 @@ def get_all_feats() -> list[dict]:
     return [dict(r) for r in rows]
 
 
-def get_feats_by_type(feat_type: str) -> list[dict]:
-    """Feats med en given type (fx 'Fighter' = fighter-bonus-feat-puljen)."""
+def get_fighter_bonus_feats() -> list[dict]:
+    """Feats der må vælges som fighter-bonus-feat (fighter_bonus = 1 i feats.yaml)."""
     with _connect() as conn:
         rows = conn.execute(
-            "SELECT * FROM feats WHERE type = ? ORDER BY name", (feat_type,)
+            "SELECT * FROM feats WHERE fighter_bonus = 1 ORDER BY name"
         ).fetchall()
     return [dict(r) for r in rows]
 

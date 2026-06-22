@@ -42,7 +42,8 @@ CREATE TABLE feats (
     prerequisites TEXT,
     benefit TEXT,
     normal TEXT,
-    special TEXT
+    special TEXT,
+    fighter_bonus INTEGER       -- 1 = må vælges som fighter-bonus-feat (nullable)
 );
 
 DROP TABLE IF EXISTS conditions;
