@@ -347,6 +347,13 @@ def create_character():
             if not 3 <= iv <= 20:
                 raise ValueError(f"{a.upper()} skal være mellem 3 og 20 (før race).")
             base[a] = iv
+        # Point-buy-metoden har sin egen validering (scores 8-18, budget 28).
+        # 'free' og 'roll' bruger blot 3-20-grænsen ovenfor (rul er en JS-hjælper).
+        if f.get("score_method", "free") == "pointbuy":
+            cost = char_module.point_buy_total(base)
+            if cost > char_module.POINT_BUY_BUDGET:
+                raise ValueError(
+                    f"Point-buy: du brugte {cost} af {char_module.POINT_BUY_BUDGET} point.")
         final = char_module.apply_racial_adjustments(base, race)
         int_mod = (final["int"] - 10) // 2
         con_mod = (final["con"] - 10) // 2

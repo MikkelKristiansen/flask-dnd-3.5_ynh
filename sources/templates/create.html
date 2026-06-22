@@ -117,6 +117,16 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
 
   <div class="section">
     <div class="section-title">Ability scores <span style="color:var(--muted);font-size:.75rem">(basis — race lægges på)</span></div>
+    <div class="score-method" style="display:flex;gap:1rem;margin-bottom:.7rem;font-size:.85rem;flex-wrap:wrap">
+      <label style="margin:0"><input type="radio" name="score_method" value="free" checked onchange="onMethodChange()"> Fri</label>
+      <label style="margin:0"><input type="radio" name="score_method" value="pointbuy" onchange="onMethodChange()"> Point-buy (28)</label>
+      <label style="margin:0"><input type="radio" name="score_method" value="roll" onchange="onMethodChange()"> Rul 4d6</label>
+    </div>
+    <div class="budget" id="pointbuy-budget" style="display:none"></div>
+    <div id="roll-area" style="display:none;margin-bottom:.6rem">
+      <button type="button" class="btn-secondary" onclick="rollScores()" style="font-size:.8rem;padding:.3rem .6rem">🎲 Rul 4d6 (×6)</button>
+      <span id="roll-result" class="hint" style="margin-left:.5rem"></span>
+    </div>
     <div class="scores-grid">
       {% for a in ['str','dex','con','int','wis','cha'] %}
       <div class="score-cell">
@@ -126,6 +136,7 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
       </div>
       {% endfor %}
     </div>
+    <div class="err-inline" id="score-err"></div>
   </div>
 
   <div class="section">
@@ -303,6 +314,25 @@ const FEAT_PREREQS = {{ feat_prereqs|tojson }};
 const FEAT_NAME_TO_ID = {{ feat_name_to_id|tojson }};
 const FEAT_ID_TO_NAME = Object.fromEntries(Object.entries(FEAT_NAME_TO_ID).map(([n,i])=>[i,n]));
 const WEAPON_CHOICE_FEATS = ['weapon_focus','weapon_specialization','improved_critical'];
+// Point-buy-priser (spejler rules.POINT_BUY_COST). Budget = 28.
+const POINTBUY_COST = {8:0,9:1,10:2,11:3,12:4,13:5,14:6,15:8,16:10,17:13,18:16};
+
+// Ability-score-metode: vis/skjul point-buy-tæller og rul-område.
+function onMethodChange(){
+  const m = document.querySelector('input[name="score_method"]:checked').value;
+  document.getElementById('pointbuy-budget').style.display = (m==='pointbuy') ? '' : 'none';
+  document.getElementById('roll-area').style.display = (m==='roll') ? '' : 'none';
+  if (m!=='pointbuy') document.getElementById('score-err').textContent = '';
+  onUpdate();
+}
+
+// Rul 4d6-drop-lavest seks gange (fri fordeling — brugeren skriver dem ind selv).
+function rollScores(){
+  const r1 = () => { const d=[0,0,0,0].map(()=>1+Math.floor(Math.random()*6)).sort((a,b)=>a-b); return d[1]+d[2]+d[3]; };
+  const sets = Array.from({length:6}, r1).sort((a,b)=>b-a);
+  document.getElementById('roll-result').textContent = 'Fordel selv: ' + sets.join(', ');
+}
+
 // Vis/skjul våben-dropdown når en våben-feat krydses af/fra.
 // prefix = 'feat' (alm. feats) eller 'bfeat' (fighter-bonus-feats).
 function toggleFeatWeapon(fid, prefix){
@@ -404,6 +434,25 @@ function onUpdate(){
       `${fin} (${mod(fin)>=0?'+':''}${mod(fin)})${sign?' '+sign:''}`;
     if (base<3 || base>20) ok=false;
   });
+
+  // Ability-score-metode: point-buy-validering (scores 8-18, budget 28)
+  const method = document.querySelector('input[name="score_method"]:checked').value;
+  let scoreErr = '';
+  if (method === 'pointbuy') {
+    let cost = 0, pbValid = true;
+    ['str','dex','con','int','wis','cha'].forEach(a=>{
+      const v = parseInt(document.getElementById('score_'+a).value||'0',10);
+      const c = POINTBUY_COST[v];
+      if (c === undefined) pbValid = false; else cost += c;
+    });
+    const pe = document.getElementById('pointbuy-budget');
+    pe.innerHTML = `Brugt <b>${cost}</b> af <b>28</b> point (scores 8-18 før race)`;
+    pe.classList.toggle('over', !pbValid || cost>28);
+    if (!pbValid) scoreErr = 'Alle scores skal være 8-18 ved point-buy.';
+    else if (cost>28) scoreErr = `For mange point brugt (${cost}/28).`;
+    if (!pbValid || cost>28) ok = false;
+  }
+  document.getElementById('score-err').textContent = scoreErr;
 
   // Skills budget
   const budget = Math.max(1, cd.skill_base + intMod + (race==='Human'?1:0)) * 4;

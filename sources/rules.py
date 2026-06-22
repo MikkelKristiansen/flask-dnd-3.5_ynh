@@ -16,6 +16,32 @@ from models import AbilityScores, Skill, Attack, InventoryItem, Character
 from refdata import feat_id
 
 
+# Point-buy (D&D 3.5 standard). Pris pr. pre-race score; interval 8-18. Budget 28
+# = "standard" kampagne. Bruges af generatoren når metoden er point-buy.
+POINT_BUY_COST = {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5,
+                  14: 6, 15: 8, 16: 10, 17: 13, 18: 16}
+POINT_BUY_BUDGET = 28
+
+
+def point_buy_cost(score: int) -> int | None:
+    """Point-buy-pris for én score, eller None hvis uden for 8-18."""
+    return POINT_BUY_COST.get(int(score))
+
+
+def point_buy_total(scores: dict) -> int:
+    """Samlet point-buy-pris for de seks pre-race scores.
+
+    Rejser ValueError hvis en score er uden for 8-18 (kan ikke købes).
+    """
+    total = 0
+    for k in ("str", "dex", "con", "int", "wis", "cha"):
+        cost = POINT_BUY_COST.get(int(scores[k]))
+        if cost is None:
+            raise ValueError(f"{k.upper()} skal være mellem 8 og 18 ved point-buy.")
+        total += cost
+    return total
+
+
 XP_THRESHOLDS = [
     0,       # level 0 (unused)
     0,       # level 1
