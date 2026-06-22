@@ -18,7 +18,7 @@ import dice as dice_module
 import effects
 
 # Klasser generatoren understøtter (motoren er bevist mod disse).
-GEN_CLASSES = ["Barbarian", "Cleric", "Druid", "Fighter", "Ranger", "Rogue"]
+GEN_CLASSES = ["Barbarian", "Cleric", "Druid", "Fighter", "Monk", "Paladin", "Ranger", "Rogue"]
 # Racer udledes fra data/races.yaml — en race er ren data (ingen motor-logik), så
 # enhver race i datafilen er fuldt understøttet. Tilføj en race = tilføj en YAML-blok.
 # .title() (ikke .capitalize()) så hyphenerede racer vises korrekt: half-orc → Half-Orc.

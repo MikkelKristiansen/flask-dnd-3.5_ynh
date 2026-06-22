@@ -56,12 +56,42 @@ paladin:
   skill_points: 2
   starting_gold: "6d4*10"
   age_group: medium        # SRD startalders-gruppe (fast/medium/slow)
+  class_skills:
+    - concentration
+    - craft
+    - diplomacy
+    - handle_animal
+    - heal
+    - knowledge_nobility
+    - knowledge_religion
+    - profession
+    - ride
+    - sense_motive
 
 monk:
   hit_die: 8
   skill_points: 4
   starting_gold: "5d4"
   age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
+  class_skills:
+    - balance
+    - climb
+    - concentration
+    - craft
+    - diplomacy
+    - escape_artist
+    - hide
+    - jump
+    - knowledge_arcana
+    - knowledge_religion
+    - listen
+    - move_silently
+    - perform
+    - profession
+    - sense_motive
+    - spot
+    - swim
+    - tumble
 
 bard:
   hit_die: 6
