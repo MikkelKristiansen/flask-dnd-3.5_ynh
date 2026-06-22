@@ -24,6 +24,16 @@ barbarian:
 fighter:
   hit_die: 10
   skill_points: 2
+  # Data-komplet, men endnu IKKE i GEN_CLASSES: kræver fighter_levels.yaml (BAB/saves)
+  # + valgt-bonus-feat-mekanik i generatoren. Se BRIEF-fighter.md.
+  class_skills:
+    - climb
+    - craft
+    - handle_animal
+    - intimidate
+    - jump
+    - ride
+    - swim
 
 paladin:
   hit_die: 10
