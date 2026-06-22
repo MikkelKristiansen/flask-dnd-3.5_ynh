@@ -120,3 +120,41 @@ dwarf:
     dodge_ac_vs: "+4 dodge-AC mod giant-type monstre"
     skill_affinity: "+2 Appraise og Craft for sten- eller metalgenstande"
     favored_class: Fighter
+
+half-orc:
+  size: medium
+  speed: 30
+  ability_adjust: {str: 2, int: -2, cha: -2}
+  skill_bonuses: {}
+  languages:
+    automatic: [Common, Orc]
+    bonus: [Draconic, Giant, Gnoll, Goblin, Abyssal]
+  bonus_feats: 0
+  traits:
+    stat_mods: "+2 STR, -2 INT, -2 CHA"
+    size: Medium
+    speed: "30 ft."
+    darkvision: "60 ft."
+    orc_blood: "Tæller som ork for effekter relateret til race"
+    favored_class: Barbarian
+
+half-elf:
+  size: medium
+  speed: 30
+  ability_adjust: {}
+  # Ubetingede racial skill-bonusser (jf. elf) → i skill_bonuses, ikke kun traits.
+  skill_bonuses: {listen: 1, search: 1, spot: 1, diplomacy: 2, gather_information: 2}
+  languages:
+    automatic: [Common, Elven]
+    bonus: any
+  bonus_feats: 0
+  traits:
+    stat_mods: "Ingen ability-justeringer"
+    size: Medium
+    speed: "30 ft."
+    low_light_vision: true
+    immunities: "Immun over for magisk sleep; +2 på saves mod enchantment"
+    keen_senses: "+1 på Listen, Search og Spot"
+    social: "+2 på Diplomacy og Gather Information"
+    elven_blood: "Tæller som elver for effekter relateret til race"
+    favored_class: Any

@@ -21,7 +21,8 @@ import effects
 GEN_CLASSES = ["Cleric", "Druid", "Fighter", "Ranger", "Rogue"]
 # Racer udledes fra data/races.yaml — en race er ren data (ingen motor-logik), så
 # enhver race i datafilen er fuldt understøttet. Tilføj en race = tilføj en YAML-blok.
-GEN_RACES = [r.capitalize() for r in char_module.race_ids()]
+# .title() (ikke .capitalize()) så hyphenerede racer vises korrekt: half-orc → Half-Orc.
+GEN_RACES = [r.title() for r in char_module.race_ids()]
 GEN_DOMAINS = ["healing", "protection", "war", "knowledge", "good", "luck"]
 
 
