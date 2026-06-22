@@ -53,75 +53,19 @@ CREATE TABLE conditions (
     description TEXT NOT NULL
 );
 
+-- Oprydning: tidligere var der én tabel pr. klasse (druid_levels osv.); nu samlet
+-- i class_levels. DROP'sne fjerner de gamle tabeller fra eksisterende databaser.
 DROP TABLE IF EXISTS druid_levels;
-CREATE TABLE druid_levels (
-    level       INTEGER PRIMARY KEY,
-    hd          TEXT NOT NULL,
-    skill_points INTEGER NOT NULL,
-    bab         INTEGER NOT NULL,
-    fort        INTEGER NOT NULL,
-    ref         INTEGER NOT NULL,
-    will        INTEGER NOT NULL,
-    spells_0    INTEGER NOT NULL,
-    spells_1    INTEGER NOT NULL,
-    spells_2    INTEGER NOT NULL,
-    spells_3    INTEGER NOT NULL,
-    spells_4    INTEGER NOT NULL,
-    spells_5    INTEGER NOT NULL,
-    spells_6    INTEGER NOT NULL,
-    spells_7    INTEGER NOT NULL,
-    spells_8    INTEGER NOT NULL,
-    spells_9    INTEGER NOT NULL,
-    features    TEXT NOT NULL
-);
-
 DROP TABLE IF EXISTS cleric_levels;
-CREATE TABLE cleric_levels (
-    level       INTEGER PRIMARY KEY,
-    hd          TEXT NOT NULL,
-    skill_points INTEGER NOT NULL,
-    bab         INTEGER NOT NULL,
-    fort        INTEGER NOT NULL,
-    ref         INTEGER NOT NULL,
-    will        INTEGER NOT NULL,
-    spells_0    INTEGER NOT NULL,
-    spells_1    INTEGER NOT NULL,
-    spells_2    INTEGER NOT NULL,
-    spells_3    INTEGER NOT NULL,
-    spells_4    INTEGER NOT NULL,
-    spells_5    INTEGER NOT NULL,
-    spells_6    INTEGER NOT NULL,
-    spells_7    INTEGER NOT NULL,
-    spells_8    INTEGER NOT NULL,
-    spells_9    INTEGER NOT NULL,
-    features    TEXT NOT NULL
-);
-
 DROP TABLE IF EXISTS ranger_levels;
-CREATE TABLE ranger_levels (
-    level       INTEGER PRIMARY KEY,
-    hd          TEXT NOT NULL,
-    skill_points INTEGER NOT NULL,
-    bab         INTEGER NOT NULL,
-    fort        INTEGER NOT NULL,
-    ref         INTEGER NOT NULL,
-    will        INTEGER NOT NULL,
-    spells_0    INTEGER NOT NULL,
-    spells_1    INTEGER NOT NULL,
-    spells_2    INTEGER NOT NULL,
-    spells_3    INTEGER NOT NULL,
-    spells_4    INTEGER NOT NULL,
-    spells_5    INTEGER NOT NULL,
-    spells_6    INTEGER NOT NULL,
-    spells_7    INTEGER NOT NULL,
-    spells_8    INTEGER NOT NULL,
-    spells_9    INTEGER NOT NULL,
-    features    TEXT NOT NULL
-);
-
 DROP TABLE IF EXISTS rogue_levels;
-CREATE TABLE rogue_levels (
-    level       INTEGER PRIMARY KEY,
+
+-- Én tabel for alle klassers level-progression. Tilføj en klasse = append rækker
+-- (med class:) til data/class_levels.yaml — ingen schema- eller importer-ændring.
+DROP TABLE IF EXISTS class_levels;
+CREATE TABLE class_levels (
+    class       TEXT NOT NULL,
+    level       INTEGER NOT NULL,
     hd          TEXT NOT NULL,
     skill_points INTEGER NOT NULL,
     bab         INTEGER NOT NULL,
@@ -138,7 +82,8 @@ CREATE TABLE rogue_levels (
     spells_7    INTEGER NOT NULL,
     spells_8    INTEGER NOT NULL,
     spells_9    INTEGER NOT NULL,
-    features    TEXT NOT NULL
+    features    TEXT NOT NULL,
+    PRIMARY KEY (class, level)
 );
 
 DROP TABLE IF EXISTS domains;

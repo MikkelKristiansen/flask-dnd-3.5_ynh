@@ -248,25 +248,16 @@ def get_spell_attacks(spell_id: str) -> list[dict]:
     return [dict(r) for r in rows]
 
 
-_CLASS_LEVEL_TABLES = {
-    "druid": "druid_levels",
-    "cleric": "cleric_levels",
-    "ranger": "ranger_levels",
-    "rogue": "rogue_levels",
-}
-
-
 def get_class_level(class_name: str, level: int) -> dict | None:
-    table = _CLASS_LEVEL_TABLES.get(class_name.lower())
-    if table is None:
-        return None
     with _connect() as conn:
         row = conn.execute(
-            f"SELECT * FROM {table} WHERE level = ?", (level,)
+            "SELECT * FROM class_levels WHERE class = ? AND level = ?",
+            (class_name.lower(), level),
         ).fetchone()
     if not row:
         return None
     result = dict(row)
+    result.pop("class", None)  # tabel-diskriminator, ikke en del af niveau-dataene
     result["features"] = json.loads(result["features"])
     result["spell_slots"] = [
         result[f"spells_{i}"] for i in range(10)
