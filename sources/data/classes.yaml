@@ -22,6 +22,17 @@ barbarian:
   skill_points: 4
   starting_gold: "4d4*10"
   age_group: fast        # SRD startalders-gruppe (fast/medium/slow)
+  speed_bonus: 10        # Fast Movement: +10 ft (barbar er ikke prof. i heavy armor)
+  class_skills:
+    - climb
+    - craft
+    - handle_animal
+    - intimidate
+    - jump
+    - listen
+    - ride
+    - survival
+    - swim
 
 fighter:
   hit_die: 10

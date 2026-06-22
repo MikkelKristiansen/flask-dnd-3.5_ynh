@@ -27,7 +27,7 @@ from effects import (ABILITIES, SAVE_TARGETS, resolve_modifiers,  # noqa: F401
                      effective_ability_scores)
 from refdata import (  # noqa: F401
     hit_die, skill_points_per_level, is_feat_level, is_ability_level, class_skills,
-    race_data, race_ids, race_bio, class_age_group,
+    race_data, race_ids, race_bio, class_age_group, class_speed_bonus,
     STANDARD_LANGUAGES, class_languages, race_bonus_languages,
     automatic_languages, bonus_language_pool, bonus_language_count,
     apply_racial_adjustments, level1_feat_count, class_bonus_feats,

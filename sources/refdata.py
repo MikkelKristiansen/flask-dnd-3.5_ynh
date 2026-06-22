@@ -187,6 +187,11 @@ def class_age_group(cls: str) -> str:
     return str(class_data(cls).get("age_group", "medium"))
 
 
+def class_speed_bonus(cls: str) -> int:
+    """Klassens speed-bonus i ft (barbar: Fast Movement +10), default 0."""
+    return int(class_data(cls).get("speed_bonus", 0))
+
+
 # Feats hvor man vælger et specifikt våben (gemmes som {id, weapon} i stedet for
 # en ren id-streng). Bruges af generatoren, level-up og visningen.
 WEAPON_CHOICE_FEATS = {"weapon_focus", "weapon_specialization", "improved_critical"}
