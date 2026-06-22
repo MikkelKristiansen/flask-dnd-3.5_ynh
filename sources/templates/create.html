@@ -169,7 +169,7 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
       <div class="feat-row" style="flex-wrap:wrap">
         <input type="checkbox" id="feat_{{ ft.id }}" name="feats" value="{{ ft.id }}"
                onchange="onUpdate(){% if ft.id in weapon_choice_feats %};toggleFeatWeapon('{{ ft.id }}'){% endif %}">
-        <label for="feat_{{ ft.id }}">{{ ft.name }}{% if ft.prerequisites and ft.prerequisites != 'None' %}
+        <label for="feat_{{ ft.id }}" title="{{ ft.benefit }}">{{ ft.name }}{% if ft.prerequisites and ft.prerequisites != 'None' %}
           <span class="pre">— {{ ft.prerequisites }}</span>{% endif %}</label>
         {% if ft.id in weapon_choice_feats %}
         <select name="feat_weapon_{{ ft.id }}" id="featwpn_{{ ft.id }}"
@@ -197,7 +197,7 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
       <div class="feat-row" style="flex-wrap:wrap">
         <input type="checkbox" id="bfeat_{{ ft.id }}" name="bonus_feats" value="{{ ft.id }}"
                onchange="onUpdate(){% if ft.id in weapon_choice_feats %};toggleFeatWeapon('{{ ft.id }}','bfeat'){% endif %}">
-        <label for="bfeat_{{ ft.id }}">{{ ft.name }}{% if ft.prerequisites and ft.prerequisites != 'None' %}
+        <label for="bfeat_{{ ft.id }}" title="{{ ft.benefit }}">{{ ft.name }}{% if ft.prerequisites and ft.prerequisites != 'None' %}
           <span class="pre">— {{ ft.prerequisites }}</span>{% endif %}</label>
         {% if ft.id in weapon_choice_feats %}
         <select name="bonus_feat_weapon_{{ ft.id }}" id="bfeatwpn_{{ ft.id }}"
