@@ -2,14 +2,26 @@
 
 Ren data og små opslag/parsere uden runtime-afhængigheder: race-traits,
 sprogtabeller, klassens hit die / skill points / klassefærdigheder, feat-hjælpere
-og feat-prerequisite-parseren. Ingen karakter-tilstand, intet I/O — kun "hvordan
-ser reglerne/racerne ud". Beregninger der bruger en konkret karakter bor i
-character.py (rules); her er kildedataene de slår op i.
+og feat-prerequisite-parseren. Ingen karakter-tilstand — kun "hvordan ser
+reglerne/racerne ud". Race-data indlæses fra data/races.yaml ved import (kilden
+til sandheden); resten er små opslag og parsere. Beregninger der bruger en konkret
+karakter bor i character.py (rules); her er kildedataene de slår op i.
 
 character.py re-eksporterer disse navne (façade), så char_module.race_data /
 hit_die / feat_id m.fl. virker uændret.
 """
 import re
+from pathlib import Path
+
+from ruamel.yaml import YAML
+
+_DATA_DIR = Path(__file__).parent / "data"
+
+
+def _load_yaml(name: str):
+    """Indlæs data/<name>.yaml (race-/klassedata) → Python-struktur."""
+    yaml = YAML(typ="safe")
+    return yaml.load(_DATA_DIR / f"{name}.yaml") or {}
 
 
 _HIT_DIE = {
@@ -56,7 +68,7 @@ def hit_die(cls: str) -> int:
 
 
 def skill_points_per_level(cls: str, int_modifier: int, race: str = "") -> int:
-    race_bonus = 1 if race.lower() == "human" else 0
+    race_bonus = race_data(race).get("skill_point_bonus_per_level", 0)
     return max(1, _SKILL_POINTS.get(cls.lower(), 2) + int_modifier + race_bonus)
 
 
@@ -79,89 +91,17 @@ def class_skills(cls: str) -> set[str]:
 # size/speed, lægge racial skill-bonusser i skills' misc, og pre-udfylde
 # racial_traits i samme format som de håndskrevne karakterer bruger.
 # ---------------------------------------------------------------------------
-_RACES: dict[str, dict] = {
-    "human": {
-        "size": "medium", "speed": 30,
-        "ability_adjust": {},
-        "skill_bonuses": {},
-        # Sprog: automatiske kan altid; bonus vælges (antal = Int-mod). Human kan
-        # vælge et hvilket som helst standardsprog (sættes dynamisk = STANDARD_LANGUAGES).
-        "languages": {"automatic": ["Common"], "bonus": "any"},
-        "bonus_feats": 1,                 # ekstra feat ved level 1 (skill point håndteres i skill_points_per_level)
-        "traits": {
-            "bonus_feat": "1 ekstra feat ved level 1",
-            "skill_points": "+1 skill point pr. level (medregnet automatisk)",
-            "size": "Medium",
-            "speed": "30 ft.",
-        },
-    },
-    "elf": {
-        "size": "medium", "speed": 30,
-        "ability_adjust": {"dex": 2, "con": -2},
-        "skill_bonuses": {"listen": 2, "spot": 2, "search": 2},
-        "languages": {"automatic": ["Common", "Elven"],
-                      "bonus": ["Draconic", "Gnoll", "Gnome", "Goblin", "Orc", "Sylvan"]},
-        "bonus_feats": 0,
-        "traits": {
-            "stat_mods": "+2 DEX, -2 CON",
-            "immunities": "Immun over for magisk sleep; +2 på saves mod enchantment",
-            "low_light_vision": True,
-            "keen_senses": "+2 på Listen, Spot og Search; automatisk Search-tjek for hemmelige døre inden for 5 ft.",
-            "weapon_proficiency": "Longsword, rapier, longbow, shortbow",
-            "size": "Medium", "speed": "30 ft.",
-        },
-    },
-    "gnome": {
-        "size": "small", "speed": 20,
-        "ability_adjust": {"con": 2, "str": -2},
-        "skill_bonuses": {"listen": 2},
-        "languages": {"automatic": ["Common", "Gnome"],
-                      "bonus": ["Draconic", "Dwarven", "Elven", "Giant", "Goblin", "Orc"]},
-        "bonus_feats": 0,
-        "traits": {
-            "stat_mods": "+2 CON, -2 STR",
-            "size": "Small",
-            "size_bonuses": "+1 AC, +1 angreb, +4 Hide",
-            "low_light_vision": True,
-            "illusion_save_bonus": 2,
-            "illusion_dc_bonus": 1,
-            "attack_bonus_vs": "Kobolder og goblinoids +1",
-            "dodge_ac_vs": "Giant-type monstre +4",
-            "listen_bonus": 2,
-            "spell_like_abilities": [
-                {"id": "speak_with_animals", "note": "gravende dyr", "freq": "1/dag"},
-                {"id": "dancing_lights", "freq": "1/dag"},
-                {"id": "ghost_sound", "freq": "1/dag"},
-                {"id": "prestidigitation", "freq": "1/dag"},
-            ],
-        },
-    },
-    "halfling": {
-        "size": "small", "speed": 20,
-        "ability_adjust": {"dex": 2, "str": -2},
-        # Racial skill-affinitet (ikke størrelses-Hide — den er kun tekst, som hos gnome).
-        "skill_bonuses": {"climb": 2, "jump": 2, "move_silently": 2, "listen": 2},
-        "languages": {"automatic": ["Common", "Halfling"],
-                      "bonus": ["Dwarven", "Elven", "Gnome", "Goblin", "Orc"]},
-        "save_bonus": 1,                  # +1 på ALLE saves (racial, lægges på i save_total)
-        "bonus_feats": 0,
-        "traits": {
-            "stat_mods": "+2 DEX, -2 STR",
-            "size": "Small",
-            "size_bonuses": "+1 AC, +1 angreb, +4 Hide",
-            "saves": "+1 på alle saves (medregnet i tallene)",
-            "fear_save_bonus": "+2 morale mod frygt (oveni racial +1)",
-            "thrown_attack_bonus": "+1 angreb med kastevåben og slynge",
-            "skill_affinity": "+2 Climb, Jump og Move Silently; +2 Listen",
-            "favored_class": "Rogue",
-        },
-    },
-}
+_RACES: dict[str, dict] = _load_yaml("races")
 
 
 def race_data(race: str) -> dict:
     """Race-data (size, speed, ability-justeringer, skill-bonusser, traits) eller {}."""
     return _RACES.get(race.lower(), {})
+
+
+def race_ids() -> list[str]:
+    """Race-id'er i den rækkefølge de står i data/races.yaml (til generator-listen)."""
+    return list(_RACES.keys())
 
 
 # Standardsprog i SRD. Druidic er hemmeligt (kun druider) og er IKKE i "any"-puljen

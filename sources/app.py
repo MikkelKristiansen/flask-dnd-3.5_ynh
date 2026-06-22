@@ -17,9 +17,11 @@ import db
 import dice as dice_module
 import effects
 
-# Klasser/racer generatoren understøtter (v1: de motoren er bevist mod + ranger).
+# Klasser generatoren understøtter (v1: de motoren er bevist mod + ranger).
 GEN_CLASSES = ["Cleric", "Druid", "Ranger", "Rogue"]
-GEN_RACES = ["Human", "Elf", "Gnome", "Halfling"]
+# Racer udledes fra data/races.yaml — en race er ren data (ingen motor-logik), så
+# enhver race i datafilen er fuldt understøttet. Tilføj en race = tilføj en YAML-blok.
+GEN_RACES = [r.capitalize() for r in char_module.race_ids()]
 GEN_DOMAINS = ["healing", "protection", "war", "knowledge", "good", "luck"]
 
 
@@ -337,10 +339,11 @@ def create_character():
         int_mod = (final["int"] - 10) // 2
         con_mod = (final["con"] - 10) // 2
 
-        # Skills: budget = (klasse-basis + INT + human) × 4; klasse-skill cap 4 (cost 1),
-        # cross-class cap 2 (cost 2).
+        # Skills: budget = (klasse-basis + INT + racial bonus) × 4; klasse-skill cap 4
+        # (cost 1), cross-class cap 2 (cost 2). Racial bonus (human: +1) kommer fra data.
+        race_skill_bonus = char_module.race_data(race).get("skill_point_bonus_per_level", 0)
         budget = max(1, char_module.base_skill_points(cls) + int_mod
-                     + (1 if race == "Human" else 0)) * 4
+                     + race_skill_bonus) * 4
         cls_sk = char_module.class_skills(cls)
         spent, skills_out = 0, {}
         for s in db.get_all_skills():
