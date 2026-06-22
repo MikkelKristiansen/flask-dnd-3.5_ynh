@@ -25,7 +25,32 @@ def _load_yaml(name: str):
     return yaml.load(_DATA_DIR / f"{name}.yaml") or {}
 
 
-_CLASSES: dict[str, dict] = _load_yaml("classes")
+def _load_records(name: str, required: tuple = ()) -> dict:
+    """Indlæs data/<name>.yaml som mapping ``id → felt-dict``, valideret.
+
+    Fejler tydeligt ved import (app-start) hvis filen er forkert formet eller en
+    blok mangler påkrævede felter — så en YAML-tastefejl fanges før deploy i
+    stedet for at give stille forkert opførsel.
+    """
+    data = _load_yaml(name)
+    if not isinstance(data, dict):
+        raise ValueError(
+            f"data/{name}.yaml: forventede en mapping (id: felter), "
+            f"fik {type(data).__name__}")
+    for key, fields in data.items():
+        if not isinstance(fields, dict):
+            raise ValueError(
+                f"data/{name}.yaml: '{key}' skal være en blok af felter, "
+                f"ikke {type(fields).__name__}")
+        missing = [f for f in required if f not in fields]
+        if missing:
+            raise ValueError(
+                f"data/{name}.yaml: '{key}' mangler påkrævede felter: "
+                f"{', '.join(missing)}")
+    return data
+
+
+_CLASSES: dict[str, dict] = _load_records("classes")
 
 
 def class_data(cls: str) -> dict:
@@ -61,7 +86,7 @@ def class_skills(cls: str) -> set[str]:
 # size/speed, lægge racial skill-bonusser i skills' misc, og pre-udfylde
 # racial_traits i samme format som de håndskrevne karakterer bruger.
 # ---------------------------------------------------------------------------
-_RACES: dict[str, dict] = _load_yaml("races")
+_RACES: dict[str, dict] = _load_records("races", required=("size", "speed"))
 
 
 def race_data(race: str) -> dict:
