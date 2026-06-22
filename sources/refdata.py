@@ -165,7 +165,7 @@ def feat_label(entry, feat_row: dict | None = None) -> str:
 
 
 def class_needs_domains(cls: str) -> bool:
-    return cls.lower() == "cleric"
+    return bool(class_data(cls).get("needs_domains", False))
 
 
 def base_skill_points(cls: str) -> int:
@@ -186,11 +186,12 @@ _LEVEL_PREREQ_RE = re.compile(r"level\s+(\d+)", re.I)  # fx "Fighter level 4"
 
 
 def class_can_turn_undead(cls: str) -> bool:
-    return cls.lower() == "cleric"
+    return bool(class_data(cls).get("turn_undead", False))
 
 
 def class_has_wild_shape(cls: str, level: int) -> bool:
-    return cls.lower() == "druid" and level >= 5
+    from_level = class_data(cls).get("wild_shape_from_level")
+    return from_level is not None and level >= from_level
 
 
 def feat_prereq_unmet(prereq_text: str, owned_feat_ids, scores: dict,

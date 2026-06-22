@@ -9,6 +9,9 @@
 #   class_skills   — klassefærdigheder (koster 1 point/rank, cap = level+3)
 #   languages      — {automatic: [...], bonus: [...]}; udeladt = ingen klassesprog
 #   bonus_feats    — feats klassen giver gratis ved level 1 (tæller ikke mod valgte)
+#   needs_domains  — true hvis klassen vælger domæner ved oprettelse (cleric)
+#   turn_undead    — true hvis klassen kan turn/rebuke undead (cleric)
+#   wild_shape_from_level — laveste level hvor wild shape fås (druid: 5)
 #
 # NB: Kun de klasser generatoren er bevist mod (cleric/druid/ranger/rogue) har fuld
 # data (class_skills m.m.). De øvrige har indtil videre kun hit_die + skill_points;
@@ -48,6 +51,8 @@ wizard:
 cleric:
   hit_die: 8
   skill_points: 2
+  needs_domains: true        # vælger 2 domæner ved oprettelse
+  turn_undead: true          # kan turn/rebuke undead
   class_skills:
     - concentration
     - craft
@@ -66,6 +71,7 @@ cleric:
 druid:
   hit_die: 8
   skill_points: 4
+  wild_shape_from_level: 5   # wild shape-evne fra og med dette level
   class_skills:
     - concentration
     - craft
