@@ -23,7 +23,13 @@ GEN_CLASSES = ["Cleric", "Druid", "Fighter", "Ranger", "Rogue"]
 # enhver race i datafilen er fuldt understøttet. Tilføj en race = tilføj en YAML-blok.
 # .title() (ikke .capitalize()) så hyphenerede racer vises korrekt: half-orc → Half-Orc.
 GEN_RACES = [r.title() for r in char_module.race_ids()]
-GEN_DOMAINS = ["healing", "protection", "war", "knowledge", "good", "luck"]
+# Alle 22 SRD-kerne-domæner. En kleriker vælger 2. Granted power er den primære
+# gevinst ved level 1; domain-spells dækkes i det omfang de findes i spells-DB'en.
+GEN_DOMAINS = [
+    "air", "animal", "chaos", "death", "destruction", "earth", "evil", "fire",
+    "good", "healing", "knowledge", "law", "luck", "magic", "plant", "protection",
+    "strength", "sun", "travel", "trickery", "war", "water",
+]
 
 
 app = Flask(__name__)
