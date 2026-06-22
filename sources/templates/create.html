@@ -40,7 +40,7 @@ input[type=text],input[type=number],select{width:100%;background:var(--card);
   border-radius:6px;padding:.4rem;}
 .skill-row{display:flex;align-items:center;gap:.5rem;padding:.25rem .2rem;border-bottom:1px solid rgba(107,95,83,.4);}
 .skill-row:last-child{border-bottom:none;}
-.skill-row .nm{flex:1;font-size:.85rem;}
+.skill-row .nm{flex:1;font-size:.85rem;cursor:help;}
 .skill-row .nm .cls{color:var(--accent);font-size:.7rem;margin-left:.3rem;}
 .skill-row .ab{color:var(--muted);font-size:.7rem;width:2.4rem;text-transform:uppercase;}
 .skill-row input{width:3.4rem;text-align:center;padding:.2rem;}
@@ -361,6 +361,9 @@ function rollGold(){
   document.getElementById('gold_gp').value = sum * (mult ? +mult : 1);
 }
 
+// Escape til HTML-attribut (skill-beskrivelser i title= indeholder " og &).
+function escAttr(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
 // Terning fra streng: "2d10" → rul; "1" → tallet selv.
 function rollDice(spec){
   const m = String(spec||'').match(/(\d+)d(\d+)/);
@@ -438,7 +441,7 @@ function buildSkillList(){
     const isCls = classSkills.has(s.id);
     const cap = isCls ? 4 : 2;
     return `<div class="skill-row">
-      <span class="nm">${s.name}${isCls?'<span class="cls">klasse</span>':''}</span>
+      <span class="nm" title="${escAttr(s.description)}">${s.name}${isCls?'<span class="cls">klasse</span>':''}</span>
       <span class="ab">${s.ability||''}</span>
       <input type="number" name="skill_${s.id}" data-cls="${isCls?1:0}" min="0" max="${cap}" value="0" oninput="onUpdate()">
     </div>`;
