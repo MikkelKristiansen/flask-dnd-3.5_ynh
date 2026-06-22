@@ -94,3 +94,29 @@ halfling:
     thrown_attack_bonus: "+1 angreb med kastevåben og slynge"
     skill_affinity: "+2 Climb, Jump og Move Silently; +2 Listen"
     favored_class: Rogue
+
+dwarf:
+  size: medium
+  speed: 20
+  ability_adjust: {con: 2, cha: -2}
+  # Dværgens skill-bonusser er betingede (kun sten/metal) → står i traits, ikke
+  # som ubetingede skill_bonuses (jf. gnome). Save-bonusser er også betingede.
+  skill_bonuses: {}
+  languages:
+    automatic: [Common, Dwarven]
+    bonus: [Giant, Gnome, Goblin, Orc, Terran, Undercommon]
+  bonus_feats: 0
+  traits:
+    stat_mods: "+2 CON, -2 CHA"
+    size: Medium
+    speed: "20 ft. (reduceres ikke af rustning eller bæring)"
+    darkvision: "60 ft."
+    stonecunning: "+2 Search for usædvanligt stenarbejde; kan søge inden for 10 ft.; fornem dybde under jorden"
+    weapon_familiarity: "Dwarven waraxe og urgrosh tæller som martial weapons"
+    stability: "+4 mod bull rush og trip når man står på jorden"
+    poison_save_bonus: "+2 på saves mod gift"
+    spell_save_bonus: "+2 på saves mod spells og spell-like abilities"
+    attack_bonus_vs: "+1 angreb mod orker og goblinoids"
+    dodge_ac_vs: "+4 dodge-AC mod giant-type monstre"
+    skill_affinity: "+2 Appraise og Craft for sten- eller metalgenstande"
+    favored_class: Fighter
