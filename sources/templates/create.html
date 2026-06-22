@@ -281,10 +281,13 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
     </div>
     <button type="button" class="add-btn" onclick="addWeapon()">+ Tilføj våben</button>
     <div id="weapons" style="margin-top:.5rem"></div>
-    <label style="margin-top:.8rem">Startguld</label>
+    <label style="margin-top:.8rem">Startguld
+      <span id="gold-formula" style="color:var(--muted);font-size:.75rem;font-weight:normal"></span>
+      <button type="button" onclick="rollGold()" style="font-size:.75rem;padding:.15rem .5rem;margin-left:.4rem">🎲 Rul</button>
+    </label>
     <div class="gold-grid">
       {% for coin in ['pp','gp','sp','cp'] %}
-      <div><input type="number" name="gold_{{ coin }}" min="0" value="0" placeholder="{{ coin }}"></div>
+      <div><input type="number" id="gold_{{ coin }}" name="gold_{{ coin }}" min="0" value="0" placeholder="{{ coin }}"></div>
       {% endfor %}
     </div>
   </div>
@@ -331,6 +334,18 @@ function rollScores(){
   const r1 = () => { const d=[0,0,0,0].map(()=>1+Math.floor(Math.random()*6)).sort((a,b)=>a-b); return d[1]+d[2]+d[3]; };
   const sets = Array.from({length:6}, r1).sort((a,b)=>b-a);
   document.getElementById('roll-result').textContent = 'Fordel selv: ' + sets.join(', ');
+}
+
+// Startguld: vis terningen pænt og rul den ind i gp-feltet (redigerbart bagefter).
+function goldFormula(spec){ return spec ? spec.replace('*','×') + ' gp' : ''; }
+function rollGold(){
+  const cd = CLASSES[document.getElementById('cls').value.toLowerCase()];
+  const m = (cd && cd.starting_gold || '').match(/(\d+)d(\d+)(?:\*(\d+))?/);
+  if (!m) return;
+  const [, n, die, mult] = m;
+  let sum = 0;
+  for (let i=0;i<+n;i++) sum += 1 + Math.floor(Math.random()*(+die));
+  document.getElementById('gold_gp').value = sum * (mult ? +mult : 1);
 }
 
 // Vis/skjul våben-dropdown når en våben-feat krydses af/fra.
@@ -540,6 +555,10 @@ function onUpdate(){
 
   // Dyreledsager (kun klasser med companion ved level 1 = druide)
   document.getElementById('companion-section').classList.toggle('hidden', !cd.has_companion);
+
+  // Startguld-formel for den valgte klasse
+  document.getElementById('gold-formula').textContent =
+    cd.starting_gold ? '(' + goldFormula(cd.starting_gold) + ')' : '';
 
   // Submit-spærring
   const valid = ok && spent<=budget && featsOk && bfOk && domOk && langOk;

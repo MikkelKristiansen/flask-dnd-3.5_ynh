@@ -285,6 +285,7 @@ def _gen_context() -> dict:
             "needs_domains": char_module.class_needs_domains(c),
             "bonus_feats": char_module.class_bonus_feats(c),
             "bonus_feat_choices": char_module.class_bonus_feat_choices(c),
+            "starting_gold": char_module.class_starting_gold(c),
             "bab1": int((db.get_class_level(c.lower(), 1) or {}).get("bab", 0)),
             "turn_undead": char_module.class_can_turn_undead(c),
             # Companion ved level 1 (kun druide; ranger får først ved level 4).

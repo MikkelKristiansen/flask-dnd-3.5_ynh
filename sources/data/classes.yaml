@@ -20,10 +20,12 @@
 barbarian:
   hit_die: 12
   skill_points: 4
+  starting_gold: "4d4*10"
 
 fighter:
   hit_die: 10
   skill_points: 2
+  starting_gold: "6d4*10"
   # bonus_feat_choices: antal ekstra feats spilleren vælger fra fighter-bonus-puljen
   # (feats med type=Fighter i feats.yaml), oveni de race-baserede valgte feats.
   bonus_feat_choices: 1
@@ -39,22 +41,27 @@ fighter:
 paladin:
   hit_die: 10
   skill_points: 2
+  starting_gold: "6d4*10"
 
 monk:
   hit_die: 8
   skill_points: 4
+  starting_gold: "5d4"
 
 bard:
   hit_die: 6
   skill_points: 6
+  starting_gold: "4d4*10"
 
 sorcerer:
   hit_die: 4
   skill_points: 2
+  starting_gold: "3d4*10"
 
 wizard:
   hit_die: 4
   skill_points: 2
+  starting_gold: "3d4*10"
   languages:
     automatic: []
     bonus: [Draconic]
@@ -62,6 +69,7 @@ wizard:
 cleric:
   hit_die: 8
   skill_points: 2
+  starting_gold: "5d4*10"
   needs_domains: true        # vælger 2 domæner ved oprettelse
   turn_undead: true          # kan turn/rebuke undead
   class_skills:
@@ -82,6 +90,7 @@ cleric:
 druid:
   hit_die: 8
   skill_points: 4
+  starting_gold: "2d4*10"
   wild_shape_from_level: 5   # wild shape-evne fra og med dette level
   class_skills:
     - concentration
@@ -106,6 +115,7 @@ druid:
 ranger:
   hit_die: 8
   skill_points: 6
+  starting_gold: "6d4*10"
   class_skills:
     - climb
     - concentration
@@ -131,6 +141,7 @@ ranger:
 rogue:
   hit_die: 6
   skill_points: 8
+  starting_gold: "5d4*10"
   class_skills:
     - appraise
     - balance

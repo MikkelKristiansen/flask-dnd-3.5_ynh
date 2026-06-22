@@ -172,6 +172,11 @@ def class_bonus_feat_choices(cls: str) -> int:
     return int(class_data(cls).get("bonus_feat_choices", 0))
 
 
+def class_starting_gold(cls: str) -> str:
+    """Klassens start-guld-terning som streng (fx '6d4*10'), eller '' hvis ukendt."""
+    return str(class_data(cls).get("starting_gold", ""))
+
+
 # Feats hvor man vælger et specifikt våben (gemmes som {id, weapon} i stedet for
 # en ren id-streng). Bruges af generatoren, level-up og visningen.
 WEAPON_CHOICE_FEATS = {"weapon_focus", "weapon_specialization", "improved_critical"}
