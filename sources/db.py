@@ -158,6 +158,8 @@ def _animal_row(row) -> dict:
     rec["attacks"] = json.loads(rec["attacks"])
     rec["skills"] = json.loads(rec["skills"])
     rec["feats"] = json.loads(rec["feats"])
+    if rec.get("good_saves"):
+        rec["good_saves"] = json.loads(rec["good_saves"])
     return rec
 
 

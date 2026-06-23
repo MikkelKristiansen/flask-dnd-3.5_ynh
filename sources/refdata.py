@@ -319,3 +319,16 @@ def spell_like_dc(spell_level: int, cha_modifier: int, extra: int = 0) -> int:
     DC for illusionsskoler.
     """
     return 10 + spell_level + cha_modifier + extra
+
+
+# Summon Nature's Ally-tabellen: SNA-spellniveau → liste af væsen-id'er (refererer
+# ind i animals-kataloget). Dokument-formet, derfor her og ikke i SQLite.
+_SUMMON_LISTS: dict = _load_yaml("summon_lists")
+
+
+def summon_creatures(spell_level: int) -> list[str]:
+    """Væsen-id'er der kan summones med Summon Nature's Ally af et givet niveau.
+
+    Tom liste hvis niveauet ikke (endnu) findes i tabellen.
+    """
+    return list(_SUMMON_LISTS.get(spell_level) or [])

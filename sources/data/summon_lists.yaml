@@ -1,0 +1,52 @@
+# summon_lists — Summon Nature's Ally-tabellen (SRD v3.5, OGL v1.0a).
+#
+# Mapper SNA-spellniveau (I=1 … IX=9) → liste af væsen-id'er. Id'erne refererer
+# ind i data/animals.yaml (det delte væsen-katalog). Et væsen kan optræde på
+# flere lister er ikke tilfældet i SRD, men flere companion-dyr går igen her.
+#
+# Dokument-formet data (ikke SQLite) — indlæses af refdata.py.
+#
+# Status: SNA I-III implementeret (Fase 0). IV-IX tilføjes senere (Fase 6) som
+# ren data; ingen kodeændring nødvendig.
+#
+# Note: Aquatic-væsner (octopus, porpoise, shark, squid) kan kun summones i
+# vand/vådt miljø (SRD-fodnote 1). Det håndhæves ikke mekanisk — det er en
+# spil-beslutning ved bordet.
+
+1:
+  - dire_rat
+  - eagle
+  - monkey
+  - octopus
+  - owl
+  - porpoise
+  - viper_small
+  - wolf
+
+2:
+  - black_bear
+  - crocodile
+  - dire_badger
+  - dire_bat
+  - elemental_air_small
+  - elemental_earth_small
+  - elemental_fire_small
+  - elemental_water_small
+  - hippogriff
+  - shark_medium
+  - viper_medium
+  - squid
+  - wolverine
+
+3:
+  - ape
+  - dire_weasel
+  - dire_wolf
+  - eagle_giant
+  - lion
+  - owl_giant
+  - satyr
+  - shark_large
+  - snake_constrictor
+  - viper_large
+  - thoqqua

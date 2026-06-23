@@ -1,18 +1,34 @@
-# animals — SRD v3.5 basis-statblokke for dyreledsagere (OGL v1.0a). Kilden til sandheden.
+# animals — SRD v3.5 basis-statblokke for væsner (OGL v1.0a). Kilden til sandheden.
 #
-# Kun det RÅ basis-dyr gemmes her. Alt mekanisk (HP, AC, BAB, grapple, saves,
-# initiativ, til-hit, skade) BEREGNES i companion.py ud fra base_hd + abilities
-# + companion-avancement (effektivt druideniveau). Gem aldrig beregnede totaler.
+# DELT KATALOG: rummer både animal companions OG væsner der kan summones med
+# Summon Nature's Ally (se data/summon_lists.yaml for niveau→væsen-tabellen).
+# Trods navnet "animals" kan kataloget også indeholde elementaler, magical beasts
+# og fey (de summonbare ikke-dyr).
+#
+# Kun det RÅ basis-væsen gemmes her. Alt mekanisk (HP, AC, BAB, grapple, saves,
+# initiativ, til-hit, skade) BEREGNES (companion.py for companions; summon.py for
+# summons) ud fra base_hd + abilities. Gem aldrig beregnede totaler.
 #
 # Felt-noter:
-#   base_hd  = antal d8 før bonus-HD fra avancement.
+#   base_hd      = antal hit dice før bonus-HD fra avancement.
+#   type         = animal (UDELAD = default) | magical_beast | elemental | fey.
+#                  Styrer BAB: animal/elemental ¾·HD · magical_beast 1·HD · fey ½·HD.
+#   hit_die      = terningtype pr. HD. UDELAD for dyr/elementaler (= d8); sæt 10
+#                  for magical beasts, 6 for fey. Bruges kun til HP-beregning.
+#   good_saves   = JSON-liste over de "gode" saves. UDELAD = udled af type
+#                  (animal/magical_beast: ["fort","ref"] · fey: ["ref","will"]).
+#                  KRÆVES for elementaler (varierer pr. element: luft/ild ["ref"],
+#                  jord/vand ["fort"]).
+#   companion_ok = UDELAD (eller true) = kan vælges som animal companion;
+#                  false = kun summonbar (vises ikke i companion-vælgeren).
 #   attacks  = JSON: group=primary får fuld Str (eller ×1,5 hvis ENESTE angreb),
 #              secondary får −5 til-hit og ½ Str. count = antal af samme våben.
 #   skills   = JSON: misc = printet total − basis-abilitymod, så totalen følger
 #              med når avancement hæver Str/Dex. note = situationsbestemt bonus.
 #   feats    = JSON: navne (Weapon Finesse/Weapon Focus aflæses af beregningen).
 #
-# Standard druide/ranger-liste (level 1, ingen niveaujustering).
+# ── Animal companions (standard druide/ranger-liste, level 1) ────────────────
+# (companion_ok udeladt = egnet; flere af disse er også på SNA-tabellen.)
 
 - id: badger
   name: Badger
@@ -265,3 +281,527 @@
   special_qualities: "Low-light vision, scent"
   skills: '[{"id": "hide", "misc": 0}, {"id": "listen", "misc": 2}, {"id": "move_silently", "misc": 1}, {"id": "spot", "misc": 2}, {"id": "survival", "misc": 0, "note": "+4 ved tracking by scent"}]'
   feats: '["Track", "Weapon Focus (Bite)"]'
+
+# ── Summon Nature's Ally — kun summonbare væsner (companion_ok: false) ────────
+# Niveau-tilknytning står i data/summon_lists.yaml. Statblokke verificeret mod
+# SRD-monsterkilderne. Skade gemmes UDEN Str-bidrag (beregnes); rider-skade
+# (ild/gift) står som tekst i special_attacks.
+
+# --- SNA 1. niveau ---
+- id: monkey
+  name: Monkey
+  size: tiny
+  base_hd: 1
+  str: 3
+  dex: 15
+  con: 10
+  int: 2
+  wis: 12
+  cha: 5
+  natural_armor: 0
+  speed: "30 ft., climb 30 ft."
+  attacks: '[{"name": "Bite", "damage": "1d3", "group": "primary"}]'
+  special_attacks: null
+  special_qualities: "Low-light vision"
+  skills: '[{"id": "balance", "misc": 8}, {"id": "climb", "misc": 14}, {"id": "hide", "misc": 8}, {"id": "listen", "misc": 2}, {"id": "spot", "misc": 2}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: octopus
+  name: Octopus
+  size: small
+  base_hd: 2
+  str: 12
+  dex: 17
+  con: 11
+  int: 2
+  wis: 12
+  cha: 3
+  natural_armor: 2
+  speed: "20 ft., swim 30 ft."
+  attacks: '[{"name": "Arms", "damage": "0", "group": "primary"}, {"name": "Bite", "damage": "1d3", "group": "secondary"}]'
+  special_attacks: "Improved grab"
+  special_qualities: "Ink cloud, jet, low-light vision"
+  skills: '[{"id": "escape_artist", "misc": 10}, {"id": "hide", "misc": 8}, {"id": "listen", "misc": 1}, {"id": "spot", "misc": 4}, {"id": "swim", "misc": 8}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: porpoise
+  name: Porpoise
+  size: medium
+  base_hd: 2
+  str: 11
+  dex: 17
+  con: 13
+  int: 2
+  wis: 12
+  cha: 6
+  natural_armor: 2
+  speed: "swim 80 ft."
+  attacks: '[{"name": "Slam", "damage": "2d4", "group": "primary"}]'
+  special_attacks: null
+  special_qualities: "Blindsight 120 ft., hold breath, low-light vision"
+  skills: '[{"id": "listen", "misc": 7}, {"id": "spot", "misc": 6}, {"id": "swim", "misc": 8}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+# --- SNA 2. niveau ---
+- id: black_bear
+  name: Black Bear
+  size: medium
+  base_hd: 3
+  str: 19
+  dex: 13
+  con: 15
+  int: 2
+  wis: 12
+  cha: 6
+  natural_armor: 2
+  speed: "40 ft."
+  attacks: '[{"name": "Claw", "damage": "1d4", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d6", "group": "secondary"}]'
+  special_attacks: null
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "climb", "misc": 0}, {"id": "listen", "misc": 3}, {"id": "spot", "misc": 3}, {"id": "swim", "misc": 4}]'
+  feats: '["Endurance", "Run"]'
+  companion_ok: false
+
+- id: crocodile
+  name: Crocodile
+  size: medium
+  base_hd: 3
+  str: 19
+  dex: 12
+  con: 17
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 4
+  speed: "20 ft., swim 30 ft."
+  attacks: '[{"name": "Bite", "damage": "1d8", "group": "primary"}]'
+  special_attacks: "Improved grab (alternativt tail slap 1d12)"
+  special_qualities: "Hold breath, low-light vision"
+  skills: '[{"id": "hide", "misc": 6, "note": "+4 i vand, +10 kun øjne/næsebor over vand"}, {"id": "listen", "misc": 3}, {"id": "spot", "misc": 3}, {"id": "swim", "misc": 8}]'
+  feats: '["Alertness", "Skill Focus (Hide)"]'
+  companion_ok: false
+
+- id: dire_badger
+  name: Dire Badger
+  size: medium
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 14
+  dex: 17
+  con: 19
+  int: 2
+  wis: 12
+  cha: 10
+  natural_armor: 3
+  speed: "30 ft., burrow 10 ft."
+  attacks: '[{"name": "Claw", "damage": "1d4", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d6", "group": "secondary"}]'
+  special_attacks: Rage
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 5}, {"id": "spot", "misc": 5}]'
+  feats: '["Alertness", "Toughness", "Track"]'
+  companion_ok: false
+
+- id: dire_bat
+  name: Dire Bat
+  size: large
+  base_hd: 4
+  good_saves: '["fort","ref","will"]'
+  str: 17
+  dex: 22
+  con: 17
+  int: 2
+  wis: 14
+  cha: 6
+  natural_armor: 5
+  speed: "20 ft., fly 40 ft. (good)"
+  attacks: '[{"name": "Bite", "damage": "1d8", "group": "primary"}]'
+  special_attacks: null
+  special_qualities: "Blindsense 40 ft."
+  skills: '[{"id": "hide", "misc": -2}, {"id": "listen", "misc": 10, "note": "mister +4 hvis blindsense slås fra"}, {"id": "move_silently", "misc": 5}, {"id": "spot", "misc": 6, "note": "mister +4 hvis blindsense slås fra"}]'
+  feats: '["Alertness", "Stealthy"]'
+  companion_ok: false
+
+- id: elemental_air_small
+  name: Small Air Elemental
+  size: small
+  type: elemental
+  base_hd: 2
+  good_saves: '["ref"]'
+  str: 10
+  dex: 17
+  con: 10
+  int: 4
+  wis: 11
+  cha: 11
+  natural_armor: 3
+  speed: "fly 100 ft. (perfect)"
+  attacks: '[{"name": "Slam", "damage": "1d4", "group": "primary"}]'
+  special_attacks: "Air mastery, whirlwind (DC 11)"
+  special_qualities: "Darkvision 60 ft., elemental traits"
+  skills: '[{"id": "listen", "misc": 2}, {"id": "spot", "misc": 3}]'
+  feats: '["Flyby Attack", "Improved Initiative", "Weapon Finesse"]'
+  companion_ok: false
+
+- id: elemental_earth_small
+  name: Small Earth Elemental
+  size: small
+  type: elemental
+  base_hd: 2
+  good_saves: '["fort"]'
+  str: 17
+  dex: 8
+  con: 13
+  int: 4
+  wis: 11
+  cha: 11
+  natural_armor: 7
+  speed: "20 ft."
+  attacks: '[{"name": "Slam", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Earth mastery, push"
+  special_qualities: "Darkvision 60 ft., earth glide, elemental traits"
+  skills: '[{"id": "listen", "misc": 3}, {"id": "spot", "misc": 2}]'
+  feats: '["Power Attack"]'
+  companion_ok: false
+
+- id: elemental_fire_small
+  name: Small Fire Elemental
+  size: small
+  type: elemental
+  base_hd: 2
+  good_saves: '["ref"]'
+  str: 10
+  dex: 13
+  con: 10
+  int: 4
+  wis: 11
+  cha: 11
+  natural_armor: 3
+  speed: "50 ft."
+  attacks: '[{"name": "Slam", "damage": "1d4", "group": "primary"}]'
+  special_attacks: "Burn (1d4 fire, Reflex DC 11)"
+  special_qualities: "Darkvision 60 ft., elemental traits, immunity to fire, vulnerability to cold"
+  skills: '[{"id": "listen", "misc": 2}, {"id": "spot", "misc": 3}]'
+  feats: '["Dodge", "Improved Initiative", "Weapon Finesse"]'
+  companion_ok: false
+
+- id: elemental_water_small
+  name: Small Water Elemental
+  size: small
+  type: elemental
+  base_hd: 2
+  good_saves: '["fort"]'
+  str: 14
+  dex: 10
+  con: 13
+  int: 4
+  wis: 11
+  cha: 11
+  natural_armor: 6
+  speed: "20 ft., swim 90 ft."
+  attacks: '[{"name": "Slam", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Water mastery, drench, vortex"
+  special_qualities: "Darkvision 60 ft., elemental traits"
+  skills: '[{"id": "listen", "misc": 2}, {"id": "spot", "misc": 3}]'
+  feats: '["Power Attack"]'
+  companion_ok: false
+
+- id: hippogriff
+  name: Hippogriff
+  size: large
+  type: magical_beast
+  base_hd: 3
+  hit_die: 10
+  str: 18
+  dex: 15
+  con: 16
+  int: 2
+  wis: 13
+  cha: 8
+  natural_armor: 4
+  speed: "50 ft., fly 100 ft. (average)"
+  attacks: '[{"name": "Claw", "damage": "1d4", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d8", "group": "secondary"}]'
+  special_attacks: null
+  special_qualities: "Darkvision 60 ft., low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 3}, {"id": "spot", "misc": 7}]'
+  feats: '["Dodge", "Wingover"]'
+  companion_ok: false
+
+- id: shark_medium
+  name: Medium Shark
+  size: medium
+  base_hd: 3
+  str: 13
+  dex: 15
+  con: 13
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 3
+  speed: "swim 60 ft."
+  attacks: '[{"name": "Bite", "damage": "1d6", "group": "primary"}]'
+  special_attacks: null
+  special_qualities: "Blindsense, keen scent"
+  skills: '[{"id": "listen", "misc": 5}, {"id": "spot", "misc": 5}, {"id": "swim", "misc": 8}]'
+  feats: '["Alertness", "Weapon Finesse"]'
+  companion_ok: false
+
+- id: squid
+  name: Squid
+  size: medium
+  base_hd: 3
+  str: 14
+  dex: 17
+  con: 11
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 3
+  speed: "swim 60 ft."
+  attacks: '[{"name": "Arms", "damage": "0", "group": "primary"}, {"name": "Bite", "damage": "1d6", "group": "secondary"}]'
+  special_attacks: "Improved grab"
+  special_qualities: "Ink cloud, jet, low-light vision"
+  skills: '[{"id": "listen", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "swim", "misc": 8}]'
+  feats: '["Alertness", "Endurance"]'
+  companion_ok: false
+
+- id: wolverine
+  name: Wolverine
+  size: medium
+  base_hd: 3
+  str: 14
+  dex: 15
+  con: 19
+  int: 2
+  wis: 12
+  cha: 10
+  natural_armor: 2
+  speed: "30 ft., burrow 10 ft., climb 10 ft."
+  attacks: '[{"name": "Claw", "damage": "1d4", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d6", "group": "secondary"}]'
+  special_attacks: Rage
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "climb", "misc": 8}, {"id": "listen", "misc": 5}, {"id": "spot", "misc": 5}]'
+  feats: '["Alertness", "Toughness", "Track"]'
+  companion_ok: false
+
+# --- SNA 3. niveau ---
+- id: ape
+  name: Ape
+  size: large
+  base_hd: 4
+  str: 21
+  dex: 15
+  con: 14
+  int: 2
+  wis: 12
+  cha: 7
+  natural_armor: 3
+  speed: "30 ft., climb 30 ft."
+  attacks: '[{"name": "Claw", "damage": "1d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d6", "group": "secondary"}]'
+  special_attacks: null
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "climb", "misc": 9}, {"id": "listen", "misc": 5}, {"id": "spot", "misc": 5}]'
+  feats: '["Alertness", "Toughness"]'
+  companion_ok: false
+
+- id: dire_weasel
+  name: Dire Weasel
+  size: medium
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 14
+  dex: 19
+  con: 10
+  int: 2
+  wis: 12
+  cha: 11
+  natural_armor: 2
+  speed: "40 ft."
+  attacks: '[{"name": "Bite", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Attach, blood drain"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "hide", "misc": 4}, {"id": "listen", "misc": 2}, {"id": "move_silently", "misc": 4}, {"id": "spot", "misc": 4}]'
+  feats: '["Alertness", "Stealthy", "Weapon Finesse"]'
+  companion_ok: false
+
+- id: dire_wolf
+  name: Dire Wolf
+  size: large
+  base_hd: 6
+  good_saves: '["fort","ref","will"]'
+  str: 25
+  dex: 15
+  con: 17
+  int: 2
+  wis: 12
+  cha: 10
+  natural_armor: 3
+  speed: "50 ft."
+  attacks: '[{"name": "Bite", "damage": "1d8", "group": "primary"}]'
+  special_attacks: Trip
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "hide", "misc": -2}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 2}, {"id": "spot", "misc": 6}, {"id": "survival", "misc": 1, "note": "+4 ved tracking by scent"}]'
+  feats: '["Alertness", "Run", "Track", "Weapon Focus (Bite)"]'
+  companion_ok: false
+
+- id: eagle_giant
+  name: Giant Eagle
+  size: large
+  type: magical_beast
+  base_hd: 4
+  hit_die: 10
+  str: 18
+  dex: 17
+  con: 12
+  int: 10
+  wis: 14
+  cha: 10
+  natural_armor: 3
+  speed: "10 ft., fly 80 ft. (average)"
+  attacks: '[{"name": "Claw", "damage": "1d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d8", "group": "secondary"}]'
+  special_attacks: null
+  special_qualities: "Low-light vision, evasion"
+  skills: '[{"id": "knowledge_nature", "misc": 2}, {"id": "listen", "misc": 4}, {"id": "sense_motive", "misc": 2}, {"id": "spot", "misc": 13}, {"id": "survival", "misc": 1}]'
+  feats: '["Alertness", "Flyby Attack"]'
+  companion_ok: false
+
+- id: lion
+  name: Lion
+  size: large
+  base_hd: 5
+  str: 21
+  dex: 17
+  con: 15
+  int: 2
+  wis: 12
+  cha: 6
+  natural_armor: 3
+  speed: "40 ft."
+  attacks: '[{"name": "Claw", "damage": "1d4", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d8", "group": "secondary"}]'
+  special_attacks: "Pounce, improved grab, rake 1d4"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "balance", "misc": 4}, {"id": "hide", "misc": 0, "note": "+4 i lang græs/undervegetation"}, {"id": "listen", "misc": 4}, {"id": "move_silently", "misc": 8}, {"id": "spot", "misc": 4}]'
+  feats: '["Alertness", "Run"]'
+  companion_ok: false
+
+- id: owl_giant
+  name: Giant Owl
+  size: large
+  type: magical_beast
+  base_hd: 4
+  hit_die: 10
+  str: 18
+  dex: 17
+  con: 12
+  int: 10
+  wis: 14
+  cha: 10
+  natural_armor: 3
+  speed: "10 ft., fly 70 ft. (average)"
+  attacks: '[{"name": "Claw", "damage": "1d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d8", "group": "secondary"}]'
+  special_attacks: null
+  special_qualities: "Superior low-light vision"
+  skills: '[{"id": "knowledge_nature", "misc": 2}, {"id": "listen", "misc": 15}, {"id": "move_silently", "misc": 5}, {"id": "spot", "misc": 8}]'
+  feats: '["Alertness", "Wingover"]'
+  companion_ok: false
+
+- id: satyr
+  name: Satyr
+  size: medium
+  type: fey
+  base_hd: 5
+  hit_die: 6
+  str: 10
+  dex: 13
+  con: 12
+  int: 12
+  wis: 13
+  cha: 13
+  natural_armor: 4
+  speed: "40 ft."
+  attacks: '[{"name": "Head butt", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Pipes (kun med panfløjte; SNA III summoner uden pipes)"
+  special_qualities: "Damage reduction 5/cold iron, low-light vision"
+  skills: '[{"id": "bluff", "misc": 8}, {"id": "hide", "misc": 12}, {"id": "knowledge_nature", "misc": 8}, {"id": "listen", "misc": 14}, {"id": "move_silently", "misc": 12}, {"id": "perform", "misc": 8}, {"id": "spot", "misc": 14}]'
+  feats: '["Alertness", "Dodge", "Mobility"]'
+  companion_ok: false
+
+- id: shark_large
+  name: Large Shark
+  size: large
+  base_hd: 7
+  str: 17
+  dex: 15
+  con: 13
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 4
+  speed: "swim 60 ft."
+  attacks: '[{"name": "Bite", "damage": "1d8", "group": "primary"}]'
+  special_attacks: null
+  special_qualities: "Blindsense, keen scent"
+  skills: '[{"id": "listen", "misc": 7}, {"id": "spot", "misc": 6}, {"id": "swim", "misc": 8}]'
+  feats: '["Alertness", "Great Fortitude", "Improved Initiative"]'
+  companion_ok: false
+
+- id: snake_constrictor
+  name: Constrictor Snake
+  size: medium
+  base_hd: 3
+  str: 17
+  dex: 17
+  con: 13
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 2
+  speed: "20 ft., climb 20 ft., swim 20 ft."
+  attacks: '[{"name": "Bite", "damage": "1d3", "group": "primary"}]'
+  special_attacks: "Constrict 1d3+4, improved grab"
+  special_qualities: "Scent"
+  skills: '[{"id": "balance", "misc": 8}, {"id": "climb", "misc": 11}, {"id": "hide", "misc": 7}, {"id": "listen", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "swim", "misc": 8}]'
+  feats: '["Alertness", "Toughness"]'
+  companion_ok: false
+
+- id: viper_large
+  name: Large Viper
+  size: large
+  base_hd: 3
+  str: 10
+  dex: 17
+  con: 11
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 3
+  speed: "20 ft., climb 20 ft., swim 20 ft."
+  attacks: '[{"name": "Bite", "damage": "1d4", "group": "primary"}]'
+  special_attacks: "Poison (Fort DC 11, 1d6 Con)"
+  special_qualities: "Scent"
+  skills: '[{"id": "balance", "misc": 8}, {"id": "climb", "misc": 11}, {"id": "hide", "misc": 5}, {"id": "listen", "misc": 4}, {"id": "spot", "misc": 5}, {"id": "swim", "misc": 8}]'
+  feats: '["Improved Initiative", "Weapon Finesse"]'
+  companion_ok: false
+
+- id: thoqqua
+  name: Thoqqua
+  size: medium
+  type: elemental
+  base_hd: 3
+  good_saves: '["fort"]'
+  str: 15
+  dex: 13
+  con: 13
+  int: 6
+  wis: 12
+  cha: 10
+  natural_armor: 7
+  speed: "30 ft., burrow 20 ft."
+  attacks: '[{"name": "Slam", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Heat, burn (2d6 fire)"
+  special_qualities: "Darkvision 60 ft., elemental traits, immunity to fire, tremorsense 60 ft., vulnerability to cold"
+  skills: '[{"id": "listen", "misc": 4}, {"id": "move_silently", "misc": 2}, {"id": "survival", "misc": 2}]'
+  feats: '["Alertness", "Track"]'
+  companion_ok: false

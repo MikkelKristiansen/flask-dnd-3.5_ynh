@@ -164,11 +164,18 @@ CREATE TABLE items (
 );
 
 DROP TABLE IF EXISTS animals;
+-- Væsen-katalog: BÅDE animal companions OG summonbare væsner (Summon Nature's
+-- Ally). companion_ok skelner de to roller; hit_die rummer ikke-d8-væsner.
 CREATE TABLE animals (
     id                TEXT PRIMARY KEY,
     name              TEXT NOT NULL,
-    size              TEXT NOT NULL,              -- tiny | small | medium | large
-    base_hd           INTEGER NOT NULL,          -- antal d8 hit dice (uden bonus-HD)
+    size              TEXT NOT NULL,              -- tiny | small | medium | large | huge
+    base_hd           INTEGER NOT NULL,          -- antal hit dice (uden bonus-HD)
+    type              TEXT,                       -- animal (default/NULL) | magical_beast | elemental | fey
+                                                  --   driver BAB: animal/elemental ¾·HD, magical_beast 1·HD, fey ½·HD
+    hit_die           INTEGER,                   -- terningtype pr. HD: 6 (fey) | 10 (magical beast); NULL = 8 (dyr/elementaler)
+    good_saves        TEXT,                       -- JSON-liste, fx ["fort","ref"]; NULL = udled af type
+                                                  --   (animal/magical_beast: fort+ref · fey: ref+will · elemental: pr. element)
     str               INTEGER NOT NULL,
     dex               INTEGER NOT NULL,
     con               INTEGER NOT NULL,
@@ -181,7 +188,8 @@ CREATE TABLE animals (
     special_attacks   TEXT,                       -- fri tekst, fx "Trip" / "Poison"; NULL = ingen
     special_qualities TEXT,                       -- fri tekst, fx "Low-light vision, scent"
     skills            TEXT NOT NULL,              -- JSON: [{id, misc, note?}] (misc = total − basis-abilitymod)
-    feats             TEXT NOT NULL               -- JSON: liste af feat-navne (strenge)
+    feats             TEXT NOT NULL,              -- JSON: liste af feat-navne (strenge)
+    companion_ok      INTEGER                     -- 1/NULL = kan vælges som animal companion; 0 = kun summonbar
 );
 
 -- Mekaniske effekter: buffs & tilstande oversat til modifiers, så de ændrer de

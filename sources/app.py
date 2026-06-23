@@ -353,7 +353,10 @@ def _gen_context() -> dict:
         "shields": [{**a, "cost_str": _format_cost(a.get("cost_cp"))}
                     for a in armor if a.get("type") == "shield"],
         "weapons": weapons,
-        "animals": [{"id": a["id"], "name": a["name"]} for a in db.get_all_animals()],
+        # Kun companion-egnede væsner i companion-vælgeren (companion_ok != 0).
+        # Kataloget rummer også summon-kun-væsner (Summon Nature's Ally).
+        "animals": [{"id": a["id"], "name": a["name"]} for a in db.get_all_animals()
+                    if a.get("companion_ok") != 0],
         "domains": db.get_domains(GEN_DOMAINS),
         "races_json": races_json,
         "classes_json": classes_json,
