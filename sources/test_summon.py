@@ -7,6 +7,10 @@ To ting verificeres: (1) at de FASTE statblokke matcher SRD for hver væsen-type
 hit-die, Toughness-HP), og (2) at Augment Summoning kaskaderer korrekt (+4 Str/Con
 → HP og skade stiger). Bruger det rigtige katalog (srd35.db) som kilde.
 """
+import pathlib
+import shutil
+
+import character as char_module
 import db
 import summon
 
@@ -108,3 +112,28 @@ def test_build_summons_filters_empty():
     out = summon.build_summons(
         [{"creature": "wolf"}, {"creature": "bad"}, {}], db)
     assert len(out) == 1 and out[0]["creature_id"] == "wolf"
+
+
+# ── Persistens: summons-listen gemmes/genindlæses (Fase 2) ──────────────────
+
+def test_summons_persist_round_trip(tmp_path):
+    p = tmp_path / "c.yaml"
+    shutil.copy(pathlib.Path("defaults/faelyn.yaml"), p)
+    refs = [
+        {"creature": "dire_wolf", "spell_level": 3, "spell_index": 0,
+         "count": 1, "augment": True, "hp_current": [40]},
+        {"creature": "wolf", "spell_level": 1, "spell_index": 2,
+         "count": 3, "hp_current": [13, 8, 2], "conditions": ["shaken"]},
+    ]
+    char_module.save_character(str(p), {"summons": refs})
+    c = char_module.load_character(str(p))
+    assert len(c.summons) == 2
+    a, b = c.summons
+    assert a["creature"] == "dire_wolf" and a["augment"] is True
+    assert b["hp_current"] == [13, 8, 2] and b["conditions"] == ["shaken"]
+    # Det beregnede statblok afspejler den persisterede ref (augment slår igennem).
+    stats = summon.build_summons(c.summons, db)
+    assert stats[0]["hp_max"] == 57 and stats[1]["count"] == 3
+    # Tom liste rydder feltet.
+    char_module.save_character(str(p), {"summons": []})
+    assert char_module.load_character(str(p)).summons == []

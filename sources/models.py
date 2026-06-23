@@ -89,6 +89,7 @@ class Character:
     armor: str = ""             # equipped rustnings-id (slås op i armor-tabellen)
     shield: str = ""            # equipped skjold-id
     companion: dict = field(default_factory=dict)
+    summons: list = field(default_factory=list)  # aktive Summon Nature's Ally-væsner (tynde refs); ryddes når SNA-spellet sættes "Brugt"
     class_features: dict = field(default_factory=dict)
     deity: str = ""
     alignment: str = ""         # fx Lawful Good (blev tidligere skrevet men aldrig indlæst)

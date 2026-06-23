@@ -194,10 +194,20 @@ Leveret (45 tests grønne — 34 eksisterende + 11 nye):
 feat'en da), gemt i `ref["augment"]` — ikke slået op live. Fase 3 sætter det fra
 `char.feats` når summon-entry oprettes.
 
-### Fase 2 — Model + persistens *(lille; spejler companion)*
-- `character.py`/`persistence.py`: læs/skriv `summons`-listen (parallelt med
-  `companion`). Nye update-nøgler: `summon_add`, `summon_remove`, `summon_hp`,
-  `summon_buffs`, `summon_conditions`.
+### Fase 2 — Model + persistens ✅ FÆRDIG (commit: SNA Fase 2)
+Leveret (46 tests grønne):
+- **`models.py`**: nyt `Character.summons: list`-felt (tynde refs), parallelt med
+  `companion`.
+- **`persistence.py`**: indlæser `summons` fra YAML; gemmer via ÉN update-nøgle
+  `summons` (hele listen ad gangen, som `inventory`/`buffs` — app-endpoints i Fase 3
+  bygger den nye liste ved kast/“Brugt”/HP/effekt-ændring). `_serialize_summon`
+  skriver kun rå data (creature, spell_level, spell_index, count, hp_current-liste,
+  augment, name, buffs, conditions) — aldrig beregnede totaler; valgfrie felter kun
+  når de afviger fra default.
+- **Designvalg vs. brief:** valgte ÉN `summons`-nøgle frem for 5 granulære
+  (`summon_add/remove/hp/...`). Enklere, matcher list-replacement-mønstret, og
+  summons adresseres af `(spell_level, spell_index)` i app-laget.
+- Test: round-trip (gem → genindlæs → byg; augment slår igennem; tom liste rydder).
 
 ### Fase 3 — UI: forberedt kast *(kerne-feature)*
 - På et forberedt **SNA**-spell i spell-tabben: knap "Kast → vælg væsen". Vælgeren

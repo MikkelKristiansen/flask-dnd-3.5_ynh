@@ -153,6 +153,7 @@ def load_character(path: str) -> Character:
         armor=str(data.get("combat", {}).get("armor") or ""),
         shield=str(data.get("combat", {}).get("shield") or ""),
         companion=dict(data.get("companion") or {}),
+        summons=list(data.get("summons") or []),
         class_features=dict(data.get("class_features") or {}),
         deity=str(data.get("deity") or ""),
         alignment=str(data.get("alignment") or ""),
@@ -330,11 +331,37 @@ def _serialize_attack(a: Attack) -> dict:
     return out
 
 
+def _serialize_summon(s: dict) -> dict:
+    """Tynd summon-ref → ren YAML-dict (kun rå data, aldrig beregnede totaler).
+
+    Valgfrie felter skrives kun når de afviger fra default, så filen forbliver
+    læsbar. hp_current er en liste med ét tal pr. væsen (count).
+    """
+    out: dict = {
+        "creature": str(s.get("creature") or ""),
+        "spell_level": int(s.get("spell_level") or 0),
+        "spell_index": int(s.get("spell_index") or 0),
+        "count": int(s.get("count") or 1),
+    }
+    hp = s.get("hp_current")
+    if hp is not None:
+        out["hp_current"] = [int(x) for x in hp]
+    if s.get("augment"):
+        out["augment"] = True
+    if s.get("name"):
+        out["name"] = str(s["name"])
+    if s.get("buffs"):
+        out["buffs"] = list(s["buffs"])
+    if s.get("conditions"):
+        out["conditions"] = list(s["conditions"])
+    return out
+
+
 def save_character(path: str, updates: dict) -> None:
     """Gem kun angivne felter — overskriv aldrig hele filen.
 
     updates kan indeholde: hp_current, spells_prepared, spells_used,
-    conditions, inventory, experience_points.
+    conditions, inventory, experience_points, summons.
 
     Skrivningen er atomar, og der tages et roterende snapshot efter hvert gem
     (se afsnittet om versionering ovenfor).
@@ -414,6 +441,12 @@ def save_character(path: str, updates: dict) -> None:
         comp = data.get("companion")
         if isinstance(comp, dict):
             comp["tricks"] = [str(t) for t in updates["companion_tricks"]]
+
+    # Summon Nature's Ally-væsner: hele listen gemmes på én gang (som inventory/
+    # buffs). App-endpoints bygger den nye liste (tilføj ved kast, fjern ved
+    # "Brugt", opdatér HP/effekter). Tom liste rydder feltet.
+    if "summons" in updates:
+        data["summons"] = [_serialize_summon(s) for s in updates["summons"]]
 
     if "gold" in updates:
         data["gold"] = dict(updates["gold"])
