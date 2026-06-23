@@ -16,6 +16,7 @@ import companion as companion_module
 import db
 import dice as dice_module
 import effects
+import summon as summon_module
 
 # Klasser generatoren understøtter (motoren er bevist mod disse).
 GEN_CLASSES = ["Barbarian", "Cleric", "Druid", "Fighter", "Monk", "Paladin", "Ranger", "Rogue"]
@@ -1037,11 +1038,15 @@ def build_character_view(char, db):
     # Companion: beregn det fulde statblok fra den tynde reference (eller None).
     companion = companion_module.build_companion(char, db)
 
+    # Summons: render hvert aktivt Summon Nature's Ally-væsen (tom liste = ingen faner).
+    summons = summon_module.build_summons(char.summons, db)
+
     # Effekt-vælgerens kataloger bygges fra effects-tabellen (kilden til sandheden).
     buff_catalog, damage_catalog = effects.picker_catalogs()
 
     return {
         "companion": companion,
+        "summons": summons,
         "abilities": abilities,
         "saves": saves,
         "skill_data": skill_data,
