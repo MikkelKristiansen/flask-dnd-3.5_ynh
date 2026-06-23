@@ -133,7 +133,7 @@ def test_build_summons_filters_empty():
 
 def test_summons_persist_round_trip(tmp_path):
     p = tmp_path / "c.yaml"
-    shutil.copy(pathlib.Path("defaults/faelyn.yaml"), p)
+    shutil.copy(pathlib.Path(__file__).parent / "defaults" / "faelyn.yaml", p)
     refs = [
         {"creature": "dire_wolf", "spell_level": 3, "spell_index": 0,
          "count": 1, "augment": True, "hp_current": [40]},
