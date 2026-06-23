@@ -1273,6 +1273,48 @@ def api_summon():
     return jsonify({"ok": True})
 
 
+def _find_summon(summons: list, level: int, index: int) -> dict | None:
+    """Find summon-ref'en for SNA-slot'et (spell_level, spell_index) — eller None."""
+    for s in summons:
+        if s.get("spell_level") == level and s.get("spell_index") == index:
+            return s
+    return None
+
+
+@app.route("/api/summon_hp", methods=["POST"])
+def api_summon_hp():
+    """Justér HP for ÉT væsen i et summon (identificeret af SNA-slot + væsen-index).
+
+    Spejler /api/companion_hp, men summons har en HP-liste (ét tal pr. count).
+    Gemmer hele summons-listen (Fase 2's summons-nøgle).
+    """
+    data     = request.get_json()
+    slug     = data.get("char")
+    level    = int(data.get("spell_level"))
+    index    = int(data.get("spell_index"))
+    creature = int(data.get("creature_index", 0))
+    delta    = int(data.get("delta", 0))
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+
+    char = char_module.load_character(str(path))
+    ref = _find_summon(char.summons, level, index)
+    if not ref:
+        return jsonify({"error": "no summon"}), 400
+    stat = summon_module.build_summon(ref, db)
+    if not stat:
+        return jsonify({"error": "no summon"}), 400
+    hp_max = stat["hp_max"]
+    hp_list = list(stat["hp_current"])      # resolveret liste (ét tal pr. væsen)
+    if not (0 <= creature < len(hp_list)):
+        return jsonify({"error": "bad creature index"}), 400
+    hp_list[creature] = max(-9, min(hp_max, hp_list[creature] + delta))
+    ref["hp_current"] = hp_list
+    char_module.save_character(str(path), {"summons": char.summons})
+    return jsonify({"hp_current": hp_list, "hp_max": hp_max, "creature_index": creature})
+
+
 @app.route("/api/spell_charge", methods=["POST"])
 def api_spell_charge():
     """Tæl en spells ladninger op/ned (Magic Stone: brug en sten).
@@ -1329,6 +1371,21 @@ def api_conditions():
     target = data.get("target", "character")
     char = char_module.load_character(str(path))
 
+    # Summon: muter tilstands-listen på den summon-ref der matcher SNA-slot'et.
+    if target == "summon":
+        ref = _find_summon(char.summons,
+                           int(data.get("spell_level")), int(data.get("spell_index")))
+        if not ref:
+            return jsonify({"error": "no summon"}), 400
+        conditions = list(ref.get("conditions") or [])
+        if action == "add" and condition_id and condition_id not in conditions:
+            conditions.append(condition_id)
+        elif action == "remove" and condition_id in conditions:
+            conditions.remove(condition_id)
+        ref["conditions"] = conditions
+        char_module.save_character(str(path), {"summons": char.summons})
+        return jsonify({"conditions": conditions})
+
     if target == "companion":
         comp = char.companion or {}
         if not comp:
@@ -1358,15 +1415,20 @@ def api_buffs():
         return jsonify({"error": "not found"}), 404
 
     char = char_module.load_character(str(path))
-    if target == "companion":
+    ref = None
+    if target == "summon":
+        ref = _find_summon(char.summons,
+                           int(data.get("spell_level")), int(data.get("spell_index")))
+        if not ref:
+            return jsonify({"error": "no summon"}), 400
+        buffs = list(ref.get("buffs") or [])
+    elif target == "companion":
         comp = char.companion or {}
         if not comp:
             return jsonify({"error": "no companion"}), 400
         buffs = list(comp.get("buffs") or [])
-        key = "companion_buffs"
     else:
         buffs = list(char.buffs)
-        key = "buffs"
 
     if action == "add":
         b = data.get("buff") or {}
@@ -1389,7 +1451,12 @@ def api_buffs():
         if 0 <= i < len(buffs):
             buffs.pop(i)
 
-    char_module.save_character(str(path), {key: buffs})
+    if target == "summon":
+        ref["buffs"] = buffs
+        char_module.save_character(str(path), {"summons": char.summons})
+    else:
+        key = "companion_buffs" if target == "companion" else "buffs"
+        char_module.save_character(str(path), {key: buffs})
     return jsonify({"ok": True})
 
 

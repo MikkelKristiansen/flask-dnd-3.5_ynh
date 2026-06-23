@@ -895,9 +895,11 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 {% endif %}
 
 <!-- ══════════════════════════════════════════════ -->
-<!-- Tab: Summonede væsner (read-only, Fase 3a)    -->
+<!-- Tab: Summonede væsner (interaktiv: HP + effekter) -->
 <!-- ══════════════════════════════════════════════ -->
 {% for sp in summons %}
+{# Target-streng der binder picker/HP-knapper til denne summon (SNA-slot). #}
+{% set st = 'summon-' ~ sp.spell_level ~ '-' ~ sp.spell_index %}
 <div id="tab-summon-{{ loop.index0 }}" class="tab-panel">
 
   {% if sp.effect_flags %}
@@ -916,11 +918,25 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     </div>
     {% if sp.count > 1 %}
     <div class="stat-row"><span class="stat-label">Antal</span><span class="stat-val">{{ sp.count }} ens væsner</span></div>
-    <div class="stat-row"><span class="stat-label">HP</span>
-      <span class="stat-val" style="font-size:.85rem">
-        {% for hp in sp.hp_current %}#{{ loop.index }}: {{ hp }}/{{ sp.hp_max }}{% if not loop.last %} · {% endif %}{% endfor %}</span></div>
+    {% for hp in sp.hp_current %}
+    <div class="stat-row">
+      <span class="stat-label">HP #{{ loop.index }}</span>
+      <span style="display:flex;align-items:center;gap:.4rem">
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjSummonHp('{{ st }}',{{ loop.index0 }},-1)">−</button>
+        <span class="stat-val" id="{{ st }}-hp-{{ loop.index0 }}">{{ hp }}/{{ sp.hp_max }}</span>
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjSummonHp('{{ st }}',{{ loop.index0 }},+1)">+</button>
+      </span>
+    </div>
+    {% endfor %}
     {% else %}
-    <div class="stat-row"><span class="stat-label">HP</span><span class="stat-val">{{ sp.hp_current[0] }}/{{ sp.hp_max }}</span></div>
+    <div class="stat-row">
+      <span class="stat-label">HP</span>
+      <span style="display:flex;align-items:center;gap:.4rem">
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjSummonHp('{{ st }}',0,-1)">−</button>
+        <span class="stat-val" id="{{ st }}-hp-0">{{ sp.hp_current[0] }}/{{ sp.hp_max }}</span>
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjSummonHp('{{ st }}',0,+1)">+</button>
+      </span>
+    </div>
     {% endif %}
     <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ sp.ac.ac }}
       <span style="color:var(--muted);font-size:.75rem">(touch {{ sp.ac.touch }}, flat {{ sp.ac.flat_footed }}, nat +{{ sp.natural_armor }})</span></span></div>
@@ -937,19 +953,28 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       </span></div>
   </div>
 
-  {% if sp.conditions or sp.buffs %}
   <div class="section">
     <div class="section-title">Effekter <span style="color:var(--muted);font-size:.7rem;font-style:italic">(tilstande + buffs)</span></div>
     <div class="conditions-strip">
       {% for cid, cond in sp.conditions %}
-        <span class="cond-badge" onclick="showDetail('condition','{{ cid }}')" title="{{ cond.summary if cond else '' }}">{{ cond.name if cond else cid }}</span>
+        <span class="cond-badge" onclick="showDetail('condition','{{ cid }}')" title="{{ cond.summary if cond else '' }}">
+          {{ cond.name if cond else cid }}
+          <button class="cond-remove" onclick="event.stopPropagation();removeCondition('{{ cid }}','{{ st }}')" title="Fjern">×</button>
+        </span>
       {% endfor %}
       {% for buff in sp.buffs %}
-        <span class="buff-badge" title="{{ buff.note }}">{{ buff.name }}</span>
+        <span class="buff-badge" onclick="showBuff('{{ st }}',{{ loop.index0 }})" title="{{ buff.note }}">
+          {{ buff.name }}
+          <button class="cond-remove" onclick="event.stopPropagation();removeBuff('{{ st }}',{{ loop.index0 }})" title="Fjern">×</button>
+        </span>
       {% endfor %}
+      {% if not sp.conditions and not sp.buffs %}
+        <span class="no-conditions">Ingen aktive effekter</span>
+      {% endif %}
+      <button class="cond-add-btn" onclick="toggleEffectPicker('{{ st }}')" title="Tilføj effekt">+</button>
     </div>
+    {{ effect_picker(st) }}
   </div>
-  {% endif %}
 
   <div class="section">
     <div class="section-title">Abilities</div>
@@ -1635,6 +1660,8 @@ let conditions = {{ char.conditions|tojson }};
 // Buffs (tracking) — data til badge-popups + hurtigvalg
 const charBuffs   = {{ char.buffs|tojson }};
 const compBuffs   = {{ (companion.buffs if companion else [])|tojson }};
+// Summon-buffs pr. target-streng ("summon-<lvl>-<idx>") → showBuff slår op her.
+const summonBuffs = { {% for sp in summons %}"summon-{{ sp.spell_level }}-{{ sp.spell_index }}": {{ sp.buffs|tojson }}{% if not loop.last %}, {% endif %}{% endfor %} };
 const buffCatalog = {{ buff_catalog|tojson }}.concat({{ damage_catalog|tojson }});
 const abilityData = {{ abilities|tojson }};
 const AFFECT_LABEL = {attack:"angreb", save:"saves", skill:"skills", ac:"AC", hp:"HP",
@@ -1716,6 +1743,31 @@ function adjCompHp(delta) {
     compHpCurrent = data.hp_current;
     const el = document.getElementById("comp-hp-val");
     if (el) el.textContent = compHpCurrent + "/" + data.hp_max;
+  });
+}
+
+// ── Summon-effekter & HP ───────────────────────────────────────────────────
+// En summon-target er strengen "summon-<spell_level>-<spell_index>". De generiske
+// effekt-funktioner (addCondition/addBuff/...) genkender den og router til summon.
+function parseSummonTarget(target) {
+  const m = /^summon-(\d+)-(\d+)$/.exec(target || "");
+  return m ? {spell_level: parseInt(m[1]), spell_index: parseInt(m[2])} : null;
+}
+
+function adjSummonHp(target, creatureIdx, delta) {
+  const s = parseSummonTarget(target);
+  if (!s) return;
+  fetch(BASE + "/api/summon_hp", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, spell_level: s.spell_level,
+                          spell_index: s.spell_index, creature_index: creatureIdx, delta})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) return;
+    const el = document.getElementById(`${target}-hp-${creatureIdx}`);
+    if (el) el.textContent = data.hp_current[creatureIdx] + "/" + data.hp_max;
   });
 }
 
@@ -1880,20 +1932,28 @@ function onBuffPick(target) {
   document.getElementById("buff-note-" + target).style.display = custom ? "block" : "none";
 }
 
+// Oversæt en target-streng til request-felterne: summon-targets sender target:
+// "summon" + SNA-slot; character/companion sender bare target-strengen videre.
+function effectTargetBody(target) {
+  const s = parseSummonTarget(target);
+  return s ? {target: "summon", spell_level: s.spell_level, spell_index: s.spell_index}
+           : {target: target || "character"};
+}
+
 function addCondition(target) {
   target = target || "character";
   const id = document.getElementById("cond-select-" + target).value;
   if (!id) return;
   fetch(BASE + "/api/conditions", {
     method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, condition_id: id, action: "add", target})
+    body: JSON.stringify({char: CHAR, condition_id: id, action: "add", ...effectTargetBody(target)})
   }).then(() => location.reload());
 }
 
 function removeCondition(id, target) {
   fetch(BASE + "/api/conditions", {
     method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, condition_id: id, action: "remove", target: target || "character"})
+    body: JSON.stringify({char: CHAR, condition_id: id, action: "remove", ...effectTargetBody(target)})
   }).then(() => location.reload());
 }
 
@@ -1920,19 +1980,21 @@ function addBuff(target) {
   }
   fetch(BASE + "/api/buffs", {
     method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, action: "add", target, buff})
+    body: JSON.stringify({char: CHAR, action: "add", buff, ...effectTargetBody(target)})
   }).then(() => location.reload());
 }
 
 function removeBuff(target, idx) {
   fetch(BASE + "/api/buffs", {
     method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, action: "remove", target: target || "character", index: idx})
+    body: JSON.stringify({char: CHAR, action: "remove", index: idx, ...effectTargetBody(target)})
   }).then(() => location.reload());
 }
 
 function showBuff(target, idx) {
-  const b = (target === "companion" ? compBuffs : charBuffs)[idx];
+  const list = parseSummonTarget(target) ? (summonBuffs[target] || [])
+             : (target === "companion" ? compBuffs : charBuffs);
+  const b = list[idx];
   if (!b) return;
   document.getElementById("modal-title").textContent = b.name;
   document.getElementById("modal-subtitle").textContent = "Buff — tracking (læg selv tallet til)";
