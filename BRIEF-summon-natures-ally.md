@@ -209,14 +209,55 @@ Leveret (46 tests grønne):
   summons adresseres af `(spell_level, spell_index)` i app-laget.
 - Test: round-trip (gem → genindlæs → byg; augment slår igennem; tom liste rydder).
 
-### Fase 3 — UI: forberedt kast *(kerne-feature)*
-- På et forberedt **SNA**-spell i spell-tabben: knap "Kast → vælg væsen". Vælgeren
-  viser væsnerne fra `summon_lists` for det spell-niveau. Ved valg:
-  spell → "I brug" (genbrug `spells_active`), `summon`-entry oprettes, **fane dukker
-  op**. Augment-flag snapshottes fra `char.feats`.
-- Summon-fanen renderes som companion-fanen (HP, AC, angreb, saves, effekt-vælger) —
-  genbrug så meget af companion-templaten/JS som muligt.
-- Tryk **"Brugt"** på SNA-spellet → `summon`-entry fjernes → **fane forsvinder**.
+### Fase 3 — UI *(kerne-featuren; delt i fire showbare bidder)*
+
+Den største og mest UI-tunge fase. Rører `app.py` (render_character ~1035 +
+spell-endpoints ~1128) og `templates/character.html` (3350 linjer: companion-fane
+~766, spell-tab ~957, `effect_picker`-makro ~472, `showTab`-JS ~1640). Bidderne
+bygger oven på hinanden, og hver kan vises kørende for sig.
+
+**Kontrakt der binder fane↔spell:** en summon identificeres af `(spell_level,
+spell_index)` = det SNA-slot der skabte den. Den lever, mens spellet er "I brug"
+(`spells_active`), og fjernes når spellet sættes "Brugt" (eller tilbage til "Ledig").
+`summon.build_summons(char.summons, db)` giver den renderede liste (samme form som
+`build_companion`).
+
+#### Fase 3a — Render summon-faner *(read-only; bevis layout + stats)*
+- `render_character` (app.py ~1035): kald `summon.build_summons(char.summons, db)`
+  og send `summons` til templaten ved siden af `companion`.
+- `character.html`: tab-knap + tab-panel **pr. summon** (loop over `summons`), klonet
+  fra companion-fanen (HP, AC, angreb, saves, special_qualities). Fane-titel fx
+  "🐾 Dire Wolf ×3" eller "🐾 Small Fire Elemental". `showTab`-JS virker uændret.
+- Antal>1: vis ét statblok + "Antal: N" + HP pr. væsen (liste).
+- **Vises ved** at hånd-seede en `summons`-entry i en YAML og åbne arket. Ingen
+  kast/fjern endnu — beviser at faner renderer korrekt for alle væsen-typer.
+
+#### Fase 3b — Kast-flow *(opret summon)*
+- Spell-tabben: på forberedte **SNA**-spells (id `summon_natures_ally_*`) en knap
+  "Kast → vælg væsen". Picker viser `refdata.summon_creatures(level)` (navne slås op
+  i kataloget); SNA II/III tillader også et antal.
+- Nyt endpoint `POST /api/summon` (action=cast): sæt spellet "I brug" (genbrug
+  `spells_active`-mekanikken fra `/api/spells`), append en `summons`-entry
+  `{creature, spell_level, spell_index, count, augment, hp_current}`, gem hele
+  `summons`-listen. **Augment-flag snapshottes** fra `char.feats` (har karakteren
+  `augment_summoning`?) ved kast — ikke live.
+- Efter svar: fane dukker op (reload eller dynamisk).
+
+#### Fase 3c — Fjern-flow *(afvis ved "Brugt")*
+- Når et SNA-spell skifter til "Brugt" (eller "Ledig"): fjern den `summons`-entry
+  hvis `(spell_level, spell_index)` matcher → **fane forsvinder**.
+- Hægtes på `spells_active`-tilstandsskiftet i `/api/spells` (når spellet er et
+  SNA-spell), så "Brugt"-knappen brugeren allerede kender også rydder summon'en.
+- **Vises:** kast (3b) → fane → tryk "Brugt" → fane væk. Hele MVP-loopet kører.
+
+#### Fase 3d — Fane-interaktivitet *(HP + effekter pr. summon)*
+- Rediger HP pr. væsen og brug `effect_picker`-makroen på summon-fanen (buffs/
+  tilstande), spejlet fra companion-fanens HP/effekt-wiring (app.py
+  `/api/companion_hp`, `/api/companion_*` + JS ~1559-1640).
+- Skriver tilbage ved at gemme hele `summons`-listen (Fase 2's `summons`-nøgle) —
+  app-endpointet finder entry'en på `(spell_level, spell_index)`, muterer den,
+  gemmer listen.
+- Augment + buffs kaskaderer allerede i `summon.py` (Fase 1) → ingen motor-arbejde.
 
 ### Fase 4 — UI: spontant kast (ofre et spell) *(udvidelse)*
 - På et hvilket som helst forberedt spell af niveau ≥ N: handling "Ofre til Summon
