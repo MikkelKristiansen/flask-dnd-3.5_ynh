@@ -889,6 +889,175 @@
   feats: '["Cleave", "Power Attack"]'
   companion_ok: false
 
+# SNA IV dyr (type animal). Verificeret mod SRD: AC/HP/init/saves/til-hit/skade.
+- id: brown_bear
+  name: Brown Bear
+  size: large
+  base_hd: 6
+  str: 27
+  dex: 13
+  con: 19
+  int: 2
+  wis: 12
+  cha: 6
+  natural_armor: 5
+  speed: "40 ft."
+  attacks: '[{"name": "Claw", "damage": "1d8", "group": "primary", "count": 2}, {"name": "Bite", "damage": "2d6", "group": "secondary"}]'
+  special_attacks: "Improved grab"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 3}, {"id": "spot", "misc": 6}, {"id": "swim", "misc": 4}]'
+  feats: '["Endurance", "Run", "Track"]'
+  companion_ok: false
+- id: crocodile_giant
+  name: Giant Crocodile
+  size: huge
+  base_hd: 7
+  str: 27
+  dex: 12
+  con: 19
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 7
+  speed: "20 ft., swim 30 ft."
+  attacks: '[{"name": "Bite", "damage": "2d8", "group": "primary"}]'
+  special_attacks: "Improved grab; alternativt tail slap +11 (1d12+12)"
+  special_qualities: "Hold breath, low-light vision"
+  skills: '[{"id": "hide", "misc": 0, "note": "+4 i vand"}, {"id": "listen", "misc": 4}, {"id": "spot", "misc": 4}, {"id": "swim", "misc": 8}]'
+  feats: '["Alertness", "Endurance", "Skill Focus (Hide)"]'
+  companion_ok: false
+- id: deinonychus
+  name: Deinonychus
+  size: large
+  base_hd: 4
+  str: 19
+  dex: 15
+  con: 19
+  int: 2
+  wis: 12
+  cha: 10
+  natural_armor: 5
+  speed: "60 ft."
+  attacks: '[{"name": "Talons", "damage": "2d6", "group": "primary"}, {"name": "Foreclaw", "damage": "1d3", "group": "secondary", "count": 2}, {"name": "Bite", "damage": "2d4", "group": "secondary"}]'
+  special_attacks: "Pounce"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "hide", "misc": 6}, {"id": "jump", "misc": 22}, {"id": "listen", "misc": 9}, {"id": "spot", "misc": 9}, {"id": "survival", "misc": 9}]'
+  feats: '["Run", "Track"]'
+  companion_ok: false
+- id: dire_ape
+  name: Dire Ape
+  size: large
+  base_hd: 5
+  good_saves: '["fort","ref","will"]'
+  str: 22
+  dex: 15
+  con: 14
+  int: 2
+  wis: 12
+  cha: 7
+  natural_armor: 4
+  speed: "30 ft., climb 15 ft."
+  attacks: '[{"name": "Claw", "damage": "1d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d8", "group": "secondary"}]'
+  special_attacks: "Rend 2d6+9"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "climb", "misc": 8}, {"id": "listen", "misc": 4}, {"id": "move_silently", "misc": 2}, {"id": "spot", "misc": 5}]'
+  feats: '["Alertness", "Toughness"]'
+  companion_ok: false
+- id: dire_boar
+  name: Dire Boar
+  size: large
+  base_hd: 7
+  good_saves: '["fort","ref","will"]'
+  str: 27
+  dex: 10
+  con: 17
+  int: 2
+  wis: 13
+  cha: 8
+  natural_armor: 6
+  speed: "40 ft."
+  attacks: '[{"name": "Gore", "damage": "1d8", "group": "primary"}]'
+  special_attacks: "Ferocity"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 7}, {"id": "spot", "misc": 7}]'
+  feats: '["Alertness", "Endurance", "Iron Will"]'
+  companion_ok: false
+- id: dire_wolverine
+  name: Dire Wolverine
+  size: large
+  base_hd: 5
+  good_saves: '["fort","ref","will"]'
+  str: 22
+  dex: 17
+  con: 19
+  int: 2
+  wis: 12
+  cha: 10
+  natural_armor: 4
+  speed: "30 ft., climb 10 ft."
+  attacks: '[{"name": "Claw", "damage": "1d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d8", "group": "secondary"}]'
+  special_attacks: "Rage"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "climb", "misc": 8}, {"id": "listen", "misc": 6}, {"id": "spot", "misc": 6}]'
+  feats: '["Alertness", "Toughness", "Track"]'
+  companion_ok: false
+- id: shark_huge
+  name: Huge Shark
+  size: huge
+  base_hd: 10
+  str: 21
+  dex: 15
+  con: 15
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 5
+  speed: "swim 60 ft."
+  attacks: '[{"name": "Bite", "damage": "2d6", "group": "primary"}]'
+  special_attacks: null
+  special_qualities: "Blindsense, keen scent"
+  skills: '[{"id": "listen", "misc": 9}, {"id": "spot", "misc": 9}, {"id": "swim", "misc": 8}]'
+  # SRD lister også Iron Will, men dens printede Will-save (+4) medregner den ikke
+  # (erratum). Vi følger den printede save og udelader feat'en, så statblokket matcher.
+  feats: '["Alertness", "Great Fortitude", "Improved Initiative"]'
+  companion_ok: false
+- id: viper_huge
+  name: Huge Viper
+  size: huge
+  base_hd: 6
+  str: 16
+  dex: 15
+  con: 13
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 5
+  speed: "20 ft., climb 20 ft., swim 20 ft."
+  attacks: '[{"name": "Bite", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Poison (Fort DC 14, 1d6 Con)"
+  special_qualities: "Scent"
+  skills: '[{"id": "balance", "misc": 8}, {"id": "climb", "misc": 8}, {"id": "hide", "misc": 1}, {"id": "listen", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "swim", "misc": 8}]'
+  feats: '["Improved Initiative", "Run", "Weapon Focus (Bite)"]'
+  companion_ok: false
+- id: tiger
+  name: Tiger
+  size: large
+  base_hd: 6
+  str: 23
+  dex: 15
+  con: 17
+  int: 2
+  wis: 12
+  cha: 6
+  natural_armor: 3
+  speed: "40 ft."
+  attacks: '[{"name": "Claw", "damage": "1d8", "group": "primary", "count": 2}, {"name": "Bite", "damage": "2d6", "group": "secondary"}]'
+  special_attacks: "Improved grab, pounce, rake 1d8+3"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "balance", "misc": 4}, {"id": "hide", "misc": 1, "note": "+4 i højt græs/tæt vegetation"}, {"id": "listen", "misc": 2}, {"id": "move_silently", "misc": 7}, {"id": "spot", "misc": 2}, {"id": "swim", "misc": 5}]'
+  feats: '["Alertness", "Improved Natural Weapon (Bite)", "Improved Natural Weapon (Claw)"]'
+  companion_ok: false
+
 # --- SNA 5. niveau (delvist: elementaler; flere væsner følger) ---
 # Large elementaler (8 HD, 2 slams). Verificeret mod SRD: AC/HP/init/saves reproduceres.
 - id: elemental_air_large

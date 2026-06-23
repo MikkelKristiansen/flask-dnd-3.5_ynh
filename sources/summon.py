@@ -80,6 +80,16 @@ def _toughness_hp(feats: list) -> int:
     return 3 * sum(1 for f in feats if str(f).strip().lower() == "toughness")
 
 
+# Save-boostende feats (+2 til den pågældende save) — mange dyr/elementaler har dem.
+_SAVE_FEAT = {"fort": "great fortitude", "ref": "lightning reflexes", "will": "iron will"}
+
+
+def _feat_save_bonus(feats: list, save: str) -> int:
+    """+2 hvis væsenet har den save-boostende feat (Great Fortitude/Lightning
+    Reflexes/Iron Will). Uden dette afviger fx en hajs Fort fra SRD-printet."""
+    return 2 if _has_feat(feats, _SAVE_FEAT[save]) else 0
+
+
 def _str_damage(str_mod: int, mult: float) -> int:
     """Str-bidrag til skade: en BONUS ganges med mult (×1,5 enligt primært,
     ×0,5 sekundært); en STRAF tæller altid fuldt (SRD)."""
@@ -136,9 +146,9 @@ def build_summon_stat(animal: dict, db, active_modifiers: list | None = None,
 
     good = _good_saves(animal)
     saves = {
-        "fort": _save("fort" in good, hd) + con_mod + save_effect_bonus(active_modifiers, "fortitude"),
-        "ref": _save("ref" in good, hd) + dex_mod + save_effect_bonus(active_modifiers, "reflex"),
-        "will": _save("will" in good, hd) + wis_mod + save_effect_bonus(active_modifiers, "will"),
+        "fort": _save("fort" in good, hd) + con_mod + _feat_save_bonus(feats, "fort") + save_effect_bonus(active_modifiers, "fortitude"),
+        "ref": _save("ref" in good, hd) + dex_mod + _feat_save_bonus(feats, "ref") + save_effect_bonus(active_modifiers, "reflex"),
+        "will": _save("will" in good, hd) + wis_mod + _feat_save_bonus(feats, "will") + save_effect_bonus(active_modifiers, "will"),
     }
 
     # Angreb: til-hit + skade pr. naturligt våben (+ direkte attack-/skade-bonus).

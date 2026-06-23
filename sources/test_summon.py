@@ -60,6 +60,13 @@ def test_outsider_full_bab():
     assert summon._bab("fey", 8) == 4
 
 
+def test_iron_will_adds_to_save():
+    # Save-boostende feat: Dire Boar har Iron Will → +2 Will oven på god Will.
+    # God Will (7 HD) = 5 + Wis1 = 6; +2 Iron Will = 8 (matcher SRD).
+    s = stat("dire_boar")
+    assert s["saves"] == {"fort": 8, "ref": 5, "will": 8}
+
+
 def test_fire_elemental_save_profile():
     # Elemental med eksplicit good_saves ["ref"]: Ref god, Fort+Will dårlige.
     s = stat("elemental_fire_small")

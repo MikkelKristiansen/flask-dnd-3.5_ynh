@@ -52,12 +52,22 @@
   - viper_large
   - thoqqua
 
-# SNA IV-V: batch 1 (kun elementaler indtil videre — listerne er ufuldstændige).
+# SNA IV-V: batch 1 (elementaler) + batch 2 (SNA IV-dyr). Outsidere + magical
+# beasts (arrowhawk, salamander, tojanida, xorn, sea cat, unicorn) mangler endnu.
 4:
+  - brown_bear
+  - crocodile_giant
+  - deinonychus
+  - dire_ape
+  - dire_boar
+  - dire_wolverine
   - elemental_air_medium
   - elemental_earth_medium
   - elemental_fire_medium
   - elemental_water_medium
+  - shark_huge
+  - tiger
+  - viper_huge
 
 5:
   - elemental_air_large
