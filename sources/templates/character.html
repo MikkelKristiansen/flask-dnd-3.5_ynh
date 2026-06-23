@@ -224,6 +224,13 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .summon-cast-btn{background:var(--accent);border:none;color:#fff;font-family:Georgia,serif;
                  font-size:.75rem;padding:.15rem .55rem;border-radius:10px;cursor:pointer;white-space:nowrap;}
 .summon-sac-btn{background:var(--card);border:1px solid var(--accent);color:var(--accent);}
+.summon-indiv-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
+.summon-indiv{display:flex;flex-direction:column;gap:.3rem;align-items:center;padding:.45rem .6rem;
+              border:1px solid var(--border);border-left-width:4px;border-radius:6px;background:var(--card);}
+.summon-indiv-name{font-size:.78rem;color:var(--muted);font-weight:bold;}
+.summon-indiv.ok{border-left-color:var(--green);}
+.summon-indiv.hurt{border-left-color:var(--yellow);}
+.summon-indiv.down{border-left-color:var(--red);opacity:.6;}
 .spell-subtabs{display:flex;gap:.4rem;margin-bottom:.8rem;}
 .spell-subtab{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);
               font-family:Georgia,serif;font-size:.85rem;padding:.4rem .6rem;
@@ -918,17 +925,21 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
         {{ sp.size|capitalize }}, {{ sp.total_hd }} HD · SNA {{ ['','I','II','III','IV','V','VI','VII','VIII','IX'][sp.spell_level] }}{% if sp.augment %} · ⚡ Augment Summoning{% endif %}</span>
     </div>
     {% if sp.count > 1 %}
-    <div class="stat-row"><span class="stat-label">Antal</span><span class="stat-val">{{ sp.count }} ens væsner</span></div>
-    {% for hp in sp.hp_current %}
-    <div class="stat-row">
-      <span class="stat-label">HP #{{ loop.index }}</span>
-      <span style="display:flex;align-items:center;gap:.4rem">
-        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjSummonHp('{{ st }}',{{ loop.index0 }},-1)">−</button>
-        <span class="stat-val" id="{{ st }}-hp-{{ loop.index0 }}">{{ hp }}/{{ sp.hp_max }}</span>
-        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjSummonHp('{{ st }}',{{ loop.index0 }},+1)">+</button>
-      </span>
+    <div class="stat-row"><span class="stat-label">Antal</span><span class="stat-val">{{ sp.count }} ens væsner (fælles statblok)</span></div>
+    <div class="section-title" style="margin-top:.5rem">Individer <span style="color:var(--muted);font-size:.7rem;font-style:italic">(egen HP pr. væsen)</span></div>
+    <div class="summon-indiv-grid">
+      {% for hp in sp.hp_current %}
+      {% set ratio = (hp / sp.hp_max) if sp.hp_max else 1 %}
+      <div class="summon-indiv {{ 'down' if hp <= 0 else ('hurt' if ratio <= 0.5 else 'ok') }}" id="{{ st }}-card-{{ loop.index0 }}">
+        <div class="summon-indiv-name">🐾 #{{ loop.index }}</div>
+        <div style="display:flex;align-items:center;gap:.35rem">
+          <button class="hp-btn" style="width:1.7rem;height:1.7rem;font-size:1rem" onclick="adjSummonHp('{{ st }}',{{ loop.index0 }},-1)">−</button>
+          <span class="stat-val" id="{{ st }}-hp-{{ loop.index0 }}">{{ hp }}/{{ sp.hp_max }}</span>
+          <button class="hp-btn" style="width:1.7rem;height:1.7rem;font-size:1rem" onclick="adjSummonHp('{{ st }}',{{ loop.index0 }},+1)">+</button>
+        </div>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
     {% else %}
     <div class="stat-row">
       <span class="stat-label">HP</span>
@@ -1772,8 +1783,15 @@ function adjSummonHp(target, creatureIdx, delta) {
   .then(r => r.json())
   .then(data => {
     if (data.error) return;
+    const hp = data.hp_current[creatureIdx];
     const el = document.getElementById(`${target}-hp-${creatureIdx}`);
-    if (el) el.textContent = data.hp_current[creatureIdx] + "/" + data.hp_max;
+    if (el) el.textContent = hp + "/" + data.hp_max;
+    // Individ-kortets status-farve (kun ved count>1; count==1 har intet kort).
+    const card = document.getElementById(`${target}-card-${creatureIdx}`);
+    if (card) {
+      const ratio = data.hp_max ? hp / data.hp_max : 1;
+      card.className = "summon-indiv " + (hp <= 0 ? "down" : ratio <= 0.5 ? "hurt" : "ok");
+    }
   });
 }
 
