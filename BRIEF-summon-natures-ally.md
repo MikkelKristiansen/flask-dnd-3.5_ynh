@@ -170,13 +170,29 @@ Verifikationen viste, at companion-motoren IKKE kan genbruges råt: den hardkode
 crocodile bite *eller* tail slap) gemmes som ét primært angreb; alternativet står i
 `special_attacks`. Octopus/squid "Arms (0)" gemmes med skade `"0"`.
 
-### Fase 1 — `summon.py` statblok-motor *(ren, testbar)*
-- `build_summon(creature, count, augment, db, buffs, conditions)` → renderet statblok.
-- Genbrug `character.py`-byggeklodserne; FAST statblok (ingen niveau-avancement).
-- **Augment Summoning:** hvis `augment`, injicér en +4 Str / +4 Con enhancement-buff
-  ind i effekt-listen, så den kaskaderer via `effective_ability_scores` (samme vej
-  som Bull's Strength på companion). Verificér: HP og til-hit/skade stiger korrekt.
-- Unit-test (`test_summon.py`) som `test_effects.py`: before/after-probe.
+### Fase 1 — `summon.py` statblok-motor ✅ FÆRDIG (commit: SNA Fase 1)
+Leveret (45 tests grønne — 34 eksisterende + 11 nye):
+- **`summon.py`** (eget modul, parallelt med `companion.py`). Offentligt API:
+  - `build_summon(ref, db)` → renderet statblok for ÉN summon-instans, eller None.
+    `ref` er den tynde reference (`creature`, `spell_level`, `spell_index`, `count`,
+    `hp_current`-liste, `augment`, `buffs`, `conditions`).
+  - `build_summons(refs, db)` → liste for alle aktive summons (bruges af Fase 3).
+  - `build_summon_stat(animal, db, modifiers, riders)` → den rene beregning.
+- FAST statblok (ingen avancement). Type-bevidst: `_bab` (magical_beast fuld /
+  fey ½ / øvrige ¾), `_good_saves` (eksplicit data → ellers udledt af type), HP via
+  `hit_die`, Toughness `+3` anvendt. Returnerer samme form som `build_companion`
+  (hp_max, hp_current, ac, attacks, saves, skills, conditions, buffs …) → Fase 3
+  kan genbruge companion-templaten.
+- **Augment Summoning:** `_AUGMENT_MODIFIERS` (+4 Str/+4 Con, type enhancement)
+  prependes til effekt-listen når `ref["augment"]`, og kaskaderer via
+  `effective_ability_scores` — verificeret i test (HP +12, skade ×1,5 → +13, på
+  dire_wolf). Ingen særlogik i selve beregningen.
+- Effekter (buffs/tilstande) virker via samme `collect_active_effects`-motor som
+  companion. `test_summon.py` dækker hver væsen-type + Augment + count/HP-klamp.
+
+**Note til Fase 3:** Augment-flaget er et SNAPSHOT taget ved kast (om casteren havde
+feat'en da), gemt i `ref["augment"]` — ikke slået op live. Fase 3 sætter det fra
+`char.feats` når summon-entry oprettes.
 
 ### Fase 2 — Model + persistens *(lille; spejler companion)*
 - `character.py`/`persistence.py`: læs/skriv `summons`-listen (parallelt med
