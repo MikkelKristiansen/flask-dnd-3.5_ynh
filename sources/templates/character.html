@@ -221,6 +221,8 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .spell-status.free{background:var(--green);color:#fff;}
 .spell-status.active{background:var(--yellow);color:#fff;}
 .spell-status.used{background:var(--muted);color:#fff;}
+.summon-cast-btn{background:var(--accent);border:none;color:#fff;font-family:Georgia,serif;
+                 font-size:.75rem;padding:.15rem .55rem;border-radius:10px;cursor:pointer;white-space:nowrap;}
 .spell-subtabs{display:flex;gap:.4rem;margin-bottom:.8rem;}
 .spell-subtab{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);
               font-family:Georgia,serif;font-size:.85rem;padding:.4rem .6rem;
@@ -1141,9 +1143,14 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
         <span class="spell-name">{{ entry.spell.name if entry.spell else entry.id }}</span>
         {% if entry.spell %}<span class="spell-school">&nbsp;·&nbsp;{{ entry.spell.school }}</span>{% endif %}
       </span>
-      <span class="spell-status {{ entry.state }}"
-            onclick="event.stopPropagation();cycleSpell({{ lvl }},{{ entry.index }})">
-        {{ state_label[entry.state] }}
+      <span style="display:flex;align-items:center;gap:.4rem">
+        {% if entry.is_summon and entry.state == 'free' %}
+        <button class="summon-cast-btn" onclick="event.stopPropagation();openSummonPicker({{ lvl }},{{ entry.index }})">🐾 Kast</button>
+        {% endif %}
+        <span class="spell-status {{ entry.state }}"
+              onclick="event.stopPropagation();cycleSpell({{ lvl }},{{ entry.index }})">
+          {{ state_label[entry.state] }}
+        </span>
       </span>
     </div>
     {% endfor %}
@@ -1576,6 +1583,32 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     <div class="modal-title" id="modal-title"></div>
     <div class="modal-subtitle" id="modal-subtitle"></div>
     <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ── Summon-picker (Kast → vælg væsen) ── -->
+<div class="modal-overlay" id="summon-modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('summon-modal-overlay').classList.remove('open')">✕</button>
+    <div class="modal-title">🐾 Summon Nature's Ally</div>
+    <div class="modal-subtitle" id="summon-modal-subtitle"></div>
+    <input type="hidden" id="summon-modal-level">
+    <input type="hidden" id="summon-modal-index">
+    <div style="margin-top:.4rem">
+      <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Vælg væsen</div>
+      <select class="form-input" id="summon-modal-creature"></select>
+    </div>
+    <div style="margin-top:.6rem" id="summon-modal-count-row">
+      <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Antal (SNA II+: typisk 1d3)</div>
+      <input class="form-input" id="summon-modal-count" type="number" min="1" max="9" step="1" value="1">
+    </div>
+    <div id="summon-modal-augment" style="margin-top:.6rem;color:var(--accent);font-size:.8rem;display:none">
+      ⚡ Augment Summoning aktiv — væsenet får +4 Str / +4 Con.
+    </div>
+    <div class="notes-action-row" style="margin-top:.9rem">
+      <button class="notes-save-btn" style="flex:1" onclick="castSummon()">Kast</button>
+      <button class="notes-cancel-btn" onclick="document.getElementById('summon-modal-overlay').classList.remove('open')">Annuller</button>
+    </div>
   </div>
 </div>
 
@@ -2016,6 +2049,45 @@ function cycleSpell(level, idx) {
     // Self-duration kan tænde/slukke et spell-angreb i Oversigten → reload.
     if (selfDur) { location.reload(); return; }
     updateSpellDisplay(level);
+  });
+}
+
+// ── Summon Nature's Ally: kast → vælg væsen ────────────────────────────────
+// summonCatalog: {SNA-niveau: [{id, name}, ...]} — væsner pr. forberedt SNA-niveau.
+const summonCatalog = {{ summon_catalog|tojson }};
+
+function openSummonPicker(level, idx) {
+  const list = summonCatalog[level] || [];
+  if (!list.length) { alert("Ingen summonbare væsner for SNA " + level + "."); return; }
+  document.getElementById("summon-modal-level").value = level;
+  document.getElementById("summon-modal-index").value = idx;
+  document.getElementById("summon-modal-subtitle").textContent =
+    "Summon Nature's Ally " + ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"][level];
+  const sel = document.getElementById("summon-modal-creature");
+  sel.innerHTML = list.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+  // Antal kun relevant for SNA II+ (kan summone flere mindre væsner).
+  document.getElementById("summon-modal-count-row").style.display = level >= 2 ? "" : "none";
+  document.getElementById("summon-modal-count").value = 1;
+  document.getElementById("summon-modal-augment").style.display =
+    charFeatIds.has("augment_summoning") ? "" : "none";
+  document.getElementById("summon-modal-overlay").classList.add("open");
+}
+
+function castSummon() {
+  const level = parseInt(document.getElementById("summon-modal-level").value);
+  const idx   = parseInt(document.getElementById("summon-modal-index").value);
+  const creature = document.getElementById("summon-modal-creature").value;
+  const count = level >= 2 ? Math.max(1, parseInt(document.getElementById("summon-modal-count").value) || 1) : 1;
+  fetch(BASE + "/api/summon", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, level, spell_index: idx, creature, count})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { alert("Kunne ikke kaste: " + data.error); return; }
+    // Fanen er server-renderet → reload viser den nye summon-fane + spell "I brug".
+    location.reload();
   });
 }
 

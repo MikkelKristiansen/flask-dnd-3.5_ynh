@@ -16,6 +16,7 @@ import companion as companion_module
 import db
 import dice as dice_module
 import effects
+import refdata
 import summon as summon_module
 
 # Klasser generatoren understøtter (motoren er bevist mod disse).
@@ -775,8 +776,18 @@ def build_character_view(char, db):
                 "id": sid, "index": i, "spell": spell,
                 "used": state != "free", "state": state,
                 "self_duration": bool(spell and spell.get("self_duration")),
+                "is_summon": sid.startswith("summon_natures_ally_"),
             })
         spell_data[lvl] = rows
+
+    # Summon-picker-katalog: for hvert forberedt SNA-niveau, de væsner der kan
+    # vælges (navn slås op i kataloget). Bruges af "Kast → vælg væsen"-modalen.
+    summon_catalog: dict[int, list] = {}
+    for lvl, spell_ids in char.spells_prepared.items():
+        if any(sid.startswith("summon_natures_ally_") for sid in spell_ids):
+            summon_catalog[lvl] = [
+                {"id": cid, "name": (db.get_animal(cid) or {}).get("name", cid)}
+                for cid in refdata.summon_creatures(lvl)]
 
     condition_data  = [(cid, db.get_condition(cid)) for cid in char.conditions]
     all_conditions  = db.get_all_conditions()
@@ -1047,6 +1058,7 @@ def build_character_view(char, db):
     return {
         "companion": companion,
         "summons": summons,
+        "summon_catalog": summon_catalog,
         "abilities": abilities,
         "saves": saves,
         "skill_data": skill_data,
@@ -1187,6 +1199,65 @@ def api_spells():
         "spells_active": {str(k): v for k, v in spells_active.items()},
         "spell_charges": spell_charges,
     })
+
+
+@app.route("/api/summon", methods=["POST"])
+def api_summon():
+    """Kast et forberedt Summon Nature's Ally-spell og opret et summonet væsen.
+
+    Sætter SNA-spellet "I brug" (genbruger spells_active-mekanikken fra /api/spells)
+    og tilføjer en tynd summon-ref til char.summons. Augment Summoning snapshottes
+    fra karakterens feats ved kast (ikke live). HP sættes til fuld (hp_max pr. væsen).
+    """
+    data        = request.get_json()
+    slug        = data.get("char")
+    level       = int(data.get("level"))           # slot-niveau = SNA-niveau
+    spell_index = int(data.get("spell_index", 0))
+    creature    = (data.get("creature") or "").strip()
+    count       = max(1, int(data.get("count") or 1))
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+
+    char = char_module.load_character(str(path))
+
+    # Validér: slot'et bærer faktisk et SNA-spell og er ikke allerede brugt.
+    prepared = char.spells_prepared.get(level, [])
+    if not (0 <= spell_index < len(prepared)) or \
+            not prepared[spell_index].startswith("summon_natures_ally_"):
+        return jsonify({"error": "ikke et SNA-spell"}), 400
+    if spell_index in char.spells_active.get(level, []) or \
+            spell_index in char.spells_used.get(level, []):
+        return jsonify({"error": "spell allerede kastet"}), 400
+
+    # Validér: væsenet hører til denne SNA-niveau-liste.
+    if creature not in refdata.summon_creatures(level):
+        return jsonify({"error": "ugyldigt væsen"}), 400
+
+    # Augment Summoning-snapshot fra karakterens feats (+4 Str/+4 Con på væsenet).
+    augment = any(char_module.feat_id(e) == "augment_summoning" for e in char.feats)
+
+    # Byg statblokken én gang for at få hp_max → fuld HP pr. væsen ved kast.
+    ref = {"creature": creature, "spell_level": level, "spell_index": spell_index,
+           "count": count, "augment": augment}
+    stat = summon_module.build_summon(ref, db)
+    if not stat:
+        return jsonify({"error": "ugyldigt væsen"}), 400
+    ref["hp_current"] = [stat["hp_max"]] * count
+
+    # Sæt SNA-spellet "I brug" (samme mekanik som cycleSpell → state=active).
+    spells_active = {k: list(v) for k, v in char.spells_active.items()}
+    spells_used   = {k: list(v) for k, v in char.spells_used.items()}
+    spells_active.setdefault(level, []).append(spell_index)
+
+    # Append summon-ref og gem hele summons-listen + spell-tilstanden.
+    summons = list(char.summons) + [ref]
+    char_module.save_character(str(path), {
+        "summons": summons,
+        "spells_active": spells_active,
+        "spells_used": spells_used,
+    })
+    return jsonify({"ok": True})
 
 
 @app.route("/api/spell_charge", methods=["POST"])
