@@ -171,8 +171,8 @@ CREATE TABLE animals (
     name              TEXT NOT NULL,
     size              TEXT NOT NULL,              -- tiny | small | medium | large | huge
     base_hd           INTEGER NOT NULL,          -- antal hit dice (uden bonus-HD)
-    type              TEXT,                       -- animal (default/NULL) | magical_beast | elemental | fey
-                                                  --   driver BAB: animal/elemental ¾·HD, magical_beast 1·HD, fey ½·HD
+    type              TEXT,                       -- animal (default/NULL) | magical_beast | elemental | fey | outsider
+                                                  --   driver BAB: animal/elemental ¾·HD, magical_beast/outsider 1·HD, fey ½·HD
     hit_die           INTEGER,                   -- terningtype pr. HD: 6 (fey) | 10 (magical beast); NULL = 8 (dyr/elementaler)
     good_saves        TEXT,                       -- JSON-liste, fx ["fort","ref"]; NULL = udled af type
                                                   --   (animal/magical_beast: fort+ref · fey: ref+will · elemental: pr. element)

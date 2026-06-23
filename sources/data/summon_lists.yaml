@@ -6,8 +6,9 @@
 #
 # Dokument-formet data (ikke SQLite) — indlæses af refdata.py.
 #
-# Status: SNA I-III implementeret (Fase 0). IV-IX tilføjes senere (Fase 6) som
-# ren data; ingen kodeændring nødvendig.
+# Status: SNA I-III komplet (Fase 0). SNA IV-V påbegyndt (Fase 6, batch 1):
+# elementaler tilføjet og SRD-verificeret. De øvrige IV-V-væsner (dyr, outsidere,
+# magical beasts) følger i senere batches; listerne udvides efterhånden.
 #
 # Note: Aquatic-væsner (octopus, porpoise, shark, squid) kan kun summones i
 # vand/vådt miljø (SRD-fodnote 1). Det håndhæves ikke mekanisk — det er en
@@ -50,3 +51,16 @@
   - snake_constrictor
   - viper_large
   - thoqqua
+
+# SNA IV-V: batch 1 (kun elementaler indtil videre — listerne er ufuldstændige).
+4:
+  - elemental_air_medium
+  - elemental_earth_medium
+  - elemental_fire_medium
+  - elemental_water_medium
+
+5:
+  - elemental_air_large
+  - elemental_earth_large
+  - elemental_fire_large
+  - elemental_water_large

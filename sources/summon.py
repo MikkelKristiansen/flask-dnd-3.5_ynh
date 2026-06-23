@@ -40,9 +40,10 @@ _AUGMENT_MODIFIERS = [
 def _bab(creature_type: str | None, hd: int) -> int:
     """Base attack bonus efter væsen-type (SRD).
 
-    magical_beast: 1·HD (god) · fey: ½·HD (dårlig) · animal/elemental/øvrige: ¾·HD.
+    magical_beast/outsider: 1·HD (god) · fey: ½·HD (dårlig) ·
+    animal/elemental/øvrige: ¾·HD.
     """
-    if creature_type == "magical_beast":
+    if creature_type in ("magical_beast", "outsider"):
         return hd
     if creature_type == "fey":
         return hd // 2

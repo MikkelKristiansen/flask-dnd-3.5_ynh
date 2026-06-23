@@ -52,6 +52,14 @@ def test_satyr_fey_half_bab():
     assert s["saves"] == {"fort": 2, "ref": 5, "will": 5}
 
 
+def test_outsider_full_bab():
+    # Outsider: BAB = HD (fuld), som magical_beast. Fey ½, animal/elemental ¾.
+    assert summon._bab("outsider", 8) == 8
+    assert summon._bab("magical_beast", 8) == 8
+    assert summon._bab("animal", 8) == 6
+    assert summon._bab("fey", 8) == 4
+
+
 def test_fire_elemental_save_profile():
     # Elemental med eksplicit good_saves ["ref"]: Ref god, Fort+Will dårlige.
     s = stat("elemental_fire_small")
