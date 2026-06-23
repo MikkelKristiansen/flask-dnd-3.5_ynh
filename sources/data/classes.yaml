@@ -12,6 +12,8 @@
 #   needs_domains  — true hvis klassen vælger domæner ved oprettelse (cleric)
 #   turn_undead    — true hvis klassen kan turn/rebuke undead (cleric)
 #   wild_shape_from_level — laveste level hvor wild shape fås (druid: 5)
+#   spontaneous_summon — true hvis klassen spontant kan ofre et forberedt spell
+#                        til Summon Nature's Ally af samme niveau (druid)
 #
 # NB: Kun de klasser generatoren er bevist mod (cleric/druid/ranger/rogue) har fuld
 # data (class_skills m.m.). De øvrige har indtil videre kun hit_die + skill_points;
@@ -148,6 +150,7 @@ druid:
   starting_gold: "2d4*10"
   age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
   wild_shape_from_level: 5   # wild shape-evne fra og med dette level
+  spontaneous_summon: true   # kan ofre et forberedt spell til SNA af samme niveau
   class_skills:
     - concentration
     - craft

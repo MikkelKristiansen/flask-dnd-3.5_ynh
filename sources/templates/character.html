@@ -223,6 +223,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .spell-status.used{background:var(--muted);color:#fff;}
 .summon-cast-btn{background:var(--accent);border:none;color:#fff;font-family:Georgia,serif;
                  font-size:.75rem;padding:.15rem .55rem;border-radius:10px;cursor:pointer;white-space:nowrap;}
+.summon-sac-btn{background:var(--card);border:1px solid var(--accent);color:var(--accent);}
 .spell-subtabs{display:flex;gap:.4rem;margin-bottom:.8rem;}
 .spell-subtab{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);
               font-family:Georgia,serif;font-size:.85rem;padding:.4rem .6rem;
@@ -1171,6 +1172,10 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
       <span style="display:flex;align-items:center;gap:.4rem">
         {% if entry.is_summon and entry.state == 'free' %}
         <button class="summon-cast-btn" onclick="event.stopPropagation();openSummonPicker({{ lvl }},{{ entry.index }})">🐾 Kast</button>
+        {% elif can_sacrifice and entry.state == 'free' and lvl in summon_catalog %}
+        <button class="summon-cast-btn summon-sac-btn"
+                onclick="event.stopPropagation();openSummonPicker({{ lvl }},{{ entry.index }},'sacrifice')"
+                title="Ofre denne plads til Summon Nature's Ally {{ ['','I','II','III','IV','V','VI','VII','VIII','IX'][lvl] }}">🐾 Ofre→SNA {{ ['','I','II','III','IV','V','VI','VII','VIII','IX'][lvl] }}</button>
         {% endif %}
         <span class="spell-status {{ entry.state }}"
               onclick="event.stopPropagation();cycleSpell({{ lvl }},{{ entry.index }})">
@@ -1619,6 +1624,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
     <div class="modal-subtitle" id="summon-modal-subtitle"></div>
     <input type="hidden" id="summon-modal-level">
     <input type="hidden" id="summon-modal-index">
+    <input type="hidden" id="summon-modal-mode">
     <div style="margin-top:.4rem">
       <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Vælg væsen</div>
       <select class="form-input" id="summon-modal-creature"></select>
@@ -2119,13 +2125,18 @@ function cycleSpell(level, idx) {
 // summonCatalog: {SNA-niveau: [{id, name}, ...]} — væsner pr. forberedt SNA-niveau.
 const summonCatalog = {{ summon_catalog|tojson }};
 
-function openSummonPicker(level, idx) {
+const SNA_NUM = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"];
+
+// mode = "cast" (kast et SNA-spell) | "sacrifice" (ofre et andet spell til SNA N).
+function openSummonPicker(level, idx, mode) {
+  mode = mode || "cast";
   const list = summonCatalog[level] || [];
   if (!list.length) { alert("Ingen summonbare væsner for SNA " + level + "."); return; }
   document.getElementById("summon-modal-level").value = level;
   document.getElementById("summon-modal-index").value = idx;
+  document.getElementById("summon-modal-mode").value = mode;
   document.getElementById("summon-modal-subtitle").textContent =
-    "Summon Nature's Ally " + ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"][level];
+    (mode === "sacrifice" ? "Ofre plads → " : "") + "Summon Nature's Ally " + SNA_NUM[level];
   const sel = document.getElementById("summon-modal-creature");
   sel.innerHTML = list.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
   // Antal kun relevant for SNA II+ (kan summone flere mindre væsner).
@@ -2139,12 +2150,13 @@ function openSummonPicker(level, idx) {
 function castSummon() {
   const level = parseInt(document.getElementById("summon-modal-level").value);
   const idx   = parseInt(document.getElementById("summon-modal-index").value);
+  const mode  = document.getElementById("summon-modal-mode").value;
   const creature = document.getElementById("summon-modal-creature").value;
   const count = level >= 2 ? Math.max(1, parseInt(document.getElementById("summon-modal-count").value) || 1) : 1;
   fetch(BASE + "/api/summon", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, level, spell_index: idx, creature, count})
+    body: JSON.stringify({char: CHAR, mode, level, spell_index: idx, creature, count})
   })
   .then(r => r.json())
   .then(data => {

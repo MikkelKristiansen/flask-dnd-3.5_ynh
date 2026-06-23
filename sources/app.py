@@ -780,14 +780,21 @@ def build_character_view(char, db):
             })
         spell_data[lvl] = rows
 
-    # Summon-picker-katalog: for hvert forberedt SNA-niveau, de væsner der kan
-    # vælges (navn slås op i kataloget). Bruges af "Kast → vælg væsen"-modalen.
+    # Spontant kast: kun klasser med spontaneous_summon-flaget (druide) kan ofre
+    # et forberedt spell til SNA af samme niveau.
+    can_sacrifice = bool(refdata.class_data(char.cls).get("spontaneous_summon"))
+
+    # Summon-picker-katalog: {SNA-niveau: [{id, name}]}. Et niveau er med hvis der
+    # er summonbare væsner på det OG enten et forberedt SNA-spell (→ Kast-knap) eller
+    # klassen kan ofre (→ Ofre-knap på ethvert spell af det niveau).
     summon_catalog: dict[int, list] = {}
     for lvl, spell_ids in char.spells_prepared.items():
-        if any(sid.startswith("summon_natures_ally_") for sid in spell_ids):
+        creatures = refdata.summon_creatures(lvl)
+        has_sna = any(sid.startswith("summon_natures_ally_") for sid in spell_ids)
+        if creatures and (has_sna or can_sacrifice):
             summon_catalog[lvl] = [
                 {"id": cid, "name": (db.get_animal(cid) or {}).get("name", cid)}
-                for cid in refdata.summon_creatures(lvl)]
+                for cid in creatures]
 
     condition_data  = [(cid, db.get_condition(cid)) for cid in char.conditions]
     all_conditions  = db.get_all_conditions()
@@ -1059,6 +1066,7 @@ def build_character_view(char, db):
         "companion": companion,
         "summons": summons,
         "summon_catalog": summon_catalog,
+        "can_sacrifice": can_sacrifice,
         "abilities": abilities,
         "saves": saves,
         "skill_data": skill_data,
@@ -1161,10 +1169,12 @@ def api_spells():
     spells_active = {k: list(v) for k, v in char.spells_active.items()}
     spell_charges = dict(char.spell_charges)
 
-    # Et SNA-spell der forlader "I brug" (→ Brugt/Ledig) rydder sit summonede væsen.
+    # Et slot der forlader "I brug" og bærer et væsen (direkte SNA-kast ELLER et
+    # ofret spell) rydder det. is_sna styrer desuden reload (Kast-knappens synlighed).
     prepared = char.spells_prepared.get(level, [])
-    is_summon = (0 <= spell_index < len(prepared)
-                 and prepared[spell_index].startswith("summon_natures_ally_"))
+    is_sna = (0 <= spell_index < len(prepared)
+              and prepared[spell_index].startswith("summon_natures_ally_"))
+    bound_summon = _find_summon(char.summons, level, spell_index) is not None
 
     # Tre-tilstands-spells (self_duration) sender "state" = free|active|used.
     # To-tilstands-spells sender som før "used" = true/false.
@@ -1188,8 +1198,8 @@ def api_spells():
         # state == "free": fjernet fra begge ovenfor
         updates = {"spells_used": spells_used, "spells_active": spells_active,
                    "spell_charges": spell_charges}
-        # SNA forlader "I brug" → fjern det matchende summon (fanen forsvinder).
-        if is_summon and state != "active":
+        # Slot forlader "I brug" → fjern det bundne væsen (fanen forsvinder).
+        if bound_summon and state != "active":
             summons = [s for s in char.summons
                        if not (s.get("spell_level") == level
                                and s.get("spell_index") == spell_index)]
@@ -1210,20 +1220,29 @@ def api_spells():
         "spells_used": {str(k): v for k, v in spells_used.items()},
         "spells_active": {str(k): v for k, v in spells_active.items()},
         "spell_charges": spell_charges,
-        "is_summon": is_summon,
+        # Reload hvis et SNA-spell (Kast-knap skifter) eller et væsen var bundet (fane).
+        "is_summon": is_sna or bound_summon,
     })
 
 
 @app.route("/api/summon", methods=["POST"])
 def api_summon():
-    """Kast et forberedt Summon Nature's Ally-spell og opret et summonet væsen.
+    """Kast et Summon Nature's Ally-væsen — direkte eller ved spontant offer.
 
-    Sætter SNA-spellet "I brug" (genbruger spells_active-mekanikken fra /api/spells)
-    og tilføjer en tynd summon-ref til char.summons. Augment Summoning snapshottes
-    fra karakterens feats ved kast (ikke live). HP sættes til fuld (hp_max pr. væsen).
+    To modes:
+    - "cast": slot'et ER et forberedt SNA-spell, der sættes "I brug".
+    - "sacrifice": slot'et er et hvilket som helst andet forberedt spell, der ofres
+      til SNA af samme niveau (kun klasser med spontaneous_summon). Det ofrede slot
+      sættes også "I brug" — så fanen lever, mens slot'et er optaget, og fjernes når
+      det sættes "Brugt" (samme livscyklus som direkte kast; jf. /api/spells).
+
+    Begge: SNA-niveau N = slot-niveauet. Augment Summoning snapshottes fra feats.
+    HP sættes til fuld (hp_max pr. væsen). En tynd ref bindes til (spell_level=N,
+    spell_index).
     """
     data        = request.get_json()
     slug        = data.get("char")
+    mode        = data.get("mode", "cast")
     level       = int(data.get("level"))           # slot-niveau = SNA-niveau
     spell_index = int(data.get("spell_index", 0))
     creature    = (data.get("creature") or "").strip()
@@ -1234,14 +1253,21 @@ def api_summon():
 
     char = char_module.load_character(str(path))
 
-    # Validér: slot'et bærer faktisk et SNA-spell og er ikke allerede brugt.
+    # Validér slot'et efter mode.
     prepared = char.spells_prepared.get(level, [])
-    if not (0 <= spell_index < len(prepared)) or \
-            not prepared[spell_index].startswith("summon_natures_ally_"):
+    if not (0 <= spell_index < len(prepared)):
+        return jsonify({"error": "ugyldigt slot"}), 400
+    sid = prepared[spell_index]
+    if mode == "sacrifice":
+        if not refdata.class_data(char.cls).get("spontaneous_summon"):
+            return jsonify({"error": "klassen kan ikke spontant summone"}), 400
+        if sid.startswith("summon_natures_ally_"):
+            return jsonify({"error": "brug Kast på selve SNA-spellet"}), 400
+    elif not sid.startswith("summon_natures_ally_"):
         return jsonify({"error": "ikke et SNA-spell"}), 400
     if spell_index in char.spells_active.get(level, []) or \
             spell_index in char.spells_used.get(level, []):
-        return jsonify({"error": "spell allerede kastet"}), 400
+        return jsonify({"error": "spell allerede brugt"}), 400
 
     # Validér: væsenet hører til denne SNA-niveau-liste.
     if creature not in refdata.summon_creatures(level):
