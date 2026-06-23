@@ -2046,8 +2046,9 @@ function cycleSpell(level, idx) {
   .then(data => {
     spellsUsed = Object.fromEntries(Object.entries(data.spells_used).map(([k,v]) => [parseInt(k), v]));
     spellsActive = Object.fromEntries(Object.entries(data.spells_active).map(([k,v]) => [parseInt(k), v]));
+    // Et SNA-spell skifter summon-fane + Kast-knap (server-renderet) → reload.
     // Self-duration kan tænde/slukke et spell-angreb i Oversigten → reload.
-    if (selfDur) { location.reload(); return; }
+    if (data.is_summon || selfDur) { location.reload(); return; }
     updateSpellDisplay(level);
   });
 }

@@ -1161,6 +1161,11 @@ def api_spells():
     spells_active = {k: list(v) for k, v in char.spells_active.items()}
     spell_charges = dict(char.spell_charges)
 
+    # Et SNA-spell der forlader "I brug" (→ Brugt/Ledig) rydder sit summonede væsen.
+    prepared = char.spells_prepared.get(level, [])
+    is_summon = (0 <= spell_index < len(prepared)
+                 and prepared[spell_index].startswith("summon_natures_ally_"))
+
     # Tre-tilstands-spells (self_duration) sender "state" = free|active|used.
     # To-tilstands-spells sender som før "used" = true/false.
     state = data.get("state")
@@ -1181,9 +1186,16 @@ def api_spells():
         elif state == "used":
             spells_used.setdefault(level, []).append(spell_index)
         # state == "free": fjernet fra begge ovenfor
-        char_module.save_character(
-            str(path), {"spells_used": spells_used, "spells_active": spells_active,
-                        "spell_charges": spell_charges})
+        updates = {"spells_used": spells_used, "spells_active": spells_active,
+                   "spell_charges": spell_charges}
+        # SNA forlader "I brug" → fjern det matchende summon (fanen forsvinder).
+        if is_summon and state != "active":
+            summons = [s for s in char.summons
+                       if not (s.get("spell_level") == level
+                               and s.get("spell_index") == spell_index)]
+            if len(summons) != len(char.summons):
+                updates["summons"] = summons
+        char_module.save_character(str(path), updates)
     else:
         if mark_used:
             spells_used.setdefault(level, [])
@@ -1198,6 +1210,7 @@ def api_spells():
         "spells_used": {str(k): v for k, v in spells_used.items()},
         "spells_active": {str(k): v for k, v in spells_active.items()},
         "spell_charges": spell_charges,
+        "is_summon": is_summon,
     })
 
 
