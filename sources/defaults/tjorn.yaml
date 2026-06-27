@@ -52,12 +52,14 @@ skills:
 - id: knowledge_nature
   ranks: 5.0
   misc: 2
+  misc_note: Nature Sense
 - id: knowledge_local
   ranks: 2.0
   misc: 0
 - id: listen
   ranks: 0.0
   misc: 2
+  misc_note: Gnome
 - id: profession_herbalist
   ranks: 4.0
   misc: 0
@@ -67,6 +69,7 @@ skills:
 - id: survival
   ranks: 4.0
   misc: 2
+  misc_note: Nature Sense
 feats:
 - spell_focus_conjuration
 conditions: []

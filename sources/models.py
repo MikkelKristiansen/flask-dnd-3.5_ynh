@@ -28,6 +28,7 @@ class Skill:
     id: str
     ranks: float        # float: cross-class giver halve ranks
     misc: int = 0
+    misc_note: str = ""  # valgfri kilde-label for misc, fx "Nature Sense" / "Gnome"
 
 
 @dataclass

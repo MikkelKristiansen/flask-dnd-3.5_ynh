@@ -40,6 +40,7 @@ def load_character(path: str) -> Character:
             id=str(s["id"]).lower(),
             ranks=float(s.get("ranks", 0)),
             misc=int(s.get("misc", 0)),
+            misc_note=str(s.get("misc_note", "")),
         ))
 
     attacks = []
@@ -480,9 +481,13 @@ def save_character(path: str, updates: dict) -> None:
         data["hp"]["max"] = int(updates["hp_max"])
 
     if "skill_deltas" in updates and updates["skill_deltas"]:
-        flat = {str(s["id"]): {"id": str(s["id"]), "ranks": float(s.get("ranks", 0)),
-                                "misc": int(s.get("misc", 0))}
-                for s in (data.get("skills") or [])}
+        flat = {}
+        for s in (data.get("skills") or []):
+            entry = {"id": str(s["id"]), "ranks": float(s.get("ranks", 0)),
+                     "misc": int(s.get("misc", 0))}
+            if s.get("misc_note"):   # bevar kilde-label gennem level-up
+                entry["misc_note"] = str(s["misc_note"])
+            flat[str(s["id"])] = entry
         for sid, delta in updates["skill_deltas"].items():
             delta = round(float(delta), 1)
             if delta == 0:

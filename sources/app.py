@@ -753,6 +753,7 @@ def build_character_view(char, db):
     char_skill_map = {s.id: s for s in char.skills}
     all_skill_defs = db.get_all_skills()
     skill_name = {sk["id"]: sk["name"] for sk in all_skill_defs}
+    skill_breakdowns = {}   # {id: {name, total, parts:[{label,value}]}} — til hover-opdeling
     skill_data = []
     for defn in all_skill_defs:
         s = char_skill_map.get(defn["id"]) or char_module.Skill(id=defn["id"], ranks=0.0)
@@ -764,6 +765,26 @@ def build_character_view(char, db):
         # Basis (uden aktive effekter) → ▲/▼-markør når en effekt ændrede skill'en.
         pre_effect = char_module.skill_total(s, ab, db, synergy, acp)
         acp_applied = acp * int(defn.get("armor_check", 0) or 0)
+        # Opdeling til hover: hver bestanddel der lægges sammen til totalen, med
+        # navngiven kilde (misc bærer sin label, fx "Nature Sense"; synergi viser
+        # hvilke skills den kommer fra). Summen = item.total.
+        ability = defn.get("ability")
+        parts = [{"label": "ranks", "value": int(s.ranks)}]
+        if ability and ability != "none":
+            parts.append({"label": ability.upper(), "value": eff.modifier(ability)})
+        if s.misc:
+            parts.append({"label": s.misc_note or "diverse", "value": s.misc})
+        if synergy:
+            syn_names = ", ".join(skill_name.get(src, src)
+                                  for src, _ in synergy_src_map.get(s.id, []))
+            parts.append({"label": f"synergi ({syn_names})" if syn_names else "synergi",
+                          "value": synergy})
+        if acp_applied:
+            parts.append({"label": "rustning (ACP)", "value": acp_applied})
+        if eff_bonus:
+            parts.append({"label": "effekter", "value": eff_bonus})
+        skill_breakdowns[s.id] = {
+            "name": defn["name"] if defn else s.id, "total": total, "parts": parts}
         skill_data.append({
             "skill": s, "defn": defn,
             "total": total,
@@ -772,9 +793,6 @@ def build_character_view(char, db):
             # total uden synergi, så man kender værdien når synergien ikke gælder.
             "base_total": total - synergy,
             "synergy": synergy,
-            # Hvilke skills synergien kommer fra (til tooltip), fx "Tumble +2 · Jump +2".
-            "synergy_from": " · ".join(
-                f"{skill_name.get(src, src)} +{b}" for src, b in synergy_src_map.get(s.id, [])),
             "ranked": ranked,
             "trained_only": trained_only,
             # Utrænet kan kun bruges hvis skill'en ikke er trained-only,
@@ -1136,6 +1154,7 @@ def build_character_view(char, db):
         "abilities": abilities,
         "saves": saves,
         "skill_data": skill_data,
+        "skill_breakdowns": skill_breakdowns,
         "feat_data": feat_data,
         "char_feat_ids": char_feat_ids,
         "spell_data": spell_data,

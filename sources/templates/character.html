@@ -1150,20 +1150,18 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
         <span class="skill-ability">({{ defn.ability|upper if defn else "?" }})</span>
         {% if item.trained_only %}<span class="skill-trained" title="Trænet kun — kan ikke bruges utrænet">▲</span>{% endif %}
       </span>
-      <span style="display:flex;align-items:baseline;gap:.8rem">
-        <span class="skill-ranks">{{ s.ranks|int }} ranks{% if item.synergy > 0 %}&nbsp;<span style="color:var(--green);font-size:.7rem" title="Synergi fra: {{ item.synergy_from }}">+{{ item.synergy }}⟳</span>{% endif %}{% if item.acp_applied != 0 %}&nbsp;<span style="color:var(--red);font-size:.7rem" title="Rustnings-tjekstraf (ACP)">{{ item.acp_applied }}🛡</span>{% endif %}</span>
+      <span style="display:flex;align-items:baseline;gap:.8rem"
+            onmouseenter="showSkillBreakdown('{{ s.id }}',this)" onmouseleave="hideSpellTooltip()">
+        <span class="skill-ranks">{{ s.ranks|int }} ranks{% if item.synergy > 0 %}&nbsp;<span style="color:var(--green);font-size:.7rem">+{{ item.synergy }}⟳</span>{% endif %}{% if item.acp_applied != 0 %}&nbsp;<span style="color:var(--red);font-size:.7rem">{{ item.acp_applied }}🛡</span>{% endif %}</span>
         {% if item.usable %}
         {% if item.synergy > 0 %}
         <span class="skill-total roll-tap"
-              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.base_total) }}','{{ defn.name if defn else s.id }}')"
-              title="Slå {{ defn.name if defn else s.id }} (uden synergi){% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.base_total) }}</span>
+              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.base_total) }}','{{ defn.name if defn else s.id }}')">{{ "%+d"|format(item.base_total) }}</span>
         <span class="skill-total roll-tap" style="color:var(--green);font-size:.82rem"
-              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }} (m. synergi)')"
-              title="Slå {{ defn.name if defn else s.id }} inkl. +{{ item.synergy }} situationsbestemt synergi fra: {{ item.synergy_from }}">{{ "%+d"|format(item.total) }}⟳{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect, "detail": item.effect_detail}) }}</span>
+              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }} (m. synergi)')">{{ "%+d"|format(item.total) }}⟳{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect, "detail": item.effect_detail}) }}</span>
         {% else %}
         <span class="skill-total roll-tap"
-              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }}')"
-              title="Slå {{ defn.name if defn else s.id }}{% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.total) }}{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect, "detail": item.effect_detail}) }}</span>
+              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }}')">{{ "%+d"|format(item.total) }}{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect, "detail": item.effect_detail}) }}</span>
         {% endif %}
         {% else %}
         <span class="skill-na" title="Trænet kun — Tjørn har ingen ranks, så denne kan ikke bruges utrænet">—</span>
@@ -2682,6 +2680,30 @@ function showSpellTooltip(spell, chipEl) {
 
 function hideSpellTooltip() {
   document.getElementById("spell-tooltip").style.display = "none";
+}
+
+// Skill-opdeling på hover: viser hvordan totalen er sammensat (ranks + ability +
+// misc m/ kilde + synergi + ACP + effekter). Genbruger spell-tooltip-elementet.
+const skillBreakdowns = {{ skill_breakdowns|tojson }};
+function showSkillBreakdown(sid, el) {
+  const b = skillBreakdowns[sid];
+  if (!b || !b.parts || !b.parts.length) return;
+  const tt = document.getElementById("spell-tooltip");
+  const sgn = n => (n >= 0 ? "+" : "") + n;
+  const rows = b.parts.map(p =>
+    `<div style="display:flex;justify-content:space-between;gap:1.2rem">
+       <span>${escHtml(p.label)}</span><span>${sgn(p.value)}</span></div>`).join("");
+  tt.innerHTML =
+    `<div class="tt-name">${escHtml(b.name)} = ${sgn(b.total)}</div>` +
+    `<div class="tt-desc" style="margin-top:.3rem">${rows}</div>`;
+  const r = el.getBoundingClientRect();
+  const tw = 220, gap = 8;
+  const left = Math.min(r.left, window.innerWidth - tw - 10);
+  let top = r.bottom + gap;
+  if (top + 170 > window.innerHeight) top = r.top - 170 - gap;
+  tt.style.left = left + "px";
+  tt.style.top  = top + "px";
+  tt.style.display = "block";
 }
 
 // Skill-tooltip i level-up — genbruger spell-tooltip-elementet (z-index over modalen).
