@@ -51,6 +51,24 @@ def _char_path(slug: str) -> Path:
     return CHARACTERS_DIR / f"{slug}.yaml"
 
 
+def _race_weapon_prof_ids(race: str, db) -> set:
+    """Våben-id'er en race giver proficiency i (fx elv: longsword, rapier, …).
+
+    races.yaml angiver dem som fritekst-navne; her matches de mod våben-kataloget.
+    Match på fuldt navn ELLER navn+"," så "longbow" også fanger "Longbow, composite".
+    """
+    raw = (refdata.race_data(race) or {}).get("weapon_proficiency", "")
+    if not raw:
+        return set()
+    wanted = [n.strip().lower() for n in str(raw).split(",") if n.strip()]
+    ids = set()
+    for w in db.get_all_weapons():
+        low = w["name"].strip().lower()
+        if any(low == n or low.startswith(n + ",") for n in wanted):
+            ids.add(w["id"])
+    return ids
+
+
 def _inv_row(item, r: dict) -> dict:
     """Byg en inventar-række til JSON (delt af render + /api/inventory).
 
@@ -68,6 +86,7 @@ def _inv_row(item, r: dict) -> dict:
         "notes": item.notes, "state": item.state, "is_ref": bool(item.ref),
         "ref": item.ref, "bonus": item.bonus, "str_mult": item.str_mult,
         "masterwork": item.masterwork, "enhancement": item.enhancement,
+        "house_rule": item.house_rule,
         "is_ammo": is_ammo,
     }
 
@@ -701,6 +720,16 @@ def build_character_view(char, db):
     # Druide i metalrustning/-skjold mister spellcasting (+ su/sp-evner) i 24t
     druid_armor_block = char_module.druid_armor_violations(char.cls, armor_row, shield_row)
 
+    # Weapon & armor proficiency: uvant grej giver straf (−4 på angreb / ACP-på-
+    # angreb), ikke et forbud. Race kan give ekstra våben-proficiency (elv m.fl.);
+    # en house-rule pr. genstand (item.house_rule) fjerner straf + advarsel.
+    weapon_prof = char_module.class_weapon_proficiency(char.cls)
+    armor_prof  = char_module.class_armor_proficiency(char.cls)
+    allowed_weapons = _race_weapon_prof_ids(char.race, db)
+    prof_block = char_module.proficiency_violations(
+        weapon_prof, armor_prof, char.inventory, db, allowed_weapons)
+    armor_atk_pen = char_module.armor_attack_penalty(armor_prof, char.inventory, db)
+
     racial_save = int(char_module.race_data(char.race).get("save_bonus", 0))
     # Saves vises effektivt (eff) men bærer basis-værdien med, så en ▲/▼-markør
     # kan vise hvornår en aktiv effekt ændrede tallet.
@@ -834,7 +863,8 @@ def build_character_view(char, db):
 
     # Direkte angrebs-/skade-bonusser (Bless, Magic Fang, Divine Favor,
     # shaken/sickened-straffe). Ability-delen kaskaderer via eff; disse lægges på.
-    attack_extra = net.get("attack", 0)
+    # armor_atk_pen (≤0): uvant rustning → tjekstraffen rammer også alle angreb.
+    attack_extra = net.get("attack", 0) + armor_atk_pen
     damage_extra = net.get("damage", 0)
 
     def _atk_fields(atk):
@@ -858,7 +888,8 @@ def build_character_view(char, db):
     # Våben-angreb (udledt af inventaret) først, så manuelle angreb fra YAML.
     # Kun manuelle angreb kan redigeres her (idx = position i char.attacks).
     attack_rows = [_row(a, False, None)
-                   for a in char_module.derive_attacks(char.inventory, db, char.size)
+                   for a in char_module.derive_attacks(char.inventory, db, char.size,
+                                                        weapon_prof, allowed_weapons)
                    if char_module.attack_visible(a, active_keys)]
     attack_rows += [_row(a, True, i) for i, a in enumerate(char.attacks)
                     if char_module.attack_visible(a, active_keys)]
@@ -1096,6 +1127,8 @@ def build_character_view(char, db):
         "effect_flags": riders["flags"],
         "temp_hp": temp_hp,
         "druid_armor_block": druid_armor_block,
+        "prof_block": prof_block,
+        "armor_atk_pen": armor_atk_pen,
         "inventory_json": inventory_json,
         "catalog_json": catalog_json,
         "available_spells": available_spells,
@@ -1614,6 +1647,8 @@ def api_inventory():
                 old.masterwork = bool(data.get("masterwork"))
             if "enhancement" in data:
                 old.enhancement = int(data.get("enhancement") or 0)
+            if "house_rule" in data:
+                old.house_rule = bool(data.get("house_rule"))
             if not old.ref:
                 old.name   = str(data.get("name", old.name))
                 old.weight = float(data.get("weight", old.weight))

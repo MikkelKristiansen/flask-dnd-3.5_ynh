@@ -688,6 +688,8 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
               title="Brug en — klik for at tælle ned (0 = Brugt)">🪨 {{ row.charges_remaining }}/{{ row.charges_max }}</span>
         {% endif %}
         {% if row.alt_note %}<span class="attack-alt">{{ row.alt_note }}</span>{% endif %}
+        {% if atk.not_proficient %}<span class="attack-alt" style="color:var(--red)"
+              title="Ikke proficient med dette våben — −4 er allerede trukket fra. Hak 'DM tillader' på genstanden for at fjerne straffen.">⚠ −4 uvant</span>{% endif %}
       </span>
       <span class="attack-bonus roll-tap"
             onclick="guidedRoll('1d20{{ "%+d"|format(row.to_hit) }}','{{ atk.name }} angreb')"
@@ -702,6 +704,16 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   <div class="section">
     <div class="section-title">Angreb <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik bonus/skade for at slå · klik navn for at rette)</span></div>
     <div id="buff-rem-attacks-character" class="buff-reminder" style="display:none"></div>
+    {% if prof_block.weapons or prof_block.armor %}
+    <div style="border:1px solid var(--red);background:rgba(180,40,40,.12);color:var(--red);
+                padding:.55rem .75rem;border-radius:5px;margin-bottom:.6rem;font-size:.83rem;line-height:1.45">
+      ⚠ <strong>Manglende proficiency:</strong>
+      {% if prof_block.weapons %}<br>Våben: {{ prof_block.weapons|join(", ") }} — <strong>−4 til angreb</strong>.{% endif %}
+      {% if prof_block.armor %}<br>Rustning: {{ prof_block.armor|join(", ") }} — tjekstraffen
+        ({{ "%+d"|format(armor_atk_pen) }}) rammer <strong>alle angreb</strong> + Str/Dex-skills.{% endif %}
+      <br><span style="color:var(--muted)">Lovligt at bruge med straf. Er det DM-tilladt? Åbn genstanden i Inventar og hak <em>“DM tillader (house-rule)”</em>.</span>
+    </div>
+    {% endif %}
     {% for row in attack_rows if row.attack.source != "spell" %}
       {{ attack_row(row) }}
     {% endfor %}
@@ -1535,6 +1547,12 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
           <input type="checkbox" id="item-modal-mwk" style="width:auto"> Mesterværk (ACP +1)
         </label>
       </div>
+    </div>
+    <div id="item-modal-houserule-row" style="display:none;margin-top:.6rem">
+      <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.85rem">
+        <input type="checkbox" id="item-modal-houserule" style="width:auto">
+        DM tillader (house-rule) — fjern proficiency-/druid-straf for denne genstand
+      </label>
     </div>
     <div style="margin-top:.6rem">
       <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Beskrivelse / noter</div>
@@ -2994,6 +3012,10 @@ function openItemDetail(idx) {
     document.getElementById("item-modal-enh").value = item.enhancement || 0;
     document.getElementById("item-modal-mwk").checked = !!item.masterwork;
   }
+  // House-rule-flag: kun relevant for grej der kan rammes af proficiency (våben/rustning)
+  document.getElementById("item-modal-houserule-row").style.display =
+    (isWeapon || isArmor) ? "block" : "none";
+  document.getElementById("item-modal-houserule").checked = !!item.house_rule;
   document.getElementById("item-modal-overlay").classList.add("open");
   (item.is_ref ? document.getElementById("item-modal-qty") : nameEl).focus();
 }
@@ -3015,6 +3037,10 @@ function saveItemDetail() {
   if ((inventoryData[idx].ref || "").startsWith("armor/")) {
     payload.enhancement = Math.max(0, parseInt(document.getElementById("item-modal-enh").value) || 0);
     payload.masterwork  = document.getElementById("item-modal-mwk").checked;
+  }
+  const ref = inventoryData[idx].ref || "";
+  if (ref.startsWith("weapons/") || ref.startsWith("armor/")) {
+    payload.house_rule = document.getElementById("item-modal-houserule").checked;
   }
   fetch(BASE + "/api/inventory", {
     method: "POST",
