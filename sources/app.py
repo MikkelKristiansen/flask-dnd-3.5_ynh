@@ -1091,6 +1091,11 @@ def build_character_view(char, db):
 
     # Companion: beregn det fulde statblok fra den tynde reference (eller None).
     companion = companion_module.build_companion(char, db)
+    # Kan klassen overhovedet have en companion (druide L1, ranger L4+)? → vis
+    # "Tilkald"-knap når der ingen er. Dyre-listen er companion_ok-filtreret.
+    can_summon_companion = companion_module.companion_effective_level(char.cls, char.level) > 0
+    companion_animals = ([{"id": a["id"], "name": a["name"]} for a in db.get_all_animals()
+                          if a.get("companion_ok") != 0] if can_summon_companion else [])
 
     # Summons: render hvert aktivt Summon Nature's Ally-væsen (tom liste = ingen faner).
     summons = summon_module.build_summons(char.summons, db)
@@ -1100,6 +1105,8 @@ def build_character_view(char, db):
 
     return {
         "companion": companion,
+        "can_summon_companion": can_summon_companion,
+        "companion_animals": companion_animals,
         "summons": summons,
         "summon_catalog": summon_catalog,
         "can_sacrifice": can_sacrifice,
@@ -1829,6 +1836,43 @@ def api_companion_tricks():
             tricks.append(name)
     char_module.save_character(str(path), {"companion_tricks": tricks})
     return jsonify({"tricks": tricks})
+
+
+@app.route("/api/companion", methods=["POST"])
+def api_companion():
+    """Tilkald en ny animal companion (summon) eller sig farvel til den (dismiss).
+
+    summon: bygger en tynd ref {name, animal, hp_current=max, tricks:[]} ved
+    karakterens effektive companion-niveau (samme mekanik som generatoren).
+    dismiss: rydder char.companion helt (data går tabt — bekræftes i UI'en).
+    """
+    data   = request.get_json()
+    slug   = data.get("char")
+    action = str(data.get("action", "")).lower()
+    path   = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char = char_module.load_character(str(path))
+    eff_level = companion_module.companion_effective_level(char.cls, char.level)
+    if eff_level <= 0:
+        return jsonify({"error": "Klassen kan ikke have en animal companion."}), 400
+
+    if action == "dismiss":
+        char_module.save_character(str(path), {"companion": {}})
+        return jsonify({"ok": True})
+
+    if action == "summon":
+        animal_id = str(data.get("animal", "")).strip()
+        animal = db.get_animal(animal_id)
+        if not animal or animal.get("companion_ok") == 0:
+            return jsonify({"error": "Ukendt eller uegnet dyr."}), 400
+        name   = str(data.get("name", "")).strip() or animal["name"]
+        hp_max = companion_module.advance_companion(animal, max(1, eff_level), db)["hp_max"]
+        char_module.save_character(str(path), {"companion": {
+            "name": name, "animal": animal_id, "hp_current": hp_max, "tricks": []}})
+        return jsonify({"ok": True})
+
+    return jsonify({"error": "ukendt action"}), 400
 
 
 @app.route("/api/gold", methods=["POST"])

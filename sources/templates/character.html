@@ -744,6 +744,14 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   </div>
   {% endif %}
 
+  {% if can_summon_companion and not companion %}
+  <div class="section">
+    <div class="section-title">Animal Companion</div>
+    <div style="color:var(--muted);font-size:.85rem;margin-bottom:.5rem">Ingen ledsager lige nu.</div>
+    <button class="add-btn" onclick="openSummonCompanion()">🐾 Tilkald Animal Companion</button>
+  </div>
+  {% endif %}
+
   {% if char.racial_traits %}
   <div class="section">
     <div class="section-title">Raceevner</div>
@@ -909,6 +917,15 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
              style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addTrick();}">
       <button class="add-btn" style="padding:.2rem .7rem" onclick="addTrick()">+ Tilføj</button>
     </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Skilles ad</div>
+    <div style="color:var(--muted);font-size:.82rem;margin-bottom:.5rem">
+      Sig farvel til {{ cp.name }}. Ledsagerens data slettes — kan ikke fortrydes.
+    </div>
+    <button class="add-btn" style="border-color:var(--red);color:var(--red)"
+            onclick="dismissCompanion('{{ cp.name }}')">🐾 Sig farvel til {{ cp.name }}</button>
   </div>
 
 </div>
@@ -1672,6 +1689,28 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   </div>
 </div>
 
+<!-- ── Tilkald Animal Companion ── -->
+<div class="modal-overlay" id="summon-companion-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('summon-companion-overlay').classList.remove('open')">✕</button>
+    <div class="modal-title">🐾 Tilkald Animal Companion</div>
+    <div style="margin-top:.4rem">
+      <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Vælg dyr</div>
+      <select class="form-input" id="summon-companion-animal">
+        {% for a in companion_animals %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div style="margin-top:.6rem">
+      <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Navn (valgfrit)</div>
+      <input class="form-input" id="summon-companion-name" type="text" placeholder="— dyrets eget navn —">
+    </div>
+    <div class="notes-action-row" style="margin-top:.9rem">
+      <button class="notes-save-btn" style="flex:1" onclick="confirmSummonCompanion()">Tilkald</button>
+      <button class="notes-cancel-btn" onclick="document.getElementById('summon-companion-overlay').classList.remove('open')">Annuller</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── JavaScript ── -->
 <script>
 const BASE = "{{ request.script_root }}";
@@ -1860,6 +1899,35 @@ function removeTrick(i) {
 
 renderTricks();
 {% endif %}
+
+// ── Animal Companion: tilkald / afsked ────────────────────────────────────
+function openSummonCompanion() {
+  document.getElementById("summon-companion-overlay").classList.add("open");
+}
+
+function confirmSummonCompanion() {
+  const animal = document.getElementById("summon-companion-animal").value;
+  const name   = document.getElementById("summon-companion-name").value.trim();
+  if (!animal) return;
+  fetch(BASE + "/api/companion", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "summon", animal, name})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) window.location.reload(); else alert(d.error || "Fejl"); });
+}
+
+function dismissCompanion(name) {
+  if (!confirm(`Er du helt sikker?\n\nDu siger farvel til ${name}. Ledsagerens data slettes og kan ikke fortrydes.`)) return;
+  fetch(BASE + "/api/companion", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "dismiss"})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) window.location.reload(); else alert(d.error || "Fejl"); });
+}
 
 // ── Manuelle angreb (redigerbare) ─────────────────────────────────────────
 const attacksData = {{ attacks_json|tojson }};

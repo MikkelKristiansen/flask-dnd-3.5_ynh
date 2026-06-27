@@ -445,6 +445,15 @@ def save_character(path: str, updates: dict) -> None:
         if isinstance(comp, dict):
             comp["tricks"] = [str(t) for t in updates["companion_tricks"]]
 
+    # Hele companion-referencen sættes (tilkald) eller ryddes (afsked). Tom dict
+    # fjerner feltet helt → build_companion giver None, og fanen forsvinder.
+    if "companion" in updates:
+        comp = updates["companion"] or {}
+        if comp:
+            data["companion"] = dict(comp)
+        else:
+            data.pop("companion", None)
+
     # Summon Nature's Ally-væsner: hele listen gemmes på én gang (som inventory/
     # buffs). App-endpoints bygger den nye liste (tilføj ved kast, fjern ved
     # "Brugt", opdatér HP/effekter). Tom liste rydder feltet.
