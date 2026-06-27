@@ -2517,6 +2517,27 @@ function hideSpellTooltip() {
   document.getElementById("spell-tooltip").style.display = "none";
 }
 
+// Skill-tooltip i level-up — genbruger spell-tooltip-elementet (z-index over modalen).
+function showSkillTooltip(sid, el) {
+  const s = allSkillsDB.find(x => x.id === sid);
+  if (!s) return;
+  const tt = document.getElementById("spell-tooltip");
+  const meta = [(s.ability || "").toUpperCase(), s.trained_only ? "Trænet kun" : "Utrænet"]
+    .filter(Boolean).join(" · ");
+  tt.innerHTML =
+    `<div class="tt-name">${escHtml(s.name)}</div>` +
+    (meta ? `<div class="tt-meta">${escHtml(meta)}</div>` : "") +
+    `<div class="tt-desc">${escHtml(truncDesc(s.description, 200))}</div>`;
+  const r = el.getBoundingClientRect();
+  const tw = 280, gap = 8;
+  let left = Math.min(r.left, window.innerWidth - tw - 10);
+  let top  = r.bottom + gap;
+  if (top + 130 > window.innerHeight) top = r.top - 130 - gap;
+  tt.style.left = left + "px";
+  tt.style.top  = top  + "px";
+  tt.style.display = "block";
+}
+
 // ── Ny dag ────────────────────────────────────────────────────────────────
 function newDay() {
   if (!confirm("Nulstil alle brugte spells? (Forberedelse bevares)")) return;
@@ -3312,7 +3333,8 @@ function luSPUsed() {
 function openLevelUpModal() {
   luHpRoll = 0; luSkillDeltas = {}; luFeat = null; luFeatWeapon = ""; luAbBoost = null;
   document.getElementById("lu-feat-weapon").style.display = "none";
-  luShownSkills = Object.keys(baseRanks);
+  // Vis kun skills man allerede har ranks i — resten tilføjes via dropdownen.
+  luShownSkills = Object.keys(baseRanks).filter(sid => baseRanks[sid] > 0);
   document.getElementById("lu-hp-manual").value = "";
   renderLuModal();
   document.getElementById("lu-overlay").classList.add("open");
@@ -3369,7 +3391,7 @@ function updateLuSpHeader() {
 }
 
 function rollLuHp() {
-  fetch(`/api/roll/1d${luBase.hit_die}`)
+  fetch(BASE + `/api/roll/1d${luBase.hit_die}`)
   .then(r => r.json())
   .then(d => {
     luHpRoll = d.rolls[0];
@@ -3402,7 +3424,7 @@ function renderLuSkills() {
     const row = document.createElement("div");
     row.className = "lu-skill-row";
     row.innerHTML =
-      `<span>${escHtml(name)}${isCC ? '<span style="color:var(--muted);font-size:.72rem"> CC</span>' : ""}</span>
+      `<span style="cursor:help" onmouseenter="showSkillTooltip('${sid}',this)" onmouseleave="hideSpellTooltip()">${escHtml(name)}${isCC ? '<span style="color:var(--muted);font-size:.72rem"> CC</span>' : ""}</span>
        <span style="display:flex;align-items:center;gap:.35rem">
          <button class="lu-pm" onclick="adjLuSkill('${sid}',-${rpc(sid)})" ${canSub?"":"disabled"}>−</button>
          <span style="min-width:3.2rem;text-align:center;font-size:.83rem">

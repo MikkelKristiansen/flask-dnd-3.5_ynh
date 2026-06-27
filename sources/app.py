@@ -971,7 +971,9 @@ def build_character_view(char, db):
         for f in db.get_all_feats()
     ]
     all_skills_json = [
-        {"id": s["id"], "name": s["name"], "ability": s.get("ability", "")}
+        {"id": s["id"], "name": s["name"], "ability": s.get("ability", ""),
+         "trained_only": bool(s.get("trained_only")),
+         "description": s.get("description") or ""}
         for s in db.get_all_skills()
     ]
     cls_skills_json = sorted(char_module.class_skills(char.cls))

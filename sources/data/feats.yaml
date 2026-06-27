@@ -2,7 +2,7 @@
 - id: alertness
   name: Alertness
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Listen checks and Spot checks.
   normal:
   special: The master of a familiar gains the benefit of Alertness whenever the familiar is within arm's reach.
@@ -17,7 +17,7 @@
   name: Blind-Fight
   type: General
   fighter_bonus: 1
-  prerequisites: None
+  prerequisites:
   benefit: In melee, every time you miss because of concealment, you can reroll your miss chance percentile roll one time to see if you actually hit. An invisible attacker gets no advantages related to hitting you in melee.
   normal:
   special:
@@ -32,7 +32,7 @@
 - id: combat_casting
   name: Combat Casting
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +4 bonus on Concentration checks made to cast a spell or use a spell-like ability while on the defensive or while you are grappling or pinned.
   normal:
   special:
@@ -54,7 +54,7 @@
 - id: endurance
   name: Endurance
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You gain a +4 bonus on Swim checks to resist nonlethal damage, Constitution checks to continue running or hold your breath, forced march checks, and Fortitude saves vs. nonlethal damage from starvation, thirst, or environment.
   normal:
   special: A ranger automatically gains Endurance as a bonus feat at 3rd level.
@@ -75,7 +75,7 @@
 - id: great_fortitude
   name: Great Fortitude
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Fortitude saving throws.
   normal:
   special:
@@ -83,21 +83,21 @@
   name: Improved Initiative
   type: General
   fighter_bonus: 1
-  prerequisites: None
+  prerequisites:
   benefit: You get a +4 bonus on initiative checks.
   normal:
   special:
 - id: extend_spell
   name: Extend Spell
   type: Metamagic
-  prerequisites: None
+  prerequisites:
   benefit: An extended spell lasts twice as long as normal. A spell with a duration of concentration, instantaneous, or permanent is not affected by this feat. An extended spell uses up a spell slot one level higher than the spell's actual level.
   normal:
   special:
 - id: track
   name: Track
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: 'To find tracks or to follow them for 1 mile requires a successful Survival check. You must make another Survival check every time the tracks become difficult to follow. You move at half your normal speed (or at your normal speed with a -5 penalty on the check, or at up to twice your normal speed with a -20 penalty). The DC depends on the surface and the prevailing conditions: very soft ground DC 5, soft ground DC 10, firm ground DC 15, hard ground DC 20.'
   normal: A character without this feat can use the Survival skill to find tracks, but can follow them only if the DC for the task is 10 or lower. Such a character can use the Search skill to find a footprint or similar sign of a creature's passage, but cannot use Survival to follow tracks, even if someone else has already found them.
   special: A ranger automatically has Track as a bonus feat. This feat does not count toward the normal feat slots available as the character gains levels.
@@ -112,14 +112,14 @@
 - id: iron_will
   name: Iron Will
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Will saving throws.
   normal:
   special:
 - id: lightning_reflexes
   name: Lightning Reflexes
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Reflex saving throws.
   normal:
   special:
@@ -149,35 +149,35 @@
 - id: run
   name: Run
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: When running, you move five times your normal speed (light/no armor) or four times your speed (heavy armor). If you make a jump after a running start, you gain a +4 bonus on your Jump check. You retain your Dexterity bonus to AC while running.
   normal: You move four times your speed while running (light/no armor) or three times your speed (heavy armor), and you lose your Dexterity bonus to AC.
   special:
 - id: skill_focus
   name: Skill Focus
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +3 bonus on all checks involving the chosen skill.
   normal:
   special: You can gain this feat multiple times. Each time it applies to a new skill.
 - id: spell_focus
   name: Spell Focus
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: Add +1 to the Difficulty Class for all saving throws against spells from the school of magic you select.
   normal:
   special: You can gain this feat multiple times. Each time it applies to a new school of magic.
 - id: spell_focus_conjuration
   name: Spell Focus (Conjuration)
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: Add +1 to the Difficulty Class for all saving throws against Conjuration spells you cast.
   normal:
   special: This is the Conjuration-specific version of Spell Focus.
 - id: spell_penetration
   name: Spell Penetration
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on caster level checks made to overcome a creature's spell resistance.
   normal:
   special:
@@ -192,7 +192,7 @@
 - id: toughness
   name: Toughness
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You gain +3 hit points.
   normal:
   special: A character may gain this feat multiple times. Its effects stack.
@@ -280,7 +280,7 @@
   name: Combat Reflexes
   type: General
   fighter_bonus: 1
-  prerequisites: None
+  prerequisites:
   benefit: You may make a number of additional attacks of opportunity per round equal to your Dexterity bonus, and you can make attacks of opportunity while flat-footed.
   normal:
   special:
@@ -336,7 +336,7 @@
   name: Point-Blank Shot
   type: General
   fighter_bonus: 1
-  prerequisites: None
+  prerequisites:
   benefit: You get a +1 bonus on attack and damage rolls with ranged weapons against targets within 30 feet.
   normal:
   special:
@@ -383,84 +383,84 @@
 - id: acrobatic
   name: Acrobatic
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Jump and Tumble checks.
   normal:
   special:
 - id: agile
   name: Agile
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Balance and Escape Artist checks.
   normal:
   special:
 - id: athletic
   name: Athletic
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Climb and Swim checks.
   normal:
   special:
 - id: stealthy
   name: Stealthy
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Hide and Move Silently checks.
   normal:
   special:
 - id: nimble_fingers
   name: Nimble Fingers
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Disable Device and Open Lock checks.
   normal:
   special:
 - id: deft_hands
   name: Deft Hands
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Sleight of Hand and Use Rope checks.
   normal:
   special:
 - id: persuasive
   name: Persuasive
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Bluff and Intimidate checks.
   normal:
   special:
 - id: negotiator
   name: Negotiator
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Diplomacy and Sense Motive checks.
   normal:
   special:
 - id: investigator
   name: Investigator
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Gather Information and Search checks.
   normal:
   special:
 - id: self_sufficient
   name: Self-Sufficient
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Heal and Survival checks.
   normal:
   special:
 - id: animal_affinity
   name: Animal Affinity
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Handle Animal and Ride checks.
   normal:
   special:
 - id: magical_aptitude
   name: Magical Aptitude
   type: General
-  prerequisites: None
+  prerequisites:
   benefit: You get a +2 bonus on all Spellcraft and Use Magic Device checks.
   normal:
   special:
