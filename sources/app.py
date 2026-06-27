@@ -18,6 +18,7 @@ import dice as dice_module
 import effects
 import refdata
 import summon as summon_module
+import wild_shape as wild_shape_module
 
 # Klasser generatoren understøtter (motoren er bevist mod disse).
 GEN_CLASSES = ["Barbarian", "Cleric", "Druid", "Fighter", "Monk", "Paladin", "Ranger", "Rogue"]
@@ -1097,6 +1098,20 @@ def build_character_view(char, db):
     companion_animals = ([{"id": a["id"], "name": a["name"]} for a in db.get_all_animals()
                           if a.get("companion_ok") != 0] if can_summon_companion else [])
 
+    # Wild Shape: progressions-info, lovlige former og evt. aktiv (merged) form.
+    ws_data = char_module.class_wild_shape(char.cls)
+    ws_info = wild_shape_module.wild_shape_info(ws_data, char.level, char.feats)
+    wild_form = wild_shape_module.build_wild_shape_form(char, ws_data, db)
+    wild_shape_ctx = None
+    if ws_info:
+        st = char.wild_shape or {}
+        wild_shape_ctx = {
+            **ws_info,
+            "animal_left": ws_info["animal_uses"] - int(st.get("animal_used", 0)),
+            "elemental_left": ws_info["elemental_uses"] - int(st.get("elemental_used", 0)),
+            "forms": wild_shape_module.eligible_forms(ws_info, char.level, db),
+        }
+
     # Summons: render hvert aktivt Summon Nature's Ally-væsen (tom liste = ingen faner).
     summons = summon_module.build_summons(char.summons, db)
 
@@ -1107,6 +1122,8 @@ def build_character_view(char, db):
         "companion": companion,
         "can_summon_companion": can_summon_companion,
         "companion_animals": companion_animals,
+        "wild_shape_info": wild_shape_ctx,
+        "wild_form": wild_form,
         "summons": summons,
         "summon_catalog": summon_catalog,
         "can_sacrifice": can_sacrifice,
@@ -1870,6 +1887,56 @@ def api_companion():
         hp_max = companion_module.advance_companion(animal, max(1, eff_level), db)["hp_max"]
         char_module.save_character(str(path), {"companion": {
             "name": name, "animal": animal_id, "hp_current": hp_max, "tricks": []}})
+        return jsonify({"ok": True})
+
+    return jsonify({"error": "ukendt action"}), 400
+
+
+@app.route("/api/wild_shape", methods=["POST"])
+def api_wild_shape():
+    """Skift til en wild shape-form (shape) eller tilbage til egen form (revert).
+
+    shape: validér at klassen har wild shape ved niveauet, at formen er lovlig
+    (type/størrelse/HD≤niveau) og at der er en use tilbage (animal eller elemental).
+    Bruger en use, sætter current_form, og heler HP = niveau (en nats hvile, RAW).
+    revert: rydder current_form (forbrugte uses bevares — de er brugt for dagen).
+    """
+    data   = request.get_json()
+    slug   = data.get("char")
+    action = str(data.get("action", "")).lower()
+    path   = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char = char_module.load_character(str(path))
+    ws_data = char_module.class_wild_shape(char.cls)
+    info = wild_shape_module.wild_shape_info(ws_data, char.level, char.feats)
+    if not info:
+        return jsonify({"error": "Klassen har ikke wild shape endnu."}), 400
+
+    state = dict(char.wild_shape or {})
+
+    if action == "revert":
+        state["current_form"] = ""
+        char_module.save_character(str(path), {"wild_shape": state})
+        return jsonify({"ok": True})
+
+    if action == "shape":
+        form_id = str(data.get("form", "")).strip()
+        eligible = {f["id"] for f in wild_shape_module.eligible_forms(info, char.level, db)}
+        if form_id not in eligible:
+            return jsonify({"error": "Ulovlig form (type/størrelse/HD)."}), 400
+        animal = db.get_animal(form_id)
+        is_elemental = (animal.get("type") == "elemental")
+        used_key = "elemental_used" if is_elemental else "animal_used"
+        cap = info["elemental_uses"] if is_elemental else info["animal_uses"]
+        if int(state.get(used_key, 0)) >= cap:
+            kind = "elemental" if is_elemental else "animal"
+            return jsonify({"error": f"Ingen {kind}-uses tilbage i dag."}), 400
+        state[used_key] = int(state.get(used_key, 0)) + 1
+        state["current_form"] = form_id
+        # Heal HP = niveau (en nats hvile) ved hvert wild shape, RAW.
+        new_hp = min(char.hp_max, char.hp_current + char.level)
+        char_module.save_character(str(path), {"wild_shape": state, "hp_current": new_hp})
         return jsonify({"ok": True})
 
     return jsonify({"error": "ukendt action"}), 400

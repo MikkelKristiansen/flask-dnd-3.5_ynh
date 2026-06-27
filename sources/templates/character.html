@@ -744,6 +744,64 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   </div>
   {% endif %}
 
+  {% if wild_shape_info %}
+  {% set wi = wild_shape_info %}
+  <div class="section">
+    <div class="section-title">Wild Shape
+      <span style="color:var(--muted);font-size:.7rem;font-style:italic;text-transform:none">
+        {{ wi.duration_hours }} t/brug · formens HD ≤ {{ wi.max_hd }}</span>
+    </div>
+
+    <div style="font-size:.85rem;margin-bottom:.5rem">
+      Brug i dag: <strong>dyr {{ wi.animal_left }}/{{ wi.animal_uses }}</strong>{% if wi.elemental_uses %} ·
+      <strong>elemental {{ wi.elemental_left }}/{{ wi.elemental_uses }}</strong>{% endif %}
+      <span style="color:var(--muted)"> · størrelser: {{ wi.sizes|join(", ") }} · typer: {{ wi.types|join(", ") }}</span>
+    </div>
+
+    {% if wild_form %}
+    {% set wf = wild_form %}
+    <div style="border:1px solid var(--accent);background:rgba(120,160,90,.12);border-radius:6px;padding:.6rem .75rem;margin-bottom:.5rem">
+      <div style="color:var(--accent);font-weight:bold;margin-bottom:.4rem">
+        🐾 I form som {{ wf.animal_name }} <span style="font-weight:normal;color:var(--muted);font-size:.8rem">({{ wf.size|capitalize }}, {{ wf.hd }} HD)</span>
+      </div>
+      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ wf.ac.ac }}
+        <span style="color:var(--muted);font-size:.75rem">(touch {{ wf.ac.touch }}, flat {{ wf.ac.flat_footed }}, nat +{{ wf.natural_armor }} · udstyr meldt væk)</span></span></div>
+      <div class="stat-row"><span class="stat-label">Init</span>
+        <span class="stat-val roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(wf.initiative) }}','Init ({{ wf.animal_name }})')">{{ "%+d"|format(wf.initiative) }}</span></div>
+      <div class="stat-row"><span class="stat-label">BAB</span><span class="stat-val">{{ "%+d"|format(wf.bab) }}</span></div>
+      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(wf.grapple) }}','Grapple ({{ wf.animal_name }})')"><span class="stat-label">Grapple</span><span class="stat-val">{{ "%+d"|format(wf.grapple) }}</span></div>
+      <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ wf.speed }}</span></div>
+      <div class="stat-row"><span class="stat-label">Saves</span><span class="stat-val">Fort {{ "%+d"|format(wf.saves.fort) }} · Ref {{ "%+d"|format(wf.saves.ref) }} · Will {{ "%+d"|format(wf.saves.will) }}</span></div>
+      <div class="stat-row"><span class="stat-label">Stats</span><span class="stat-val" style="font-size:.8rem">
+        STR {{ wf.abilities.str }} · DEX {{ wf.abilities.dex }} · CON {{ wf.abilities.con }}
+        <span style="color:var(--muted)">(INT {{ wf.abilities.int }} · WIS {{ wf.abilities.wis }} · CHA {{ wf.abilities.cha }})</span></span></div>
+      {% for a in wf.attacks %}
+      <div class="stat-row"><span class="stat-label">{{ a.name }}{% if a.count > 1 %} ×{{ a.count }}{% endif %}</span>
+        <span style="display:flex;gap:.5rem">
+          <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(a.to_hit) }}','{{ a.name }} ({{ wf.animal_name }})')">{{ "%+d"|format(a.to_hit) }}</span>
+          <span class="roll-tap" onclick="quickRoll('{{ a.damage }}','{{ a.name }} skade', 1)">{{ a.damage }}</span>
+        </span></div>
+      {% endfor %}
+      {% if wf.special_attacks %}<div style="font-size:.78rem;color:var(--muted);margin-top:.35rem">Special attacks: {{ wf.special_attacks }}</div>{% endif %}
+      {% if wf.special_qualities %}<div style="font-size:.78rem;color:var(--muted)">Special qualities: {{ wf.special_qualities }}</div>{% endif %}
+      <div style="font-size:.75rem;color:var(--muted);margin-top:.35rem">HP er druidens (uændret, helet ved skift) — se Kamp. Du kan ikke tale; spells kræver Natural Spell.</div>
+      <button class="add-btn" style="margin-top:.5rem" onclick="revertWildShape()">↩ Skift tilbage til egen form</button>
+    </div>
+    {% endif %}
+
+    {% if wi.forms %}
+    <div style="display:flex;gap:.4rem;align-items:center;margin-top:.3rem">
+      <select id="ws-form-pick" class="form-input" style="flex:1">
+        {% for f in wi.forms %}<option value="{{ f.id }}">{{ f.name }} ({{ f.size|capitalize }}, {{ f.hd }} HD)</option>{% endfor %}
+      </select>
+      <button class="add-btn" onclick="shapeWildShape()">{{ "Skift form" if wild_form else "🐾 Wild Shape" }}</button>
+    </div>
+    {% else %}
+    <div style="color:var(--muted);font-size:.82rem">Ingen lovlige former i kataloget for dette niveau.</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
   {% if can_summon_companion and not companion %}
   <div class="section">
     <div class="section-title">Animal Companion</div>
@@ -1924,6 +1982,29 @@ function dismissCompanion(name) {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, action: "dismiss"})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) window.location.reload(); else alert(d.error || "Fejl"); });
+}
+
+// ── Wild Shape: skift form / skift tilbage ────────────────────────────────
+function shapeWildShape() {
+  const form = document.getElementById("ws-form-pick").value;
+  if (!form) return;
+  fetch(BASE + "/api/wild_shape", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "shape", form})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) window.location.reload(); else alert(d.error || "Fejl"); });
+}
+
+function revertWildShape() {
+  fetch(BASE + "/api/wild_shape", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "revert"})
   })
   .then(r => r.json())
   .then(d => { if (d.ok) window.location.reload(); else alert(d.error || "Fejl"); });
