@@ -9,6 +9,12 @@
 #   class_skills   — klassefærdigheder (koster 1 point/rank, cap = level+3)
 #   languages      — {automatic: [...], bonus: [...]}; udeladt = ingen klassesprog
 #   bonus_feats    — feats klassen giver gratis ved level 1 (tæller ikke mod valgte)
+#   weapon_proficiency — {categories: [simple|martial|exotic], weapons: [id, …]}
+#                        Hvad klassen må bruge uden −4 angrebs-straf. Tom kategori-
+#                        liste + våben-liste = kun de nævnte våben (druid/monk/rogue).
+#   armor_proficiency  — {types: [light|medium|heavy], shields: bool, tower_shield: bool}
+#                        Uvant rustning → tjekstraffen (ACP) rammer også angreb +
+#                        Str/Dex-skills. tower_shield er adskilt ("except tower shields").
 #   needs_domains  — true hvis klassen vælger domæner ved oprettelse (cleric)
 #   turn_undead    — true hvis klassen kan turn/rebuke undead (cleric)
 #   wild_shape_from_level — laveste level hvor wild shape fås (druid: 5)
@@ -25,6 +31,13 @@ barbarian:
   starting_gold: "4d4*10"
   age_group: fast        # SRD startalders-gruppe (fast/medium/slow)
   speed_bonus: 10        # Fast Movement: +10 ft (barbar er ikke prof. i heavy armor)
+  weapon_proficiency:
+    categories: [simple, martial]
+    weapons: []
+  armor_proficiency:
+    types: [light, medium]   # ikke heavy
+    shields: true
+    tower_shield: false
   class_skills:
     - climb
     - craft
@@ -44,6 +57,13 @@ fighter:
   # bonus_feat_choices: antal ekstra feats spilleren vælger fra fighter-bonus-puljen
   # (feats med type=Fighter i feats.yaml), oveni de race-baserede valgte feats.
   bonus_feat_choices: 1
+  weapon_proficiency:
+    categories: [simple, martial]
+    weapons: []
+  armor_proficiency:
+    types: [light, medium, heavy]
+    shields: true
+    tower_shield: true       # fighter er prof. MED tower shields
   class_skills:
     - climb
     - craft
@@ -58,6 +78,13 @@ paladin:
   skill_points: 2
   starting_gold: "6d4*10"
   age_group: medium        # SRD startalders-gruppe (fast/medium/slow)
+  weapon_proficiency:
+    categories: [simple, martial]
+    weapons: []
+  armor_proficiency:
+    types: [light, medium, heavy]
+    shields: true
+    tower_shield: false
   class_skills:
     - concentration
     - craft
@@ -81,6 +108,14 @@ monk:
   bonus_feat_pool: [improved_grapple, stunning_fist]
   bonus_feat_ignore_prereqs: true
   ac_ability: wis        # AC Bonus (Ex): + Wis-mod til AC når unarmored
+  weapon_proficiency:
+    categories: []
+    weapons: [club, crossbow_light, crossbow_heavy, dagger, handaxe, javelin,
+              kama, nunchaku, quarterstaff, sai, shuriken_5, siangham, sling]
+  armor_proficiency:
+    types: []              # monken er ikke prof. i nogen rustning
+    shields: false
+    tower_shield: false
   class_skills:
     - balance
     - climb
@@ -129,6 +164,13 @@ cleric:
   age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
   needs_domains: true        # vælger 2 domæner ved oprettelse
   turn_undead: true          # kan turn/rebuke undead
+  weapon_proficiency:
+    categories: [simple]
+    weapons: []              # + favored weapon via domæne (opfølgning, ikke v1)
+  armor_proficiency:
+    types: [light, medium, heavy]
+    shields: true
+    tower_shield: false
   class_skills:
     - concentration
     - craft
@@ -151,6 +193,14 @@ druid:
   age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
   wild_shape_from_level: 5   # wild shape-evne fra og med dette level
   spontaneous_summon: true   # kan ofre et forberedt spell til SNA af samme niveau
+  weapon_proficiency:
+    categories: []
+    weapons: [club, dagger, dart, quarterstaff, scimitar, sickle,
+              shortspear, sling, spear]
+  armor_proficiency:
+    types: [light, medium]   # ikke heavy; metal-rustning forbudt separat (druid_ok)
+    shields: true
+    tower_shield: false
   class_skills:
     - concentration
     - craft
@@ -196,6 +246,13 @@ ranger:
     - survival
     - swim
     - use_rope
+  weapon_proficiency:
+    categories: [simple, martial]
+    weapons: []
+  armor_proficiency:
+    types: [light]           # kun let rustning
+    shields: true
+    tower_shield: false
   bonus_feats: [track]
 
 rogue:
@@ -203,6 +260,13 @@ rogue:
   skill_points: 8
   starting_gold: "5d4*10"
   age_group: fast        # SRD startalders-gruppe (fast/medium/slow)
+  weapon_proficiency:
+    categories: [simple]
+    weapons: [crossbow_hand, rapier, sap, shortbow, sword_short]
+  armor_proficiency:
+    types: [light]
+    shields: false           # rogue er IKKE prof. med skjolde
+    tower_shield: false
   class_skills:
     - appraise
     - balance

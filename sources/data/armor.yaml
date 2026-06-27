@@ -26,7 +26,7 @@
   max_dex: 5
   armor_check: -1
   spell_failure: 15
-  druid_ok: 1
+  druid_ok: 0   # studs tæller som metal (RAW: druide må kun padded/leather/hide)
   type: light
   cost_cp: 2500
   weight: 20.0
