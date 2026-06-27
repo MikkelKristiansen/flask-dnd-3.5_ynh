@@ -123,6 +123,21 @@ def compute_synergy_bonuses(skills: list[Skill]) -> dict[str, int]:
     return bonuses
 
 
+def synergy_sources(skills: list[Skill]) -> dict[str, list[tuple[str, int]]]:
+    """For hver modtager-skill: liste af (kilde-skill-id, bonus) bag synergien.
+
+    Samme regel som compute_synergy_bonuses (kilde med ≥5 ranks), men bevarer
+    HVOR bonussen kommer fra — bruges til tooltips på arket.
+    """
+    rank_map = {s.id: int(s.ranks) for s in skills}
+    sources: dict[str, list[tuple[str, int]]] = {}
+    for source_id, targets in SKILL_SYNERGIES.items():
+        if rank_map.get(source_id, 0) >= SYNERGY_THRESHOLD:
+            for target_id, bonus in targets:
+                sources.setdefault(target_id, []).append((source_id, bonus))
+    return sources
+
+
 def armor_check_penalty(armor: dict | None = None, shield: dict | None = None) -> int:
     """Samlet rustnings-tjekstraf (ACP): rustning + skjold (begge ≤ 0)."""
     return (int(armor.get("armor_check", 0)) if armor else 0) \

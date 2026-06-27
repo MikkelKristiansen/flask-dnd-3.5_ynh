@@ -749,9 +749,12 @@ def build_character_view(char, db):
         saves.append(effects.delta_row(label, eff_v, base_v, src))
 
     synergy_bonuses = char_module.compute_synergy_bonuses(char.skills)
+    synergy_src_map = char_module.synergy_sources(char.skills)
     char_skill_map = {s.id: s for s in char.skills}
+    all_skill_defs = db.get_all_skills()
+    skill_name = {sk["id"]: sk["name"] for sk in all_skill_defs}
     skill_data = []
-    for defn in db.get_all_skills():
+    for defn in all_skill_defs:
         s = char_skill_map.get(defn["id"]) or char_module.Skill(id=defn["id"], ranks=0.0)
         synergy = synergy_bonuses.get(s.id, 0)
         ranked = int(s.ranks) > 0
@@ -769,6 +772,9 @@ def build_character_view(char, db):
             # total uden synergi, så man kender værdien når synergien ikke gælder.
             "base_total": total - synergy,
             "synergy": synergy,
+            # Hvilke skills synergien kommer fra (til tooltip), fx "Tumble +2 · Jump +2".
+            "synergy_from": " · ".join(
+                f"{skill_name.get(src, src)} +{b}" for src, b in synergy_src_map.get(s.id, [])),
             "ranked": ranked,
             "trained_only": trained_only,
             # Utrænet kan kun bruges hvis skill'en ikke er trained-only,

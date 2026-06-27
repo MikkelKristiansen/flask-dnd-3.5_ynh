@@ -41,7 +41,7 @@ from rules import (  # noqa: F401
     POINT_BUY_COST, POINT_BUY_BUDGET, point_buy_cost, point_buy_total,
     XP_THRESHOLDS, SKILL_SYNERGIES, SYNERGY_THRESHOLD, SIZE_MOD_ATTACK,
     SIZE_MOD_GRAPPLE, INVENTORY_STATES, CARRIED_STATES,
-    compute_synergy_bonuses, armor_check_penalty, druid_armor_violations,
+    compute_synergy_bonuses, synergy_sources, armor_check_penalty, druid_armor_violations,
     weapon_proficient, armor_proficient, proficiency_violations, armor_attack_penalty,
     skill_total, save_total, size_mod_attack, size_mod_grapple, attack_total,
     grapple_total, initiative_total, armor_class, xp_to_next_level, xp_progress,

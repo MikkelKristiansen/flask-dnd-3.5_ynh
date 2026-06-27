@@ -1151,7 +1151,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
         {% if item.trained_only %}<span class="skill-trained" title="Trænet kun — kan ikke bruges utrænet">▲</span>{% endif %}
       </span>
       <span style="display:flex;align-items:baseline;gap:.8rem">
-        <span class="skill-ranks">{{ s.ranks|int }} ranks{% if item.synergy > 0 %}&nbsp;<span style="color:var(--green);font-size:.7rem" title="Synergibonus fra andre skills">+{{ item.synergy }}⟳</span>{% endif %}{% if item.acp_applied != 0 %}&nbsp;<span style="color:var(--red);font-size:.7rem" title="Rustnings-tjekstraf (ACP)">{{ item.acp_applied }}🛡</span>{% endif %}</span>
+        <span class="skill-ranks">{{ s.ranks|int }} ranks{% if item.synergy > 0 %}&nbsp;<span style="color:var(--green);font-size:.7rem" title="Synergi fra: {{ item.synergy_from }}">+{{ item.synergy }}⟳</span>{% endif %}{% if item.acp_applied != 0 %}&nbsp;<span style="color:var(--red);font-size:.7rem" title="Rustnings-tjekstraf (ACP)">{{ item.acp_applied }}🛡</span>{% endif %}</span>
         {% if item.usable %}
         {% if item.synergy > 0 %}
         <span class="skill-total roll-tap"
@@ -1159,7 +1159,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
               title="Slå {{ defn.name if defn else s.id }} (uden synergi){% if not item.ranked %} (utrænet){% endif %}">{{ "%+d"|format(item.base_total) }}</span>
         <span class="skill-total roll-tap" style="color:var(--green);font-size:.82rem"
               onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }} (m. synergi)')"
-              title="Slå {{ defn.name if defn else s.id }} inkl. +{{ item.synergy }} situationsbestemt synergi">{{ "%+d"|format(item.total) }}⟳{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect, "detail": item.effect_detail}) }}</span>
+              title="Slå {{ defn.name if defn else s.id }} inkl. +{{ item.synergy }} situationsbestemt synergi fra: {{ item.synergy_from }}">{{ "%+d"|format(item.total) }}⟳{{ dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect, "detail": item.effect_detail}) }}</span>
         {% else %}
         <span class="skill-total roll-tap"
               onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }}')"
