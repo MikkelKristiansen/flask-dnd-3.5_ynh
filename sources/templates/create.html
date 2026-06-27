@@ -126,6 +126,13 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
       <label for="favored_enemy">Favored Enemy (ranger)</label>
       <input type="text" id="favored_enemy" name="favored_enemy" placeholder="fx Goblinoids">
     </div>
+    <div id="combat-style-wrap" class="hidden">
+      <label for="combat_style">Kampstil (ranger — virker fra niveau 2)</label>
+      <select id="combat_style" name="combat_style">
+        <option value="Two-Weapon Combat">To-våben (Two-Weapon Fighting i let/ingen rustning)</option>
+        <option value="Archery">Bueskydning (Rapid Shot)</option>
+      </select>
+    </div>
   </div>
 
   <div class="section">
@@ -604,6 +611,7 @@ function onUpdate(){
 
   // Favored enemy-felt (kun ranger)
   document.getElementById('favored-wrap').classList.toggle('hidden', cls!=='Ranger');
+  document.getElementById('combat-style-wrap').classList.toggle('hidden', cls!=='Ranger');
 
   // Dyreledsager (kun klasser med companion ved level 1 = druide)
   document.getElementById('companion-section').classList.toggle('hidden', !cd.has_companion);

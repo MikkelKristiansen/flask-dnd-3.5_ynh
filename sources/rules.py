@@ -10,6 +10,7 @@ holder ingen tilstand og skriver intet til disk.
 character.py re-eksporterer disse navne (façade), så char_module.armor_class /
 derive_attacks / save_total m.fl. virker uændret.
 """
+import dataclasses
 import math
 
 from models import AbilityScores, Skill, Attack, InventoryItem, Character
@@ -503,10 +504,81 @@ _DEFAULT_STR_MULT = {
     "two-handed": 1.5, "one-handed": 1.0, "light": 1.0, "unarmed": 1.0, "ranged": 0.0,
 }
 
+# Hænder et wielded våben optager ud fra dets weapon_class (skjolde regnes separat).
+_WEAPON_HANDS = {
+    "light": 1, "one-handed": 1, "two-handed": 2, "unarmed": 0, "ranged": 2,
+}
+
+
+def two_weapon_penalty(off_hand_light: bool, has_twf_feat: bool) -> tuple[int, int]:
+    """Straf på (primær hånd, off-hånd) ved two-weapon fighting (SRD-tabel).
+
+    Begge tal er ≤ 0. off_hand_light = off-hånds-våbnet er let (eller en
+    dobbeltvåbens-ende). has_twf_feat = har Two-Weapon Fighting (inkl. ranger-stil).
+    """
+    if has_twf_feat:
+        return (-2, -2) if off_hand_light else (-4, -4)
+    return (-4, -8) if off_hand_light else (-6, -10)
+
+
+def _twf_note(penalty: int, is_off_hand: bool) -> str:
+    """Kort UI-markør for et TWF-straffet angreb ("−2 TWF (off-hånd)")."""
+    if penalty == 0:
+        return ""
+    hand = "off-hånd" if is_off_hand else "primær"
+    return f"{penalty:+d} TWF ({hand})"
+
+
+def hand_usage(inventory: list[InventoryItem], db) -> dict:
+    """Hvor mange hænder optager wielded våben + båret skjold? (Medium = 2 hænder.)
+
+    Returnerer {used, parts: [(navn, hænder)], over}. over=True når used > 2 →
+    blød advarsel i UI'en (man kan ikke fysisk holde så meget). Tower shield = 2.
+    """
+    used = 0
+    parts: list[tuple[str, int]] = []
+    for item in inventory:
+        if item.state == "wielded" and item.ref.startswith("weapons/"):
+            w = db.get_weapon(item.ref.split("/", 1)[1])
+            if w:
+                hands = _WEAPON_HANDS.get(w["weapon_class"], 1)
+                used += hands
+                parts.append((item.name or w["name"], hands))
+        elif item.state == "worn" and item.ref.startswith("armor/"):
+            a = db.get_armor(item.ref.split("/", 1)[1])
+            if a and a.get("type") == "shield":
+                hands = 2 if a.get("id") == "tower_shield" else 1
+                used += hands
+                parts.append((a["name"], hands))
+    return {"used": used, "parts": parts, "over": used > 2}
+
+
+def twf_context(cls: str, level: int, class_features: dict | None,
+                feat_ids: list, armor_row: dict | None) -> dict:
+    """Saml hvilke TWF-niveauer karakteren har — fodres til derive_attacks.
+
+    Two-Weapon Fighting kommer enten fra feat, eller fra rangerens combat style
+    (two-weapon) fra niveau 2 OG i let/ingen rustning. Improved/Greater kommer
+    fra feats, eller rangerens stil-opgradering ved niveau 6/11.
+    """
+    style = (class_features or {}).get("Combat Style", "")
+    light_or_none = armor_row is None or armor_row.get("type") == "light"
+    ranger_twf = (cls.lower() == "ranger" and "two" in style.lower()
+                  and level >= 2 and light_or_none)
+    return {
+        "has_twf": "two_weapon_fighting" in feat_ids or ranger_twf,
+        "has_improved": ("improved_two_weapon_fighting" in feat_ids
+                         or (ranger_twf and level >= 6)),
+        "has_greater": ("greater_two_weapon_fighting" in feat_ids
+                        or (ranger_twf and level >= 11)),
+        "ranger_style": ranger_twf,
+    }
+
 
 def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
                    weapon_prof: dict | None = None,
-                   allowed_weapons: set = frozenset()) -> list[Attack]:
+                   allowed_weapons: set = frozenset(),
+                   twf: dict | None = None) -> list[Attack]:
     """Lav Attack-objekter ud fra våben i tilstand 'wielded'.
 
     Skade/crit/type/range slås op i weapons-kataloget (dmg_s for Small, ellers
@@ -515,38 +587,91 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
 
     weapon_prof (når givet) bruges til at lægge −4 på til-hit for uvante våben;
     item.house_rule eller allowed_weapons fjerner straffen igen.
+
+    Two-weapon fighting: poster med off_hand=True (eller en double=True dobbeltvåbens-
+    ende) tæller som off-hånds-angreb → ½ Str + straf efter two_weapon_penalty på
+    ALLE wielded angreb. twf (fra twf_context) bestemmer feat-rabatten samt evt.
+    ekstra off-hånds-angreb (Improved −5 / Greater −10).
     """
-    attacks: list[Attack] = []
+    wielded: list[tuple[InventoryItem, dict]] = []
     for item in inventory:
         if item.state != "wielded" or not item.ref.startswith("weapons/"):
             continue
         w = db.get_weapon(item.ref.split("/", 1)[1])
-        if not w:
-            continue
+        if w:
+            wielded.append((item, w))
+
+    # Er der overhovedet et off-hånds-angreb i spil? (eksplicit flag eller dobbeltvåben)
+    off_items = [(it, w) for it, w in wielded if it.off_hand]
+    twf_active = bool(off_items) or any(it.double for it, _ in wielded)
+    if off_items:
+        off_light = off_items[0][1]["weapon_class"] == "light"
+    else:
+        off_light = twf_active  # dobbeltvåbens-ende tæller som let
+    has_twf = bool(twf and twf.get("has_twf"))
+    prim_pen, off_pen = two_weapon_penalty(off_light, has_twf) if twf_active else (0, 0)
+
+    def dmg(w: dict, which: int = 0) -> str:
+        base = (w["dmg_s"] if size.lower() == "small" else w["dmg_m"]) or ""
+        parts = base.split("/")
+        return parts[which] if which < len(parts) else parts[0]
+
+    def make(item, w, name, base_damage, mult, pen, is_off) -> Attack:
         not_prof = not (item.house_rule
                         or weapon_proficient(w, weapon_prof, allowed_weapons))
         wclass = w["weapon_class"]
-        if item.str_mult is not None:
-            mult = item.str_mult
-        elif item.two_handed and wclass in ("light", "one-handed"):
-            mult = 1.5
-        else:
-            mult = _DEFAULT_STR_MULT.get(wclass, 1.0)
-        # Dobbeltvåben (fx quarterstaff "1d6/1d6") → brug første ende til ét angreb
-        base = (w["dmg_s"] if size.lower() == "small" else w["dmg_m"]) or ""
-        base = base.split("/")[0]
-        attacks.append(Attack(
-            name=item.name or w["name"],
+        return Attack(
+            name=name,
             kind="ranged" if wclass == "ranged" else "melee",
-            base_damage=base,
+            base_damage=base_damage,
             str_damage_mult=mult,
-            bonus=item.bonus - (4 if not_prof else 0),
+            bonus=item.bonus - (4 if not_prof else 0) + pen,
             crit=w["critical"] or "x2",
             type=w["damage_type"] or "",
             range=f"{w['range_ft']} ft." if w["range_ft"] else "",
             not_proficient=not_prof,
-        ))
-    return attacks
+            note=_twf_note(pen, is_off),
+        )
+
+    attacks: list[Attack] = []
+    off_attacks: list[Attack] = []
+    for item, w in wielded:
+        wclass = w["weapon_class"]
+        name = item.name or w["name"]
+        if item.off_hand:
+            mult = item.str_mult if item.str_mult is not None else 0.5
+            off_attacks.append(make(item, w, name, dmg(w), mult, off_pen, True))
+        elif item.double:
+            # Dobbeltvåben brugt som to våben: primær ende (fuld Str) + off-ende (½ Str, let)
+            pmult = item.str_mult if item.str_mult is not None else 1.0
+            attacks.append(make(item, w, name, dmg(w, 0), pmult, prim_pen, False))
+            off_attacks.append(make(item, w, f"{name} (off-hånd)", dmg(w, 1), 0.5, off_pen, True))
+        else:
+            if item.str_mult is not None:
+                mult = item.str_mult
+            elif item.two_handed and wclass in ("light", "one-handed"):
+                mult = 1.5
+            else:
+                mult = _DEFAULT_STR_MULT.get(wclass, 1.0)
+            attacks.append(make(item, w, name, dmg(w, 0), mult, prim_pen, False))
+
+    # Ekstra off-hånds-angreb fra Improved (−5) / Greater (−10) — kloner det første off-angreb.
+    if off_attacks and twf:
+        template = off_attacks[0]
+        extras = []
+        if twf.get("has_improved"):
+            extras.append((-5, "2. off-hånd"))
+        if twf.get("has_greater"):
+            extras.append((-10, "3. off-hånd"))
+        for extra_pen, lbl in extras:
+            off_attacks.append(dataclasses.replace(
+                template,
+                name=f"{template.name} ({lbl})",
+                bonus=template.bonus + extra_pen,
+                note=f"{extra_pen:+d} ekstra off-hånd",
+            ))
+
+    return attacks + off_attacks
 
 
 def spell_charge_key(level: int, index: int) -> str:

@@ -1,6 +1,8 @@
 # BRIEF — Udstyrs-slots + two-weapon fighting (TWF)
 
-Status: **planlagt, ikke bygget.** Skrevet 27. jun 2026 til en kommende session.
+Status: **BYGGET 27. jun 2026.** Beslutninger: hård rustnings-slot (auto-flyt),
+blød hånd-budget (advarsel), eksplicit off-hånd-checkbox, alt i én omgang
+(inkl. ranger combat style + double weapons). Se commit-diff for detaljer.
 
 ## Problemet (det Mikkel observerede)
 

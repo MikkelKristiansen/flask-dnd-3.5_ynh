@@ -45,6 +45,7 @@ class Attack:
     source: str = "weapon"         # weapon | spell — spell-angreb er betingede (kræver aktiv spell)
     requires: str = ""             # navn på buff der skal være aktiv før angrebet vises (tom = altid)
     not_proficient: bool = False   # våben man ikke er proficient med → −4 allerede lagt i bonus
+    note: str = ""                 # kort UI-markør (fx TWF-straf "−2 TWF (off-hånd)") — info, ikke et tal
 
 
 @dataclass
@@ -58,6 +59,8 @@ class InventoryItem:
     bonus: int = 0              # til-hit-bonus på afledte angreb (masterwork/feat/TWF)
     str_mult: float | None = None  # override af Str-til-skade (None = default fra våbentype)
     two_handed: bool = False    # enhåndsvåben brugt tohånds → ×1,5 Str (hvis str_mult ikke sat)
+    off_hand: bool = False      # våben holdt i off-hånd (two-weapon fighting) → ½ Str + TWF-straf
+    double: bool = False        # dobbeltvåben (fx quarterstaff) brugt som to våben → primær + off-hånds-ende (light)
     masterwork: bool = False    # rustning/skjold: mesterværk → ACP forbedres med +1 (mod 0)
     enhancement: int = 0        # rustning/skjold: magisk +N til AC (≥1 medfører masterwork)
     house_rule: bool = False    # DM tillader trods manglende proficiency/druid-forbud → ingen straf/advarsel

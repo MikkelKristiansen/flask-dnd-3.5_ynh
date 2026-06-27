@@ -88,6 +88,7 @@ def _inv_row(item, r: dict) -> dict:
         "ref": item.ref, "bonus": item.bonus, "str_mult": item.str_mult,
         "masterwork": item.masterwork, "enhancement": item.enhancement,
         "house_rule": item.house_rule,
+        "off_hand": item.off_hand, "double": item.double,
         "is_ammo": is_ammo,
     }
 
@@ -589,6 +590,12 @@ def create_character():
                     f"{favored} — +2 på Bluff/Listen/Sense Motive/Spot/Survival og +2 skade mod denne type")
             else:
                 class_features[feat] = ""
+        # Ranger combat style (vælges ved oprettelse, virker fra niveau 2). Two-Weapon
+        # Combat ⇒ behandles som Two-Weapon Fighting i let/ingen rustning (se twf_context).
+        if cls == "Ranger":
+            style = f.get("combat_style", "").strip()
+            if style:
+                class_features["Combat Style"] = style
 
         gold = {k: int(f.get(f"gold_{k}", "") or 0) for k in ("pp", "gp", "sp", "cp")}
         combat = {"bab": int(cl1.get("bab", 0)),
@@ -913,11 +920,18 @@ def build_character_view(char, db):
     def _row(atk, manual, idx):
         return {"attack": atk, "manual": manual, "idx": idx, **_atk_fields(atk)}
 
+    # Two-weapon fighting: hvilke TWF-niveauer har karakteren (feat ELLER ranger-stil
+    # i let/ingen rustning)? Fodres til derive_attacks så off-hånds-straffen regnes.
+    twf_ctx = char_module.twf_context(char.cls, char.level, char.class_features,
+                                      char_feat_ids, armor_row)
+    # Hånd-budget (blød advarsel): wielded våben + skjold må højst optage 2 hænder.
+    hand_block = char_module.hand_usage(char.inventory, db)
+
     # Våben-angreb (udledt af inventaret) først, så manuelle angreb fra YAML.
     # Kun manuelle angreb kan redigeres her (idx = position i char.attacks).
     attack_rows = [_row(a, False, None)
                    for a in char_module.derive_attacks(char.inventory, db, char.size,
-                                                        weapon_prof, allowed_weapons)
+                                                        weapon_prof, allowed_weapons, twf_ctx)
                    if char_module.attack_visible(a, active_keys)]
     attack_rows += [_row(a, True, i) for i, a in enumerate(char.attacks)
                     if char_module.attack_visible(a, active_keys)]
@@ -1180,6 +1194,7 @@ def build_character_view(char, db):
         "temp_hp": temp_hp,
         "druid_armor_block": druid_armor_block,
         "prof_block": prof_block,
+        "hand_block": hand_block,
         "armor_atk_pen": armor_atk_pen,
         "inventory_json": inventory_json,
         "catalog_json": catalog_json,
@@ -1636,6 +1651,34 @@ def api_levelup():
     return jsonify({"ok": True, "new_level": new_level, "hp_gained": hp_gained})
 
 
+def _armor_slot(item, db) -> str | None:
+    """'body' for en krops-rustning, 'shield' for et skjold, ellers None."""
+    if not item.ref.startswith("armor/"):
+        return None
+    rec = db.get_armor(item.ref.split("/", 1)[1])
+    if not rec:
+        return None
+    return "shield" if rec.get("type") == "shield" else "body"
+
+
+def _enforce_armor_slots(inventory, idx, db) -> None:
+    """Hård slot-håndhævelse: kun én worn krops-rustning + ét worn skjold ad gangen.
+
+    Når post idx sættes til 'worn', flyttes enhver anden worn rustning i SAMME slot
+    (body/shield) tilbage til 'backpack'. Så opstår der aldrig en ulovlig tilstand
+    med to bårne rustninger — i tråd med "kun lovlige kombinationer giver lovlige tal".
+    """
+    item = inventory[idx]
+    if item.state != "worn":
+        return
+    slot = _armor_slot(item, db)
+    if slot is None:
+        return
+    for j, other in enumerate(inventory):
+        if j != idx and other.state == "worn" and _armor_slot(other, db) == slot:
+            other.state = "backpack"
+
+
 @app.route("/api/inventory", methods=["POST"])
 def api_inventory():
     data   = request.get_json()
@@ -1663,6 +1706,7 @@ def api_inventory():
                 str_mult=(None if sm in (None, "") else float(sm)),
                 notes=str(data.get("notes", "")),
             ))
+            _enforce_armor_slots(inventory, len(inventory) - 1, db)
         else:
             name = str(data.get("name", "")).strip()
             if not name:
@@ -1690,6 +1734,11 @@ def api_inventory():
                 st = str(data["state"]).lower()
                 if st in char_module.INVENTORY_STATES:
                     old.state = st
+                    _enforce_armor_slots(inventory, idx, db)
+            if "off_hand" in data:
+                old.off_hand = bool(data.get("off_hand"))
+            if "double" in data:
+                old.double = bool(data.get("double"))
             if "bonus" in data:
                 old.bonus = int(data.get("bonus") or 0)
             if "str_mult" in data:

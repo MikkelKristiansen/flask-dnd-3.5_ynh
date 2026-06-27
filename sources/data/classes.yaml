@@ -263,6 +263,20 @@ ranger:
     shields: true
     tower_shield: false
   bonus_feats: [track]
+  # Combat style (vælges ved niveau 2). Two-weapon ⇒ behandles som Two-Weapon
+  # Fighting (uden Dex-krav) i let/ingen rustning; opgraderes ved 6/11. Motoren
+  # læser valget fra class_features["Combat Style"] (se twf_context i rules.py).
+  combat_style:
+    choose_at_level: 2
+    options:
+      two-weapon:
+        label: Two-Weapon Combat
+        feats: {2: two_weapon_fighting, 6: improved_two_weapon_fighting, 11: greater_two_weapon_fighting}
+        requires: light_or_no_armor
+      archery:
+        label: Archery
+        feats: {2: rapid_shot, 6: manyshot, 11: improved_precise_shot}
+        requires: light_or_no_armor
 
 rogue:
   hit_die: 6

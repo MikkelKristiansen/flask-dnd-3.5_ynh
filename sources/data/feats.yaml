@@ -316,6 +316,14 @@
   benefit: In addition to the standard single extra off-hand attack, you get a second off-hand attack, albeit at a -5 penalty.
   normal:
   special:
+- id: greater_two_weapon_fighting
+  name: Greater Two-Weapon Fighting
+  type: Fighter
+  fighter_bonus: 1
+  prerequisites: Dex 19, Improved Two-Weapon Fighting, Two-Weapon Fighting, Base attack bonus +11
+  benefit: You get a third attack with your off-hand weapon, albeit at a -10 penalty.
+  normal:
+  special: A ranger gains Greater Two-Weapon Fighting as a bonus class feature (combat style mastery) at 11th level, even without meeting the prerequisites, as long as he wears light or no armor.
 - id: two_weapon_defense
   name: Two-Weapon Defense
   type: General
