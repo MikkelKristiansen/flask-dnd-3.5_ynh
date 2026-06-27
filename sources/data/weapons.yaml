@@ -165,6 +165,7 @@
   range_ft: 120
   weight: 8.0
   damage_type: Piercing
+  hands: 2
 - id: crossbow_light
   name: Crossbow, light
   category: simple
@@ -176,6 +177,7 @@
   range_ft: 80
   weight: 4.0
   damage_type: Piercing
+  hands: 2
 - id: dart
   name: Dart
   category: simple
@@ -187,6 +189,7 @@
   range_ft: 20
   weight: 0.5
   damage_type: Piercing
+  hands: 1
 - id: javelin
   name: Javelin
   category: simple
@@ -198,6 +201,7 @@
   range_ft: 30
   weight: 2.0
   damage_type: Piercing
+  hands: 1
 - id: sling
   name: Sling
   category: simple
@@ -209,6 +213,7 @@
   range_ft: 50
   weight: 0.0
   damage_type: Bludgeoning
+  hands: 1
 - id: axe_throwing
   name: Axe, throwing
   category: martial
@@ -561,6 +566,7 @@
   range_ft: 100
   weight: 3.0
   damage_type: Piercing
+  hands: 2
 - id: longbow_composite
   name: Longbow, composite
   category: martial
@@ -572,6 +578,7 @@
   range_ft: 110
   weight: 3.0
   damage_type: Piercing
+  hands: 2
 - id: shortbow
   name: Shortbow
   category: martial
@@ -583,6 +590,7 @@
   range_ft: 60
   weight: 2.0
   damage_type: Piercing
+  hands: 2
 - id: shortbow_composite
   name: Shortbow, composite
   category: martial
@@ -594,6 +602,7 @@
   range_ft: 70
   weight: 2.0
   damage_type: Piercing
+  hands: 2
 - id: kama
   name: Kama
   category: exotic
@@ -748,6 +757,7 @@
   range_ft: 10
   weight: 2.0
   damage_type: Bludgeoning
+  hands: 1
 - id: crossbow_hand
   name: Crossbow, hand
   category: exotic
@@ -759,6 +769,7 @@
   range_ft: 30
   weight: 2.0
   damage_type: Piercing
+  hands: 1
 - id: crossbow_repeating_heavy
   name: Crossbow,  repeating heavy
   category: exotic
@@ -770,6 +781,7 @@
   range_ft: 120
   weight: 12.0
   damage_type: Piercing
+  hands: 2
 - id: crossbow_repeating_light
   name: Crossbow,  repeating light
   category: exotic
@@ -781,6 +793,7 @@
   range_ft: 80
   weight: 6.0
   damage_type: Piercing
+  hands: 2
 - id: net
   name: Net
   category: exotic
@@ -792,6 +805,7 @@
   range_ft:
   weight: 0.0
   damage_type:
+  hands: 1
 - id: shuriken_5
   name: Shuriken (5)
   category: exotic
@@ -803,3 +817,4 @@
   range_ft: 10
   weight: 0.5
   damage_type: Piercing
+  hands: 1

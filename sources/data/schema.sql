@@ -149,7 +149,8 @@ CREATE TABLE weapons (
     critical     TEXT,                       -- fx "19–20/x2"
     range_ft     INTEGER,                    -- range increment i fod; NULL = ren nærkamp
     weight       REAL NOT NULL DEFAULT 0,    -- pund (Medium-version)
-    damage_type  TEXT                        -- bludgeoning | piercing | slashing | kombinationer
+    damage_type  TEXT,                       -- bludgeoning | piercing | slashing | kombinationer
+    hands        INTEGER                     -- hænder våbnet kræver; NULL = udled af weapon_class (kun sat hvor ranged afviger)
 );
 
 DROP TABLE IF EXISTS items;

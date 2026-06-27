@@ -504,10 +504,22 @@ _DEFAULT_STR_MULT = {
     "two-handed": 1.5, "one-handed": 1.0, "light": 1.0, "unarmed": 1.0, "ranged": 0.0,
 }
 
-# Hænder et wielded våben optager ud fra dets weapon_class (skjolde regnes separat).
+# Default-hænder pr. weapon_class (fallback). Bruges når katalogets `hands` ikke er
+# sat — kun ranged er flertydig (slynge=1, langbue=2), så de har eksplicit `hands`.
 _WEAPON_HANDS = {
     "light": 1, "one-handed": 1, "two-handed": 2, "unarmed": 0, "ranged": 2,
 }
+
+
+def weapon_hands(weapon_row: dict, two_handed: bool = False) -> int:
+    """Hvor mange hænder optager våbnet? Katalogets `hands` vinder; ellers udled af
+    weapon_class. Et enhåndsvåben grebet med to hænder (two_handed) optager 2."""
+    hands = weapon_row.get("hands")
+    if hands is None:
+        hands = _WEAPON_HANDS.get(weapon_row["weapon_class"], 1)
+    if two_handed and weapon_row["weapon_class"] in ("light", "one-handed"):
+        hands = 2
+    return hands
 
 
 def two_weapon_penalty(off_hand_light: bool, has_twf_feat: bool) -> tuple[int, int]:
@@ -541,7 +553,7 @@ def hand_usage(inventory: list[InventoryItem], db) -> dict:
         if item.state == "wielded" and item.ref.startswith("weapons/"):
             w = db.get_weapon(item.ref.split("/", 1)[1])
             if w:
-                hands = _WEAPON_HANDS.get(w["weapon_class"], 1)
+                hands = weapon_hands(w, item.two_handed)
                 used += hands
                 parts.append((item.name or w["name"], hands))
         elif item.state == "worn" and item.ref.startswith("armor/"):
