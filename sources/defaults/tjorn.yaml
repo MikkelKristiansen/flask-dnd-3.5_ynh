@@ -96,6 +96,7 @@ inventory:
 - ref: armor/studded_leather
   state: worn
   masterwork: true
+  house_rule: true   # DM tillader studded leather trods druidens metal-forbud
 - ref: items/sling_bullets_10
   qty: 10
 - ref: items/healer_s_kit

@@ -153,8 +153,9 @@ def druid_armor_violations(cls: str, armor: dict | None = None,
     """
     if cls.lower() != "druid":
         return []
+    # house_rule = DM tillader det trods metal-forbuddet → ingen advarsel.
     return [item["name"] for item in (armor, shield)
-            if item and not int(item.get("druid_ok", 1))]
+            if item and not int(item.get("druid_ok", 1)) and not item.get("house_rule")]
 
 
 # ── Weapon & Armor Proficiency (SRD) ────────────────────────────────────────
@@ -709,7 +710,9 @@ def equipped_armor(inventory: list[InventoryItem], db):
         rec = db.get_armor(item.ref.split("/", 1)[1])
         if not rec:
             continue
-        rec = _effective_armor_row(rec, item)
+        # Frisk kopi med house_rule-flaget (DM tillader trods druide-metal-forbud),
+        # så druid_armor_violations kan dæmpe advarslen uden at mutere db-cachen.
+        rec = {**_effective_armor_row(rec, item), "house_rule": bool(item.house_rule)}
         if rec["type"] == "shield":
             shield_row = shield_row or rec
         elif rec["type"] in ("light", "medium", "heavy"):
