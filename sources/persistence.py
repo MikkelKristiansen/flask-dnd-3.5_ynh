@@ -154,6 +154,7 @@ def load_character(path: str) -> Character:
         armor=str(data.get("combat", {}).get("armor") or ""),
         shield=str(data.get("combat", {}).get("shield") or ""),
         companion=dict(data.get("companion") or {}),
+        wild_shape=dict(data.get("wild_shape") or {}),
         summons=list(data.get("summons") or []),
         class_features=dict(data.get("class_features") or {}),
         deity=str(data.get("deity") or ""),
@@ -453,6 +454,15 @@ def save_character(path: str, updates: dict) -> None:
             data["companion"] = dict(comp)
         else:
             data.pop("companion", None)
+
+    # Wild shape-tilstand: {animal_used, elemental_used, current_form}. Tom dict
+    # (fx ved "Ny dag") fjerner feltet helt → ingen aktiv form, alle uses tilbage.
+    if "wild_shape" in updates:
+        wsd = updates["wild_shape"] or {}
+        if wsd:
+            data["wild_shape"] = dict(wsd)
+        else:
+            data.pop("wild_shape", None)
 
     # Summon Nature's Ally-væsner: hele listen gemmes på én gang (som inventory/
     # buffs). App-endpoints bygger den nye liste (tilføj ved kast, fjern ved

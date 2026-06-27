@@ -1793,7 +1793,7 @@ def api_newday():
     char_module.save_character(
         str(path),
         {"spells_used": {}, "spells_active": {}, "spell_charges": {},
-         "domain_spells_used": {}})
+         "domain_spells_used": {}, "wild_shape": {}})
     return jsonify({"ok": True})
 
 

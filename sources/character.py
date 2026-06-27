@@ -35,7 +35,7 @@ from refdata import (  # noqa: F401
     class_ac_ability, class_starting_gold,
     class_weapon_proficiency, class_armor_proficiency,
     WEAPON_CHOICE_FEATS, feat_id, feat_weapon, feat_label, class_needs_domains,
-    base_skill_points, class_can_turn_undead, class_has_wild_shape,
+    base_skill_points, class_can_turn_undead, class_has_wild_shape, class_wild_shape,
     feat_prereq_unmet, spell_like_dc)
 from rules import (  # noqa: F401
     POINT_BUY_COST, POINT_BUY_BUDGET, point_buy_cost, point_buy_total,

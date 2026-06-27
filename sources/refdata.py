@@ -273,8 +273,14 @@ def class_can_turn_undead(cls: str) -> bool:
 
 
 def class_has_wild_shape(cls: str, level: int) -> bool:
-    from_level = class_data(cls).get("wild_shape_from_level")
+    ws = class_data(cls).get("wild_shape") or {}
+    from_level = ws.get("from_level", class_data(cls).get("wild_shape_from_level"))
     return from_level is not None and level >= from_level
+
+
+def class_wild_shape(cls: str) -> dict | None:
+    """Klassens fulde wild shape-progression (data), eller None hvis ingen."""
+    return class_data(cls).get("wild_shape")
 
 
 def feat_prereq_unmet(prereq_text: str, owned_feat_ids, scores: dict,

@@ -91,6 +91,7 @@ class Character:
     armor: str = ""             # equipped rustnings-id (slås op i armor-tabellen)
     shield: str = ""            # equipped skjold-id
     companion: dict = field(default_factory=dict)
+    wild_shape: dict = field(default_factory=dict)  # {animal_used, elemental_used, current_form}
     summons: list = field(default_factory=list)  # aktive Summon Nature's Ally-væsner (tynde refs); ryddes når SNA-spellet sættes "Brugt"
     class_features: dict = field(default_factory=dict)
     deity: str = ""
