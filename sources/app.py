@@ -324,6 +324,7 @@ def _gen_context() -> dict:
             "languages_auto": char_module.race_data(r).get("languages", {}).get("automatic", []),
             "languages_bonus": char_module.race_bonus_languages(r),
             "bio": char_module.race_bio(r),
+            "weapon_prof_ids": sorted(_race_weapon_prof_ids(r, db)),
         }
         for r in GEN_RACES
     }
@@ -344,6 +345,8 @@ def _gen_context() -> dict:
             "has_companion": companion_module.companion_effective_level(c, 1) > 0,
             "languages_auto": char_module.class_languages(c).get("automatic", []),
             "languages_bonus": char_module.class_languages(c).get("bonus", []),
+            "weapon_proficiency": char_module.class_weapon_proficiency(c),
+            "armor_proficiency": char_module.class_armor_proficiency(c),
         }
         for c in GEN_CLASSES
     }

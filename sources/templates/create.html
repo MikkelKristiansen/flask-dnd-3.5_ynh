@@ -261,14 +261,14 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
         <label for="armor">Rustning</label>
         <select id="armor" name="armor">
           <option value="">— ingen —</option>
-          {% for a in armors %}<option value="{{ a.id }}">{{ a.name }} (+{{ a.armor_bonus }} AC · {{ a.cost_str }})</option>{% endfor %}
+          {% for a in armors %}<option value="{{ a.id }}" data-atype="{{ a.type }}">{{ a.name }} (+{{ a.armor_bonus }} AC · {{ a.cost_str }})</option>{% endfor %}
         </select>
       </div>
       <div>
         <label for="shield">Skjold</label>
         <select id="shield" name="shield">
           <option value="">— intet —</option>
-          {% for s in shields %}<option value="{{ s.id }}">{{ s.name }} (+{{ s.armor_bonus }} AC · {{ s.cost_str }})</option>{% endfor %}
+          {% for s in shields %}<option value="{{ s.id }}" data-aid="{{ s.id }}">{{ s.name }} (+{{ s.armor_bonus }} AC · {{ s.cost_str }})</option>{% endfor %}
         </select>
       </div>
     </div>
@@ -279,7 +279,7 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
           <option value="">— vælg våben —</option>
           {% for grp, items in weapons|groupby('group') %}
           <optgroup label="{{ grp }}">
-            {% for w in items %}<option value="{{ w.ref }}">{{ w.name }} — {{ w.cost_str }}</option>{% endfor %}
+            {% for w in items %}<option value="{{ w.ref }}" data-wcat="{{ w.group }}" data-wid="{{ w.ref.split('/')[1] }}">{{ w.name }} — {{ w.cost_str }}</option>{% endfor %}
           </optgroup>
           {% endfor %}
         </select>
@@ -660,13 +660,41 @@ function renderLanguages(race, cls, intMod){
   return vals.length === count && !dup;
 }
 
+// Markér udstyr man ikke er proficient med (blokerer ikke — blød håndhævelse).
+// Bygger på den valgte klasses proficiency + race-givne våben (fx elv: longsword).
+function markEquipmentProficiency(){
+  const cd = CLASSES[document.getElementById('cls').value.toLowerCase()] || {};
+  const rd = RACES[document.getElementById('race').value.toLowerCase()] || {};
+  const wp = cd.weapon_proficiency, ap = cd.armor_proficiency;
+  const raceWeapons = rd.weapon_prof_ids || [];
+  const MARK = "  ⚠ ikke proficient";
+  function relabel(opt, ok){
+    if (opt.dataset.base === undefined) opt.dataset.base = opt.textContent;
+    opt.textContent = ok ? opt.dataset.base : opt.dataset.base + MARK;
+  }
+  document.querySelectorAll('#armor option[data-atype]').forEach(opt=>{
+    relabel(opt, !ap || (ap.types||[]).includes(opt.dataset.atype));
+  });
+  document.querySelectorAll('#shield option[data-aid]').forEach(opt=>{
+    const tower = opt.dataset.aid === 'tower_shield';
+    relabel(opt, !ap || (tower ? !!ap.tower_shield : !!ap.shields));
+  });
+  document.querySelectorAll('#weapon-pick option[data-wid]').forEach(opt=>{
+    relabel(opt, !wp || (wp.categories||[]).includes(opt.dataset.wcat)
+                     || (wp.weapons||[]).includes(opt.dataset.wid)
+                     || raceWeapons.includes(opt.dataset.wid));
+  });
+}
+
 // Genbyg skill-listen når klassen skifter (klasse-markering + caps ændrer sig)
-document.getElementById('cls').addEventListener('change', ()=>{ buildSkillList(); onUpdate(); rollBio(); });
+document.getElementById('cls').addEventListener('change', ()=>{ buildSkillList(); onUpdate(); rollBio(); markEquipmentProficiency(); });
+document.getElementById('race').addEventListener('change', markEquipmentProficiency);
 
 buildSkillList();
 addWeapon();
 onUpdate();
 rollBio();
+markEquipmentProficiency();
 </script>
 </body>
 </html>
