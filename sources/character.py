@@ -33,6 +33,7 @@ from refdata import (  # noqa: F401
     apply_racial_adjustments, level1_feat_count, class_bonus_feats,
     class_bonus_feat_choices, class_bonus_feat_pool, class_bonus_feat_ignore_prereqs,
     class_ac_ability, class_starting_gold,
+    class_weapon_proficiency, class_armor_proficiency,
     WEAPON_CHOICE_FEATS, feat_id, feat_weapon, feat_label, class_needs_domains,
     base_skill_points, class_can_turn_undead, class_has_wild_shape,
     feat_prereq_unmet, spell_like_dc)
@@ -41,6 +42,7 @@ from rules import (  # noqa: F401
     XP_THRESHOLDS, SKILL_SYNERGIES, SYNERGY_THRESHOLD, SIZE_MOD_ATTACK,
     SIZE_MOD_GRAPPLE, INVENTORY_STATES, CARRIED_STATES,
     compute_synergy_bonuses, armor_check_penalty, druid_armor_violations,
+    weapon_proficient, armor_proficient, proficiency_violations, armor_attack_penalty,
     skill_total, save_total, size_mod_attack, size_mod_grapple, attack_total,
     grapple_total, initiative_total, armor_class, xp_to_next_level, xp_progress,
     carry_limits, encumbrance_level, total_weight, weight_for_size, resolve_item,

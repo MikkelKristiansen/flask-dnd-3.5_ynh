@@ -43,6 +43,7 @@ class Attack:
     range: str = ""
     source: str = "weapon"         # weapon | spell — spell-angreb er betingede (kræver aktiv spell)
     requires: str = ""             # navn på buff der skal være aktiv før angrebet vises (tom = altid)
+    not_proficient: bool = False   # våben man ikke er proficient med → −4 allerede lagt i bonus
 
 
 @dataclass
@@ -58,6 +59,7 @@ class InventoryItem:
     two_handed: bool = False    # enhåndsvåben brugt tohånds → ×1,5 Str (hvis str_mult ikke sat)
     masterwork: bool = False    # rustning/skjold: mesterværk → ACP forbedres med +1 (mod 0)
     enhancement: int = 0        # rustning/skjold: magisk +N til AC (≥1 medfører masterwork)
+    house_rule: bool = False    # DM tillader trods manglende proficiency/druid-forbud → ingen straf/advarsel
 
 
 @dataclass

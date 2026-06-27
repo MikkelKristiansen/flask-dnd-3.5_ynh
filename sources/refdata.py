@@ -209,6 +209,22 @@ def class_speed_bonus(cls: str) -> int:
     return int(class_data(cls).get("speed_bonus", 0))
 
 
+def class_weapon_proficiency(cls: str) -> dict | None:
+    """Klassens våben-proficiency {categories: [...], weapons: [id, …]} eller None.
+
+    None betyder "ingen proficiency-data" → kalderen håndhæver ikke (ingen straf).
+    """
+    return class_data(cls).get("weapon_proficiency")
+
+
+def class_armor_proficiency(cls: str) -> dict | None:
+    """Klassens rustnings-proficiency {types, shields, tower_shield} eller None.
+
+    None betyder "ingen proficiency-data" → kalderen håndhæver ikke (ingen straf).
+    """
+    return class_data(cls).get("armor_proficiency")
+
+
 # Feats hvor man vælger et specifikt våben (gemmes som {id, weapon} i stedet for
 # en ren id-streng). Bruges af generatoren, level-up og visningen.
 WEAPON_CHOICE_FEATS = {"weapon_focus", "weapon_specialization", "improved_critical"}

@@ -76,6 +76,7 @@ def load_character(path: str) -> Character:
                 two_handed=bool(item.get("two_handed", False)),
                 masterwork=bool(item.get("masterwork", False)),
                 enhancement=int(item.get("enhancement", 0) or 0),
+                house_rule=bool(item.get("house_rule", False)),
             ))
         else:
             # Backwards-compat: plain string
@@ -296,6 +297,8 @@ def _serialize_inventory_item(item: InventoryItem) -> dict:
         out["masterwork"] = item.masterwork
     if item.enhancement:
         out["enhancement"] = item.enhancement
+    if item.house_rule:
+        out["house_rule"] = item.house_rule
     if item.notes:
         out["notes"] = item.notes
     return out

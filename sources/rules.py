@@ -142,6 +142,89 @@ def druid_armor_violations(cls: str, armor: dict | None = None,
             if item and not int(item.get("druid_ok", 1))]
 
 
+# ── Weapon & Armor Proficiency (SRD) ────────────────────────────────────────
+# Manglende proficiency er IKKE et forbud: man må bruge grejet, men tager straf
+# (−4 til angreb med uvant våben; rustnings-tjekstraffen rammer også angreb +
+# Str/Dex-skills med uvant rustning). En house-rule pr. genstand (allowed/
+# item.house_rule) fjerner straffen igen.
+
+def weapon_proficient(weapon_row: dict | None, weapon_prof: dict | None,
+                      allowed: set = frozenset()) -> bool:
+    """Er man proficient med våbnet? Via kategori, eksplicit liste eller house-rule.
+
+    weapon_prof=None → ingen proficiency-data for klassen → behandl som proficient
+    (vi straffer ikke noget vi ikke kender reglerne for).
+    """
+    if not weapon_row or weapon_prof is None:
+        return True
+    wid = weapon_row.get("id", "")
+    if wid in allowed:
+        return True
+    if weapon_row.get("category") in (weapon_prof.get("categories") or []):
+        return True
+    return wid in (weapon_prof.get("weapons") or [])
+
+
+def armor_proficient(armor_row: dict | None, armor_prof: dict | None,
+                     allowed: set = frozenset()) -> bool:
+    """Er man proficient med rustningen/skjoldet? Tower shield er en egen tilladelse.
+
+    armor_prof=None → ingen data → behandl som proficient (ingen straf).
+    """
+    if not armor_row or armor_prof is None:
+        return True
+    aid = armor_row.get("id", "")
+    if aid in allowed:
+        return True
+    if armor_row.get("type") == "shield":
+        if aid == "tower_shield":
+            return bool(armor_prof.get("tower_shield"))
+        return bool(armor_prof.get("shields"))
+    return armor_row.get("type") in (armor_prof.get("types") or [])
+
+
+def proficiency_violations(weapon_prof: dict | None, armor_prof: dict | None,
+                           inventory: list, db, allowed_weapons: set = frozenset(),
+                           allowed_armor: set = frozenset()) -> dict:
+    """Navne på equipped grej man IKKE er proficient med (til advarsler på arket).
+
+    Returnerer {"weapons": [navne], "armor": [navne]}. En genstand med
+    house_rule=True regnes altid som tilladt (DM-undtagelse). Kun wielded våben
+    og worn rustning/skjold tjekkes.
+    """
+    bad_weapons: list[str] = []
+    bad_armor: list[str] = []
+    for item in inventory:
+        if item.house_rule:
+            continue
+        if item.state == "wielded" and item.ref.startswith("weapons/"):
+            w = db.get_weapon(item.ref.split("/", 1)[1])
+            if w and not weapon_proficient(w, weapon_prof, allowed_weapons):
+                bad_weapons.append(item.name or w["name"])
+        elif item.state == "worn" and item.ref.startswith("armor/"):
+            a = db.get_armor(item.ref.split("/", 1)[1])
+            if a and not armor_proficient(a, armor_prof, allowed_armor):
+                bad_armor.append(item.name or a["name"])
+    return {"weapons": bad_weapons, "armor": bad_armor}
+
+
+def armor_attack_penalty(armor_prof: dict | None, inventory: list, db,
+                         allowed_armor: set = frozenset()) -> int:
+    """Ekstra angrebs-straf (≤0) fordi man bærer uvant rustning/skjold.
+
+    SRD: bærer man rustning man ikke er proficient med, rammer dens tjekstraf
+    (ACP) også alle angreb. Summerer ACP for hver uvant, ikke-house-ruled del.
+    """
+    penalty = 0
+    for item in inventory:
+        if item.house_rule or item.state != "worn" or not item.ref.startswith("armor/"):
+            continue
+        a = db.get_armor(item.ref.split("/", 1)[1])
+        if a and not armor_proficient(a, armor_prof, allowed_armor):
+            penalty += int(a.get("armor_check", 0) or 0)
+    return penalty
+
+
 def skill_total(skill: Skill, ability_scores: AbilityScores, db,
                 synergy_bonus: int = 0, acp: int = 0, effect_bonus: int = 0) -> int:
     skill_def = db.get_skill(skill.id)
@@ -405,12 +488,17 @@ _DEFAULT_STR_MULT = {
 }
 
 
-def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium") -> list[Attack]:
+def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
+                   weapon_prof: dict | None = None,
+                   allowed_weapons: set = frozenset()) -> list[Attack]:
     """Lav Attack-objekter ud fra våben i tilstand 'wielded'.
 
     Skade/crit/type/range slås op i weapons-kataloget (dmg_s for Small, ellers
     dmg_m). Str-til-skade tages fra posten (str_mult), ellers two_handed-flaget
     (×1,5 for enhåndsvåben), ellers default fra weapon_class. bonus = til-hit.
+
+    weapon_prof (når givet) bruges til at lægge −4 på til-hit for uvante våben;
+    item.house_rule eller allowed_weapons fjerner straffen igen.
     """
     attacks: list[Attack] = []
     for item in inventory:
@@ -419,6 +507,8 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium") -> 
         w = db.get_weapon(item.ref.split("/", 1)[1])
         if not w:
             continue
+        not_prof = not (item.house_rule
+                        or weapon_proficient(w, weapon_prof, allowed_weapons))
         wclass = w["weapon_class"]
         if item.str_mult is not None:
             mult = item.str_mult
@@ -434,10 +524,11 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium") -> 
             kind="ranged" if wclass == "ranged" else "melee",
             base_damage=base,
             str_damage_mult=mult,
-            bonus=item.bonus,
+            bonus=item.bonus - (4 if not_prof else 0),
             crit=w["critical"] or "x2",
             type=w["damage_type"] or "",
             range=f"{w['range_ft']} ft." if w["range_ft"] else "",
+            not_proficient=not_prof,
         ))
     return attacks
 
