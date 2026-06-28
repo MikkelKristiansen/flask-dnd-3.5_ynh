@@ -95,3 +95,69 @@ def test_newday_resets_paladin_resources(client):
 def test_non_paladin_rejected(client):
     assert client.post("/api/paladin", json={"char": "cleric", "action": "smite"}
                        ).status_code == 400
+
+
+# ── Special Mount ───────────────────────────────────────────────────────────
+
+import companion as companion_module  # noqa: E402
+import db as db_module  # noqa: E402
+
+
+@pytest.mark.parametrize("cls,level,ok", [
+    ("Paladin", 5, True), ("Paladin", 4, False), ("Paladin", 20, True),
+    ("Cleric", 20, False), ("Druid", 9, False),
+])
+def test_mount_eligible(cls, level, ok):
+    assert companion_module.mount_eligible(cls, level) is ok
+
+
+def test_mount_advancement_heavy_warhorse():
+    """Paladin-5 heavy warhorse matcher SRD: 6 HD, Str 19, Int 6, NA 8, AC 18,
+    HP 45, BAB 4, saves 8/6/3, hooves +7 (1d6+4) + bite +2 (1d4+2)."""
+    animal = db_module.get_animal("heavy_warhorse")
+    st = companion_module.advance_companion(animal, companion_module.mount_deltas(5), db_module)
+    assert st["total_hd"] == 6
+    assert st["abilities"]["str"] == 19 and st["abilities"]["int"] == 6
+    assert st["natural_armor"] == 8 and st["ac"]["ac"] == 18
+    assert st["hp_max"] == 45 and st["bab"] == 4
+    assert st["saves"] == {"fort": 8, "ref": 6, "will": 3}
+    hoof, bite = st["attacks"]
+    assert (hoof["to_hit"], hoof["damage"]) == (7, "1d6+4")
+    assert (bite["to_hit"], bite["damage"]) == (2, "1d4+2")
+    assert "Empathic Link" in st["specials"]
+
+
+def test_mount_specials_accumulate():
+    """Specials akkumulerer: en level-15 mount har stadig empathic link + de øvrige."""
+    s = companion_module.mount_deltas(15)["specials"]
+    assert "Empathic Link" in s and "Improved Speed (+10 ft.)" in s
+    assert any("Spell Resistance" in x for x in s)
+    # Str-bonus følger tabellen (+4 ved 15-20), Int sættes til 9.
+    assert companion_module.mount_deltas(15)["str_bonus"] == 4
+    assert companion_module.mount_deltas(15)["int_set"] == 9
+
+
+def test_summon_and_dismiss_mount(client):
+    """Paladin (lvl 6) tilkalder en heavy warhorse → gemmes med kind='mount'."""
+    r = client.post("/api/companion", json={"char": "pal", "action": "summon",
+                    "animal": "heavy_warhorse", "name": "Brunhilde"}).get_json()
+    assert r == {"ok": True}
+    comp = _load("pal").companion
+    assert comp["kind"] == "mount" and comp["animal"] == "heavy_warhorse"
+    assert comp["hp_current"] == 45            # 6 HD heavy warhorse
+    # Afsked rydder den.
+    client.post("/api/companion", json={"char": "pal", "action": "dismiss"})
+    assert not _load("pal").companion
+
+
+def test_paladin_cannot_summon_non_mount(client):
+    """En paladin kan kun tilkalde warhorse/warpony som mount, ikke en wolf."""
+    r = client.post("/api/companion", json={"char": "pal", "action": "summon",
+                    "animal": "wolf"}).get_json()
+    assert "error" in r
+
+
+def test_warhorse_not_a_companion_option():
+    """Warhorse/warpony må ikke kunne vælges som almindelig animal companion."""
+    assert db_module.get_animal("heavy_warhorse")["companion_ok"] == 0
+    assert db_module.get_animal("warpony")["companion_ok"] == 0

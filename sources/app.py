@@ -569,7 +569,8 @@ def create_character():
             if not animal:
                 raise ValueError("Ukendt dyreledsager.")
             comp_name = f.get("companion_name", "").strip() or animal["name"]
-            hp_max = companion_module.advance_companion(animal, 1, db)["hp_max"]
+            hp_max = companion_module.advance_companion(
+                animal, companion_module.companion_deltas(1), db)["hp_max"]
             gen_companion = {"name": comp_name, "animal": animal_id,
                              "hp_current": hp_max, "tricks": []}
 
@@ -1165,13 +1166,22 @@ def build_character_view(char, db):
                     "used": bool(char.domain_spells_used.get(lvl, False)),
                 }
 
-    # Companion: beregn det fulde statblok fra den tynde reference (eller None).
+    # Companion/mount: beregn det fulde statblok fra den tynde reference (eller None).
     companion = companion_module.build_companion(char, db)
-    # Kan klassen overhovedet have en companion (druide L1, ranger L4+)? → vis
-    # "Tilkald"-knap når der ingen er. Dyre-listen er companion_ok-filtreret.
-    can_summon_companion = companion_module.companion_effective_level(char.cls, char.level) > 0
-    companion_animals = ([{"id": a["id"], "name": a["name"]} for a in db.get_all_animals()
-                          if a.get("companion_ok") != 0] if can_summon_companion else [])
+    # Hvilken slags ledsager kan klassen tilkalde? Druide L1/ranger L4+ → animal
+    # companion (companion_ok-filtreret liste); paladin L5+ → special mount (kun
+    # warhorse/warpony). Begge bruger samme "Tilkald"-knap + companion-fane.
+    is_mount = companion_module.mount_eligible(char.cls, char.level)
+    if is_mount:
+        companion_noun = "Mount"
+        can_summon_companion = True
+        companion_animals = [{"id": a["id"], "name": a["name"]} for a in db.get_all_animals()
+                             if a["id"] in ("heavy_warhorse", "warpony")]
+    else:
+        companion_noun = "Animal Companion"
+        can_summon_companion = companion_module.companion_effective_level(char.cls, char.level) > 0
+        companion_animals = ([{"id": a["id"], "name": a["name"]} for a in db.get_all_animals()
+                              if a.get("companion_ok") != 0] if can_summon_companion else [])
 
     # Wild Shape: progressions-info, lovlige former og evt. aktiv (merged) form.
     ws_data = char_module.class_wild_shape(char.cls)
@@ -1220,6 +1230,7 @@ def build_character_view(char, db):
         "companion": companion,
         "can_summon_companion": can_summon_companion,
         "companion_animals": companion_animals,
+        "companion_noun": companion_noun,
         "wild_shape_info": wild_shape_ctx,
         "wild_form": wild_form,
         "summons": summons,
@@ -2052,9 +2063,10 @@ def api_companion():
     if not path.exists():
         return jsonify({"error": "not found"}), 404
     char = char_module.load_character(str(path))
+    is_mount = companion_module.mount_eligible(char.cls, char.level)
     eff_level = companion_module.companion_effective_level(char.cls, char.level)
-    if eff_level <= 0:
-        return jsonify({"error": "Klassen kan ikke have en animal companion."}), 400
+    if not is_mount and eff_level <= 0:
+        return jsonify({"error": "Klassen kan ikke have en ledsager."}), 400
 
     if action == "dismiss":
         char_module.save_character(str(path), {"companion": {}})
@@ -2063,12 +2075,23 @@ def api_companion():
     if action == "summon":
         animal_id = str(data.get("animal", "")).strip()
         animal = db.get_animal(animal_id)
-        if not animal or animal.get("companion_ok") == 0:
-            return jsonify({"error": "Ukendt eller uegnet dyr."}), 400
+        if is_mount:
+            # Paladin-mount: kun de to standard-mounts, og statblok via mount-tabellen.
+            if not animal or animal_id not in ("heavy_warhorse", "warpony"):
+                return jsonify({"error": "Ukendt eller uegnet mount."}), 400
+            deltas = companion_module.mount_deltas(char.level)
+            kind = "mount"
+        else:
+            if not animal or animal.get("companion_ok") == 0:
+                return jsonify({"error": "Ukendt eller uegnet dyr."}), 400
+            deltas = companion_module.companion_deltas(max(1, eff_level))
+            kind = "companion"
         name   = str(data.get("name", "")).strip() or animal["name"]
-        hp_max = companion_module.advance_companion(animal, max(1, eff_level), db)["hp_max"]
-        char_module.save_character(str(path), {"companion": {
-            "name": name, "animal": animal_id, "hp_current": hp_max, "tricks": []}})
+        hp_max = companion_module.advance_companion(animal, deltas, db)["hp_max"]
+        comp = {"name": name, "animal": animal_id, "hp_current": hp_max, "tricks": []}
+        if kind == "mount":
+            comp["kind"] = "mount"
+        char_module.save_character(str(path), {"companion": comp})
         return jsonify({"ok": True})
 
     return jsonify({"error": "ukendt action"}), 400

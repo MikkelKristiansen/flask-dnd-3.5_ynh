@@ -228,6 +228,48 @@
   skills: '[{"id": "listen", "misc": 5}, {"id": "spot", "misc": 5}]'
   feats: '["Endurance"]'
 
+# ── Paladin special mounts (kun mount, ikke companion → companion_ok: false) ──
+# Kamp-trænede heste (SRD Warhorse, Heavy / Warpony). Basis-statblok; paladinens
+# egen avancementstabel (companion.py _MOUNT_ADVANCEMENT) lægger bonus HD/NA/Str +
+# sætter Int oveni. Standard mount: heavy warhorse (Medium paladin), warpony (Small).
+- id: heavy_warhorse
+  name: Heavy Warhorse
+  size: large
+  base_hd: 4
+  str: 18
+  dex: 13
+  con: 17
+  int: 2
+  wis: 13
+  cha: 6
+  natural_armor: 4
+  speed: "50 ft."
+  attacks: '[{"name": "Hoof", "damage": "1d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d4", "group": "secondary", "count": 1}]'
+  special_attacks: null
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 4}, {"id": "spot", "misc": 3}]'
+  feats: '["Endurance", "Run"]'
+  companion_ok: false
+
+- id: warpony
+  name: Warpony
+  size: medium
+  base_hd: 2
+  str: 15
+  dex: 13
+  con: 14
+  int: 2
+  wis: 11
+  cha: 4
+  natural_armor: 2
+  speed: "40 ft."
+  attacks: '[{"name": "Hoof", "damage": "1d3", "group": "primary", "count": 2}]'
+  special_attacks: null
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 5}, {"id": "spot", "misc": 5}]'
+  feats: '["Endurance"]'
+  companion_ok: false
+
 - id: viper_small
   name: Small Viper
   size: small

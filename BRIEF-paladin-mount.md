@@ -77,8 +77,12 @@ HP (`/api/companion_hp`), tricks og hele ark-visningen kan genbruges. Det der sk
 
 ---
 
-## Status
-- [ ] heavy_warhorse + warpony i animals.yaml (companion_ok: 0)
-- [ ] _MOUNT_ADVANCEMENT + build-gren i companion.py
-- [ ] paladin-gating + dyre-udvalg i app.py
-- [ ] tests + version-bump
+## Status — BYGGET 28. jun
+- [x] heavy_warhorse + warpony i animals.yaml (companion_ok: false)
+- [x] _MOUNT_ADVANCEMENT + delta-refaktor af advance_companion (deles af companion+mount)
+      + build-gren på `kind: "mount"` i companion.py
+- [x] paladin-gating (mount_eligible, fra lvl 5) + dyre-udvalg + kind-tag i app.py
+- [x] tab/labels kind-aware (level_label, companion_noun, tricks skjult for mount)
+- [x] tests (mount-avancement, gating, summon/dismiss) + version-bump
+
+Specials vises som tekst-labels (akkumulerende), ikke fuld mekanik — som planlagt.

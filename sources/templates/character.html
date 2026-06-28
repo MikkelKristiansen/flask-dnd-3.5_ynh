@@ -382,9 +382,9 @@
 
   {% if can_summon_companion and not companion %}
   <div class="section">
-    <div class="section-title">Animal Companion</div>
+    <div class="section-title">{{ companion_noun }}</div>
     <div style="color:var(--muted);font-size:.85rem;margin-bottom:.5rem">Ingen ledsager lige nu.</div>
-    <button class="add-btn" onclick="openSummonCompanion()">🐾 Tilkald Animal Companion</button>
+    <button class="add-btn" onclick="openSummonCompanion()">🐾 Tilkald {{ companion_noun }}</button>
   </div>
   {% endif %}
 
@@ -446,7 +446,7 @@
   <div class="section">
     <div class="section-title">{{ cp.name }} — {{ cp.animal_name }}
       <span style="color:var(--muted);font-size:.7rem;font-style:italic;text-transform:none">
-        {{ cp.size|capitalize }}, {{ cp.total_hd }} HD · effektivt druideniveau {{ cp.effective_level }}</span>
+        {{ cp.size|capitalize }}, {{ cp.total_hd }} HD · {{ cp.level_label }}</span>
     </div>
     <div id="buff-rem-combat-companion" class="buff-reminder" style="display:none"></div>
     <div class="stat-row">
@@ -541,11 +541,13 @@
   <div class="section">
     <div class="section-title">Evner</div>
     {% if cp.specials %}
-    <div class="stat-row"><span class="stat-label">Companion</span><span class="stat-val" style="font-size:.8rem;text-align:right">{{ cp.specials|join(', ') }}</span></div>
+    <div class="stat-row"><span class="stat-label">{{ 'Mount' if cp.kind == 'mount' else 'Companion' }}</span><span class="stat-val" style="font-size:.8rem;text-align:right">{{ cp.specials|join(', ') }}</span></div>
     {% endif %}
     {% if cp.feats %}
     <div class="stat-row"><span class="stat-label">Feats</span><span class="stat-val" style="font-size:.8rem;text-align:right">{{ cp.feats|join(', ') }}</span></div>
     {% endif %}
+    {# Mounts er intelligente (Int 6+) og bruger ikke trick-systemet. #}
+    {% if cp.kind != 'mount' %}
     <div style="margin-top:.6rem;color:var(--muted);font-size:.7rem;font-style:italic;text-transform:uppercase;letter-spacing:.05em">Tricks ({{ cp.bonus_tricks }} bonus)</div>
     <div id="comp-tricks" style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.35rem"></div>
     <div style="display:flex;gap:.4rem;margin-top:.4rem">
@@ -553,6 +555,7 @@
              style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addTrick();}">
       <button class="add-btn" style="padding:.2rem .7rem" onclick="addTrick()">+ Tilføj</button>
     </div>
+    {% endif %}
   </div>
 
   <div class="section">
@@ -1337,7 +1340,7 @@
 <div class="modal-overlay" id="summon-companion-overlay" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('summon-companion-overlay').classList.remove('open')">✕</button>
-    <div class="modal-title">🐾 Tilkald Animal Companion</div>
+    <div class="modal-title">🐾 Tilkald {{ companion_noun }}</div>
     <div style="margin-top:.4rem">
       <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Vælg dyr</div>
       <select class="form-input" id="summon-companion-animal">

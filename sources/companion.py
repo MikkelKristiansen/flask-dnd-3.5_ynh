@@ -60,6 +60,51 @@ def _tier(eff_level: int) -> tuple:
     return chosen
 
 
+# Paladinens special mount — EGEN SRD-avancement (≠ animal companion ovenfor).
+# Tilføjer kun Str (ikke Dex), SÆTTER Int til en fast værdi, og specials akkumulerer.
+# (min_paladin_level, bonus_hd, naturlig_rustning, str_bonus, int_værdi, specials)
+_MOUNT_ADVANCEMENT = [
+    (5,  2,  4, 1, 6, ["Empathic Link", "Improved Evasion", "Share Spells", "Share Saving Throws"]),
+    (8,  4,  6, 2, 7, ["Improved Speed (+10 ft.)"]),
+    (11, 6,  8, 3, 8, ["Command (artsfæller)"]),
+    (15, 8, 10, 4, 9, ["Spell Resistance (paladin-level + 5)"]),
+]
+
+# Et normaliseret avancements-delta deler advance_companion mellem de to slags
+# ledsagere. Animal companion og mount fylder hver deres tabel ind i samme form:
+#   bonus_hd, na_bonus, str_bonus, dex_bonus, int_set (None = behold dyrets),
+#   bonus_tricks, specials (liste), level_label (visningstekst).
+
+def companion_deltas(eff_level: int) -> dict:
+    """Animal companion-avancement (druide/ranger) → normaliseret delta."""
+    _, bonus_hd, na_bonus, ability_bonus, bonus_tricks, specials = _tier(eff_level)
+    return {"bonus_hd": bonus_hd, "na_bonus": na_bonus,
+            "str_bonus": ability_bonus, "dex_bonus": ability_bonus,
+            "int_set": None, "bonus_tricks": bonus_tricks, "specials": list(specials),
+            "level_label": f"effektivt druideniveau {eff_level}"}
+
+
+def mount_eligible(cls: str, level: int) -> bool:
+    """Kan klassen tilkalde en special mount? (paladin fra level 5)."""
+    return (cls or "").lower() == "paladin" and level >= 5
+
+
+def mount_deltas(paladin_level: int) -> dict:
+    """Paladin-mount-avancement → normaliseret delta. Specials akkumulerer (mounten
+    beholder tidligere evner), Str lægges til og Int sættes til tabellens værdi."""
+    chosen = _MOUNT_ADVANCEMENT[0]
+    specials: list[str] = []
+    for row in _MOUNT_ADVANCEMENT:
+        if paladin_level >= row[0]:
+            chosen = row
+            specials.extend(row[5])
+    _, bonus_hd, na_bonus, str_bonus, int_val, _ = chosen
+    return {"bonus_hd": bonus_hd, "na_bonus": na_bonus,
+            "str_bonus": str_bonus, "dex_bonus": 0, "int_set": int_val,
+            "bonus_tricks": 0, "specials": specials,
+            "level_label": f"paladin-mount (level {paladin_level})"}
+
+
 def _good_save(hd: int) -> int:
     return hd // 2 + 2
 
@@ -81,15 +126,17 @@ def _str_damage(str_mod: int, mult: float) -> int:
     return str_mod
 
 
-def advance_companion(animal: dict, eff_level: int, db,
+def advance_companion(animal: dict, deltas: dict, db,
                       active_modifiers: list | None = None,
                       riders: dict | None = None) -> dict:
-    """Udregn det fulde companion-statblok fra et basis-dyr + effektivt niveau.
+    """Udregn det fulde ledsager-statblok fra et basis-dyr + et avancements-delta.
 
-    Alle tal afledes (SRD): BAB = ¾ × HD; saves = god Fort/Ref + dårlig Will som
-    et væsen hvis niveau = HD; HP = gennemsnit pr. HD + Con; AC = 10 + størrelse
-    + Dex + naturlig rustning. Angreb bruger Dex ved Weapon Finesse, ellers Str;
-    sekundære angreb får −5 og ½ Str; et ENESTE primært angreb får ×1,5 Str.
+    `deltas` er normaliseret (companion_deltas/mount_deltas), så samme motor dækker
+    både animal companion og paladin-mount. Alle tal afledes (SRD): BAB = ¾ × HD;
+    saves = god Fort/Ref + dårlig Will som et væsen hvis niveau = HD; HP = gennemsnit
+    pr. HD + Con; AC = 10 + størrelse + Dex + naturlig rustning. Angreb bruger Dex ved
+    Weapon Finesse, ellers Str; sekundære angreb får −5 og ½ Str; et ENESTE primært
+    angreb får ×1,5 Str.
 
     active_modifiers/riders: aktive effekter (samme motor som hovedkarakteren).
     Ability-ændringer kaskaderer via effektive scores; direkte bonusser (attack/
@@ -100,13 +147,18 @@ def advance_companion(animal: dict, eff_level: int, db,
     riders = riders or {"lose_dex": False, "half_speed": False, "flags": []}
     net = resolve_modifiers(active_modifiers)
 
-    _, bonus_hd, na_bonus, ability_bonus, bonus_tricks, specials = _tier(eff_level)
+    bonus_hd = deltas["bonus_hd"]
+    na_bonus = deltas["na_bonus"]
+    bonus_tricks = deltas["bonus_tricks"]
+    specials = deltas["specials"]
 
     total_hd = animal["base_hd"] + bonus_hd
     base_scores = AbilityScores(
-        str=animal["str"] + ability_bonus,
-        dex=animal["dex"] + ability_bonus,
-        con=animal["con"], int=animal["int"], wis=animal["wis"], cha=animal["cha"],
+        str=animal["str"] + deltas["str_bonus"],
+        dex=animal["dex"] + deltas["dex_bonus"],
+        con=animal["con"],
+        int=(deltas["int_set"] if deltas["int_set"] is not None else animal["int"]),
+        wis=animal["wis"], cha=animal["cha"],
     )
     # Effekt-ability-ændringer (Bull's Strength, ability-skade …) kaskaderer.
     scores = effective_ability_scores(base_scores, active_modifiers)
@@ -181,7 +233,7 @@ def advance_companion(animal: dict, eff_level: int, db,
         "animal_id": animal["id"],
         "animal_name": animal["name"],
         "size": size,
-        "effective_level": eff_level,
+        "level_label": deltas["level_label"],
         "total_hd": total_hd,
         "abilities": {a: getattr(scores, a) for a in
                       ("str", "dex", "con", "int", "wis", "cha")},
@@ -219,14 +271,20 @@ def build_companion(char, db) -> dict | None:
     if not animal:
         return None
 
-    eff_level = companion_effective_level(char.cls, char.level)
+    # Paladin-mount og animal companion deler statblok-motoren men har hver sin
+    # avancementstabel; kind på den tynde ref vælger den rette.
+    if comp.get("kind") == "mount":
+        deltas = mount_deltas(char.level)
+    else:
+        deltas = companion_deltas(max(1, companion_effective_level(char.cls, char.level)))
     # Aktive effekter (samme motor som hovedkarakteren) → mekaniske tal.
     # Samme effekt-motor som hovedkarakteren (ingen skalering: companion har ikke
     # et karakter-niveau). sources → riders giver {lose_dex, half_speed, flags}.
     active_modifiers, sources = collect_active_effects(
         comp.get("buffs"), comp.get("conditions"), db)
     riders = collect_riders(sources)
-    stat = advance_companion(animal, max(1, eff_level), db, active_modifiers, riders)
+    stat = advance_companion(animal, deltas, db, active_modifiers, riders)
+    stat["kind"] = comp.get("kind") or "companion"
     stat["name"] = comp.get("name") or animal["name"]
     stat["tricks"] = list(comp.get("tricks") or [])
     hp_max = stat["hp_max"]
