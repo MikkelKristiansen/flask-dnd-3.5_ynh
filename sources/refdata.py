@@ -194,6 +194,89 @@ def class_ac_ability(cls: str) -> str:
     return str(class_data(cls).get("ac_ability", ""))
 
 
+# ---------------------------------------------------------------------------
+# Monk-helpers: rene opslags-/formelfunktioner uden karaktertilstand
+# ---------------------------------------------------------------------------
+
+def monk_unarmed_damage(level: int, size: str) -> str:
+    """Monkens unarmed strike-skade som streng (fx '1d8') ud fra level og størrelse.
+
+    Slår op i classes.yaml unarmed_damage-tabellen. Bruger 'small'-kolonnen hvis
+    size == 'small', ellers 'medium'. YAML-nøgler kan være int eller str — begge
+    håndteres. Returnerer skaden ved den højeste tærskel ≤ level.
+    """
+    table = class_data("monk").get("unarmed_damage", {})
+    col_key = "small" if size.lower() == "small" else "medium"
+    col = table.get(col_key, {})
+    # Konvertér nøgler til int (YAML loader dem sommetider som str)
+    thresholds = {int(k): v for k, v in col.items()}
+    best = "1d4"  # fallback
+    for thr in sorted(thresholds):
+        if level >= thr:
+            best = str(thresholds[thr])
+    return best
+
+
+def monk_fast_movement(level: int) -> int:
+    """Monkens Fast Movement-bonus i ft (kun unarmored/let last). Cap 60 ft.
+
+    +10 ft pr. 3 levels: level 3 = +10, 6 = +20, 9 = +30, 12 = +40, 15 = +50, 18 = +60.
+    """
+    return min((level // 3) * 10, 60)
+
+
+def monk_flurry_penalty(level: int) -> int:
+    """Flurry of Blows-straf til til-hit (negativ int). Gælder ALLE angreb ved flurry.
+
+    −2 ved level 1-4, −1 ved level 5-8, 0 ved level 9+.
+    """
+    if level >= 9:
+        return 0
+    if level >= 5:
+        return -1
+    return -2
+
+
+def monk_greater_flurry(level: int) -> bool:
+    """True hvis monken har Greater Flurry (level 11+): 2 ekstra angreb i stedet for 1."""
+    return level >= 11
+
+
+def monk_ac_bonus(level: int) -> int:
+    """Monkens ekstra AC-bonus (uover Wis-delen) når unarmored, skalerer med level.
+
+    +1 ved level 5, +2 ved 10, +3 ved 15, +4 ved 20. Formel: level // 5.
+    """
+    return level // 5
+
+
+def monk_ki_strike(level: int) -> str:
+    """Beskrivelse af Ki Strike-typen monken kan overvinde DR med.
+
+    Tom streng hvis under level 4. Ellers: 'magisk' (4+), 'magisk, lovlig' (10+),
+    'magisk, lovlig, adamant' (16+).
+    """
+    if level >= 16:
+        return "magisk, lovlig, adamant"
+    if level >= 10:
+        return "magisk, lovlig"
+    if level >= 4:
+        return "magisk"
+    return ""
+
+
+def monk_evasion(level: int) -> str:
+    """Monkens evasion-evne som streng til visning.
+
+    Tom streng ved level 1. 'Evasion' ved level 2-8. 'Improved Evasion' ved level 9+.
+    """
+    if level >= 9:
+        return "Improved Evasion"
+    if level >= 2:
+        return "Evasion"
+    return ""
+
+
 def class_starting_gold(cls: str) -> str:
     """Klassens start-guld-terning som streng (fx '6d4*10'), eller '' hvis ukendt."""
     return str(class_data(cls).get("starting_gold", ""))

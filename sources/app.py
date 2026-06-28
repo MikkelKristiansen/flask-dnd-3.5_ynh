@@ -976,6 +976,21 @@ def build_character_view(char, db):
     attack_rows += [_row(a, True, i) for i, a in enumerate(char.attacks)
                     if char_module.attack_visible(a, active_keys)]
 
+    # Monk unarmed strike + Flurry of Blows: automatiske angreb baseret på level/size.
+    # Kræver unarmored (ingen rustning), intet skjold og let last for flurry.
+    monk_flurry_active = False
+    if char.cls == "Monk":
+        monk_flurry_active = (not armor_row) and (not shield_row) and (enc == "Light")
+        _monk_damage = refdata.monk_unarmed_damage(char.level, char.size)
+        _monk_penalty = refdata.monk_flurry_penalty(char.level)
+        _monk_greater = refdata.monk_greater_flurry(char.level)
+        monk_atks = char_module.monk_unarmed_attacks(
+            char.level, char.size, _monk_penalty, _monk_greater,
+            monk_flurry_active, _monk_damage,
+        )
+        for a in monk_atks:
+            attack_rows.append(_row(a, False, None))
+
     # Udledte spell-angreb: fra spells på "I brug" via spell_attacks-kataloget.
     # Bærer evt. ladnings-info (Magic Stone: 3 sten) til nedtælling i UI'en.
     for d in char_module.derive_spell_attacks(char, db):
@@ -1006,11 +1021,13 @@ def build_character_view(char, db):
         "dodge": int(char.combat.get("dodge", 0)),
         "misc": int(char.combat.get("misc_ac", 0)),
     }
-    # Monk AC Bonus (Ex): + ability-mod (Wis) til AC når unarmored og uden skjold.
+    # Monk AC Bonus (Ex): + ability-mod (Wis) + level-skaleret bonus til AC når unarmored.
     # Data-drevet via klassens ac_ability; en klasse-feature → bygges på base-AC.
     _ac_ability = char_module.class_ac_ability(char.cls)
     if _ac_ability and not armor_row and not shield_row:
         _combat_ac["misc"] += max(0, ab.modifier(_ac_ability))
+        if char.cls == "Monk":
+            _combat_ac["misc"] += refdata.monk_ac_bonus(char.level)
     _ac_common = dict(
         armor=armor_row,
         shield=shield_row,
@@ -1038,7 +1055,10 @@ def build_character_view(char, db):
 
     # Speed: longstrider (+) m.fl., derefter halvering hvis en rytter kræver det
     # (blinded/entangled/exhausted). base er karakterens rå hastighed.
+    # Monk Fast Movement: dynamisk bonus — kun unarmored + let last (ikke bagt ind ved oprettelse).
     eff_speed = base_speed + net.get("speed", 0)
+    if char.cls == "Monk" and monk_flurry_active:
+        eff_speed += refdata.monk_fast_movement(char.level)
     if riders["half_speed"]:
         eff_speed //= 2
     speed = effects.delta_row("Speed", eff_speed, base_speed,
@@ -1235,6 +1255,21 @@ def build_character_view(char, db):
     if char.cls == "Rogue":
         rogue_info = {"sneak_dice": (char.level + 1) // 2}
 
+    # Monk-features: Flurry of Blows, Ki Strike, Fast Movement, Evasion, AC-bonus.
+    # Alle beregnes ved visning — intet gemmes i YAML.
+    monk_info = None
+    if char.cls == "Monk":
+        _flurry_extra = 2 if refdata.monk_greater_flurry(char.level) else 1
+        monk_info = {
+            "flurry_penalty":       refdata.monk_flurry_penalty(char.level),
+            "flurry_extra_attacks": _flurry_extra,
+            "ki_strike":            refdata.monk_ki_strike(char.level),
+            "evasion":              refdata.monk_evasion(char.level),
+            "fast_movement":        refdata.monk_fast_movement(char.level) if monk_flurry_active else 0,
+            "ac_bonus":             refdata.monk_ac_bonus(char.level),
+            "unarmored":            monk_flurry_active,
+        }
+
     return {
         "companion": companion,
         "can_summon_companion": can_summon_companion,
@@ -1262,6 +1297,7 @@ def build_character_view(char, db):
         "raging": raging,
         "paladin_info": paladin_info,
         "rogue_info": rogue_info,
+        "monk_info": monk_info,
         "xp_info": xp_info,
         "weight": weight,
         "enc_limits": enc_limits,

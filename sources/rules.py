@@ -908,3 +908,66 @@ def spell_slots_total(
         for lvl in range(10)
         if base[lvl] > 0
     }
+
+
+def monk_unarmed_attacks(level: int, size: str, flurry_penalty: int,
+                         greater_flurry: bool, flurry_active: bool,
+                         base_damage: str) -> list[Attack]:
+    """Monkens unarmed strike og eventuelle flurry-ekstra-angreb.
+
+    Primær: ét unarmed strike ved fuld bonus. Når flurry_active: tilføj 1 ekstra
+    flurry-række (2 ved Greater Flurry). Straffen vises i ekstra-rækkernes note —
+    design Mulighed A: primær-rækken vises ved fuld bonus, info-sektionen forklarer
+    at straffen gælder alle angreb. base_damage er forudberegnet (fx fra refdata).
+    """
+    attacks: list[Attack] = []
+
+    # Primær unarmed strike — altid til stede
+    attacks.append(Attack(
+        name="Unarmed strike",
+        kind="melee",
+        base_damage=base_damage,
+        str_damage_mult=1.0,
+        bonus=0,
+        crit="x2",
+        type="bludgeoning",
+        not_proficient=False,
+        note="",
+        finesse=True,   # Weapon Finesse kan bruges på unarmed
+    ))
+
+    if flurry_active:
+        # Flurry-straf-note til ekstra-rækkerne
+        if flurry_penalty < 0:
+            flurry_note = f"flurry: {flurry_penalty:+d} til alle angreb"
+        else:
+            flurry_note = "flurry"
+
+        attacks.append(Attack(
+            name="Unarmed strike (flurry)",
+            kind="melee",
+            base_damage=base_damage,
+            str_damage_mult=1.0,
+            bonus=flurry_penalty,
+            crit="x2",
+            type="bludgeoning",
+            not_proficient=False,
+            note=flurry_note,
+            finesse=True,
+        ))
+
+        if greater_flurry:
+            attacks.append(Attack(
+                name="Unarmed strike (flurry 2)",
+                kind="melee",
+                base_damage=base_damage,
+                str_damage_mult=1.0,
+                bonus=flurry_penalty,
+                crit="x2",
+                type="bludgeoning",
+                not_proficient=False,
+                note=flurry_note,
+                finesse=True,
+            ))
+
+    return attacks

@@ -323,6 +323,67 @@
   </div>
   {% endif %}
 
+  {% if monk_info %}
+  <div class="section">
+    <div class="section-title">Monk</div>
+
+    {# Flurry of Blows #}
+    <div class="stat-row">
+      <span class="stat-label">⚔ Flurry of Blows</span>
+      <span style="text-align:right">
+        {% if monk_info.unarmored %}
+          +{{ monk_info.flurry_extra_attacks }} angreb · {{ monk_info.flurry_penalty }} til alle angreb
+          <span style="color:var(--muted);font-size:.78rem">· kun uden rustning/skjold og ved let last</span>
+        {% else %}
+          <span style="color:var(--muted);font-size:.8rem">inaktiv (rustning / skjold / last)</span>
+        {% endif %}
+      </span>
+    </div>
+
+    {# Ki Strike — kun hvis aktiveret #}
+    {% if monk_info.ki_strike %}
+    <div class="stat-row">
+      <span class="stat-label">✨ Ki Strike</span>
+      <span style="text-align:right">
+        {{ monk_info.ki_strike }}
+        <span style="color:var(--muted);font-size:.78rem">· overvinder DR</span>
+      </span>
+    </div>
+    {% endif %}
+
+    {# Fast Movement — kun hvis aktiv #}
+    {% if monk_info.fast_movement %}
+    <div class="stat-row">
+      <span class="stat-label">💨 Fast Movement</span>
+      <span style="text-align:right">+{{ monk_info.fast_movement }} ft</span>
+    </div>
+    {% endif %}
+
+    {# Evasion / Improved Evasion — kun hvis aktiveret #}
+    {% if monk_info.evasion %}
+    <div class="stat-row">
+      <span class="stat-label">🤸 {{ monk_info.evasion }}</span>
+      <span style="text-align:right">
+        {% if monk_info.evasion == "Improved Evasion" %}
+          <span style="color:var(--muted);font-size:.78rem">selv ved fejlet Reflex-save kun halv skade</span>
+        {% else %}
+          <span style="color:var(--muted);font-size:.78rem">Reflex-save = ingen skade</span>
+        {% endif %}
+      </span>
+    </div>
+    {% endif %}
+
+    {# AC Bonus (level-skaleret del, Wis-delen vises i AC-sektionen) #}
+    {% if monk_info.ac_bonus %}
+    <div class="stat-row">
+      <span class="stat-label">🛡 AC-bonus (level)</span>
+      <span style="text-align:right">+{{ monk_info.ac_bonus }}</span>
+    </div>
+    {% endif %}
+
+  </div>
+  {% endif %}
+
   {% if char.class_features %}
   <div class="section">
     <div class="section-title">Klasseevner</div>

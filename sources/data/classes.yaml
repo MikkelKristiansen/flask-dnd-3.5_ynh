@@ -116,6 +116,9 @@ monk:
     types: []              # monken er ikke prof. i nogen rustning
     shields: false
     tower_shield: false
+  unarmed_damage:          # Unarmed Strike / Flurry skade pr. level-tærskel (SRD)
+    medium: {1: 1d6, 4: 1d8, 8: 1d10, 12: 2d6, 16: 2d8, 20: 2d10}
+    small:  {1: 1d4, 4: 1d6, 8: 1d8, 12: 1d10, 16: 2d6, 20: 2d8}
   class_skills:
     - balance
     - climb

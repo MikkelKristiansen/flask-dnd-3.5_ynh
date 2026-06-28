@@ -49,7 +49,8 @@ from rules import (  # noqa: F401
     carried_weight, derive_attacks, spell_charge_key, spell_attack_damage,
     derive_spell_attacks, spell_max_charges, active_buff_keys, active_spell_keys,
     attack_visible, equipped_armor, encumbrance_consequences, wis_bonus_spells,
-    spell_slots_total, hand_usage, twf_context, two_weapon_penalty)
+    spell_slots_total, hand_usage, twf_context, two_weapon_penalty,
+    monk_unarmed_attacks)
 from persistence import (  # noqa: E402,F401
     SNAPSHOT_KEEP, load_character, save_character, write_character_file,
     restore_snapshot, snapshot_dir, list_snapshots, delete_character)
