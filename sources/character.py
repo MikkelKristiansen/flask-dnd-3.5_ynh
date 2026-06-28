@@ -52,4 +52,4 @@ from rules import (  # noqa: F401
     spell_slots_total, hand_usage, twf_context, two_weapon_penalty)
 from persistence import (  # noqa: E402,F401
     SNAPSHOT_KEEP, load_character, save_character, write_character_file,
-    restore_snapshot, snapshot_dir, list_snapshots)
+    restore_snapshot, snapshot_dir, list_snapshots, delete_character)

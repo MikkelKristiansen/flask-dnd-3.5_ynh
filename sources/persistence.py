@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import io
 import os
+import shutil
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -257,6 +258,21 @@ def restore_snapshot(char_path: str, snapshot_name: str) -> None:
         raise FileNotFoundError(f"Snapshot findes ikke: {snap}")
     _write_snapshot(p)  # bevar nuværende tilstand inden overskrivning
     _atomic_write_bytes(p, snap.read_bytes())
+
+
+def delete_character(char_path: str) -> None:
+    """Slet en karakterfil og hele dens snapshot-historik permanent.
+
+    Fjerner $data_dir/characters/<navn>.yaml samt $data_dir/backups/<navn>/.
+    Portrættet ligger i en søstermappe (portraits/) som app-laget ejer — det
+    ryddes der, ikke her, så dette modul kun rører karakterens egne filer.
+    Best-effort på snapshots: at den levende fil forsvinder er det vigtige.
+    """
+    p = Path(char_path)
+    p.unlink(missing_ok=True)
+    snaps = snapshot_dir(p)
+    if snaps.is_dir():
+        shutil.rmtree(snaps, ignore_errors=True)
 
 
 def _atomic_write_bytes(p: Path, content: bytes) -> None:

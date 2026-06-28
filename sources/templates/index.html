@@ -53,14 +53,18 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
 .empty{color:var(--muted);font-style:italic;}
 .version{color:var(--muted);font-size:.72rem;margin-top:2rem;text-align:center;}
 
-/* Per-kort download + klikbart kort (stretched link) */
+/* Per-kort handlinger + klikbart kort (stretched link) */
 .char-card{position:relative;}
 .card-link{position:absolute;inset:0;z-index:1;border-radius:8px;}
-.card-download{position:absolute;top:.55rem;right:.7rem;z-index:2;
-  background:var(--card);border:1px solid var(--border);color:var(--text);
-  font-size:.72rem;padding:.22rem .55rem;border-radius:5px;text-decoration:none;
-  display:inline-flex;align-items:center;gap:.25rem;}
+.card-actions{position:absolute;top:.55rem;right:.7rem;z-index:2;
+  display:flex;gap:.4rem;align-items:center;}
+.card-delete-form{margin:0;}
+.card-download,.card-delete{background:var(--card);border:1px solid var(--border);
+  color:var(--text);font-size:.72rem;padding:.22rem .55rem;border-radius:5px;
+  text-decoration:none;display:inline-flex;align-items:center;gap:.25rem;
+  font-family:Georgia,serif;line-height:1;cursor:pointer;}
 .card-download:hover{border-color:var(--accent);color:var(--accent);}
+.card-delete:hover{border-color:var(--red);color:var(--red);}
 
 /* Import-resultat-banner */
 .banner{width:100%;max-width:520px;border-radius:6px;padding:.6rem .9rem;
@@ -101,8 +105,15 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
   {% set fill_cls = "fill-dead" if c.dead else ("fill-hurt" if c.hp_pct < 50 else "fill-ok") %}
   <div class="char-card{% if c.dead %} dead{% endif %}">
     <a class="card-link" href="{{ url_for('karakter', name=c.slug) }}" aria-label="Åbn {{ c.name }}"></a>
-    <a class="card-download" href="{{ url_for('export_character', slug=c.slug) }}"
-       title="Gem {{ c.name }} som YAML til disk">⬇ Gem</a>
+    <div class="card-actions">
+      <a class="card-download" href="{{ url_for('export_character', slug=c.slug) }}"
+         title="Gem {{ c.name }} som YAML til disk">⬇ Gem</a>
+      <form class="card-delete-form" method="post"
+            action="{{ url_for('delete_character', slug=c.slug) }}"
+            onsubmit="return confirm('Slet ' + {{ c.name|tojson }} + ' permanent? Karakter, versioner og portræt fjernes — det kan ikke fortrydes.');">
+        <button class="card-delete" type="submit" title="Slet {{ c.name }} permanent">🗑 Slet</button>
+      </form>
+    </div>
 
     <div class="card-top">
       <div>

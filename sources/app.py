@@ -284,6 +284,32 @@ def import_character():
     return redirect(url_for("index", imported=f"Importerede “{char.name}” som {slug}.yaml{note}"))
 
 
+@app.route("/delete/<slug>", methods=["POST"])
+def delete_character(slug):
+    """Slet en karakter permanent: YAML-fil, snapshots og portræt.
+
+    POST (ikke GET) så sletning ikke kan udløses ved et link-klik/prefetch.
+    Stien valideres som i export_character, så et slug ikke kan pege uden for
+    characters/. Bekræftelse sker i browseren (confirm-dialog på knappen).
+    """
+    path = _char_path(slug)
+    if not path.exists() or path.parent.resolve() != CHARACTERS_DIR.resolve():
+        abort(404)
+
+    # Pænt navn til kvitteringen, hvis filen kan loades (ellers slug'et).
+    try:
+        name = char_module.load_character(str(path)).name
+    except Exception:
+        name = slug
+
+    char_module.delete_character(str(path))
+    portrait = _portrait_path(slug)
+    if portrait is not None:
+        portrait.unlink(missing_ok=True)
+
+    return redirect(url_for("index", imported=f"Slettede “{name}”."))
+
+
 # ── Karaktergenerator ───────────────────────────────────────────────────────
 
 def _format_cost(cost_cp) -> str:
