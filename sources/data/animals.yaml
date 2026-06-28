@@ -1182,3 +1182,47 @@
   skills: '[{"id": "listen", "misc": 5}, {"id": "spot", "misc": 6}]'
   feats: '["Alertness", "Cleave", "Great Cleave", "Improved Bull Rush", "Iron Will", "Power Attack"]'
   companion_ok: false
+
+# ── Wild Shape: planteformer (druide fra level 12; type: plant) ───────────────
+# Kun wild-shape-former (companion_ok: false). Statblokke verificeret mod SRD.
+# Wild shape bruger formens fysiske stats/størrelse/naturlige angreb; mentale
+# stats + BAB beholdes fra druiden, så form-Int/feats/skills er ikke i spil.
+- id: shambling_mound
+  name: Shambling Mound
+  size: large
+  type: plant
+  base_hd: 8
+  str: 21
+  dex: 10
+  con: 17
+  int: 7
+  wis: 10
+  cha: 9
+  natural_armor: 11
+  speed: "20 ft., swim 20 ft."
+  attacks: '[{"name": "Slam", "damage": "2d6", "group": "primary", "count": 2}]'
+  special_attacks: "Improved grab, constrict 2d6+7"
+  special_qualities: "Darkvision 60 ft., immunity to electricity, low-light vision, plant traits, resistance to fire 10"
+  skills: '[{"id": "hide", "misc": 3}, {"id": "listen", "misc": 8}, {"id": "move_silently", "misc": 8}]'
+  feats: '["Iron Will", "Power Attack", "Weapon Focus (slam)"]'
+  companion_ok: false
+
+- id: assassin_vine
+  name: Assassin Vine
+  size: large
+  type: plant
+  base_hd: 4
+  str: 20
+  dex: 10
+  con: 16
+  int: 0
+  wis: 13
+  cha: 9
+  natural_armor: 6
+  speed: "5 ft."
+  attacks: '[{"name": "Slam", "damage": "1d6", "group": "primary", "count": 1}]'
+  special_attacks: "Constrict 1d6+7, entangle, improved grab"
+  special_qualities: "Blindsight 30 ft., camouflage, immunity to electricity, low-light vision, plant traits, resistance to cold 10 and fire 10"
+  skills: '[]'
+  feats: '[]'
+  companion_ok: false
