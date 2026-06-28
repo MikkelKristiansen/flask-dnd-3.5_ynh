@@ -156,6 +156,20 @@
   picker: buff
   note: Uskadt af varme/kulde fra –50°F til 140°F
   affects: '[]'
+
+# ── Klasse-features (aktiverbare; ikke i den fælles buff-vælger → picker = NULL) ─
+# Tilbydes via en klasse-specifik knap på arket, ikke effekt-vælgeren. Motoren slår
+# dem op på samme id som almindelige buffs (collect_active_effects).
+- id: rage
+  name: Rage
+  kind: buff
+  # str/con er untyped (SRD) → kaskaderer til angreb/skade/HP/Fort/grapple og giver
+  # auto temp-HP (2/level) via con_temp_hp. will = morale, ac = penalty (−2 på al AC).
+  # Standard rage (+4/+4/+2). Greater (+6, lvl 11) / Mighty (+8, lvl 20) = senere finpudsning.
+  modifiers: '[{"target": "str", "type": "untyped", "value": 4}, {"target": "con", "type": "untyped", "value": 4}, {"target": "save_will", "type": "morale", "value": 2}, {"target": "ac", "type": "penalty", "value": -2}]'
+  riders: '[{"note": "Kan ikke bruge Cha-/Dex-/Int-skills (undt. Balance, Escape Artist, Intimidate, Ride), Concentration, eller caste spells / aktivere kommando-, spell-trigger- & spell-completion-genstande"}, {"note": "Bagefter: Fatigued resten af encounteret (−2 Str, −2 Dex, kan ikke charge/run) — medmindre level 17+ (Tireless Rage)"}]'
+  note: '+4 Str, +4 Con, +2 morale Will, −2 AC. Varighed 3 + ny Con-mod runder.'
+  affects: '["str", "con", "save", "ac", "hp"]'
 - id: shaken
   name: Shaken
   kind: condition

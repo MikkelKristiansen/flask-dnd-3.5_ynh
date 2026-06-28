@@ -128,6 +128,12 @@
     {% if not condition_data and not char.buffs %}
       <span class="no-conditions">Ingen aktive effekter</span>
     {% endif %}
+    {% if can_rage %}
+    <button class="rage-btn{% if raging %} raging{% endif %}" onclick="toggleRage()"
+            title="Rage {{ rage_per_day }}×/dag · +4 Str, +4 Con, +2 Will, −2 AC i 3 + Con-mod runder">
+      🔥 {% if raging %}Afslut rage{% else %}Rage{% endif %}
+    </button>
+    {% endif %}
     <button class="cond-add-btn" onclick="toggleEffectPicker('character')" title="Tilføj effekt">+</button>
   </div>
   {{ effect_picker('character') }}

@@ -412,6 +412,24 @@ function removeBuff(target, idx) {
   }).then(() => location.reload());
 }
 
+// ── Barbarian Rage: aktiverbar klasse-feature via buff-motoren (spell_id "rage") ─
+// Til/fra-knap. Aktiv rage er bare en buff på karakteren; al mekanik (str/con-kaskade,
+// temp-HP, Will, AC) kommer fra effekt-posten i data/effects.yaml.
+function toggleRage() {
+  const idx = charBuffs.findIndex(b => b.spell_id === "rage");
+  if (idx >= 0) {
+    removeBuff("character", idx);            // afslut rage
+    return;
+  }
+  fetch(BASE + "/api/buffs", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "add", buff: {
+      name: "Rage", spell_id: "rage", affects: ["str", "con", "save", "ac", "hp"],
+      note: "+4 Str, +4 Con, +2 morale Will, −2 AC. Varighed 3 + ny Con-mod runder."
+    }})
+  }).then(() => location.reload());
+}
+
 function showBuff(target, idx) {
   const list = parseSummonTarget(target) ? (summonBuffs[target] || [])
              : (target === "companion" ? compBuffs : charBuffs);

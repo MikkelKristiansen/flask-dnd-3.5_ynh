@@ -1182,6 +1182,13 @@ def build_character_view(char, db):
     # Effekt-vælgerens kataloger bygges fra effects-tabellen (kilden til sandheden).
     buff_catalog, damage_catalog = effects.picker_catalogs()
 
+    # Barbarian Rage: aktiverbar klasse-feature (genbruger buff-motoren via spell_id
+    # "rage"). Brug/dag = 1 + level//4 (max 6) — vises som påmindelse; ingen daglig-
+    # reset-tæller endnu. raging = om rage-buffen er aktiv lige nu.
+    can_rage = char.cls == "Barbarian"
+    rage_per_day = min(6, 1 + char.level // 4) if can_rage else 0
+    raging = any(b.get("spell_id") == "rage" for b in char.buffs)
+
     return {
         "companion": companion,
         "can_summon_companion": can_summon_companion,
@@ -1203,6 +1210,9 @@ def build_character_view(char, db):
         "all_conditions": all_conditions,
         "buff_catalog": buff_catalog,
         "damage_catalog": damage_catalog,
+        "can_rage": can_rage,
+        "rage_per_day": rage_per_day,
+        "raging": raging,
         "xp_info": xp_info,
         "weight": weight,
         "enc_limits": enc_limits,

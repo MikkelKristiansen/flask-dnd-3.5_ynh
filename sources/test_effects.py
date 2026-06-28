@@ -275,3 +275,36 @@ def test_con_temp_hp_only_on_increase():
 def test_con_temp_hp_none_when_unchanged():
     base = AbilityScores(con=13)
     assert con_temp_hp(base, base, level=8) == 0
+
+
+# ── Barbarian Rage (data-drevet effekt fra kataloget) ───────────────────────
+
+def test_rage_effect_applies_full_mechanic():
+    """Rage = +4 Str, +4 Con (kaskade + temp-HP), +2 morale Will, −2 AC.
+
+    Data-drevet: trækker rage-posten fra effekt-kataloget (data/effects.yaml →
+    srd35.db) og kører den gennem motoren, så både datafilen og motoren dækkes.
+    """
+    import db
+    from effects import collect_active_effects, temp_hp_from_modifiers
+    base = AbilityScores(str=16, dex=12, con=14, int=10, wis=8, cha=10)
+    mods, _ = collect_active_effects([{"spell_id": "rage"}], [], db)
+
+    eff = effective_ability_scores(base, mods)
+    assert eff.str == 20 and eff.modifier("str") == 5
+    assert eff.con == 18 and eff.modifier("con") == 4
+    # +4 Con = +2 mod → 2 HP/level (single-class HD = level).
+    assert temp_hp_from_modifiers(mods, base, eff, level=5) == 10
+    # +2 morale på Will; −2 på AC (alle typer ender i misc).
+    assert save_effect_bonus(mods, "will") == 2
+    ac = resolve_ac_bonuses({"natural": 0, "deflection": 0, "dodge": 0, "misc": 0},
+                            [x for x in mods if x.get("target") == "ac"])
+    assert ac["misc"] == -2
+
+
+def test_rage_not_in_buff_picker():
+    """Rage er en klasse-feature, ikke en almindelig buff — den må IKKE kunne
+    vælges i den fælles effekt-vælger (picker = NULL)."""
+    from effects import picker_catalogs
+    buffs, _ = picker_catalogs()
+    assert all(b["spell_id"] != "rage" for b in buffs)
