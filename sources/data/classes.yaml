@@ -78,6 +78,7 @@ paladin:
   skill_points: 2
   starting_gold: "6d4*10"
   age_group: medium        # SRD startalders-gruppe (fast/medium/slow)
+  cast_ability: wis        # Paladinen bruger Wisdom til bonus spell slots
   weapon_proficiency:
     categories: [simple, martial]
     weapons: []
@@ -144,18 +145,98 @@ bard:
   skill_points: 6
   starting_gold: "4d4*10"
   age_group: medium        # SRD startalders-gruppe (fast/medium/slow)
+  cast_ability: cha        # Barden bruger Charisma til bonus spell slots
+  weapon_proficiency:
+    categories: [simple]
+    weapons: [longsword, rapier, sap, sword_short, shortbow, whip]
+  armor_proficiency:
+    types: [light]
+    shields: true
+    tower_shield: false
+  class_skills:
+    - appraise
+    - balance
+    - bluff
+    - climb
+    - concentration
+    - craft
+    - decipher_script
+    - diplomacy
+    - disguise
+    - escape_artist
+    - gather_information
+    - hide
+    - jump
+    - knowledge_arcana
+    - knowledge_dungeoneering
+    - knowledge_geography
+    - knowledge_history
+    - knowledge_local
+    - knowledge_nature
+    - knowledge_nobility
+    - knowledge_planes
+    - knowledge_religion
+    - listen
+    - move_silently
+    - perform
+    - profession
+    - sense_motive
+    - sleight_of_hand
+    - speak_language
+    - spellcraft
+    - swim
+    - tumble
+    - use_magic_device
 
 sorcerer:
   hit_die: 4
   skill_points: 2
   starting_gold: "3d4*10"
   age_group: fast        # SRD startalders-gruppe (fast/medium/slow)
+  cast_ability: cha      # Sorcereren bruger Charisma til bonus spell slots
+  weapon_proficiency:
+    categories: [simple]
+    weapons: []
+  armor_proficiency:
+    types: []
+    shields: false
+    tower_shield: false
+  class_skills:
+    - bluff
+    - concentration
+    - craft
+    - knowledge_arcana
+    - profession
+    - spellcraft
 
 wizard:
   hit_die: 4
   skill_points: 2
   starting_gold: "3d4*10"
   age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
+  cast_ability: int      # Wizarden bruger Intelligence til bonus spell slots
+  weapon_proficiency:
+    categories: []
+    weapons: [club, dagger, crossbow_heavy, crossbow_light, quarterstaff]
+  armor_proficiency:
+    types: []
+    shields: false
+    tower_shield: false
+  class_skills:
+    - concentration
+    - craft
+    - decipher_script
+    - knowledge_arcana
+    - knowledge_dungeoneering
+    - knowledge_geography
+    - knowledge_history
+    - knowledge_local
+    - knowledge_nature
+    - knowledge_nobility
+    - knowledge_planes
+    - knowledge_religion
+    - profession
+    - spellcraft
   languages:
     automatic: []
     bonus: [Draconic]
@@ -165,6 +246,7 @@ cleric:
   skill_points: 2
   starting_gold: "5d4*10"
   age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
+  cast_ability: wis          # Cleriken bruger Wisdom til bonus spell slots
   needs_domains: true        # vælger 2 domæner ved oprettelse
   turn_undead: true          # kan turn/rebuke undead
   weapon_proficiency:
@@ -194,6 +276,7 @@ druid:
   skill_points: 4
   starting_gold: "2d4*10"
   age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
+  cast_ability: wis          # Druiden bruger Wisdom til bonus spell slots
   # Wild Shape (Su) — fuld progression som data (Table: The Druid). uses/sizes/
   # types er {laveste-niveau: værdi}; motoren tager den højeste tærskel ≤ niveau
   # (sizes/types akkumuleres). Varighed = 1 t/niveau; formens HD ≤ druideniveau.
@@ -238,6 +321,7 @@ ranger:
   skill_points: 6
   starting_gold: "6d4*10"
   age_group: medium        # SRD startalders-gruppe (fast/medium/slow)
+  cast_ability: wis        # Rangeren bruger Wisdom til bonus spell slots
   class_skills:
     - climb
     - concentration

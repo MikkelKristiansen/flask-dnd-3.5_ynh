@@ -21,7 +21,7 @@ import summon as summon_module
 import wild_shape as wild_shape_module
 
 # Klasser generatoren understøtter (motoren er bevist mod disse).
-GEN_CLASSES = ["Barbarian", "Cleric", "Druid", "Fighter", "Monk", "Paladin", "Ranger", "Rogue"]
+GEN_CLASSES = ["Barbarian", "Bard", "Cleric", "Druid", "Fighter", "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Wizard"]
 # Racer udledes fra data/races.yaml — en race er ren data (ingen motor-logik), så
 # enhver race i datafilen er fuldt understøttet. Tilføj en race = tilføj en YAML-blok.
 # .title() (ikke .capitalize()) så hyphenerede racer vises korrekt: half-orc → Half-Orc.
@@ -904,7 +904,10 @@ def build_character_view(char, db):
     class_level_data = db.get_class_level(char.cls.lower(), char.level)
     slots: dict[int, int] = {}
     if class_level_data:
-        slots = char_module.spell_slots_total(class_level_data, ab.wis)
+        # Casting-ability er nu data-drevet (cha for bard/sorcerer, int for wizard,
+        # wis for cleric/druid/ranger/paladin). Default wis for klasser uden feltet.
+        cast_ab = refdata.class_data(char.cls).get("cast_ability", "wis")
+        slots = char_module.spell_slots_total(class_level_data, getattr(ab, cast_ab))
 
     xp_info    = char_module.xp_progress(char.experience_points, char.level)
     weight     = char_module.carried_weight(char.inventory, db, char.size)
