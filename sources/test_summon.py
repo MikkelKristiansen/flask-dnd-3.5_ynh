@@ -76,6 +76,24 @@ def test_fire_elemental_save_profile():
     assert s["saves"] == {"fort": 0, "ref": 4, "will": 0}
 
 
+def test_huge_air_elemental_finesse():
+    # Huge Air (16 HD): Weapon Finesse → til-hit bruger Dex. ¾ BAB, good Ref.
+    s = stat("elemental_air_huge")
+    assert s["hp_max"] == 136                    # avg 4.5×16 + Con4×16
+    assert primary(s)["to_hit"] == 19            # bab12 −2 size +9 dex (finesse)
+    assert primary(s)["damage"] == "2d8+4"       # 2 slams → fuld Str4
+    assert s["saves"] == {"fort": 9, "ref": 19, "will": 5}
+
+
+def test_elder_water_elemental():
+    # Elder Water (24 HD): ingen finesse → Str-til-hit; Iron Will + good Fort.
+    s = stat("elemental_water_elder")
+    assert s["hp_max"] == 228                    # avg 4.5×24 + Con5×24
+    assert primary(s)["to_hit"] == 25            # bab18 −2 size +9 str
+    assert primary(s)["damage"] == "2d10+9"
+    assert s["saves"] == {"fort": 19, "ref": 16, "will": 10}
+
+
 def test_toughness_adds_hp():
     # Constrictor snake har Toughness → +3 HP over rå gennemsnit.
     s = stat("snake_constrictor")

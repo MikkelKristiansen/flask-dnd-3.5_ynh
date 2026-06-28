@@ -1183,6 +1183,252 @@
   feats: '["Alertness", "Cleave", "Great Cleave", "Improved Bull Rush", "Iron Will", "Power Attack"]'
   companion_ok: false
 
+# ── Elementaler: Huge (SNA VI + wild shape lvl 20), Greater (SNA VII), Elder ──
+# (SNA IX). Alle 16/21/24 HD, d8, type: elemental. good_saves pr. element:
+# luft/ild ["ref"], jord/vand ["fort"]. Elder jord/vand-slam har crit 19-20 via
+# Improved Critical (slam) — fanges af feat-listen (motoren regner ikke crit).
+# Statblokke verificeret mod SRD (monsters-e-f.md, Elemental-tabellerne).
+- id: elemental_air_huge
+  name: Huge Air Elemental
+  size: huge
+  type: elemental
+  base_hd: 16
+  good_saves: '["ref"]'
+  str: 18
+  dex: 29
+  con: 18
+  int: 6
+  wis: 11
+  cha: 11
+  natural_armor: 4
+  speed: "Fly 100 ft. (perfect)"
+  attacks: '[{"name": "Slam", "damage": "2d8", "group": "primary", "count": 2}]'
+  special_attacks: "Air mastery, whirlwind (Reflex DC 22)"
+  special_qualities: "Damage reduction 5/—, darkvision 60 ft., elemental traits"
+  skills: '[{"id": "listen", "misc": 11}, {"id": "spot", "misc": 12}]'
+  feats: '["Alertness", "Combat Reflexes", "Dodge", "Flyby Attack", "Improved Initiative", "Mobility", "Spring Attack", "Weapon Finesse"]'
+  companion_ok: false
+- id: elemental_earth_huge
+  name: Huge Earth Elemental
+  size: huge
+  type: elemental
+  base_hd: 16
+  good_saves: '["fort"]'
+  str: 29
+  dex: 8
+  con: 21
+  int: 6
+  wis: 11
+  cha: 11
+  natural_armor: 11
+  speed: "30 ft."
+  attacks: '[{"name": "Slam", "damage": "2d10", "group": "primary", "count": 2}]'
+  special_attacks: "Earth mastery, push"
+  special_qualities: "Damage reduction 5/—, earth glide, darkvision 60 ft., elemental traits"
+  skills: '[{"id": "listen", "misc": 10}, {"id": "spot", "misc": 9}]'
+  feats: '["Awesome Blow", "Cleave", "Great Cleave", "Improved Bull Rush", "Iron Will", "Power Attack"]'
+  companion_ok: false
+- id: elemental_fire_huge
+  name: Huge Fire Elemental
+  size: huge
+  type: elemental
+  base_hd: 16
+  good_saves: '["ref"]'
+  str: 18
+  dex: 25
+  con: 18
+  int: 6
+  wis: 11
+  cha: 11
+  natural_armor: 4
+  speed: "60 ft."
+  attacks: '[{"name": "Slam", "damage": "2d8", "group": "primary", "count": 2}]'
+  special_attacks: "Burn (2d8 fire, Reflex DC 22)"
+  special_qualities: "Damage reduction 5/—, darkvision 60 ft., elemental traits, immunity to fire, vulnerability to cold"
+  skills: '[{"id": "listen", "misc": 11}, {"id": "spot", "misc": 12}]'
+  feats: '["Alertness", "Combat Reflexes", "Dodge", "Improved Initiative", "Iron Will", "Mobility", "Spring Attack", "Weapon Finesse"]'
+  companion_ok: false
+- id: elemental_water_huge
+  name: Huge Water Elemental
+  size: huge
+  type: elemental
+  base_hd: 16
+  good_saves: '["fort"]'
+  str: 24
+  dex: 18
+  con: 21
+  int: 6
+  wis: 11
+  cha: 11
+  natural_armor: 9
+  speed: "30 ft., swim 120 ft."
+  attacks: '[{"name": "Slam", "damage": "2d10", "group": "primary", "count": 2}]'
+  special_attacks: "Water mastery, drench, vortex (Reflex DC 25)"
+  special_qualities: "Damage reduction 5/—, darkvision 60 ft., elemental traits"
+  skills: '[{"id": "listen", "misc": 11}, {"id": "spot", "misc": 12}]'
+  feats: '["Alertness", "Cleave", "Great Cleave", "Improved Bull Rush", "Iron Will", "Power Attack"]'
+  companion_ok: false
+- id: elemental_air_greater
+  name: Greater Air Elemental
+  size: huge
+  type: elemental
+  base_hd: 21
+  good_saves: '["ref"]'
+  str: 20
+  dex: 31
+  con: 18
+  int: 8
+  wis: 11
+  cha: 11
+  natural_armor: 8
+  speed: "Fly 100 ft. (perfect)"
+  attacks: '[{"name": "Slam", "damage": "2d8", "group": "primary", "count": 2}]'
+  special_attacks: "Air mastery, whirlwind (Reflex DC 25)"
+  special_qualities: "Damage reduction 10/—, darkvision 60 ft., elemental traits"
+  skills: '[{"id": "listen", "misc": 14}, {"id": "spot", "misc": 14}]'
+  feats: '["Alertness", "Blind-Fight", "Combat Reflexes", "Flyby Attack", "Improved Initiative", "Iron Will", "Mobility", "Power Attack", "Spring Attack", "Weapon Finesse"]'
+  companion_ok: false
+- id: elemental_earth_greater
+  name: Greater Earth Elemental
+  size: huge
+  type: elemental
+  base_hd: 21
+  good_saves: '["fort"]'
+  str: 31
+  dex: 8
+  con: 21
+  int: 8
+  wis: 11
+  cha: 11
+  natural_armor: 13
+  speed: "30 ft."
+  attacks: '[{"name": "Slam", "damage": "2d10", "group": "primary", "count": 2}]'
+  special_attacks: "Earth mastery, push"
+  special_qualities: "Damage reduction 10/—, earth glide, darkvision 60 ft., elemental traits"
+  skills: '[{"id": "listen", "misc": 14}, {"id": "spot", "misc": 14}]'
+  feats: '["Alertness", "Awesome Blow", "Cleave", "Great Cleave", "Improved Bull Rush", "Improved Sunder", "Iron Will", "Power Attack"]'
+  companion_ok: false
+- id: elemental_fire_greater
+  name: Greater Fire Elemental
+  size: huge
+  type: elemental
+  base_hd: 21
+  good_saves: '["ref"]'
+  str: 20
+  dex: 27
+  con: 18
+  int: 6
+  wis: 11
+  cha: 11
+  natural_armor: 8
+  speed: "60 ft."
+  attacks: '[{"name": "Slam", "damage": "2d8", "group": "primary", "count": 2}]'
+  special_attacks: "Burn (2d8 fire, Reflex DC 24)"
+  special_qualities: "Damage reduction 10/—, darkvision 60 ft., elemental traits, immunity to fire, vulnerability to cold"
+  skills: '[{"id": "listen", "misc": 14}, {"id": "spot", "misc": 14}]'
+  feats: '["Alertness", "Blind-Fight", "Combat Reflexes", "Dodge", "Improved Initiative", "Iron Will", "Mobility", "Spring Attack", "Weapon Finesse", "Weapon Focus (slam)"]'
+  companion_ok: false
+- id: elemental_water_greater
+  name: Greater Water Elemental
+  size: huge
+  type: elemental
+  base_hd: 21
+  good_saves: '["fort"]'
+  str: 26
+  dex: 20
+  con: 21
+  int: 8
+  wis: 11
+  cha: 11
+  natural_armor: 9
+  speed: "30 ft., swim 120 ft."
+  attacks: '[{"name": "Slam", "damage": "2d10", "group": "primary", "count": 2}]'
+  special_attacks: "Water mastery, drench, vortex (Reflex DC 28)"
+  special_qualities: "Damage reduction 10/—, darkvision 60 ft., elemental traits"
+  skills: '[{"id": "listen", "misc": 14}, {"id": "spot", "misc": 14}]'
+  feats: '["Alertness", "Cleave", "Great Cleave", "Improved Bull Rush", "Improved Sunder", "Iron Will", "Lightning Reflexes", "Power Attack"]'
+  companion_ok: false
+- id: elemental_air_elder
+  name: Elder Air Elemental
+  size: huge
+  type: elemental
+  base_hd: 24
+  good_saves: '["ref"]'
+  str: 22
+  dex: 33
+  con: 18
+  int: 10
+  wis: 11
+  cha: 11
+  natural_armor: 8
+  speed: "Fly 100 ft. (perfect)"
+  attacks: '[{"name": "Slam", "damage": "2d8", "group": "primary", "count": 2}]'
+  special_attacks: "Air mastery, whirlwind (Reflex DC 28)"
+  special_qualities: "Damage reduction 10/—, darkvision 60 ft., elemental traits"
+  skills: '[{"id": "listen", "misc": 29}, {"id": "spot", "misc": 29}]'
+  feats: '["Alertness", "Blind-Fight", "Cleave", "Combat Reflexes", "Flyby Attack", "Improved Initiative", "Iron Will", "Mobility", "Power Attack", "Spring Attack", "Weapon Finesse"]'
+  companion_ok: false
+- id: elemental_earth_elder
+  name: Elder Earth Elemental
+  size: huge
+  type: elemental
+  base_hd: 24
+  good_saves: '["fort"]'
+  str: 33
+  dex: 8
+  con: 21
+  int: 10
+  wis: 11
+  cha: 11
+  natural_armor: 15
+  speed: "30 ft."
+  attacks: '[{"name": "Slam", "damage": "2d10", "group": "primary", "count": 2}]'
+  special_attacks: "Earth mastery, push"
+  special_qualities: "Damage reduction 10/—, earth glide, darkvision 60 ft., elemental traits"
+  skills: '[{"id": "listen", "misc": 29}, {"id": "spot", "misc": 29}]'
+  feats: '["Alertness", "Awesome Blow", "Cleave", "Great Cleave", "Improved Bull Rush", "Improved Critical (slam)", "Improved Sunder", "Iron Will", "Power Attack"]'
+  companion_ok: false
+- id: elemental_fire_elder
+  name: Elder Fire Elemental
+  size: huge
+  type: elemental
+  base_hd: 24
+  good_saves: '["ref"]'
+  str: 22
+  dex: 29
+  con: 18
+  int: 6
+  wis: 11
+  cha: 11
+  natural_armor: 8
+  speed: "60 ft."
+  attacks: '[{"name": "Slam", "damage": "2d8", "group": "primary", "count": 2}]'
+  special_attacks: "Burn (2d8 fire, Reflex DC 26)"
+  special_qualities: "Damage reduction 10/—, darkvision 60 ft., elemental traits, immunity to fire, vulnerability to cold"
+  skills: '[{"id": "listen", "misc": 28}, {"id": "spot", "misc": 29}]'
+  feats: '["Alertness", "Blind-Fight", "Combat Reflexes", "Dodge", "Great Fortitude", "Improved Initiative", "Iron Will", "Mobility", "Spring Attack", "Weapon Finesse", "Weapon Focus (slam)"]'
+  companion_ok: false
+- id: elemental_water_elder
+  name: Elder Water Elemental
+  size: huge
+  type: elemental
+  base_hd: 24
+  good_saves: '["fort"]'
+  str: 28
+  dex: 22
+  con: 21
+  int: 10
+  wis: 11
+  cha: 11
+  natural_armor: 9
+  speed: "30 ft., swim 120 ft."
+  attacks: '[{"name": "Slam", "damage": "2d10", "group": "primary", "count": 2}]'
+  special_attacks: "Water mastery, drench, vortex (Reflex DC 31)"
+  special_qualities: "Damage reduction 10/—, darkvision 60 ft., elemental traits"
+  skills: '[{"id": "listen", "misc": 29}, {"id": "spot", "misc": 29}]'
+  feats: '["Alertness", "Cleave", "Great Cleave", "Improved Bull Rush", "Improved Critical (slam)", "Improved Sunder", "Iron Will", "Lightning Reflexes", "Power Attack"]'
+  companion_ok: false
+
 # ── Wild Shape: planteformer (druide fra level 12; type: plant) ───────────────
 # Kun wild-shape-former (companion_ok: false). Statblokke verificeret mod SRD.
 # Wild shape bruger formens fysiske stats/størrelse/naturlige angreb; mentale
