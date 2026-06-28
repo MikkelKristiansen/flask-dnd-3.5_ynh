@@ -1226,6 +1226,13 @@ def build_character_view(char, db):
             "smite_damage": char.level,        # +1 skade pr. paladin-level
         }
 
+    # Rogue Sneak Attack: +1d6 ved level 1, +1d6 pr. 2 levels (max 10d6 ved level 19).
+    # Betinget skade (flankeret / nægtet Dex), så den VISES og påføres af spilleren —
+    # den må ikke lægges fast på hvert angreb (samme stil som Smite Evil).
+    rogue_info = None
+    if char.cls == "Rogue":
+        rogue_info = {"sneak_dice": (char.level + 1) // 2}
+
     return {
         "companion": companion,
         "can_summon_companion": can_summon_companion,
@@ -1252,6 +1259,7 @@ def build_character_view(char, db):
         "rage_per_day": rage_per_day,
         "raging": raging,
         "paladin_info": paladin_info,
+        "rogue_info": rogue_info,
         "xp_info": xp_info,
         "weight": weight,
         "enc_limits": enc_limits,

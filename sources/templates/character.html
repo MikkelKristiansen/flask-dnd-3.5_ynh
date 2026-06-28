@@ -310,6 +310,19 @@
   </div>
   {% endif %}
 
+  {% if rogue_info %}
+  <div class="section">
+    <div class="section-title">Rogue</div>
+    <div class="stat-row">
+      <span class="stat-label">🗡 Sneak Attack</span>
+      <span style="text-align:right">
+        +{{ rogue_info.sneak_dice }}d6 skade
+        <span style="color:var(--muted);font-size:.78rem">· når målet er fladfodet/nægtes Dex eller flankeres (≤30 ft.)</span>
+      </span>
+    </div>
+  </div>
+  {% endif %}
+
   {% if char.class_features %}
   <div class="section">
     <div class="section-title">Klasseevner</div>
