@@ -69,6 +69,12 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
           border-radius:12px;cursor:pointer;display:inline-flex;align-items:center;gap:.2rem;}
 .rage-btn:hover{background:var(--red);color:#fff;}
 .rage-btn.raging{background:var(--red);color:#fff;box-shadow:0 0 0 2px rgba(181,67,44,.35);}
+/* Paladin: små brug-knapper til Smite / Lay on Hands */
+.pal-btn{background:var(--card);border:1px solid var(--border);color:var(--accent);
+         font-family:Georgia,serif;font-size:.75rem;padding:.15rem .55rem;margin-left:.4rem;
+         border-radius:5px;cursor:pointer;}
+.pal-btn:hover:not(:disabled){border-color:var(--accent);background:var(--accent);color:#fff;}
+.pal-btn:disabled{opacity:.45;cursor:default;}
 .cond-picker{display:none;background:var(--surface);border:1px solid var(--border);
              border-radius:6px;padding:.4rem;margin-top:.3rem;width:100%;}
 .cond-picker select{width:100%;background:var(--card);border:1px solid var(--border);

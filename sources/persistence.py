@@ -171,6 +171,8 @@ def load_character(path: str) -> Character:
         domains=domains,
         domain_spells_prepared=domain_spells_prepared,
         domain_spells_used=domain_spells_used,
+        lay_on_hands_used=int(data.get("lay_on_hands_used", 0)),
+        smite_used=int(data.get("smite_used", 0)),
     )
 
 
@@ -455,6 +457,12 @@ def save_character(path: str, updates: dict) -> None:
 
     if "experience_points" in updates:
         data["experience_points"] = int(updates["experience_points"])
+
+    if "lay_on_hands_used" in updates:
+        data["lay_on_hands_used"] = int(updates["lay_on_hands_used"])
+
+    if "smite_used" in updates:
+        data["smite_used"] = int(updates["smite_used"])
 
     if "notes" in updates:
         data["notes"] = str(updates["notes"])

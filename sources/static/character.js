@@ -430,6 +430,29 @@ function toggleRage() {
   }).then(() => location.reload());
 }
 
+// ── Paladin: Smite Evil + Lay on Hands (dag-tællere, nulstilles ved "Ny dag") ──
+function useSmite() {
+  fetch(BASE + "/api/paladin", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "smite"})
+  }).then(r => r.json()).then(d => { if (d.error) alert(d.error); else location.reload(); });
+}
+
+function useLayOnHands() {
+  const pi = D.paladinInfo;
+  if (!pi || pi.lay_remaining < 1) return;
+  const missing = Math.max(0, HP_MAX - hpCurrent);
+  const suggested = missing > 0 ? Math.min(pi.lay_remaining, missing) : pi.lay_remaining;
+  const raw = prompt(`Hvor mange HP vil du helbrede dig selv? (${pi.lay_remaining} tilbage i puljen)`, suggested);
+  if (raw === null) return;
+  const n = parseInt(raw, 10);
+  if (isNaN(n) || n <= 0) return;
+  fetch(BASE + "/api/paladin", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "lay_on_hands", amount: n})
+  }).then(r => r.json()).then(d => { if (d.error) alert(d.error); else location.reload(); });
+}
+
 function showBuff(target, idx) {
   const list = parseSummonTarget(target) ? (summonBuffs[target] || [])
              : (target === "companion" ? compBuffs : charBuffs);
@@ -1000,6 +1023,14 @@ function newDay() {
       const el = document.getElementById("slots-" + lvl);
       if (el) el.textContent = total + " / " + total;
     });
+    // Paladin: nulstil dagens Smite-/Lay-on-Hands-tællere visuelt (serveren har
+    // allerede nulstillet dem). Knapperne re-aktiveres ved næste reload.
+    if (D.paladinInfo) {
+      const sm = document.getElementById("smite-remaining");
+      if (sm) sm.textContent = D.paladinInfo.smite_per_day;
+      const lay = document.getElementById("lay-remaining");
+      if (lay) lay.textContent = D.paladinInfo.lay_pool;
+    }
   });
 }
 

@@ -284,6 +284,32 @@
     <div id="ammo-strip"></div>
   </div>
 
+  {% if paladin_info %}
+  {% set pi = paladin_info %}
+  <div class="section">
+    <div class="section-title">Paladin</div>
+    <div class="stat-row">
+      <span class="stat-label">⚔ Smite Evil</span>
+      <span style="text-align:right">
+        <span id="smite-remaining">{{ pi.smite_remaining }}</span>/{{ pi.smite_per_day }} pr. dag
+        <span style="color:var(--muted);font-size:.78rem">· +{{ pi.smite_attack }} angreb, +{{ pi.smite_damage }} skade mod onde</span>
+        <button class="pal-btn" onclick="useSmite()"{% if pi.smite_remaining < 1 %} disabled{% endif %}>Brug</button>
+      </span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">✋ Lay on Hands</span>
+      <span style="text-align:right">
+        {% if pi.lay_pool > 0 %}
+          <span id="lay-remaining">{{ pi.lay_remaining }}</span>/{{ pi.lay_pool }} HP pr. dag
+          <button class="pal-btn" onclick="useLayOnHands()"{% if pi.lay_remaining < 1 %} disabled{% endif %}>Helbred dig selv</button>
+        {% else %}
+          <span style="color:var(--muted);font-size:.8rem">Kræver Cha 12+</span>
+        {% endif %}
+      </span>
+    </div>
+  </div>
+  {% endif %}
+
   {% if char.class_features %}
   <div class="section">
     <div class="section-title">Klasseevner</div>
@@ -1375,6 +1401,7 @@ window.DND = {
   baseRanks: { {% for item in skill_data %}"{{ item.skill.id }}": {{ item.skill.ranks }}{% if not loop.last %}, {% endif %}{% endfor %} },
   cls: {{ char.cls|tojson }},
   notesRaw: {{ char.notes|tojson }},
+  paladinInfo: {{ paladin_info|tojson }},
 };
 </script>
 <script src="{{ url_for('static', filename='character.js') }}"></script>

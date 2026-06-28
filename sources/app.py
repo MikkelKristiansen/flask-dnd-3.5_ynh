@@ -711,6 +711,17 @@ def karakter(name):
     )
 
 
+def _paladin_caps(char, cha_mod):
+    """Dagens paladin-ressourcer (SRD): lay-on-hands-pulje + smite-uses.
+
+    Lay on Hands: pulje = paladin-level × Cha-bonus HP/dag, kun hvis Cha ≥ 12
+    (mod ≥ 1). Smite Evil: 1/dag + 1 pr. 5 levels (5./10./15./20.), max 5.
+    """
+    lay_pool = char.level * cha_mod if cha_mod >= 1 else 0
+    smite_per_day = min(5, 1 + char.level // 5)
+    return lay_pool, smite_per_day
+
+
 def build_character_view(char, db):
     """Byg hele view-modellen (alle template-kwargs) for et karakterark ud fra
     en indlæst karakter + katalog-db.
@@ -1189,6 +1200,22 @@ def build_character_view(char, db):
     rage_per_day = min(6, 1 + char.level // 4) if can_rage else 0
     raging = any(b.get("spell_id") == "rage" for b in char.buffs)
 
+    # Paladin: Smite Evil + Lay on Hands (beregnet panel + dag-tællere). Bruger den
+    # effektive Cha (eff), så Cha-buffs slår igennem på puljen, ligesom andre afledte tal.
+    paladin_info = None
+    if char.cls == "Paladin":
+        cha_mod = eff.modifier("cha")
+        lay_pool, smite_per_day = _paladin_caps(char, cha_mod)
+        paladin_info = {
+            "cha_mod": cha_mod,
+            "lay_pool": lay_pool,
+            "lay_remaining": max(0, lay_pool - char.lay_on_hands_used),
+            "smite_per_day": smite_per_day,
+            "smite_remaining": max(0, smite_per_day - char.smite_used),
+            "smite_attack": max(0, cha_mod),   # +Cha til angreb (0 hvis ingen bonus)
+            "smite_damage": char.level,        # +1 skade pr. paladin-level
+        }
+
     return {
         "companion": companion,
         "can_summon_companion": can_summon_companion,
@@ -1213,6 +1240,7 @@ def build_character_view(char, db):
         "can_rage": can_rage,
         "rage_per_day": rage_per_day,
         "raging": raging,
+        "paladin_info": paladin_info,
         "xp_info": xp_info,
         "weight": weight,
         "enc_limits": enc_limits,
@@ -1920,8 +1948,52 @@ def api_newday():
     char_module.save_character(
         str(path),
         {"spells_used": {}, "spells_active": {}, "spell_charges": {},
-         "domain_spells_used": {}, "wild_shape": {}})
+         "domain_spells_used": {}, "wild_shape": {},
+         "lay_on_hands_used": 0, "smite_used": 0})
     return jsonify({"ok": True})
+
+
+@app.route("/api/paladin", methods=["POST"])
+def api_paladin():
+    """Paladin-ressourcer: brug en Smite Evil eller helbred dig selv med Lay on Hands.
+
+    Caps genberegnes server-side ud fra effektiv Cha + level (klienten bestemmer ikke
+    grænserne). Lay on Hands helbreder paladinen selv (den eneste karakter arket kender)
+    og trækker fra dagens pulje. Nulstilles ved "Ny dag".
+    """
+    data = request.get_json()
+    slug = data.get("char")
+    action = data.get("action")
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char = char_module.load_character(str(path))
+    if char.cls != "Paladin":
+        return jsonify({"error": "ikke en paladin"}), 400
+
+    active_modifiers, _ = effects.collect_character_effects(char, db)
+    eff = char_module.effective_ability_scores(char.ability_scores, active_modifiers)
+    lay_pool, smite_per_day = _paladin_caps(char, eff.modifier("cha"))
+
+    if action == "smite":
+        new_used = min(smite_per_day, char.smite_used + 1)
+        char_module.save_character(str(path), {"smite_used": new_used})
+        return jsonify({"ok": True, "smite_remaining": max(0, smite_per_day - new_used)})
+
+    if action == "lay_on_hands":
+        remaining = max(0, lay_pool - char.lay_on_hands_used)
+        amount = max(0, min(int(data.get("amount", 0)), remaining))
+        if amount <= 0:
+            return jsonify({"error": "ingen pulje tilbage"}), 400
+        new_used = char.lay_on_hands_used + amount
+        ceiling = char.hp_max + effects.temp_hp(char, db)
+        new_hp = min(ceiling, char.hp_current + amount)
+        char_module.save_character(
+            str(path), {"lay_on_hands_used": new_used, "hp_current": new_hp})
+        return jsonify({"ok": True, "lay_remaining": max(0, lay_pool - new_used),
+                        "hp_current": new_hp, "hp_max": char.hp_max})
+
+    return jsonify({"error": "ukendt handling"}), 400
 
 
 @app.route("/api/companion_hp", methods=["POST"])
