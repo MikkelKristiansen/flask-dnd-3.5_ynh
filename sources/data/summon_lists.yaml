@@ -52,9 +52,12 @@
   - viper_large
   - thoqqua
 
-# SNA IV-V: batch 1 (elementaler) + batch 2 (SNA IV-dyr). Outsidere + magical
-# beasts (arrowhawk, salamander, tojanida, xorn, sea cat, unicorn) mangler endnu.
+# SNA IV-IX: komplet (Del A + Del B — Fase 6).
+# Pixie optræder på SNA VI, VII og IX med samme statblok (arrow-variant noteret
+# i special_attacks). Aquatiske væsner (¹) kræver vand-miljø — spilbeslutning.
+
 4:
+  - arrowhawk_juvenile
   - brown_bear
   - crocodile_giant
   - deinonychus
@@ -65,12 +68,75 @@
   - elemental_earth_medium
   - elemental_fire_medium
   - elemental_water_medium
-  - shark_huge
+  - salamander_flamebrother
+  - sea_cat           # ¹ vand
+  - shark_huge        # ¹ vand
   - tiger
+  - tojanida_juvenile # ¹ vand
+  - unicorn
   - viper_huge
+  - xorn_minor
 
 5:
+  - arrowhawk_adult
+  - dire_lion
+  - elasmosaurus      # ¹ vand
   - elemental_air_large
   - elemental_earth_large
   - elemental_fire_large
   - elemental_water_large
+  - griffon
+  - janni
+  - nixie
+  - polar_bear
+  - rhinoceros
+  - satyr_piping
+  - snake_constrictor_giant
+  - tojanida_adult    # ¹ vand
+  - whale_orca        # ¹ vand
+
+6:
+  - dire_bear
+  - elemental_air_huge
+  - elemental_earth_huge
+  - elemental_fire_huge
+  - elemental_water_huge
+  - elephant
+  - girallon
+  - megaraptor
+  - octopus_giant     # ¹ vand
+  - pixie
+  - salamander_average
+  - whale_baleen      # ¹ vand
+  - xorn_average
+
+7:
+  - arrowhawk_elder
+  - dire_tiger
+  - djinni
+  - elemental_air_greater
+  - elemental_earth_greater
+  - elemental_fire_greater
+  - elemental_water_greater
+  - invisible_stalker
+  - pixie             # med sleep-pile
+  - squid_giant       # ¹ vand
+  - triceratops
+  - tyrannosaurus
+  - whale_cachalot    # ¹ vand
+  - xorn_elder
+
+8:
+  - dire_shark        # ¹ vand
+  - roc
+  - salamander_noble
+  - tojanida_elder    # ¹ vand
+
+9:
+  - elemental_air_elder
+  - elemental_earth_elder
+  - elemental_fire_elder
+  - elemental_water_elder
+  - grig
+  - pixie             # med sleep+memory-pile
+  - unicorn_celestial_charger

@@ -1472,3 +1472,858 @@
   skills: '[]'
   feats: '[]'
   companion_ok: false
+
+# ── SNA IV-VIII: Dyr og Dinosaurer (type: animal, ¾ BAB) ──────────────────────
+# companion_ok: false for alle. Dire-dyr har god Will (good_saves alle tre).
+# Verificeret mod SRD monsters-animals.md og monsters-di-do.md.
+
+- id: polar_bear
+  name: Polar Bear
+  size: large
+  base_hd: 8
+  str: 27
+  dex: 13
+  con: 19
+  int: 2
+  wis: 12
+  cha: 6
+  natural_armor: 5
+  speed: "40 ft., swim 30 ft."
+  attacks: '[{"name": "Claw", "damage": "1d8", "group": "primary", "count": 2}, {"name": "Bite", "damage": "2d6", "group": "secondary"}]'
+  special_attacks: "Improved grab"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "swim", "misc": 8}]'
+  feats: '["Endurance", "Run", "Track"]'
+  companion_ok: false
+
+- id: dire_bear
+  name: Dire Bear
+  size: large
+  base_hd: 12
+  good_saves: '["fort","ref","will"]'
+  str: 31
+  dex: 13
+  con: 19
+  int: 2
+  wis: 12
+  cha: 10
+  natural_armor: 7
+  speed: "40 ft."
+  attacks: '[{"name": "Claw", "damage": "2d4", "group": "primary", "count": 2}, {"name": "Bite", "damage": "2d8", "group": "secondary"}]'
+  special_attacks: "Improved grab"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 9}, {"id": "spot", "misc": 9}]'
+  feats: '["Alertness", "Endurance", "Run", "Toughness", "Weapon Focus (Claw)"]'
+  companion_ok: false
+
+- id: dire_lion
+  name: Dire Lion
+  size: large
+  base_hd: 8
+  good_saves: '["fort","ref","will"]'
+  str: 25
+  dex: 15
+  con: 17
+  int: 2
+  wis: 12
+  cha: 10
+  natural_armor: 4
+  speed: "40 ft."
+  attacks: '[{"name": "Claw", "damage": "1d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d8", "group": "secondary"}]'
+  special_attacks: "Improved grab, pounce, rake 1d6+3"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 6}, {"id": "spot", "misc": 6}]'
+  feats: '["Alertness", "Run", "Weapon Focus (Claw)"]'
+  companion_ok: false
+
+- id: dire_tiger
+  name: Dire Tiger
+  size: large
+  base_hd: 16
+  good_saves: '["fort","ref","will"]'
+  str: 27
+  dex: 15
+  con: 17
+  int: 2
+  wis: 12
+  cha: 10
+  natural_armor: 6
+  speed: "40 ft."
+  attacks: '[{"name": "Claw", "damage": "2d4", "group": "primary", "count": 2}, {"name": "Bite", "damage": "2d6", "group": "secondary"}]'
+  special_attacks: "Improved grab, pounce, rake 2d4+4"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "hide", "misc": 9}, {"id": "listen", "misc": 5}, {"id": "move_silently", "misc": 9}, {"id": "spot", "misc": 5}]'
+  feats: '["Alertness", "Improved Natural Attack (Claw)", "Improved Natural Attack (Bite)", "Run", "Stealthy", "Weapon Focus (Claw)"]'
+  companion_ok: false
+
+- id: dire_shark
+  name: Dire Shark
+  size: huge
+  base_hd: 18
+  good_saves: '["fort","ref","will"]'
+  str: 23
+  dex: 15
+  con: 17
+  int: 1
+  wis: 12
+  cha: 10
+  natural_armor: 7
+  speed: "swim 60 ft."
+  attacks: '[{"name": "Bite", "damage": "2d8", "group": "primary"}]'
+  special_attacks: "Improved grab, swallow whole"
+  special_qualities: "Keen scent"
+  skills: '[{"id": "listen", "misc": 11}, {"id": "spot", "misc": 10}]'
+  feats: '["Improved Natural Attack (Bite)", "Toughness", "Toughness", "Toughness", "Toughness", "Weapon Focus (Bite)"]'
+  companion_ok: false
+
+- id: elasmosaurus
+  name: Elasmosaurus
+  size: huge
+  base_hd: 10
+  str: 26
+  dex: 14
+  con: 22
+  int: 2
+  wis: 13
+  cha: 9
+  natural_armor: 3
+  speed: "20 ft., swim 50 ft."
+  attacks: '[{"name": "Bite", "damage": "2d8", "group": "primary"}]'
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "swim", "misc": 8}]'
+  feats: '["Dodge", "Great Fortitude", "Toughness", "Toughness"]'
+  companion_ok: false
+
+- id: megaraptor
+  name: Megaraptor
+  size: huge
+  base_hd: 8
+  str: 21
+  dex: 15
+  con: 21
+  int: 2
+  wis: 15
+  cha: 10
+  natural_armor: 6
+  speed: "60 ft."
+  attacks: '[{"name": "Talons", "damage": "2d8", "group": "primary"}, {"name": "Foreclaw", "damage": "1d4", "group": "secondary", "count": 2}, {"name": "Bite", "damage": "2d6", "group": "secondary"}]'
+  special_attacks: "Pounce"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 10}, {"id": "spot", "misc": 10}]'
+  feats: '["Run", "Toughness", "Track"]'
+  companion_ok: false
+
+- id: triceratops
+  name: Triceratops
+  size: huge
+  base_hd: 16
+  str: 30
+  dex: 9
+  con: 25
+  int: 1
+  wis: 12
+  cha: 7
+  natural_armor: 11
+  speed: "30 ft."
+  attacks: '[{"name": "Gore", "damage": "2d8", "group": "primary"}]'
+  special_attacks: "Powerful charge, trample 2d12+15"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 12}, {"id": "spot", "misc": 11}]'
+  feats: '["Alertness", "Great Fortitude", "Toughness", "Toughness", "Toughness", "Toughness"]'
+  companion_ok: false
+
+- id: tyrannosaurus
+  name: Tyrannosaurus
+  size: huge
+  base_hd: 18
+  str: 28
+  dex: 12
+  con: 21
+  int: 2
+  wis: 15
+  cha: 10
+  natural_armor: 5
+  speed: "40 ft."
+  attacks: '[{"name": "Bite", "damage": "3d6", "group": "primary"}]'
+  special_attacks: "Improved grab, swallow whole"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 12}, {"id": "spot", "misc": 12}]'
+  feats: '["Alertness", "Improved Natural Attack (Bite)", "Run", "Toughness", "Toughness", "Toughness", "Track"]'
+  companion_ok: false
+
+- id: elephant
+  name: Elephant
+  size: huge
+  base_hd: 11
+  str: 30
+  dex: 10
+  con: 21
+  int: 2
+  wis: 13
+  cha: 7
+  natural_armor: 7
+  speed: "40 ft."
+  attacks: '[{"name": "Slam", "damage": "2d6", "group": "primary"}, {"name": "Stamp", "damage": "2d6", "group": "secondary", "count": 2}]'
+  special_attacks: "Trample 2d8+15"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 11}]'
+  feats: '["Alertness", "Endurance", "Iron Will", "Skill Focus (Listen)"]'
+  companion_ok: false
+
+- id: rhinoceros
+  name: Rhinoceros
+  size: large
+  base_hd: 8
+  str: 26
+  dex: 10
+  con: 21
+  int: 2
+  wis: 13
+  cha: 2
+  natural_armor: 7
+  speed: "30 ft."
+  attacks: '[{"name": "Gore", "damage": "2d6", "group": "primary"}]'
+  special_attacks: "Powerful charge"
+  special_qualities: "Low-light vision"
+  skills: '[{"id": "listen", "misc": 13}]'
+  feats: '["Alertness", "Endurance", "Improved Natural Attack (Gore)"]'
+  companion_ok: false
+
+- id: roc
+  name: Roc
+  size: gargantuan
+  base_hd: 18
+  str: 34
+  dex: 15
+  con: 24
+  int: 2
+  wis: 13
+  cha: 11
+  natural_armor: 9
+  speed: "20 ft., fly 80 ft. (average)"
+  attacks: '[{"name": "Talon", "damage": "2d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "2d8", "group": "secondary"}]'
+  special_qualities: "Low-light vision"
+  skills: '[{"id": "spot", "misc": 10}]'
+  feats: '["Alertness", "Flyby Attack", "Iron Will", "Multiattack", "Power Attack", "Snatch", "Wingover"]'
+  companion_ok: false
+
+- id: whale_baleen
+  name: Baleen Whale
+  size: gargantuan
+  base_hd: 12
+  str: 35
+  dex: 13
+  con: 22
+  int: 2
+  wis: 12
+  cha: 6
+  natural_armor: 9
+  speed: "swim 40 ft."
+  attacks: '[{"name": "Tail slap", "damage": "1d8", "group": "primary"}]'
+  special_qualities: "Blindsight 120 ft., hold breath, low-light vision"
+  skills: '[]'
+  feats: '["Alertness", "Diehard", "Endurance", "Toughness", "Toughness"]'
+  companion_ok: false
+
+- id: whale_cachalot
+  name: Cachalot Whale
+  size: gargantuan
+  base_hd: 12
+  str: 35
+  dex: 13
+  con: 24
+  int: 2
+  wis: 14
+  cha: 6
+  natural_armor: 9
+  speed: "swim 40 ft."
+  attacks: '[{"name": "Bite", "damage": "4d6", "group": "primary"}, {"name": "Tail slap", "damage": "1d8", "group": "secondary"}]'
+  special_qualities: "Blindsight 120 ft., hold breath, low-light vision"
+  skills: '[]'
+  feats: '["Alertness", "Diehard", "Endurance", "Improved Natural Attack (Bite)", "Toughness"]'
+  companion_ok: false
+
+- id: whale_orca
+  name: Orca
+  size: huge
+  base_hd: 9
+  str: 27
+  dex: 15
+  con: 21
+  int: 2
+  wis: 14
+  cha: 6
+  natural_armor: 6
+  speed: "swim 50 ft."
+  attacks: '[{"name": "Bite", "damage": "2d6", "group": "primary"}]'
+  special_qualities: "Blindsight 120 ft., hold breath, low-light vision"
+  skills: '[]'
+  feats: '["Alertness", "Endurance", "Run", "Toughness"]'
+  companion_ok: false
+
+- id: snake_constrictor_giant
+  name: Giant Constrictor Snake
+  size: huge
+  base_hd: 11
+  str: 25
+  dex: 17
+  con: 13
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 4
+  speed: "20 ft., climb 20 ft., swim 20 ft."
+  attacks: '[{"name": "Bite", "damage": "1d8", "group": "primary"}]'
+  special_attacks: "Constrict 1d8+10, improved grab"
+  special_qualities: "Scent"
+  skills: '[]'
+  feats: '["Alertness", "Endurance", "Skill Focus (Hide)", "Toughness"]'
+  companion_ok: false
+
+- id: octopus_giant
+  name: Giant Octopus
+  size: large
+  base_hd: 8
+  str: 20
+  dex: 15
+  con: 13
+  int: 2
+  wis: 12
+  cha: 3
+  natural_armor: 7
+  speed: "20 ft., swim 30 ft."
+  attacks: '[{"name": "Tentacle", "damage": "1d4", "group": "primary", "count": 8}, {"name": "Bite", "damage": "1d8", "group": "secondary"}]'
+  special_attacks: "Improved grab, constrict 2d8+6"
+  special_qualities: "Ink cloud, jet, low-light vision"
+  skills: '[{"id": "hide", "misc": 10}]'
+  feats: '["Alertness", "Skill Focus (Hide)", "Toughness"]'
+  companion_ok: false
+
+- id: squid_giant
+  name: Giant Squid
+  size: huge
+  base_hd: 12
+  str: 26
+  dex: 17
+  con: 13
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 6
+  speed: "swim 80 ft."
+  attacks: '[{"name": "Tentacle", "damage": "1d6", "group": "primary", "count": 10}, {"name": "Bite", "damage": "2d8", "group": "secondary"}]'
+  special_attacks: "Constrict 1d6+8, improved grab"
+  special_qualities: "Ink cloud, jet, low-light vision"
+  skills: '[]'
+  feats: '["Alertness", "Diehard", "Endurance", "Toughness", "Toughness"]'
+  companion_ok: false
+
+# ── SNA IV-IX: Magiske dyr (type: magical_beast, fuld BAB, d10) ────────────────
+# hit_die: 10 er påkrævet. good_saves: Fort+Ref (default for magical_beast).
+
+- id: girallon
+  name: Girallon
+  size: large
+  type: magical_beast
+  base_hd: 7
+  hit_die: 10
+  str: 22
+  dex: 17
+  con: 14
+  int: 2
+  wis: 12
+  cha: 7
+  natural_armor: 4
+  speed: "40 ft., climb 40 ft."
+  attacks: '[{"name": "Claw", "damage": "1d4", "group": "primary", "count": 4}, {"name": "Bite", "damage": "1d8", "group": "secondary"}]'
+  special_attacks: "Rend 2d4+9"
+  special_qualities: "Darkvision 60 ft., low-light vision, scent"
+  skills: '[]'
+  feats: '["Iron Will", "Toughness", "Toughness"]'
+  companion_ok: false
+
+- id: griffon
+  name: Griffon
+  size: large
+  type: magical_beast
+  base_hd: 7
+  hit_die: 10
+  str: 18
+  dex: 15
+  con: 16
+  int: 5
+  wis: 13
+  cha: 8
+  natural_armor: 6
+  speed: "30 ft., fly 80 ft. (average)"
+  attacks: '[{"name": "Bite", "damage": "2d6", "group": "primary"}, {"name": "Claw", "damage": "1d4", "group": "secondary", "count": 2}]'
+  special_attacks: "Pounce, rake 1d6+2"
+  special_qualities: "Darkvision 60 ft., low-light vision, scent"
+  skills: '[{"id": "spot", "misc": 9}]'
+  feats: '["Iron Will", "Multiattack", "Weapon Focus (Bite)"]'
+  companion_ok: false
+
+- id: sea_cat
+  name: Sea Cat
+  size: large
+  type: magical_beast
+  base_hd: 6
+  hit_die: 10
+  str: 19
+  dex: 12
+  con: 17
+  int: 2
+  wis: 13
+  cha: 10
+  natural_armor: 8
+  speed: "10 ft., swim 40 ft."
+  attacks: '[{"name": "Claw", "damage": "1d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d8", "group": "secondary"}]'
+  special_attacks: "Rend 2d6+6"
+  special_qualities: "Darkvision 60 ft., hold breath, low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 7}, {"id": "spot", "misc": 6}]'
+  feats: '["Alertness", "Endurance", "Iron Will"]'
+  companion_ok: false
+
+- id: unicorn
+  name: Unicorn
+  size: large
+  type: magical_beast
+  base_hd: 4
+  hit_die: 10
+  str: 20
+  dex: 17
+  con: 21
+  int: 10
+  wis: 21
+  cha: 24
+  natural_armor: 6
+  speed: "60 ft."
+  attacks: '[{"name": "Horn", "damage": "1d8", "group": "primary"}, {"name": "Hoof", "damage": "1d4", "group": "secondary", "count": 2}]'
+  special_qualities: "Darkvision 60 ft., magic circle against evil, spell-like abilities, immunity to poison/charm/compulsion, low-light vision, scent, wild empathy"
+  skills: '[{"id": "jump", "misc": 16}, {"id": "listen", "misc": 6}, {"id": "spot", "misc": 6}]'
+  feats: '["Alertness", "Skill Focus (Survival)"]'
+  companion_ok: false
+
+- id: unicorn_celestial_charger
+  name: Unicorn (Celestial Charger)
+  size: large
+  type: magical_beast
+  base_hd: 4
+  hit_die: 10
+  str: 24
+  dex: 17
+  con: 25
+  int: 10
+  wis: 21
+  cha: 24
+  natural_armor: 6
+  speed: "60 ft."
+  attacks: '[{"name": "Horn", "damage": "1d8", "group": "primary"}, {"name": "Hoof", "damage": "1d4", "group": "secondary", "count": 2}]'
+  special_qualities: "Damage reduction 5/magic, spell resistance 9, energy resistance 5 (acid/cold/electricity), magic circle against evil, spell-like abilities, immunity to poison/charm/compulsion, darkvision 60 ft., low-light vision, scent, wild empathy"
+  skills: '[{"id": "listen", "misc": 6}, {"id": "spot", "misc": 6}]'
+  feats: '["Alertness", "Skill Focus (Survival)"]'
+  companion_ok: false
+
+# ── SNA IV-IX: Outsidere/Genier (type: outsider, fuld BAB, d8) ────────────────
+# Alle outsidere har god Fort+Ref+Will (alle tre gode saves).
+# good_saves er eksplicit sat for at sikre korrekt beregning.
+
+- id: arrowhawk_juvenile
+  name: Juvenile Arrowhawk
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 12
+  dex: 21
+  con: 12
+  int: 10
+  wis: 13
+  cha: 13
+  natural_armor: 4
+  speed: "fly 60 ft. (perfect)"
+  attacks: '[{"name": "Bite", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Electricity ray 2d6 (ranged touch)"
+  special_qualities: "Darkvision 60 ft., immunity to acid/electricity/poison, resistance to cold 10 and fire 10"
+  skills: '[]'
+  feats: '["Dodge", "Weapon Finesse"]'
+  companion_ok: false
+
+- id: arrowhawk_adult
+  name: Adult Arrowhawk
+  size: medium
+  type: outsider
+  base_hd: 7
+  good_saves: '["fort","ref","will"]'
+  str: 14
+  dex: 21
+  con: 12
+  int: 10
+  wis: 13
+  cha: 13
+  natural_armor: 6
+  speed: "fly 60 ft. (perfect)"
+  attacks: '[{"name": "Bite", "damage": "1d8", "group": "primary"}]'
+  special_attacks: "Electricity ray 2d8 (ranged touch)"
+  special_qualities: "Darkvision 60 ft., immunity to acid/electricity/poison, resistance to cold 10 and fire 10"
+  skills: '[]'
+  feats: '["Dodge", "Flyby Attack", "Weapon Finesse"]'
+  companion_ok: false
+
+- id: arrowhawk_elder
+  name: Elder Arrowhawk
+  size: large
+  type: outsider
+  base_hd: 15
+  good_saves: '["fort","ref","will"]'
+  str: 22
+  dex: 21
+  con: 16
+  int: 10
+  wis: 13
+  cha: 13
+  natural_armor: 8
+  speed: "fly 60 ft. (perfect)"
+  attacks: '[{"name": "Bite", "damage": "2d6", "group": "primary"}]'
+  special_attacks: "Electricity ray 2d8 (ranged touch)"
+  special_qualities: "Darkvision 60 ft., immunity to acid/electricity/poison, resistance to cold 10 and fire 10"
+  skills: '[]'
+  feats: '["Alertness", "Blind-Fight", "Combat Reflexes", "Dodge", "Flyby Attack", "Weapon Finesse", "Weapon Focus (Bite)"]'
+  companion_ok: false
+
+- id: djinni
+  name: Djinni
+  size: large
+  type: outsider
+  base_hd: 7
+  good_saves: '["fort","ref","will"]'
+  str: 18
+  dex: 19
+  con: 14
+  int: 14
+  wis: 15
+  cha: 15
+  natural_armor: 3
+  speed: "20 ft., fly 60 ft. (perfect)"
+  attacks: '[{"name": "Slam", "damage": "1d8", "group": "primary", "count": 2}]'
+  special_attacks: "Air mastery, whirlwind, spell-like abilities"
+  special_qualities: "Darkvision 60 ft., immunity to acid, plane shift, telepathy 100 ft."
+  skills: '[]'
+  feats: '["Combat Casting", "Combat Reflexes", "Dodge", "Improved Initiative"]'
+  companion_ok: false
+
+- id: janni
+  name: Janni
+  size: medium
+  type: outsider
+  base_hd: 6
+  good_saves: '["fort","ref","will"]'
+  str: 16
+  dex: 15
+  con: 12
+  int: 14
+  wis: 15
+  cha: 13
+  natural_armor: 1
+  speed: "30 ft., fly 20 ft. (perfect)"
+  attacks: '[{"name": "Slam", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Change size, spell-like abilities"
+  special_qualities: "Darkvision 60 ft., elemental endurance, plane shift, resistance to fire 10, telepathy 100 ft."
+  skills: '[]'
+  feats: '["Combat Reflexes", "Dodge", "Improved Initiative", "Mobility"]'
+  companion_ok: false
+
+- id: salamander_flamebrother
+  name: Flamebrother Salamander
+  size: small
+  type: outsider
+  base_hd: 4
+  good_saves: '["fort","ref","will"]'
+  str: 12
+  dex: 13
+  con: 14
+  int: 14
+  wis: 15
+  cha: 13
+  natural_armor: 7
+  speed: "20 ft."
+  attacks: '[{"name": "Spear", "damage": "1d6", "group": "primary"}, {"name": "Tail slap", "damage": "1d4", "group": "secondary"}]'
+  special_attacks: "Constrict 1d4+fire, heat (1d6 fire on contact), improved grab"
+  special_qualities: "Darkvision 60 ft., immunity to fire, vulnerability to cold"
+  skills: '[]'
+  feats: '["Alertness", "Multiattack"]'
+  companion_ok: false
+
+- id: salamander_average
+  name: Average Salamander
+  size: medium
+  type: outsider
+  base_hd: 9
+  good_saves: '["fort","ref","will"]'
+  str: 14
+  dex: 13
+  con: 14
+  int: 14
+  wis: 15
+  cha: 13
+  natural_armor: 7
+  speed: "20 ft."
+  attacks: '[{"name": "Spear", "damage": "1d8", "group": "primary"}, {"name": "Tail slap", "damage": "2d6", "group": "secondary"}]'
+  special_attacks: "Constrict 2d6+1+fire, heat (1d6 fire on contact), improved grab"
+  special_qualities: "Damage reduction 10/magic, darkvision 60 ft., immunity to fire, vulnerability to cold"
+  skills: '[]'
+  feats: '["Alertness", "Multiattack", "Power Attack"]'
+  companion_ok: false
+
+- id: salamander_noble
+  name: Noble Salamander
+  size: large
+  type: outsider
+  base_hd: 15
+  good_saves: '["fort","ref","will"]'
+  str: 22
+  dex: 13
+  con: 16
+  int: 16
+  wis: 15
+  cha: 15
+  natural_armor: 8
+  speed: "20 ft."
+  attacks: '[{"name": "Longspear", "damage": "1d8", "group": "primary"}, {"name": "Tail slap", "damage": "2d8", "group": "secondary"}]'
+  special_attacks: "Constrict 2d8+3+fire, heat (1d8 fire on contact), improved grab, spell-like abilities"
+  special_qualities: "Damage reduction 15/magic, darkvision 60 ft., immunity to fire, vulnerability to cold"
+  skills: '[]'
+  feats: '["Alertness", "Cleave", "Great Cleave", "Multiattack", "Power Attack", "Skill Focus (Craft)"]'
+  companion_ok: false
+
+- id: tojanida_juvenile
+  name: Juvenile Tojanida
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 14
+  dex: 13
+  con: 15
+  int: 10
+  wis: 12
+  cha: 9
+  natural_armor: 10
+  speed: "10 ft., swim 90 ft."
+  attacks: '[{"name": "Bite", "damage": "2d6", "group": "primary"}, {"name": "Claw", "damage": "1d4", "group": "secondary", "count": 2}]'
+  special_attacks: "Improved grab, ink cloud"
+  special_qualities: "All-around vision, darkvision 60 ft., immunity to acid and cold, resistance to electricity 10 and fire 10"
+  skills: '[]'
+  feats: '["Blind-Fight", "Dodge"]'
+  companion_ok: false
+
+- id: tojanida_adult
+  name: Adult Tojanida
+  size: medium
+  type: outsider
+  base_hd: 7
+  good_saves: '["fort","ref","will"]'
+  str: 16
+  dex: 13
+  con: 15
+  int: 10
+  wis: 12
+  cha: 9
+  natural_armor: 12
+  speed: "10 ft., swim 90 ft."
+  attacks: '[{"name": "Bite", "damage": "2d8", "group": "primary"}, {"name": "Claw", "damage": "1d6", "group": "secondary", "count": 2}]'
+  special_attacks: "Improved grab, ink cloud"
+  special_qualities: "All-around vision, darkvision 60 ft., immunity to acid and cold, resistance to electricity 10 and fire 10"
+  skills: '[]'
+  feats: '["Blind-Fight", "Dodge", "Power Attack"]'
+  companion_ok: false
+
+- id: tojanida_elder
+  name: Elder Tojanida
+  size: large
+  type: outsider
+  base_hd: 15
+  good_saves: '["fort","ref","will"]'
+  str: 22
+  dex: 13
+  con: 19
+  int: 10
+  wis: 12
+  cha: 9
+  natural_armor: 14
+  speed: "10 ft., swim 90 ft."
+  attacks: '[{"name": "Bite", "damage": "4d6", "group": "primary"}, {"name": "Claw", "damage": "1d8", "group": "secondary", "count": 2}]'
+  special_attacks: "Improved grab, ink cloud"
+  special_qualities: "All-around vision, darkvision 60 ft., immunity to acid and cold, resistance to electricity 10 and fire 10"
+  skills: '[]'
+  feats: '["Alertness", "Blind-Fight", "Cleave", "Dodge", "Improved Sunder", "Power Attack"]'
+  companion_ok: false
+
+- id: xorn_minor
+  name: Minor Xorn
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 15
+  dex: 10
+  con: 15
+  int: 10
+  wis: 11
+  cha: 10
+  natural_armor: 12
+  speed: "20 ft., burrow 20 ft."
+  attacks: '[{"name": "Bite", "damage": "2d8", "group": "primary"}, {"name": "Claw", "damage": "1d3", "group": "secondary", "count": 3}]'
+  special_qualities: "All-around vision, darkvision 60 ft., earth glide, damage reduction 5/bludgeoning, immunity to cold and fire, resistance to electricity 10, tremorsense 60 ft."
+  skills: '[]'
+  feats: '["Multiattack", "Toughness"]'
+  companion_ok: false
+
+- id: xorn_average
+  name: Average Xorn
+  size: medium
+  type: outsider
+  base_hd: 7
+  good_saves: '["fort","ref","will"]'
+  str: 17
+  dex: 10
+  con: 15
+  int: 10
+  wis: 11
+  cha: 10
+  natural_armor: 14
+  speed: "20 ft., burrow 20 ft."
+  attacks: '[{"name": "Bite", "damage": "4d6", "group": "primary"}, {"name": "Claw", "damage": "1d4", "group": "secondary", "count": 3}]'
+  special_qualities: "All-around vision, darkvision 60 ft., earth glide, damage reduction 5/bludgeoning, immunity to cold and fire, resistance to electricity 10, tremorsense 60 ft."
+  skills: '[]'
+  feats: '["Cleave", "Multiattack", "Power Attack", "Toughness"]'
+  companion_ok: false
+
+- id: xorn_elder
+  name: Elder Xorn
+  size: large
+  type: outsider
+  base_hd: 15
+  good_saves: '["fort","ref","will"]'
+  str: 25
+  dex: 10
+  con: 19
+  int: 10
+  wis: 11
+  cha: 10
+  natural_armor: 16
+  speed: "20 ft., burrow 20 ft."
+  attacks: '[{"name": "Bite", "damage": "4d8", "group": "primary"}, {"name": "Claw", "damage": "1d6", "group": "secondary", "count": 3}]'
+  special_qualities: "All-around vision, darkvision 60 ft., earth glide, damage reduction 5/bludgeoning, immunity to cold and fire, resistance to electricity 10, tremorsense 60 ft."
+  skills: '[]'
+  feats: '["Awesome Blow", "Cleave", "Great Cleave", "Improved Bull Rush", "Multiattack", "Power Attack", "Toughness"]'
+  companion_ok: false
+
+- id: invisible_stalker
+  name: Invisible Stalker
+  size: large
+  type: elemental
+  base_hd: 8
+  good_saves: '["ref"]'
+  str: 18
+  dex: 19
+  con: 14
+  int: 14
+  wis: 15
+  cha: 11
+  natural_armor: 4
+  speed: "30 ft., fly 30 ft. (perfect)"
+  attacks: '[{"name": "Slam", "damage": "2d6", "group": "primary", "count": 2}]'
+  special_qualities: "Darkvision 60 ft., elemental traits, natural invisibility, improved tracking"
+  skills: '[{"id": "listen", "misc": 11}, {"id": "move_silently", "misc": 11}, {"id": "spot", "misc": 11}]'
+  feats: '["Combat Reflexes", "Improved Initiative", "Weapon Focus (Slam)"]'
+  companion_ok: false
+
+# ── SNA V og IX: Feer (type: fey, ½ BAB, d6) ──────────────────────────────────
+# Feer har god Ref+Will, dårlig Fort (default for fey-type).
+# hit_die: 6 er påkrævet. Grig har ½ HD → base_hd: 1, hit_die: 2.
+# Feer bruger typisk våben (short sword) — Weapon Finesse i feats.
+
+- id: satyr_piping
+  name: Satyr (with Pipes)
+  size: medium
+  type: fey
+  base_hd: 5
+  hit_die: 6
+  str: 10
+  dex: 13
+  con: 12
+  int: 12
+  wis: 13
+  cha: 13
+  natural_armor: 4
+  speed: "40 ft."
+  attacks: '[{"name": "Head butt", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Pipes (charm/sleep/fear; Will DC 13)"
+  special_qualities: "Damage reduction 5/cold iron, low-light vision"
+  skills: '[{"id": "hide", "misc": 12}, {"id": "listen", "misc": 14}, {"id": "move_silently", "misc": 12}, {"id": "spot", "misc": 14}]'
+  feats: '["Alertness", "Dodge", "Mobility"]'
+  companion_ok: false
+
+- id: nixie
+  name: Nixie
+  size: small
+  type: fey
+  base_hd: 1
+  hit_die: 6
+  str: 7
+  dex: 16
+  con: 11
+  int: 12
+  wis: 13
+  cha: 18
+  natural_armor: 0
+  speed: "20 ft., swim 30 ft."
+  attacks: '[{"name": "Short sword", "damage": "1d4", "group": "primary"}]'
+  special_attacks: "Charm person (DC 15 Will; 3/day)"
+  special_qualities: "Amphibious, damage reduction 5/cold iron, low-light vision, spell resistance 16, water breathing, wild empathy"
+  skills: '[]'
+  feats: '["Dodge", "Weapon Finesse"]'
+  companion_ok: false
+
+- id: grig
+  name: Grig
+  size: tiny
+  type: fey
+  base_hd: 1
+  hit_die: 2
+  str: 5
+  dex: 18
+  con: 13
+  int: 10
+  wis: 13
+  cha: 14
+  natural_armor: 2
+  speed: "20 ft., fly 40 ft. (poor)"
+  attacks: '[{"name": "Short sword", "damage": "1d3", "group": "primary"}]'
+  special_attacks: "Fiddle (irresistible dance; Will DC 12), spell-like abilities"
+  special_qualities: "Damage reduction 5/cold iron, low-light vision, spell resistance 17"
+  skills: '[]'
+  feats: '["Dodge", "Weapon Finesse"]'
+  companion_ok: false
+
+- id: pixie
+  name: Pixie
+  size: small
+  type: fey
+  base_hd: 1
+  hit_die: 6
+  str: 7
+  dex: 18
+  con: 11
+  int: 16
+  wis: 15
+  cha: 16
+  natural_armor: 1
+  speed: "20 ft., fly 60 ft. (good)"
+  attacks: '[{"name": "Short sword", "damage": "1d4", "group": "primary"}]'
+  special_attacks: "Spell-like abilities, special arrows (sleep/memory loss)"
+  special_qualities: "Greater invisibility, damage reduction 10/cold iron, low-light vision, spell resistance 15"
+  skills: '[]'
+  feats: '["Dodge", "Weapon Finesse"]'
+  companion_ok: false

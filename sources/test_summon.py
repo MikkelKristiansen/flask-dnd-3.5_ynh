@@ -170,3 +170,71 @@ def test_summons_persist_round_trip(tmp_path):
     # Tom liste rydder feltet.
     char_module.save_character(str(p), {"summons": []})
     assert char_module.load_character(str(p)).summons == []
+
+
+# ── Del B: SNA IV-IX nye statblokke (Fase 6) ────────────────────────────────
+
+def test_dire_bear_all_three_good_saves():
+    # Dire Bear (12 HD animal) har good_saves: alle tre — SRD Fort+12/Ref+9/Will+9.
+    s = stat("dire_bear")
+    assert s["hp_max"] == 105                       # 12×4.5 + 12×4 (Con) + 3 (Toughness)
+    assert s["ac"]["ac"] == 17
+    assert s["saves"] == {"fort": 12, "ref": 9, "will": 9}
+    clw = s["attacks"][0]
+    assert clw["to_hit"] == 19 and clw["damage"] == "2d4+10"   # SRD: Claw +19 (2d4+10)
+
+
+def test_tyrannosaurus_huge_animal():
+    # Tyrannosaurus (18 HD Huge animal, sole primary, ×1.5 Str=+9).
+    s = stat("tyrannosaurus")
+    assert s["hp_max"] == 180                       # 18×4.5 + 18×5 (Con) + 9 (Toughness×3)
+    assert s["saves"] == {"fort": 16, "ref": 12, "will": 8}
+    bite = s["attacks"][0]
+    assert bite["to_hit"] == 20 and bite["damage"] == "3d6+13"  # SRD: Bite +20 (3d6+13)
+
+
+def test_invisible_stalker_elemental_ref_only():
+    # Invisible Stalker (8 HD elemental, good_saves: ["ref"], ¾ BAB).
+    s = stat("invisible_stalker")
+    assert s["hp_max"] == 52                        # 8×4.5 + 8×2 (Con) = 36+16=52
+    assert s["saves"] == {"fort": 4, "ref": 10, "will": 4}
+    slam = s["attacks"][0]
+    assert slam["to_hit"] == 10 and slam["count"] == 2          # SRD: 2 slams +10
+
+
+def test_djinni_outsider_all_three_good_saves():
+    # Djinni (7 HD outsider, fuld BAB, alle tre gode saves).
+    s = stat("djinni")
+    assert s["hp_max"] == 45                        # 7×4.5 + 7×2 (Con) = 31+14=45
+    assert s["saves"] == {"fort": 7, "ref": 9, "will": 7}
+    assert s["bab"] == 7
+
+
+def test_arrowhawk_elder_str_over_dex():
+    # Elder Arrowhawk: Weapon Finesse men Str(+6) > Dex(+5) → Str bruges til-hit.
+    s = stat("arrowhawk_elder")
+    assert s["hp_max"] == 112                       # 15×4.5 + 15×3 (Con) = 67+45=112
+    assert s["saves"] == {"fort": 12, "ref": 14, "will": 10}
+    bite = s["attacks"][0]
+    assert bite["to_hit"] == 20                     # bab15 + Str6 − size1 = 20
+
+
+def test_pixie_fey_half_bab():
+    # Pixie (1 HD fey, ½ BAB=0, god Ref+Will, dårlig Fort).
+    s = stat("pixie")
+    assert s["bab"] == 0
+    assert s["saves"]["fort"] == 0 and s["saves"]["ref"] == 6 and s["saves"]["will"] == 4
+
+
+def test_grig_half_hd_fey():
+    # Grig (base_hd=1, hit_die=2 → ½ HD): F=1, R=6, W=3.
+    s = stat("grig")
+    assert s["hp_max"] == 2                         # 1×avg(d2=1.5) + Con1 = 1+1=2
+    assert s["saves"] == {"fort": 1, "ref": 6, "will": 3}
+
+
+def test_unicorn_magical_beast_saves():
+    # Unicorn (4 HD magical_beast): god Fort+Ref, dårlig Will — SRD Fort+9/Ref+7/Will+6.
+    s = stat("unicorn")
+    assert s["hp_max"] == 42                        # 4×4.5 + 4×5 (Con) = 18+20=... wait
+    assert s["saves"] == {"fort": 9, "ref": 7, "will": 6}
