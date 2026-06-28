@@ -940,14 +940,16 @@ def build_character_view(char, db):
     attack_extra = net.get("attack", 0) + armor_atk_pen
     damage_extra = net.get("damage", 0)
 
+    has_finesse = "weapon_finesse" in char_feat_ids
+
     def _atk_fields(atk):
         """Til-hit/skade for et angreb (effektivt) + delta-info vs. basis-scores.
 
         Bull's Strength m.fl. kaskaderer via eff; direkte bonusser (attack/damage)
         lægges på her. Basis er angrebet helt uden aktive effekter.
         """
-        e = char_module.attack_total(atk, eff, bab, char.size, attack_extra, damage_extra)
-        b = char_module.attack_total(atk, ab, bab, char.size)
+        e = char_module.attack_total(atk, eff, bab, char.size, attack_extra, damage_extra, has_finesse)
+        b = char_module.attack_total(atk, ab, bab, char.size, has_finesse=has_finesse)
         return {**e,
                 "hit_changed": e["to_hit"] != b["to_hit"], "hit_up": e["to_hit"] > b["to_hit"],
                 "base_to_hit": b["to_hit"],

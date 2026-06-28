@@ -292,7 +292,7 @@ def size_mod_grapple(size: str) -> int:
 
 def attack_total(attack: Attack, ability_scores: AbilityScores,
                  bab: int, size: str, extra_bonus: int = 0,
-                 extra_damage: int = 0) -> dict:
+                 extra_damage: int = 0, has_finesse: bool = False) -> dict:
     """Beregn til-hit og skade-streng for ét angreb.
 
     Til-hit: bab + ability-mod (Str for melee, Dex for ranged) + størrelse + bonus
@@ -301,7 +301,12 @@ def attack_total(attack: Attack, ability_scores: AbilityScores,
     ikke våbenskade), ellers base_damage + floor(Str-mod · str_damage_mult)
     + extra_damage. Skade-tillægget skjules når totalbonus er 0.
     """
-    hit_ability = "dex" if attack.kind in ("ranged", "ranged_touch") else "str"
+    if attack.kind in ("ranged", "ranged_touch"):
+        hit_ability = "dex"
+    elif has_finesse and attack.finesse:
+        hit_ability = "dex" if ability_scores.modifier("dex") > ability_scores.modifier("str") else "str"
+    else:
+        hit_ability = "str"
     to_hit = (bab + ability_scores.modifier(hit_ability)
               + size_mod_attack(size) + attack.bonus + extra_bonus)
 
@@ -628,6 +633,8 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
         parts = base.split("/")
         return parts[which] if which < len(parts) else parts[0]
 
+    _FINESSE_WEAPON_IDS = {"rapier", "whip", "spiked_chain"}
+
     def make(item, w, name, base_damage, mult, pen, is_off) -> Attack:
         not_prof = not (item.house_rule
                         or weapon_proficient(w, weapon_prof, allowed_weapons))
@@ -643,6 +650,7 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
             range=f"{w['range_ft']} ft." if w["range_ft"] else "",
             not_proficient=not_prof,
             note=_twf_note(pen, is_off),
+            finesse=wclass == "light" or w["id"] in _FINESSE_WEAPON_IDS,
         )
 
     attacks: list[Attack] = []

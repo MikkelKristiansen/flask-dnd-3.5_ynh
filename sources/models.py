@@ -46,6 +46,7 @@ class Attack:
     requires: str = ""             # navn på buff der skal være aktiv før angrebet vises (tom = altid)
     not_proficient: bool = False   # våben man ikke er proficient med → −4 allerede lagt i bonus
     note: str = ""                 # kort UI-markør (fx TWF-straf "−2 TWF (off-hånd)") — info, ikke et tal
+    finesse: bool = False          # Weapon Finesse kan bruges (light-våben + rapier/whip/spiked_chain)
 
 
 @dataclass
