@@ -20,3 +20,4 @@ overvejelser-og-briefs/
 
 # Lokal test-mappe lavet af run-local.sh (kopi af defaults/)
 sources/.local-characters/
+briefs/
