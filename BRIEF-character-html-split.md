@@ -99,6 +99,7 @@ templaten, resultatet bliver almindelig JS-data i broen).
 
 ## Status
 
-- [ ] CSS → `static/character.css`
-- [ ] JS → `static/character.js` + data-bro
-- [ ] (valgfrit) HTML-partials
+- [x] CSS → `static/character.css` (464 linjer flyttet uændret)
+- [x] JS → `static/character.js` + data-bro (`window.DND`, 42 nøgler; alle 57
+      top-level-variabler bevaret, kun `const D` tilføjet)
+- [ ] (valgfrit) HTML-partials — character.html er nu ~1.376 linjer ren HTML+bro
