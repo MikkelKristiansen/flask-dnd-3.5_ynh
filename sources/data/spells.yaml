@@ -335,6 +335,7 @@
   level_druid: 1
   level_cleric: 1
   level_wizard:
+  level_bard: 1
   level_ranger:
   level_paladin:
   school: Conjuration (Healing)
@@ -448,7 +449,8 @@
   name: Cause Fear
   level_druid:
   level_cleric: 1
-  level_wizard:
+  level_wizard: 1
+  level_bard: 1
   level_ranger:
   level_paladin:
   school: Necromancy [Fear, Mind-Affecting]
@@ -496,6 +498,7 @@
   level_druid:
   level_cleric: 1
   level_wizard: 1
+  level_bard: 1
   level_ranger:
   level_paladin:
   school: Divination
@@ -846,6 +849,7 @@
   level_druid:
   level_cleric: 1
   level_wizard:
+  level_bard: 1
   level_ranger:
   level_paladin:
   school: Abjuration
@@ -883,6 +887,7 @@
   level_druid:
   level_cleric: 1
   level_wizard: 1
+  level_bard: 1
   level_ranger:
   level_paladin:
   school: Conjuration (Summoning) [see text]
@@ -941,6 +946,7 @@
   level_druid:
   level_cleric:
   level_wizard: 0
+  level_bard: 0
   level_ranger:
   level_paladin:
   school: Evocation [Light]
@@ -1016,6 +1022,7 @@
   level_druid: 0
   level_cleric: 0
   level_wizard: 0
+  level_bard: 0
   level_ranger:
   level_paladin:
   school: Divination
@@ -1061,7 +1068,7 @@
   name: Detect Poison
   level_druid: 0
   level_cleric: 0
-  level_wizard:
+  level_wizard: 0
   level_ranger:
   level_paladin:
   school: Divination
@@ -1261,6 +1268,7 @@
   level_druid: 0
   level_cleric:
   level_wizard: 0
+  level_bard: 0
   level_ranger:
   level_paladin:
   school: Evocation [Light]
@@ -1322,6 +1330,7 @@
   level_druid:
   level_cleric:
   level_wizard: 0
+  level_bard: 0
   level_ranger:
   level_paladin:
   school: Illusion (Figment)
@@ -1525,6 +1534,7 @@
   level_druid: 0
   level_cleric:
   level_wizard:
+  level_bard: 0
   level_ranger:
   level_paladin:
   school: Divination
@@ -1542,6 +1552,7 @@
   level_druid: 0
   level_cleric: 0
   level_wizard: 0
+  level_bard: 0
   level_ranger:
   level_paladin:
   school: Evocation [Light]
@@ -1623,6 +1634,7 @@
   level_druid: 0
   level_cleric: 0
   level_wizard: 0
+  level_bard: 0
   level_ranger:
   level_paladin:
   school: Transmutation
@@ -1749,6 +1761,7 @@
   level_druid:
   level_cleric:
   level_wizard: 0
+  level_bard: 0
   level_ranger:
   level_paladin:
   school: Universal
@@ -1829,6 +1842,7 @@
   level_druid: 0
   level_cleric: 0
   level_wizard: 0
+  level_bard: 0
   level_ranger:
   level_paladin:
   school: Divination
@@ -1942,6 +1956,7 @@
   level_druid: 0
   level_cleric: 0
   level_wizard: 0
+  level_bard: 0
   level_ranger:
   level_paladin:
   school: Abjuration
@@ -3324,3 +3339,1020 @@
     A _wall of thorns_ can be breached by slow work with edged weapons. Chopping away at the wall creates a safe passage 1 foot deep for every 10 minutes of work. Normal fire cannot harm the barrier, but magical fire burns it away in 10 minutes.
 
     Despite its appearance, a _wall of thorns_ is not actually a living plant, and thus is unaffected by spells that affect plants.
+
+- id: acid_splash
+  name: Acid Splash
+  level_druid:
+  level_cleric:
+  level_wizard: 0
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Conjuration (Creation) [Acid]
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One missile of acid
+  duration: Instantaneous
+  save: None
+  spell_resistance: No
+  components: V, S
+  target_label: Effect
+  description: You fire a small orb of acid at the target. You must succeed on a ranged touch attack to hit your target. The orb deals 1d3 points of acid damage.
+- id: alarm
+  name: Alarm
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger: 1
+  level_paladin:
+  school: Abjuration
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: 20-ft.-radius emanation centered on a point in space
+  duration: 2 hours/level (D)
+  save: None
+  spell_resistance: No
+  components: V, S, F/DF
+  target_label: Area
+  description: |-
+    Alarm sounds a mental or audible alarm each time a creature of Tiny or larger size enters the warded area or touches it. A creature that speaks the password (determined by you at the time of casting) does not set off the alarm. You decide at the time of casting whether the alarm will be mental or audible.
+
+    Mental Alarm: A mental alarm alerts you (and only you) so long as you remain within 1 mile of the warded area. You note a single mental "ping" that awakens you from normal sleep but does not otherwise disturb concentration. A silence spell has no effect on a mental alarm.
+
+    Audible Alarm: An audible alarm produces the sound of a hand bell, and anyone within 60 feet of the warded area can hear it clearly. Reduce the distance by 10 feet for each interposing closed door and by 20 feet for each substantial interposing wall. In quiet conditions, the ringing can be heard faintly as far as 180 feet away. The sound lasts for 1 round. Creatures within a silence spell cannot hear the ringing.
+
+    Ethereal or astral creatures do not trigger the alarm. Alarm can be made permanent with a permanency spell.
+
+    Arcane Focus: A tiny bell and a piece of very fine silver wire.
+- id: animate_rope
+  name: Animate Rope
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target: One ropelike object, length up to 50 ft. + 5 ft./level; see text
+  duration: 1 round/level
+  save: None
+  spell_resistance: No
+  components: V, S
+  target_label: Target
+  description: |-
+    You can animate a nonliving ropelike object. The maximum length assumes a rope with a 1-inch diameter. Reduce the maximum length by 50% for every additional inch of thickness, and increase it by 50% for each reduction of the rope's diameter by half.
+
+    The possible commands are "coil" (form a neat, coiled stack), "coil and knot," "loop," "loop and knot," "tie and knot," and the opposites of all of the above ("uncoil," and so forth). You can give one command each round as a move action, as if directing an active spell.
+
+    The rope can enwrap only a creature or an object within 1 foot of it—it does not snake outward—so it must be thrown near the intended target. Doing so requires a successful ranged touch attack roll (range increment 10 feet). A typical 1-inch-diameter hempen rope has 2 hit points, AC 10, and requires a DC 23 Strength check to burst it. The rope does not deal damage, but it can be used as a trip line or to cause a single opponent that fails a Reflex saving throw to become entangled. A creature capable of spellcasting that is bound by this spell must make a DC 15 Concentration check to cast a spell. An entangled creature can slip free with a DC 20 Escape Artist check.
+
+    The rope itself and any knots tied in it are not magical. This spell grants a +2 bonus on any Use Rope checks you make when using the transmuted rope. The spell cannot animate objects carried or worn by a creature.
+- id: arcane_mark
+  name: Arcane Mark
+  level_druid:
+  level_cleric:
+  level_wizard: 0
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Universal
+  cast_time: 1 standard action
+  range: 0 ft.
+  target: One personal rune or mark, all of which must fit within 1 sq. ft.
+  duration: Permanent
+  save: None
+  spell_resistance: No
+  components: V, S
+  target_label: Effect
+  description: |-
+    This spell allows you to inscribe your personal rune or mark, which can consist of no more than six characters. The writing can be visible or invisible. An arcane mark spell enables you to etch the rune upon any substance without harm to the material upon which it is placed. If an invisible mark is made, a detect magic spell causes it to glow and be visible, though not necessarily understandable.
+
+    See invisibility, true seeing, a gem of seeing, or a robe of eyes likewise allows the user to see an invisible arcane mark. A read magic spell reveals the words, if any. The mark cannot be dispelled, but it can be removed by the caster or by an erase spell.
+
+    If an arcane mark is placed on a living being, normal wear gradually causes the effect to fade in about a month.
+
+    Arcane mark must be cast on an object prior to casting instant summons on the same object (see that spell description for details).
+- id: burning_hands
+  name: Burning Hands
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Evocation [Fire]
+  cast_time: 1 standard action
+  range: 15 ft.
+  target: Cone-shaped burst
+  duration: Instantaneous
+  save: Reflex half
+  spell_resistance: Yes
+  components: V, S
+  target_label: Area
+  description: A cone of searing flame shoots from your fingertips. Any creature in the area of the flames takes 1d4 points of fire damage per caster level (maximum 5d4). Flammable materials burn if the flames touch them. A character can extinguish burning items as a full-round action.
+- id: charm_person
+  name: Charm Person
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Enchantment (Charm) [Mind-Affecting]
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One humanoid creature
+  duration: 1 hour/level
+  save: Will negates
+  spell_resistance: Yes
+  components: V, S
+  target_label: Target
+  description: |-
+    This charm makes a humanoid creature regard you as its trusted friend and ally (treat the target's attitude as friendly). If the creature is currently being threatened or attacked by you or your allies, however, it receives a +5 bonus on its saving throw.
+
+    The spell does not enable you to control the charmed person as if it were an automaton, but it perceives your words and actions in the most favorable way. You can try to give the subject orders, but you must win an opposed Charisma check to convince it to do anything it wouldn't ordinarily do. (Retries are not allowed.) An affected creature never obeys suicidal or obviously harmful orders, but it might be convinced that something very dangerous is worth doing. Any act by you or your apparent allies that threatens the charmed person breaks the spell. You must speak the person's language to communicate your commands, or else be good at pantomiming.
+- id: chill_touch
+  name: Chill Touch
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Necromancy
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature or creatures touched (up to one/level)
+  duration: Instantaneous
+  save: Fortitude partial or Will negates; see text
+  spell_resistance: Yes
+  components: V, S
+  target_label: Targets
+  description: |-
+    A touch from your hand, which glows with blue energy, disrupts the life force of living creatures. Each touch channels negative energy that deals 1d6 points of damage. The touched creature also takes 1 point of Strength damage unless it makes a successful Fortitude saving throw. You can use this melee touch attack up to one time per level.
+
+    An undead creature you touch takes no damage of either sort, but it must make a successful Will saving throw or flee as if panicked for 1d4 rounds +1 round per caster level.
+- id: color_spray
+  name: Color Spray
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Illusion (Pattern) [Mind-Affecting]
+  cast_time: 1 standard action
+  range: 15 ft.
+  target: Cone-shaped burst
+  duration: Instantaneous; see text
+  save: Will negates
+  spell_resistance: Yes
+  components: V, S, M
+  target_label: Area
+  description: |-
+    A vivid cone of clashing colors springs forth from your hand, causing creatures to become stunned, perhaps also blinded, and possibly knocking them unconscious.
+
+    Each creature within the cone is affected according to its Hit Dice.
+
+    2 HD or less: The creature is unconscious, blinded, and stunned for 2d4 rounds, then blinded and stunned for 1d4 rounds, and then stunned for 1 round. (Only living creatures are knocked unconscious.)
+
+    3 or 4 HD: The creature is blinded and stunned for 1d4 rounds, then stunned for 1 round.
+
+    5 or more HD: The creature is stunned for 1 round.
+
+    Sightless creatures are not affected by color spray.
+
+    Material Component: A pinch each of powder or sand that is colored red, yellow, and blue.
+- id: daze
+  name: Daze
+  level_druid:
+  level_cleric:
+  level_wizard: 0
+  level_bard: 0
+  level_ranger:
+  level_paladin:
+  school: Enchantment (Compulsion) [Mind-Affecting]
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One humanoid creature of 4 HD or less
+  duration: 1 round
+  save: Will negates
+  spell_resistance: Yes
+  components: V, S, M
+  target_label: Target
+  description: |-
+    This enchantment clouds the mind of a humanoid creature with 4 or fewer Hit Dice so that it takes no actions. Humanoids of 5 or more HD are not affected. A dazed subject is not stunned, so attackers get no special advantage against it.
+
+    Material Component: A pinch of wool or similar substance.
+- id: detect_secret_doors
+  name: Detect Secret Doors
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Divination
+  cast_time: 1 standard action
+  range: 60 ft.
+  target: Cone-shaped emanation
+  duration: Concentration, up to 1 min./level (D)
+  save: None
+  spell_resistance: No
+  components: V, S
+  target_label: Area
+  description: |-
+    You can detect secret doors, compartments, caches, and so forth. Only passages, doors, or openings that have been specifically constructed to escape detection are detected by this spell. The amount of information revealed depends on how long you study a particular area or subject.
+
+    1st Round: Presence or absence of secret doors.
+
+    2nd Round: Number of secret doors and the location of each. If an aura is outside your line of sight, then you discern its direction but not its exact location.
+
+    Each Additional Round: The mechanism or trigger for one particular secret portal closely examined by you. Each round, you can turn to detect secret doors in a new area. The spell can penetrate barriers, but 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood or dirt blocks it.
+- id: disguise_self
+  name: Disguise Self
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Illusion (Glamer)
+  cast_time: 1 standard action
+  range: Personal
+  target: You
+  duration: 10 min./level (D)
+  save:
+  spell_resistance:
+  components: V, S
+  target_label: Target
+  self_duration: 1
+  description: |-
+    You make yourself—including clothing, armor, weapons, and equipment—look different. You can seem 1 foot shorter or taller, thin, fat, or in between. You cannot change your body type. Otherwise, the extent of the apparent change is up to you. You could add or obscure a minor feature or look like an entirely different person.
+
+    The spell does not provide the abilities or mannerisms of the chosen form, nor does it alter the perceived tactile (touch) or audible (sound) properties of you or your equipment.
+
+    If you use this spell to create a disguise, you get a +10 bonus on the Disguise check.
+
+    A creature that interacts with the glamer gets a Will save to recognize it as an illusion.
+- id: disrupt_undead
+  name: Disrupt Undead
+  level_druid:
+  level_cleric:
+  level_wizard: 0
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Necromancy
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: Ray
+  duration: Instantaneous
+  save: None
+  spell_resistance: Yes
+  components: V, S
+  target_label: Effect
+  description: You direct a ray of positive energy. You must make a ranged touch attack to hit, and if the ray hits an undead creature, it deals 1d6 points of damage to it.
+- id: enlarge_person
+  name: Enlarge Person
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 round
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One humanoid creature
+  duration: 1 min./level (D)
+  save: Fortitude negates
+  spell_resistance: Yes
+  components: V, S, M
+  target_label: Target
+  description: |-
+    This spell causes instant growth of a humanoid creature, doubling its height and multiplying its weight by 8. This increase changes the creature's size category to the next larger one. The target gains a +2 size bonus to Strength, a -2 size penalty to Dexterity (to a minimum of 1), and a -1 penalty on attack rolls and AC due to its increased size.
+
+    A humanoid creature whose size increases to Large has a space of 10 feet and a natural reach of 10 feet. This spell does not change the target's speed.
+
+    If insufficient room is available for the desired growth, the creature attains the maximum possible size and may make a Strength check (using its increased Strength) to burst any enclosures in the process. If it fails, it is constrained without harm by the materials enclosing it—the spell cannot be used to crush a creature by increasing its size.
+
+    All equipment worn or carried by a creature is similarly enlarged by the spell. Melee and projectile weapons affected by this spell deal more damage. Any enlarged item that leaves an enlarged creature's possession (including a projectile or thrown weapon) instantly returns to its normal size. Magical properties of enlarged items are not increased by this spell.
+
+    Multiple magical effects that increase size do not stack. Enlarge person counters and dispels reduce person.
+
+    Material Component: A pinch of powdered iron.
+- id: erase
+  name: Erase
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One scroll or two pages
+  duration: Instantaneous
+  save: See text
+  spell_resistance: No
+  components: V, S
+  target_label: Target
+  description: |-
+    Erase removes writings of either magical or mundane nature from a scroll or from one or two pages of paper, parchment, or similar surfaces. With this spell, you can remove explosive runes, a glyph of warding, a sepia snake sigil, or an arcane mark, but not illusory script or a symbol spell. Nonmagical writing is automatically erased if you touch it and no one else is holding it. Otherwise, the chance of erasing nonmagical writing is 90%.
+
+    Magic writing must be touched to be erased, and you also must succeed on a caster level check (1d20 + caster level) against DC 15. (A natural 1 or 2 is always a failure on this check.) If you fail to erase explosive runes, a glyph of warding, or a sepia snake sigil, you accidentally activate that writing instead.
+- id: expeditious_retreat
+  name: Expeditious Retreat
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: Personal
+  target: You
+  duration: 1 min./level (D)
+  save:
+  spell_resistance:
+  components: V, S
+  target_label: Target
+  self_duration: 1
+  description: This spell increases your base land speed by 30 feet. (This adjustment is treated as an enhancement bonus.) There is no effect on other modes of movement, such as burrow, climb, fly, or swim. As with any effect that increases your speed, this spell affects your jumping distance (see the Jump skill).
+- id: feather_fall
+  name: Feather Fall
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 free action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One Medium or smaller freefalling object or creature/level, no two of which may be more than 20 ft. apart
+  duration: Until landing or 1 round/level
+  save: Will negates (harmless) or Will negates (object)
+  spell_resistance: Yes (object)
+  components: V
+  target_label: Targets
+  description: |-
+    The affected creatures or objects fall slowly. Feather fall instantly changes the rate at which the targets fall to a mere 60 feet per round (equivalent to the end of a fall from a few feet), and the subjects take no damage upon landing while the spell is in effect. However, when the spell duration expires, a normal rate of falling resumes.
+
+    The spell affects one or more Medium or smaller creatures (including gear and carried objects up to each creature's maximum load) or objects, or the equivalent in larger creatures: A Large creature or object counts as two Medium creatures or objects, a Huge creature or object counts as two Large creatures or objects, and so forth.
+
+    You can cast this spell with an instant utterance, quickly enough to save yourself if you unexpectedly fall. Casting the spell is a free action, like casting a quickened spell, and it counts toward the normal limit of one quickened spell per round. You may even cast this spell when it isn't your turn.
+
+    Feather fall works only upon free-falling objects. It does not affect a sword blow or a charging or flying creature.
+- id: floating_disk
+  name: Floating Disk
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Evocation [Force]
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: 3-ft.-diameter disk of force
+  duration: 1 hour/level
+  save: None
+  spell_resistance: No
+  components: V, S, M
+  target_label: Effect
+  description: |-
+    You create a slightly concave, circular plane of force that follows you about and carries loads for you. The disk is 3 feet in diameter and 1 inch deep at its center. It can hold 100 pounds of weight per caster level. (If used to transport a liquid, its capacity is 2 gallons.) The disk floats approximately 3 feet above the ground at all times and remains level. It floats along horizontally within spell range and will accompany you at a rate of no more than your normal speed each round. If not otherwise directed, it maintains a constant interval of 5 feet between itself and you. The disk winks out of existence when the spell duration expires. The disk also winks out if you move beyond range or try to take the disk more than 3 feet away from the surface beneath it. When the disk winks out, whatever it was supporting falls to the surface beneath it.
+
+    Material Component: A drop of mercury.
+- id: grease
+  name: Grease
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Conjuration (Creation)
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One object or a 10-ft. square
+  duration: 1 round/level (D)
+  save: See text
+  spell_resistance: No
+  components: V, S, M
+  target_label: Target
+  description: |-
+    A grease spell covers a solid surface with a layer of slippery grease. Any creature in the area when the spell is cast must make a successful Reflex save or fall. This save is repeated on your turn each round that the creature remains within the area. A creature can walk within or through the area of grease at half normal speed with a DC 10 Balance check. Failure means it can't move that round (and must then make a Reflex save or fall), while failure by 5 or more means it falls (see the Balance skill for details).
+
+    The spell can also be used to create a greasy coating on an item. Material objects not in use are always affected by this spell, while an object wielded or employed by a creature receives a Reflex saving throw to avoid the effect. If the initial saving throw fails, the creature immediately drops the item. A saving throw must be made in each round that the creature attempts to pick up or use the greased item. A creature wearing greased armor or clothing gains a +10 circumstance bonus on Escape Artist checks and on grapple checks made to resist or escape a grapple or to escape a pin.
+
+    Material Component: A bit of pork rind or butter.
+- id: hideous_laughter
+  name: Hideous Laughter
+  level_druid:
+  level_cleric:
+  level_wizard:
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Enchantment (Compulsion) [Mind-Affecting]
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One creature; see text
+  duration: 1 round/level
+  save: Will negates
+  spell_resistance: Yes
+  components: V, S, M
+  target_label: Target
+  description: |-
+    This spell afflicts the subject with uncontrollable laughter. It collapses into gales of manic laughter, falling prone. The subject can take no actions while laughing, but is not considered helpless. After the spell ends, it can act normally.
+
+    A creature with an Intelligence score of 2 or lower is not affected. A creature whose type is different from the caster's receives a +4 bonus on its saving throw, because humor doesn't "translate" well.
+
+    Material Component: Tiny tarts that are thrown at the target and a feather that is waved in the air.
+- id: hold_portal
+  name: Hold Portal
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Abjuration
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target: One portal, up to 20 sq. ft./level
+  duration: 1 min./level (D)
+  save: None
+  spell_resistance: No
+  components: V
+  target_label: Target
+  description: This spell magically holds shut a door, gate, window, or shutter of wood, metal, or stone. The magic affects the portal just as if it were securely closed and normally locked. A knock spell or a successful dispel magic spell can negate a hold portal spell. For a portal affected by this spell, add 5 to the normal DC for forcing open the portal.
+- id: hypnotism
+  name: Hypnotism
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Enchantment (Compulsion) [Mind-Affecting]
+  cast_time: 1 round
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: Several living creatures, no two of which may be more than 30 ft. apart
+  duration: 2d4 rounds (D)
+  save: Will negates
+  spell_resistance: Yes
+  components: V, S
+  target_label: Area
+  description: |-
+    Your gestures and droning incantation fascinate nearby creatures, causing them to stop and stare blankly at you. In addition, you can use their rapt attention to make your suggestions and requests seem more plausible. Roll 2d4 to see how many total Hit Dice of creatures you affect. Creatures with fewer HD are affected before creatures with more HD. Only creatures that can see or hear you are affected, but they do not need to understand you to be fascinated.
+
+    If you use this spell in combat, each target gains a +2 bonus on its saving throw. If the spell affects only a single creature not in combat at the time, the saving throw has a penalty of -2.
+
+    While the subject is fascinated by this spell, it reacts as though it were two steps more friendly in attitude. This allows you to make a single request of the affected creature (provided you can communicate with it). The request must be brief and reasonable. Even after the spell ends, the creature retains its new attitude toward you, but only with respect to that particular request.
+
+    A creature that fails its saving throw does not remember that you enspelled it.
+- id: identify
+  name: Identify
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Divination
+  cast_time: 1 hour
+  range: Touch
+  target: One touched object
+  duration: Instantaneous
+  save: None
+  spell_resistance: No
+  components: V, S, M/DF
+  target_label: Targets
+  description: |-
+    The spell determines all magic properties of a single magic item, including how to activate those functions (if appropriate), and how many charges are left (if any).
+
+    Identify does not function when used on an artifact.
+
+    Arcane Material Component: A pearl of at least 100 gp value, crushed and stirred into wine with an owl feather; the infusion must be drunk prior to spellcasting.
+- id: lesser_confusion
+  name: Lesser Confusion
+  level_druid:
+  level_cleric:
+  level_wizard:
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Enchantment (Compulsion) [Mind-Affecting]
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One living creature
+  duration: 1 round
+  save: Will negates
+  spell_resistance: Yes
+  components: V, S, DF
+  target_label: Target
+  description: This spell causes a single creature to become confused for 1 round. See the confusion spell to determine the exact effect on the subject.
+- id: lullaby
+  name: Lullaby
+  level_druid:
+  level_cleric:
+  level_wizard:
+  level_bard: 0
+  level_ranger:
+  level_paladin:
+  school: Enchantment (Compulsion) [Mind-Affecting]
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target: Living creatures within a 10-ft.-radius burst
+  duration: Concentration + 1 round/level (D)
+  save: Will negates
+  spell_resistance: Yes
+  components: V, S
+  target_label: Area
+  description: "Any creature within the area that fails a Will save becomes drowsy and inattentive, taking a –5 penalty on Listen and Spot checks and a –2 penalty on Will saves against sleep effects while the lullaby is in effect. Lullaby lasts for as long as the caster concentrates, plus up to 1 round per caster level thereafter."
+- id: mage_armor
+  name: Mage Armor
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Conjuration (Creation) [Force]
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature touched
+  duration: 1 hour/level (D)
+  save: Will negates (harmless)
+  spell_resistance: No
+  components: V, S, F
+  target_label: Target
+  description: |-
+    An invisible but tangible field of force surrounds the subject of a mage armor spell, providing a +4 armor bonus to AC.
+
+    Unlike mundane armor, mage armor entails no armor check penalty, arcane spell failure chance, or speed reduction. Since mage armor is made of force, incorporeal creatures can't bypass it the way they do normal armor.
+
+    Focus: A piece of cured leather.
+- id: mage_hand
+  name: Mage Hand
+  level_druid:
+  level_cleric:
+  level_wizard: 0
+  level_bard: 0
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One nonmagical, unattended object weighing up to 5 lb.
+  duration: Concentration
+  save: None
+  spell_resistance: No
+  components: V, S
+  target_label: Target
+  description: You point your finger at an object and can lift it and move it at will from a distance. As a move action, you can propel the object as far as 15 feet in any direction, though the spell ends if the distance between you and the object ever exceeds the spell's range.
+- id: magic_aura
+  name: Magic Aura
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Illusion (Glamer)
+  cast_time: 1 standard action
+  range: Touch
+  target: One touched object weighing up to 5 lb./level
+  duration: One day/level (D)
+  save: None; see text
+  spell_resistance: No
+  components: V, S, F
+  target_label: Target
+  description: |-
+    You alter an item's aura so that it registers to detect spells (and spells with similar capabilities) as though it were nonmagical, or a magic item of a kind you specify, or the subject of a spell you specify.
+
+    If the object bearing magic aura has identify cast on it or is similarly examined, the examiner recognizes that the aura is false and detects the object's actual qualities if he succeeds on a Will save. Otherwise, he believes the aura and no amount of testing reveals what the true magic is.
+
+    If the targeted item's own aura is exceptionally powerful (if it is an artifact, for instance), magic aura doesn't work.
+
+    Note: A magic weapon, shield, or suit of armor must be a masterwork item, so a sword of average make, for example, looks suspicious if it has a magical aura.
+
+    Focus: A small square of silk that must be passed over the object that receives the aura.
+- id: magic_missile
+  name: Magic Missile
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Evocation [Force]
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target: Up to five creatures, no two of which can be more than 15 ft. apart
+  duration: Instantaneous
+  save: None
+  spell_resistance: Yes
+  components: V, S
+  target_label: Targets
+  description: |-
+    A missile of magical energy darts forth from your fingertip and strikes its target, dealing 1d4+1 points of force damage.
+
+    The missile strikes unerringly, even if the target is in melee combat or has less than total cover or total concealment. Specific parts of a creature can't be singled out. Inanimate objects are not damaged by the spell.
+
+    For every two caster levels beyond 1st, you gain an additional missile—two at 3rd level, three at 5th, four at 7th, and the maximum of five missiles at 9th level or higher. If you shoot multiple missiles, you can have them strike a single creature or several creatures. A single missile can strike only one creature. You must designate targets before you check for spell resistance or roll damage.
+- id: magic_mouth
+  name: Magic Mouth
+  level_druid:
+  level_cleric:
+  level_wizard:
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Illusion (Glamer)
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One creature or object
+  duration: Permanent until discharged
+  save: Will negates (object)
+  spell_resistance: Yes (object)
+  components: V, S, M
+  target_label: Target
+  description: |-
+    This spell imbues the chosen object or creature with an enchanted mouth that suddenly appears and speaks its message the next time a specified event occurs. The message, which must be twenty-five or fewer words long, can be in any language known by you and can be delivered over a period of 10 minutes. The mouth cannot utter verbal components, use command words, or activate magical effects. It does, however, move according to the words articulated; if it were placed upon a statue, the mouth of the statue would move and appear to speak.
+
+    The spell functions when specific conditions are fulfilled according to your command as set in the spell. Commands can be as general or as detailed as desired, although only visual and audible triggers can be used. Triggers react to what appears to be the case. Disguises and illusions can fool them. Normal darkness does not defeat a visual trigger, but magical darkness or invisibility does. Silent movement or magical silence defeats audible triggers. Audible triggers can be keyed to general types of noises or to a specific noise or spoken word. Actions can serve as triggers if they are visible or audible. A magic mouth cannot distinguish alignment, level, Hit Dice, or class except by external garb.
+
+    The range limit of a trigger is 15 feet per caster level. Regardless of range, the mouth can respond only to visible or audible triggers and actions in line of sight or within hearing distance.
+
+    Magic mouth can be made permanent with a permanency spell.
+
+    Material Component: A small bit of honeycomb and jade dust worth 10 gp.
+- id: message
+  name: Message
+  level_druid:
+  level_cleric:
+  level_wizard: 0
+  level_bard: 0
+  level_ranger:
+  level_paladin:
+  school: Transmutation [Language-Dependent]
+  cast_time: 1 standard action
+  range: Medium (100 ft. + 10 ft./level)
+  target: One creature/level
+  duration: 10 min./level
+  save: None
+  spell_resistance: No
+  components: V, S, F
+  target_label: Targets
+  description: |-
+    You can whisper messages and receive whispered replies with little chance of being overheard. You point your finger at each creature you want to receive the message. When you whisper, the whispered message is audible to all targeted creatures within range. Magical silence, 1 foot of stone, 1 inch of common metal (or a thin sheet of lead), or 3 feet of wood or dirt blocks the spell. The message does not have to travel in a straight line. It can circumvent a barrier if there is an open path between you and the subject, and the path's entire length lies within the spell's range. The creatures that receive the message can whisper a reply that you hear. The spell transmits sound, not meaning. It doesn't transcend language barriers.
+
+    Note: To speak a message, you must mouth the words and whisper, possibly allowing observers the opportunity to read your lips.
+
+    Focus: A short piece of copper wire.
+- id: mount
+  name: Mount
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Conjuration (Summoning)
+  cast_time: 1 round
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One mount
+  duration: 2 hours/level (D)
+  save: None
+  spell_resistance: No
+  components: V, S, M
+  target_label: Effect
+  description: |-
+    You summon a light horse or a pony (your choice) to serve you as a mount. The steed serves willingly and well. The mount comes with a bit and bridle and a riding saddle.
+
+    Material Component: A bit of horse hair.
+- id: obscure_object
+  name: Obscure Object
+  level_druid:
+  level_cleric:
+  level_wizard:
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Abjuration
+  cast_time: 1 standard action
+  range: Touch
+  target: One object touched of up to 100 lb./level
+  duration: 8 hours (D)
+  save: Will negates (object)
+  spell_resistance: Yes (object)
+  components: V, S, M/DF
+  target_label: Target
+  description: |-
+    This spell hides an object from location by divination (scrying) effects, such as the scrying spell or a crystal ball. Such an attempt automatically fails (if the divination is targeted on the object) or fails to perceive the object (if the divination is targeted on a nearby location, object, or person).
+
+    Arcane Material Component: A piece of chameleon skin.
+- id: open_close
+  name: Open/Close
+  level_druid:
+  level_cleric:
+  level_wizard: 0
+  level_bard: 0
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: Object weighing up to 30 lb. or portal that can be opened or closed
+  duration: Instantaneous
+  save: Will negates (object)
+  spell_resistance: Yes (object)
+  components: V, S, F
+  target_label: Target
+  description: |-
+    You can open or close (your choice) a door, chest, box, window, bag, pouch, bottle, barrel, or other container. If anything resists this activity (such as a bar on a door or a lock on a chest), the spell fails. In addition, the spell can only open and close things weighing 30 pounds or less. Thus, doors, chests, and similar objects sized for enormous creatures may be beyond this spell's ability to affect.
+
+    Focus: A brass key.
+- id: ray_of_enfeeblement
+  name: Ray of Enfeeblement
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Necromancy
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: Ray
+  duration: 1 min./level
+  save: None
+  spell_resistance: Yes
+  components: V, S
+  target_label: Effect
+  description: A coruscating ray springs from your hand. You must succeed on a ranged touch attack to strike a target. The subject takes a penalty to Strength equal to 1d6+1 per two caster levels (maximum 1d6+5). The subject's Strength score cannot drop below 1.
+- id: ray_of_frost
+  name: Ray of Frost
+  level_druid:
+  level_cleric:
+  level_wizard: 0
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Evocation [Cold]
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: Ray
+  duration: Instantaneous
+  save: None
+  spell_resistance: Yes
+  components: V, S
+  target_label: Effect
+  description: A ray of freezing air and ice projects from your pointing finger. You must succeed on a ranged touch attack with the ray to deal damage to a target. The ray deals 1d3 points of cold damage.
+- id: reduce_person
+  name: Reduce Person
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Transmutation
+  cast_time: 1 round
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One humanoid creature
+  duration: 1 min./level (D)
+  save: Fortitude negates
+  spell_resistance: Yes
+  components: V, S, M
+  target_label: Target
+  description: |-
+    This spell causes instant diminution of a humanoid creature, halving its height, length, and width and dividing its weight by 8. This decrease changes the creature's size category to the next smaller one. The target gains a +2 size bonus to Dexterity, a -2 size penalty to Strength (to a minimum of 1), and a +1 bonus on attack rolls and AC due to its reduced size.
+
+    A Small humanoid creature whose size decreases to Tiny has a space of 2-1/2 feet and a natural reach of 0 feet (meaning that it must enter an opponent's square to attack). A Large humanoid creature whose size decreases to Medium has a space of 5 feet and a natural reach of 5 feet. This spell doesn't change the target's speed.
+
+    All equipment worn or carried by a creature is similarly reduced by the spell. Melee and projectile weapons deal less damage. Any reduced item that leaves the reduced creature's possession instantly returns to its normal size.
+
+    Multiple magical effects that reduce size do not stack. Reduce person counters and dispels enlarge person.
+
+    Material Component: A pinch of powdered iron.
+- id: shield
+  name: Shield
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Abjuration [Force]
+  cast_time: 1 standard action
+  range: Personal
+  target: You
+  duration: 1 min./level (D)
+  save:
+  spell_resistance:
+  components: V, S
+  target_label: Target
+  self_duration: 1
+  description: Shield creates an invisible, tower shield-sized mobile disk of force that hovers in front of you. It negates magic missile attacks directed at you. The disk also provides a +4 shield bonus to AC. This bonus applies against incorporeal touch attacks, since it is a force effect. The shield has no armor check penalty or arcane spell failure chance. Unlike with a normal tower shield, you can't use the shield spell for cover.
+- id: shocking_grasp
+  name: Shocking Grasp
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Evocation [Electricity]
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature or object touched
+  duration: Instantaneous
+  save: None
+  spell_resistance: Yes
+  components: V, S
+  target_label: Target
+  description: Your successful melee touch attack deals 1d6 points of electricity damage per caster level (maximum 5d6). When delivering the jolt, you gain a +3 bonus on attack rolls if the opponent is wearing metal armor (or made out of metal, carrying a lot of metal, or the like).
+- id: silent_image
+  name: Silent Image
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Illusion (Figment)
+  cast_time: 1 standard action
+  range: Long (400 ft. + 40 ft./level)
+  target: Visual figment that cannot extend beyond four 10-ft. cubes + one 10-ft. cube/level (S)
+  duration: Concentration
+  save: Will disbelief (if interacted with)
+  spell_resistance: No
+  components: V, S, F
+  target_label: Effect
+  description: |-
+    This spell creates the visual illusion of an object, creature, or force, as visualized by you. The illusion does not create sound, smell, texture, or temperature. You can move the image within the limits of the size of the effect.
+
+    Focus: A bit of fleece.
+- id: sleep
+  name: Sleep
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Enchantment (Compulsion) [Mind-Affecting]
+  cast_time: 1 round
+  range: Medium (100 ft. + 10 ft./level)
+  target: One or more living creatures within a 10-ft.-radius burst
+  duration: 1 min./level
+  save: Will negates
+  spell_resistance: Yes
+  components: V, S, M
+  target_label: Area
+  description: |-
+    A sleep spell causes a magical slumber to come upon 4 Hit Dice of creatures. Creatures with the fewest HD are affected first.
+
+    Among creatures with equal HD, those who are closest to the spell's point of origin are affected first. Hit Dice that are not sufficient to affect a creature are wasted.
+
+    Sleeping creatures are helpless. Slapping or wounding awakens an affected creature, but normal noise does not. Awakening a creature is a standard action (an application of the aid another action).
+
+    Sleep does not target unconscious creatures, constructs, or undead creatures.
+
+    Material Component: A pinch of fine sand, rose petals, or a live cricket.
+- id: summon_instrument
+  name: Summon Instrument
+  level_druid:
+  level_cleric:
+  level_wizard:
+  level_bard: 0
+  level_ranger:
+  level_paladin:
+  school: Conjuration (Summoning)
+  cast_time: 1 round
+  range: 0 ft.
+  target: One summoned handheld musical instrument
+  duration: 1 min./level (D)
+  save: None
+  spell_resistance: No
+  components: V, S
+  target_label: Effect
+  description: This spell summons one handheld musical instrument of your choice. This instrument appears in your hands or at your feet (your choice). The instrument is typical for its type. Only one instrument appears per casting, and it will play only for you. You can't summon an instrument too large to be held in two hands.
+- id: touch_of_fatigue
+  name: Touch of Fatigue
+  level_druid:
+  level_cleric:
+  level_wizard: 0
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Necromancy
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature touched
+  duration: 1 round/level
+  save: Fortitude negates
+  spell_resistance: Yes
+  components: V, S, M
+  target_label: Target
+  description: |-
+    You channel negative energy through your touch, fatiguing the target. You must succeed on a touch attack to strike a target.
+
+    The subject is immediately fatigued for the spell's duration. This spell has no effect on a creature that is already fatigued. Unlike with normal fatigue, the effect ends as soon as the spell's duration expires.
+
+    Material Component: A drop of sweat.
+- id: true_strike
+  name: True Strike
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Divination
+  cast_time: 1 standard action
+  range: Personal
+  target: You
+  duration: See text
+  save:
+  spell_resistance:
+  components: V, F
+  target_label: Target
+  self_duration: 1
+  description: |-
+    You gain temporary, intuitive insight into the immediate future during your next attack. Your next single attack roll (if it is made before the end of the next round) gains a +20 insight bonus. Additionally, you are not affected by the miss chance that applies to attackers trying to strike a concealed target.
+
+    Focus: A small wooden replica of an archery target.
+- id: undetectable_alignment
+  name: Undetectable Alignment
+  level_druid:
+  level_cleric:
+  level_wizard:
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Abjuration
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One creature or object
+  duration: 24 hours
+  save: Will negates (object)
+  spell_resistance: Yes (object)
+  components: V, S
+  target_label: Target
+  description: An undetectable alignment spell conceals the alignment of an object or a creature from all forms of divination.
+- id: unseen_servant
+  name: Unseen Servant
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Conjuration (Creation)
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One invisible, mindless, shapeless servant
+  duration: 1 hour/level
+  save: None
+  spell_resistance: No
+  components: V, S, M
+  target_label: Effect
+  description: |-
+    An unseen servant is an invisible, mindless, shapeless force that performs simple tasks at your command. It can run and fetch things, open unstuck doors, and hold chairs, as well as clean and mend. The servant can perform only one activity at a time, but it repeats the same activity over and over again if told to do so as long as you remain within range. It can open only normal doors, drawers, lids, and the like. It has an effective Strength score of 2 (so it can lift 20 pounds or drag 100 pounds). It can trigger traps and such, but it can exert only 20 pounds of force, which is not enough to activate certain pressure plates and other devices. It can't perform any task that requires a skill check with a DC higher than 10 or that requires a check using a skill that can't be used untrained. Its speed is 15 feet.
+
+    The servant cannot attack in any way; it is never allowed an attack roll. It cannot be killed, but it dissipates if it takes 6 points of damage from area attacks. (It gets no saves against attacks.) If you attempt to send it beyond the spell's range (measured from your current position), the servant ceases to exist.
+
+    Material Component: A piece of string and a bit of wood.
+- id: ventriloquism
+  name: Ventriloquism
+  level_druid:
+  level_cleric:
+  level_wizard: 1
+  level_bard: 1
+  level_ranger:
+  level_paladin:
+  school: Illusion (Figment)
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: Intelligible sound, usually speech
+  duration: 1 min./level (D)
+  save: Will disbelief (if interacted with)
+  spell_resistance: No
+  components: V, F
+  target_label: Effect
+  description: |-
+    You can make your voice (or any sound that you can normally make vocally) seem to issue from someplace else. You can speak in any language you know. With respect to such voices and sounds, anyone who hears the sound and rolls a successful save recognizes it as illusory (but still hears it).
+
+    Focus: A parchment rolled up into a small cone.

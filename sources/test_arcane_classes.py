@@ -193,6 +193,56 @@ def test_cleric_wis_bonus_slots_unchanged():
     assert with_wis[3] > base[3]
 
 
+# ── Fase 2: level_bard-kolonne og spell-data ─────────────────────────────────
+
+def test_level_bard_column_exists():
+    """level_bard-kolonnen skal eksistere i spells-tabellen."""
+    import sqlite3, os
+    db_path = os.environ.get("DND_DB_PATH", str(pathlib.Path(__file__).parent / "srd35.db"))
+    conn = sqlite3.connect(db_path)
+    cols = [row[1] for row in conn.execute("PRAGMA table_info(spells)")]
+    conn.close()
+    assert "level_bard" in cols, "level_bard mangler i spells-tabellen"
+
+
+def test_level_bard_has_entries():
+    """level_bard-kolonnen skal have mindst 16 L0- og 26 L1-spells."""
+    import sqlite3, os
+    db_path = os.environ.get("DND_DB_PATH", str(pathlib.Path(__file__).parent / "srd35.db"))
+    conn = sqlite3.connect(db_path)
+    n0 = conn.execute("SELECT count(*) FROM spells WHERE level_bard=0").fetchone()[0]
+    n1 = conn.execute("SELECT count(*) FROM spells WHERE level_bard=1").fetchone()[0]
+    conn.close()
+    assert n0 == 16, f"Forventede 16 bard L0-spells, fik {n0}"
+    assert n1 == 26, f"Forventede 26 bard L1-spells, fik {n1}"
+
+
+def test_magic_missile_is_wizard_1():
+    spell = db_module.get_spell("magic_missile")
+    assert spell is not None, "magic_missile ikke fundet"
+    assert spell["level_wizard"] == 1
+
+
+def test_sleep_is_wizard_1_and_bard_1():
+    spell = db_module.get_spell("sleep")
+    assert spell is not None, "sleep ikke fundet"
+    assert spell["level_wizard"] == 1
+    assert spell["level_bard"] == 1
+
+
+def test_acid_splash_is_wizard_0():
+    spell = db_module.get_spell("acid_splash")
+    assert spell is not None, "acid_splash ikke fundet"
+    assert spell["level_wizard"] == 0
+
+
+def test_daze_is_bard_0_and_wizard_0():
+    spell = db_module.get_spell("daze")
+    assert spell is not None, "daze ikke fundet"
+    assert spell["level_bard"] == 0
+    assert spell["level_wizard"] == 0
+
+
 # ── Spot-verifikation: print for manuel kontrol ───────────────────────────────
 
 def test_spot_check_levels(capsys):

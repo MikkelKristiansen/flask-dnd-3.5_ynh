@@ -7,6 +7,7 @@ CREATE TABLE spells (
     level_druid INTEGER,
     level_cleric INTEGER,
     level_wizard INTEGER,
+    level_bard INTEGER,
     level_ranger INTEGER,
     level_paladin INTEGER,
     school TEXT,
