@@ -531,13 +531,16 @@ def save_character(path: str, updates: dict) -> None:
     if "new_feat" in updates and updates["new_feat"]:
         feats = list(data.get("feats") or [])
         nf = updates["new_feat"]
-        # new_feat kan være en ren id-streng eller {id, weapon} for våben-feats.
+        # new_feat kan være en ren id-streng, {id, weapon} for våben-feats eller
+        # {id, school} for skole-feats (Spell Focus m.fl.).
         if isinstance(nf, dict) and nf.get("weapon"):
             entry: object = {"id": str(nf["id"]), "weapon": str(nf["weapon"])}
+        elif isinstance(nf, dict) and nf.get("school"):
+            entry = {"id": str(nf["id"]), "school": str(nf["school"])}
         else:
             entry = feat_id(nf)
-        new_key = (feat_id(entry), feat_weapon(entry))
-        existing = {(feat_id(e), feat_weapon(e)) for e in feats}
+        new_key = (feat_id(entry), feat_weapon(entry), feat_school(entry))
+        existing = {(feat_id(e), feat_weapon(e), feat_school(e)) for e in feats}
         if new_key not in existing:
             feats.append(entry)
         data["feats"] = feats
@@ -559,4 +562,4 @@ def save_character(path: str, updates: dict) -> None:
 # uanset importrækkefølge.
 from character import (  # noqa: E402,F401
     AbilityScores, Skill, Attack, InventoryItem, Character,
-    validate_character_data, INVENTORY_STATES, feat_id, feat_weapon)
+    validate_character_data, INVENTORY_STATES, feat_id, feat_weapon, feat_school)

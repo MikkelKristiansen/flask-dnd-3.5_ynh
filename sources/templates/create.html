@@ -172,10 +172,11 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
     <div id="feat-note" class="hint"></div>
     <div class="feat-list">
       {% set weapon_choice_feats = ['weapon_focus','weapon_specialization','improved_critical'] %}
+      {% set school_choice_feats = ['spell_focus','greater_spell_focus'] %}
       {% for ft in feats %}
       <div class="feat-row" style="flex-wrap:wrap">
         <input type="checkbox" id="feat_{{ ft.id }}" name="feats" value="{{ ft.id }}"
-               onchange="onUpdate(){% if ft.id in weapon_choice_feats %};toggleFeatWeapon('{{ ft.id }}'){% endif %}">
+               onchange="onUpdate(){% if ft.id in weapon_choice_feats %};toggleFeatWeapon('{{ ft.id }}'){% elif ft.id in school_choice_feats %};toggleFeatSchool('{{ ft.id }}'){% endif %}">
         <label for="feat_{{ ft.id }}" title="{{ ft.benefit }}">{{ ft.name }}{% if ft.prerequisites and ft.prerequisites != 'None' %}
           <span class="pre">— {{ ft.prerequisites }}</span>{% endif %}</label>
         {% if ft.id in weapon_choice_feats %}
@@ -188,6 +189,12 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
           </optgroup>
           {% endfor %}
         </select>
+        {% elif ft.id in school_choice_feats %}
+        <select name="feat_school_{{ ft.id }}" id="featsch_{{ ft.id }}"
+                style="display:none;flex-basis:100%;margin-top:.25rem" onchange="onUpdate()">
+          <option value="">— vælg troldskole —</option>
+          {% for school in spell_schools %}<option value="{{ school }}">{{ school }}</option>{% endfor %}
+        </select>
         {% endif %}
       </div>
       {% endfor %}
@@ -197,13 +204,14 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
 
   <div class="section hidden" id="bonus-feat-section">
     {% set weapon_choice_feats = ['weapon_focus','weapon_specialization','improved_critical'] %}
+    {% set school_choice_feats = ['spell_focus','greater_spell_focus'] %}
     <div class="section-title">Bonus-feat <span style="color:var(--muted);font-size:.75rem">(vælg fra klassens bonus-feat-pulje)</span></div>
     <div class="budget" id="bonus-feat-budget"></div>
     <div class="feat-list">
       {% for ft in bonus_feat_candidates %}
       <div class="feat-row" data-pool="{{ ft.eligible }}" style="flex-wrap:wrap">
         <input type="checkbox" id="bfeat_{{ ft.id }}" name="bonus_feats" value="{{ ft.id }}"
-               onchange="onUpdate(){% if ft.id in weapon_choice_feats %};toggleFeatWeapon('{{ ft.id }}','bfeat'){% endif %}">
+               onchange="onUpdate(){% if ft.id in weapon_choice_feats %};toggleFeatWeapon('{{ ft.id }}','bfeat'){% elif ft.id in school_choice_feats %};toggleFeatSchool('{{ ft.id }}','bfeat'){% endif %}">
         <label for="bfeat_{{ ft.id }}" title="{{ ft.benefit }}">{{ ft.name }}{% if ft.prerequisites and ft.prerequisites != 'None' %}
           <span class="pre">— {{ ft.prerequisites }}</span>{% endif %}</label>
         {% if ft.id in weapon_choice_feats %}
@@ -215,6 +223,12 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
             {% for w in weapons if w.group == grp %}<option value="{{ w.name }}">{{ w.name }}</option>{% endfor %}
           </optgroup>
           {% endfor %}
+        </select>
+        {% elif ft.id in school_choice_feats %}
+        <select name="bonus_feat_school_{{ ft.id }}" id="bfeatsch_{{ ft.id }}"
+                style="display:none;flex-basis:100%;margin-top:.25rem" onchange="onUpdate()">
+          <option value="">— vælg troldskole —</option>
+          {% for school in spell_schools %}<option value="{{ school }}">{{ school }}</option>{% endfor %}
         </select>
         {% endif %}
       </div>
@@ -337,6 +351,7 @@ const FEAT_PREREQS = {{ feat_prereqs|tojson }};
 const FEAT_NAME_TO_ID = {{ feat_name_to_id|tojson }};
 const FEAT_ID_TO_NAME = Object.fromEntries(Object.entries(FEAT_NAME_TO_ID).map(([n,i])=>[i,n]));
 const WEAPON_CHOICE_FEATS = ['weapon_focus','weapon_specialization','improved_critical'];
+const SCHOOL_CHOICE_FEATS = ['spell_focus','greater_spell_focus'];
 // Point-buy-priser (spejler rules.POINT_BUY_COST). Budget = 28.
 const POINTBUY_COST = {8:0,9:1,10:2,11:3,12:4,13:5,14:6,15:8,16:10,17:13,18:16};
 
@@ -407,6 +422,16 @@ function toggleFeatWeapon(fid, prefix){
   if(!cb.checked) sel.value = '';
 }
 
+// Vis/skjul troldskole-dropdown når en skole-feat (Spell Focus m.fl.) krydses af/fra.
+function toggleFeatSchool(fid, prefix){
+  prefix = prefix || 'feat';
+  const cb = document.getElementById(prefix+'_'+fid);
+  const sel = document.getElementById(prefix+'sch_'+fid);
+  if(!cb || !sel) return;
+  sel.style.display = cb.checked ? 'block' : 'none';
+  if(!cb.checked) sel.value = '';
+}
+
 const ABILITY_RE = /^(str|dex|con|int|wis|cha)\s+(\d+)$/i;
 const BAB_RE = /(?:base attack bonus|bab)\s*\+?(\d+)/i;
 const LEVEL_RE = /level\s+(\d+)/i;
@@ -428,6 +453,13 @@ function featUnmet(prereq, owned, finalScores, bab, canTurn){
     const low=cl.toLowerCase();
     if(low.includes('turn') && low.includes('undead')){ if(!canTurn) unmet.push(cl); return; }
     if(low.includes('wild shape')){ unmet.push(cl); return; }  // ingen klasse har wild shape ved level 1
+    if(owned.has(low)) return;   // kvalificeret valg-feat ejet (fx 'spell focus (conjuration)')
+    // Valg-feat med specifikt valg, ikke ejet → kræver præcis det valg.
+    const mc = low.match(/^(.*?)\s*\(.+\)$/);
+    if(mc){
+      const base = FEAT_NAME_TO_ID[mc[1].trim()];
+      if(WEAPON_CHOICE_FEATS.includes(base) || SCHOOL_CHOICE_FEATS.includes(base)){ unmet.push(cl); return; }
+    }
     if(low.startsWith('proficiency')) return;
     const fid=FEAT_NAME_TO_ID[low];
     if(fid!==undefined){ if(!owned.has(fid)) unmet.push(cl); return; }
@@ -541,6 +573,15 @@ function onUpdate(){
   // Owned = valgte + fighter-bonus + klassens gratis feats (feat-kæder gælder når valgt).
   const owned = new Set(checkedEls.map(e=>e.value)
     .concat(bonusEls.map(e=>e.value)).concat(cd.bonus_feats));
+  // Kvalificerede labels for valgte skole-feats ('spell focus (conjuration)'), så
+  // navne-baserede prereqs (Augment Summoning) matcher det valgte.
+  checkedEls.concat(bonusEls).forEach(e=>{
+    if (SCHOOL_CHOICE_FEATS.includes(e.value)) {
+      const pre = (e.name === 'bonus_feats') ? 'bfeat' : 'feat';
+      const sch = (document.getElementById(pre+'sch_'+e.value)||{}).value;
+      if (sch) owned.add(`${(FEAT_ID_TO_NAME[e.value]||e.value).toLowerCase()} (${sch.toLowerCase()})`);
+    }
+  });
   const prereqProblems = [];
   checkedEls.forEach(e=>{
     const miss = featUnmet(FEAT_PREREQS[e.value]||'', owned, finalScores, cd.bab1, cd.turn_undead);
@@ -549,6 +590,11 @@ function onUpdate(){
     if (WEAPON_CHOICE_FEATS.includes(e.value)) {
       const sel = document.getElementById('featwpn_'+e.value);
       if (sel && !sel.value) prereqProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value}: vælg et våben`);
+    }
+    // Skole-feats: en troldskole skal være valgt.
+    if (SCHOOL_CHOICE_FEATS.includes(e.value)) {
+      const sel = document.getElementById('featsch_'+e.value);
+      if (sel && !sel.value) prereqProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value}: vælg en troldskole`);
     }
   });
   let featErr = '';
@@ -581,6 +627,10 @@ function onUpdate(){
       if (WEAPON_CHOICE_FEATS.includes(e.value)) {
         const sel = document.getElementById('bfeatwpn_'+e.value);
         if (sel && !sel.value) bfProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value}: vælg et våben`);
+      }
+      if (SCHOOL_CHOICE_FEATS.includes(e.value)) {
+        const sel = document.getElementById('bfeatsch_'+e.value);
+        if (sel && !sel.value) bfProblems.push(`${FEAT_ID_TO_NAME[e.value]||e.value}: vælg en troldskole`);
       }
     });
     document.getElementById('bonus-feat-budget').innerHTML =

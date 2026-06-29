@@ -167,13 +167,13 @@
   benefit: Add +1 to the Difficulty Class for all saving throws against spells from the school of magic you select.
   normal:
   special: You can gain this feat multiple times. Each time it applies to a new school of magic.
-- id: spell_focus_conjuration
-  name: Spell Focus (Conjuration)
+- id: greater_spell_focus
+  name: Greater Spell Focus
   type: General
-  prerequisites:
-  benefit: Add +1 to the Difficulty Class for all saving throws against Conjuration spells you cast.
+  prerequisites: Spell Focus (chosen school)
+  benefit: Add +1 to the Difficulty Class for all saving throws against spells from the school of magic you select. This stacks with the bonus from Spell Focus.
   normal:
-  special: This is the Conjuration-specific version of Spell Focus.
+  special: You can gain this feat multiple times. Each time it applies to a new school of magic for which you have Spell Focus.
 - id: spell_penetration
   name: Spell Penetration
   type: General

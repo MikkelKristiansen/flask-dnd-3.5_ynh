@@ -414,6 +414,7 @@ def _gen_context() -> dict:
         "classes_json": classes_json,
         "feat_prereqs": {x["id"]: (x.get("prerequisites") or "") for x in all_feats},
         "feat_name_to_id": {x["name"].lower(): x["id"] for x in all_feats},
+        "spell_schools": refdata.SPELL_SCHOOLS,
     }
 
 
@@ -521,9 +522,18 @@ def create_character():
                 if wpn not in weapon_names:
                     raise ValueError(f"Vælg et gyldigt våben til {name_by_id.get(fid, fid)}.")
                 feats_out.append({"id": fid, "weapon": wpn})
+            elif fid in char_module.SCHOOL_CHOICE_FEATS:
+                # Spell Focus m.fl.: vælg en troldskole (gemmes som {id, school}).
+                school = (f.get(f"feat_school_{fid}", "")
+                          or f.get(f"bonus_feat_school_{fid}", "")).strip()
+                if school not in refdata.SPELL_SCHOOLS:
+                    raise ValueError(f"Vælg en gyldig troldskole til {name_by_id.get(fid, fid)}.")
+                feats_out.append({"id": fid, "school": school})
             else:
                 feats_out.append(fid)
-        owned_ids = [char_module.feat_id(e) for e in feats_out]
+        # Ejer-tokens inkl. kvalificerede labels ('spell focus (conjuration)'), så
+        # navne-baserede prereqs (Augment Summoning) matcher det valgte.
+        owned_tokens = char_module.owned_feat_tokens(feats_out, name_by_id)
 
         # Håndhæv feat-prerequisites (fx Augment Summoning kræver Spell Focus (Conjuration)).
         name_to_id = {x["name"].lower(): x["id"] for x in all_feats}
@@ -533,7 +543,7 @@ def create_character():
         prereq_check = chosen if char_module.class_bonus_feat_ignore_prereqs(cls) else chosen + bonus_chosen
         for fid in prereq_check:
             missing = char_module.feat_prereq_unmet(
-                prereq_by_id.get(fid) or "", owned_ids, final, cls, 1, bab1, name_to_id)
+                prereq_by_id.get(fid) or "", owned_tokens, final, cls, 1, bab1, name_to_id)
             if missing:
                 raise ValueError(f"{name_by_id.get(fid, fid)} kræver: {', '.join(missing)}.")
 
@@ -1332,6 +1342,7 @@ def build_character_view(char, db):
         "all_feats_json": all_feats_json,
         "all_skills_json": all_skills_json,
         "cls_skills_json": cls_skills_json,
+        "spell_schools": refdata.SPELL_SCHOOLS,
     }
 
 

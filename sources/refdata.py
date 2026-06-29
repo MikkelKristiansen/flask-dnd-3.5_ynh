@@ -312,9 +312,17 @@ def class_armor_proficiency(cls: str) -> dict | None:
 # en ren id-streng). Bruges af generatoren, level-up og visningen.
 WEAPON_CHOICE_FEATS = {"weapon_focus", "weapon_specialization", "improved_critical"}
 
+# Feats hvor man i stedet vælger en troldskole (gemmes som {id, school}). Spell
+# Focus/Greater Spell Focus gælder hver én skole og kan tages flere gange (SRD).
+SCHOOL_CHOICE_FEATS = {"spell_focus", "greater_spell_focus"}
+
+# De otte troldskoler (SRD). Bruges til skole-valgs-feats og spell-DC-bonus.
+SPELL_SCHOOLS = ["Abjuration", "Conjuration", "Divination", "Enchantment",
+                 "Evocation", "Illusion", "Necromancy", "Transmutation"]
+
 
 def feat_id(entry) -> str:
-    """Feat-id'et, uanset om posten er en streng eller en {id, weapon}-dict."""
+    """Feat-id'et, uanset om posten er en streng eller en {id, ...}-dict."""
     return str(entry["id"] if isinstance(entry, dict) else entry)
 
 
@@ -323,11 +331,32 @@ def feat_weapon(entry) -> str:
     return str(entry.get("weapon", "")) if isinstance(entry, dict) else ""
 
 
+def feat_school(entry) -> str:
+    """Den valgte troldskole for en feat-post, eller "" hvis ingen."""
+    return str(entry.get("school", "")) if isinstance(entry, dict) else ""
+
+
 def feat_label(entry, feat_row: dict | None = None) -> str:
-    """Visningsnavn: feat-navn + evt. valgt våben, fx 'Weapon Focus (Longsword)'."""
+    """Visningsnavn + evt. valgt våben/skole, fx 'Weapon Focus (Longsword)'
+    eller 'Spell Focus (Conjuration)'."""
     name = (feat_row or {}).get("name") or feat_id(entry)
-    wpn = feat_weapon(entry)
-    return f"{name} ({wpn})" if wpn else name
+    choice = feat_weapon(entry) or feat_school(entry)
+    return f"{name} ({choice})" if choice else name
+
+
+def owned_feat_tokens(feat_entries, name_by_id: dict) -> set:
+    """Ejer-tokens til prereq-tjek: alle bare feat-id'er plus kvalificerede
+    labels ('spell focus (conjuration)') for valg-feats. Så navne-baserede
+    prerequisites som Augment Summonings stadig matcher det valgte."""
+    tokens: set = set()
+    for e in feat_entries:
+        fid = feat_id(e)
+        tokens.add(fid)
+        choice = feat_weapon(e) or feat_school(e)
+        if choice:
+            name = name_by_id.get(fid, fid)
+            tokens.add(f"{name} ({choice})".lower())
+    return tokens
 
 
 def class_needs_domains(cls: str) -> bool:
@@ -398,6 +427,16 @@ def feat_prereq_unmet(prereq_text: str, owned_feat_ids, scores: dict,
                 unmet.append(clause)
             continue
         low = clause.lower()
+        # Kvalificeret valg-feat ejet direkte (fx "spell focus (conjuration)")?
+        if low in owned:
+            continue
+        # En valg-feat med specifikt valg ('spell focus (conjuration)') som IKKE er
+        # ejet (var den, fangede linjen ovenfor) → kræver præcis det valg, ikke opfyldt.
+        m_choice = re.match(r"^(.*?)\s*\(.+\)$", low)
+        if m_choice and feat_name_to_id.get(m_choice.group(1).strip()) \
+                in (WEAPON_CHOICE_FEATS | SCHOOL_CHOICE_FEATS):
+            unmet.append(clause)
+            continue
         if "turn" in low and "undead" in low:
             if not class_can_turn_undead(cls):
                 unmet.append(clause)

@@ -71,7 +71,8 @@ skills:
   misc: 2
   misc_note: Nature Sense
 feats:
-- spell_focus_conjuration
+- id: spell_focus
+  school: Conjuration
 conditions: []
 # Gnome (Common, Gnome) + druidens hemmelige Druidic. Int 11 (mod 0) = ingen bonussprog.
 languages:

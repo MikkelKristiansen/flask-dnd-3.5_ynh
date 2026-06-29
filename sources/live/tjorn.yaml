@@ -91,7 +91,8 @@ skills:
   ranks: 4.0
   misc: 2
 feats:
-- spell_focus_conjuration
+- id: spell_focus
+  school: Conjuration
 conditions: []
 spells_prepared:
   0:

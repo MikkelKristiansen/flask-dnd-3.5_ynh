@@ -1185,6 +1185,8 @@
       <select id="lu-feat-sel" class="lu-select" size="5" onchange="pickLuFeat(this.value)"></select>
       <select id="lu-feat-weapon" class="lu-select" style="display:none;margin-top:.4rem"
               onchange="luFeatWeapon=this.value"></select>
+      <select id="lu-feat-school" class="lu-select" style="display:none;margin-top:.4rem"
+              onchange="luFeatSchool=this.value"></select>
       <div id="lu-feat-info" style="color:var(--muted);font-size:.78rem;margin-top:.4rem;line-height:1.4"></div>
     </div>
 
@@ -1479,6 +1481,7 @@ window.DND = {
   cls: {{ char.cls|tojson }},
   notesRaw: {{ char.notes|tojson }},
   paladinInfo: {{ paladin_info|tojson }},
+  spellSchools: {{ spell_schools|tojson }},
 };
 </script>
 <script src="{{ url_for('static', filename='character.js') }}"></script>

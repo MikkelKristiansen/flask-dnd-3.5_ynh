@@ -1801,8 +1801,10 @@ let luHpRoll      = 0;
 let luSkillDeltas = {};   // {id: delta float}
 let luFeat        = null;
 let luFeatWeapon  = "";   // valgt våben for våben-feats (Weapon Focus m.fl.)
+let luFeatSchool  = "";   // valgt troldskole for skole-feats (Spell Focus m.fl.)
 let luAbBoost     = null;
 const LU_WEAPON_CHOICE_FEATS = ['weapon_focus','weapon_specialization','improved_critical'];
+const LU_SCHOOL_CHOICE_FEATS = ['spell_focus','greater_spell_focus'];
 let luShownSkills = [];   // ordered list of skill IDs shown in modal
 
 function rpc(sid)  { return clsSkillSet.has(sid) ? 1.0 : 0.5; }
@@ -1814,8 +1816,9 @@ function luSPUsed() {
 }
 
 function openLevelUpModal() {
-  luHpRoll = 0; luSkillDeltas = {}; luFeat = null; luFeatWeapon = ""; luAbBoost = null;
+  luHpRoll = 0; luSkillDeltas = {}; luFeat = null; luFeatWeapon = ""; luFeatSchool = ""; luAbBoost = null;
   document.getElementById("lu-feat-weapon").style.display = "none";
+  document.getElementById("lu-feat-school").style.display = "none";
   // Vis kun skills man allerede har ranks i — resten tilføjes via dropdownen.
   luShownSkills = Object.keys(baseRanks).filter(sid => baseRanks[sid] > 0);
   document.getElementById("lu-hp-manual").value = "";
@@ -1993,6 +1996,19 @@ function pickLuFeat(fid) {
     wsel.style.display = "none";
     luFeatWeapon = "";
   }
+  // Skole-feats (Spell Focus m.fl.): vis en troldskole-dropdown og kræv et valg.
+  const ssel = document.getElementById("lu-feat-school");
+  if (luFeat && LU_SCHOOL_CHOICE_FEATS.includes(luFeat)) {
+    if (!ssel.options.length) {
+      ssel.innerHTML = '<option value="">— vælg troldskole —</option>' +
+        (D.spellSchools || []).map(s => `<option value="${escHtml(s)}">${escHtml(s)}</option>`).join("");
+    }
+    ssel.value = luFeatSchool || "";
+    ssel.style.display = "block";
+  } else {
+    ssel.style.display = "none";
+    luFeatSchool = "";
+  }
 }
 
 function showLuFeatInfo(fid) {
@@ -2023,11 +2039,14 @@ function confirmLevelUp() {
   const warn = document.getElementById("lu-warning");
   warn.textContent = "";
   if (luHpRoll <= 0) { warn.textContent = "⚠ Rul eller angiv HP-stigning først."; return; }
-  // Våben-feat valgt uden våben → bloker.
+  // Våben-/skole-feat valgt uden valg → bloker.
   let featPayload = luFeat;
   if (luFeat && LU_WEAPON_CHOICE_FEATS.includes(luFeat)) {
     if (!luFeatWeapon) { warn.textContent = "⚠ Vælg et våben til feat'en."; return; }
     featPayload = {id: luFeat, weapon: luFeatWeapon};
+  } else if (luFeat && LU_SCHOOL_CHOICE_FEATS.includes(luFeat)) {
+    if (!luFeatSchool) { warn.textContent = "⚠ Vælg en troldskole til feat'en."; return; }
+    featPayload = {id: luFeat, school: luFeatSchool};
   }
   fetch(BASE + "/api/levelup", {
     method: "POST",

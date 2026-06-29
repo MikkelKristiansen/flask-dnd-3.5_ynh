@@ -34,7 +34,9 @@ from refdata import (  # noqa: F401
     class_bonus_feat_choices, class_bonus_feat_pool, class_bonus_feat_ignore_prereqs,
     class_ac_ability, class_starting_gold,
     class_weapon_proficiency, class_armor_proficiency,
-    WEAPON_CHOICE_FEATS, feat_id, feat_weapon, feat_label, class_needs_domains,
+    WEAPON_CHOICE_FEATS, SCHOOL_CHOICE_FEATS, SPELL_SCHOOLS,
+    feat_id, feat_weapon, feat_school, feat_label, owned_feat_tokens,
+    class_needs_domains,
     base_skill_points, class_can_turn_undead, class_has_wild_shape, class_wild_shape,
     feat_prereq_unmet, spell_like_dc)
 from rules import (  # noqa: F401
