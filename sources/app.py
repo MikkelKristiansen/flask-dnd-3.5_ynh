@@ -1181,6 +1181,24 @@ def build_character_view(char, db):
             if lvl is not None:
                 available_spells.setdefault(lvl, []).append(spell)
 
+    # Spontane castere (sorcerer/bard): de caster spontant fra en KENDT liste, ikke
+    # fra forberedte slots. Hvert niveau har en slot-pulje (slots) der bruges op af
+    # spells_known_used. Save-DC pr. spell = 10 + niveau + cast-mod + Spell Focus.
+    cast_type    = refdata.class_cast_type(char.cls)
+    cast_ability = refdata.class_data(char.cls).get("cast_ability", "wis")
+    cast_mod     = ab.modifier(cast_ability)
+    known_data: dict[int, list] = {}
+    if cast_type == "spontaneous":
+        for lvl, spell_ids in char.spells_known.items():
+            rows = []
+            for sid in spell_ids:
+                spell  = db.get_spell(sid)
+                school = (spell or {}).get("school", "")
+                dc = char_module.spell_save_dc(
+                    lvl, cast_mod, char_module.spell_focus_bonus(char.feats, school))
+                rows.append({"id": sid, "spell": spell, "dc": dc})
+            known_data[lvl] = rows
+
     # Domain spells — a cleric with chosen domains gets one domain slot per
     # spell level he can cast (SRD). The slot may only hold a domain spell.
     domain_slots: dict[int, int] = {}
@@ -1345,6 +1363,10 @@ def build_character_view(char, db):
         "all_skills_json": all_skills_json,
         "cls_skills_json": cls_skills_json,
         "spell_schools": refdata.SPELL_SCHOOLS,
+        "cast_type": cast_type,
+        "cast_ability": cast_ability,
+        "cast_mod": cast_mod,
+        "known_data": known_data,
     }
 
 
@@ -1462,6 +1484,52 @@ def api_spells():
         # Reload hvis et SNA-spell (Kast-knap skifter) eller et væsen var bundet (fane).
         "is_summon": is_sna or bound_summon,
     })
+
+
+@app.route("/api/spells_known", methods=["POST"])
+def api_spells_known():
+    """Lær eller glem et spell på en spontan casters kendte liste (sorcerer/bard)."""
+    data     = request.get_json()
+    slug     = data.get("char")
+    action   = data.get("action")            # "add" | "remove"
+    level    = int(data.get("level"))
+    spell_id = str(data.get("spell_id", ""))
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char  = char_module.load_character(str(path))
+    known = {k: list(v) for k, v in char.spells_known.items()}
+    lst   = known.setdefault(level, [])
+    if action == "add" and spell_id and spell_id not in lst:
+        lst.append(spell_id)
+    elif action == "remove" and spell_id in lst:
+        lst.remove(spell_id)
+    char_module.save_character(str(path), {"spells_known": known})
+    return jsonify({"ok": True, "spells_known": {str(k): v for k, v in known.items()}})
+
+
+@app.route("/api/cast_known", methods=["POST"])
+def api_cast_known():
+    """Spontan caster: forbrug (+1) eller frigiv (−1) en slot af et niveau.
+
+    Slot-loftet beregnes server-side ud fra klasse-level + caster-evne (klienten
+    bestemmer ikke grænsen), så forbruget altid holder sig i [0, total]."""
+    data  = request.get_json()
+    slug  = data.get("char")
+    level = int(data.get("level"))
+    delta = int(data.get("delta", 1))        # +1 = kast, −1 = fortryd
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char    = char_module.load_character(str(path))
+    cld     = db.get_class_level(char.cls.lower(), char.level)
+    cast_ab = refdata.class_data(char.cls).get("cast_ability", "wis")
+    total   = (char_module.spell_slots_total(
+        cld, getattr(char.ability_scores, cast_ab)).get(level, 0) if cld else 0)
+    used = dict(char.spells_known_used)
+    used[level] = max(0, min(total, used.get(level, 0) + delta))
+    char_module.save_character(str(path), {"spells_known_used": used})
+    return jsonify({"ok": True, "level": level, "used": used[level], "total": total})
 
 
 @app.route("/api/summon", methods=["POST"])
@@ -2021,7 +2089,7 @@ def api_newday():
     char_module.save_character(
         str(path),
         {"spells_used": {}, "spells_active": {}, "spell_charges": {},
-         "domain_spells_used": {}, "wild_shape": {},
+         "spells_known_used": {}, "domain_spells_used": {}, "wild_shape": {},
          "lay_on_hands_used": 0, "smite_used": 0})
     return jsonify({"ok": True})
 

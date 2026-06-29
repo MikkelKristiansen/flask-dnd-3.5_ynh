@@ -257,3 +257,75 @@ def test_spot_check_levels(capsys):
     assert "Wizard" in captured.out
     assert "Sorcerer" in captured.out
     assert "Bard" in captured.out
+
+
+# ── Fase 3: arkan casting-model (DC, cast_type, spontan-visning, known) ───────
+
+def test_spell_save_dc_formula():
+    """DC = 10 + spell-niveau + caster-mod + Spell Focus-bonus."""
+    assert char_module.spell_save_dc(1, 3) == 14
+    assert char_module.spell_save_dc(0, 3) == 13
+    assert char_module.spell_save_dc(1, 3, 1) == 15
+
+
+def test_spell_focus_matches_base_school():
+    """Spell Focus (Evocation) gælder 'Evocation [Force]' o.l. — basis-skolen, ikke
+    den fulde school-streng (regressionstest for subskole/deskriptor-match)."""
+    feats = [{"id": "spell_focus", "school": "Evocation"}]
+    assert char_module.spell_focus_bonus(feats, "Evocation [Force]") == 1
+    assert char_module.spell_focus_bonus(feats, "Evocation [Cold]") == 1
+    assert char_module.spell_focus_bonus(feats, "Conjuration (Creation) [Force]") == 0
+    assert char_module.spell_focus_bonus(feats, "Divination") == 0
+
+
+def test_greater_spell_focus_stacks():
+    """Spell Focus + Greater Spell Focus i samme skole giver +2."""
+    feats = [{"id": "spell_focus", "school": "Necromancy"},
+             {"id": "greater_spell_focus", "school": "Necromancy"}]
+    assert char_module.spell_focus_bonus(feats, "Necromancy") == 2
+
+
+@pytest.mark.parametrize("cls,expected", [
+    ("Sorcerer", "spontaneous"),
+    ("Cleric", None),
+    ("Druid", None),
+])
+def test_cast_type(cls, expected):
+    assert char_module.class_cast_type(cls) == expected
+
+
+@pytest.mark.parametrize("cls,expected", [
+    ("sorcerer", "level_wizard"),   # deler wizard-listen
+    ("bard", "level_bard"),
+    ("wizard", "level_wizard"),
+    ("cleric", "level_cleric"),
+    ("fighter", None),
+])
+def test_spell_list_column(cls, expected):
+    assert db_module.spell_list_column(cls) == expected
+
+
+def test_sorcerer_shows_spontaneous_view(client):
+    """Sorcerer-arket viser den spontane 'Kendte'-visning, ikke forberedelse."""
+    html = client.get("/karakter/sorc1").get_data(as_text=True)
+    assert "✨ Kendte" in html
+    assert "📖 Forberedte" not in html
+
+
+def test_prepared_caster_unchanged(client):
+    """Cleric beholder forberedelses-visningen (ingen spontan 'Kendte')."""
+    html = client.get("/karakter/cleric1").get_data(as_text=True)
+    assert "📖 Forberedte" in html
+    assert "✨ Kendte" not in html
+
+
+def test_spells_known_round_trip(tmp_path):
+    """spells_known + spells_known_used overlever save/load."""
+    path = _make_char(tmp_path, "sknown", "Sorcerer", level=4, cha=16)
+    char_module.save_character(str(path), {
+        "spells_known": {0: ["detect_magic", "light"], 1: ["magic_missile"]},
+        "spells_known_used": {1: 2, 0: 0},
+    })
+    c = char_module.load_character(str(path))
+    assert c.spells_known == {0: ["detect_magic", "light"], 1: ["magic_missile"]}
+    assert c.spells_known_used == {1: 2}   # 0-værdier persisteres ikke

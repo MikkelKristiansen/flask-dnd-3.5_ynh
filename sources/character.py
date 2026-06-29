@@ -36,7 +36,7 @@ from refdata import (  # noqa: F401
     class_weapon_proficiency, class_armor_proficiency,
     WEAPON_CHOICE_FEATS, SCHOOL_CHOICE_FEATS, SPELL_SCHOOLS,
     feat_id, feat_weapon, feat_school, feat_label, owned_feat_tokens,
-    class_needs_domains,
+    spell_focus_bonus, class_cast_type, class_needs_domains,
     base_skill_points, class_can_turn_undead, class_has_wild_shape, class_wild_shape,
     feat_prereq_unmet, spell_like_dc)
 from rules import (  # noqa: F401
@@ -51,7 +51,7 @@ from rules import (  # noqa: F401
     carried_weight, derive_attacks, spell_charge_key, spell_attack_damage,
     derive_spell_attacks, spell_max_charges, active_buff_keys, active_spell_keys,
     attack_visible, equipped_armor, encumbrance_consequences, wis_bonus_spells,
-    spell_slots_total, hand_usage, twf_context, two_weapon_penalty,
+    spell_slots_total, spell_save_dc, hand_usage, twf_context, two_weapon_penalty,
     monk_unarmed_attacks)
 from persistence import (  # noqa: E402,F401
     SNAPSHOT_KEEP, load_character, save_character, write_character_file,

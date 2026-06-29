@@ -344,6 +344,31 @@ def feat_label(entry, feat_row: dict | None = None) -> str:
     return f"{name} ({choice})" if choice else name
 
 
+def spell_focus_bonus(feat_entries, school: str) -> int:
+    """+1 til spell-DC pr. Spell Focus / Greater Spell Focus i spellets skole.
+
+    En caster med begge feats i samme skole får +2. Spellets school-felt i DB'en
+    bærer ofte subskole/deskriptorer ('Evocation [Force]', 'Conjuration (Creation)')
+    — Spell Focus gælder basis-skolen, så vi matcher på dens første ord. Ingen af de
+    8 skolenavne er præfiks af et andet, så startswith er entydigt.
+    """
+    base = (school or "").strip().lower()
+    if not base:
+        return 0
+    bonus = 0
+    for e in feat_entries:
+        fs = feat_school(e).lower()
+        if fs and feat_id(e) in SCHOOL_CHOICE_FEATS and base.startswith(fs):
+            bonus += 1
+    return bonus
+
+
+def class_cast_type(cls: str) -> str | None:
+    """Klassens casting-model: 'spontaneous' (sorcerer/bard), 'spellbook' (wizard)
+    eller None for forberedte/ikke-castere. Data-drevet (cast_type i classes.yaml)."""
+    return class_data(cls).get("cast_type")
+
+
 def owned_feat_tokens(feat_entries, name_by_id: dict) -> set:
     """Ejer-tokens til prereq-tjek: alle bare feat-id'er plus kvalificerede
     labels ('spell focus (conjuration)') for valg-feats. Så navne-baserede

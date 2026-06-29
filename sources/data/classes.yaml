@@ -194,6 +194,7 @@ sorcerer:
   starting_gold: "3d4*10"
   age_group: fast        # SRD startalders-gruppe (fast/medium/slow)
   cast_ability: cha      # Sorcereren bruger Charisma til bonus spell slots
+  cast_type: spontaneous # Spontan caster: kender en fast liste, caster fra slot-pulje
   weapon_proficiency:
     categories: [simple]
     weapons: []

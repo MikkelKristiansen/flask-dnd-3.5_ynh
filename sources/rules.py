@@ -910,6 +910,12 @@ def spell_slots_total(
     }
 
 
+def spell_save_dc(spell_level: int, cast_modifier: int, focus_bonus: int = 0) -> int:
+    """Save-DC en modstander skal slå for at modstå et spell: 10 + spell-niveau +
+    caster-evne-modifier (+ evt. Spell Focus-bonus for spellets skole)."""
+    return 10 + spell_level + cast_modifier + focus_bonus
+
+
 def monk_unarmed_attacks(level: int, size: str, flurry_penalty: int,
                          greater_flurry: bool, flurry_active: bool,
                          base_damage: str) -> list[Attack]:

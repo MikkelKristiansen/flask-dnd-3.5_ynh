@@ -1022,6 +1022,9 @@ function newDay() {
     Object.entries(slotTotals).forEach(([lvl, total]) => {
       const el = document.getElementById("slots-" + lvl);
       if (el) el.textContent = total + " / " + total;
+      // Spontane castere: nulstil slot-puljen pr. niveau (alt ledigt igen).
+      const ks = document.getElementById("known-slots-" + lvl);
+      if (ks) ks.textContent = total + "/" + total;
     });
     // Paladin: nulstil dagens Smite-/Lay-on-Hands-tællere visuelt (serveren har
     // allerede nulstillet dem). Knapperne re-aktiveres ved næste reload.
@@ -1032,6 +1035,48 @@ function newDay() {
       if (lay) lay.textContent = D.paladinInfo.lay_pool;
     }
   });
+}
+
+// ── Spontan casting (sorcerer/bard): kendt liste + slot-pulje ──────────────
+// Spontane castere forbereder ikke; de caster fra en fast kendt liste indtil
+// dagens slots pr. niveau er brugt. "Kast" tæller en slot op/ned; loftet
+// håndhæves server-side. Lær/glem reloader for at gentegne listen.
+
+function castKnown(level, delta) {
+  fetch(BASE + "/api/cast_known", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, level, delta})
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (!d.ok) return;
+    // Serveren clamper til [0, total]; vis det resulterende ledige antal.
+    const el = document.getElementById("known-slots-" + level);
+    if (el) el.textContent = (d.total - d.used) + "/" + d.total;
+    if (delta > 0 && d.total === 0) alert("Ingen slots på level " + level + ".");
+  });
+}
+
+function learnKnown(level, spellId) {
+  fetch(BASE + "/api/spells_known", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "add", level, spell_id: spellId})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) location.reload(); });
+}
+
+function forgetKnown(level, spellId) {
+  if (!confirm("Glem dette spell fra den kendte liste?")) return;
+  fetch(BASE + "/api/spells_known", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "remove", level, spell_id: spellId})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) location.reload(); });
 }
 
 // ── Preparation modal ─────────────────────────────────────────────────────
