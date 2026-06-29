@@ -1188,7 +1188,7 @@ def build_character_view(char, db):
     cast_ability = refdata.class_data(char.cls).get("cast_ability", "wis")
     cast_mod     = ab.modifier(cast_ability)
     known_data: dict[int, list] = {}
-    if cast_type == "spontaneous":
+    if cast_type in ("spontaneous", "spellbook"):
         for lvl, spell_ids in char.spells_known.items():
             rows = []
             for sid in spell_ids:

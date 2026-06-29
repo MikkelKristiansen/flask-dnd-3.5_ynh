@@ -937,7 +937,11 @@
   {% if slots %}
   <div class="spell-subtabs">
     <button class="spell-subtab active" id="spellsubtab-prepared" onclick="showSpellView('prepared', this)">📖 Forberedte</button>
+    {% if cast_type == 'spellbook' %}
+    <button class="spell-subtab" id="spellsubtab-spellbook" onclick="showSpellView('spellbook', this)">📕 Spellbog</button>
+    {% else %}
     <button class="spell-subtab" id="spellsubtab-available" onclick="showSpellView('available', this)">📚 Alle tilgængelige</button>
+    {% endif %}
   </div>
   {% endif %}
 
@@ -1072,6 +1076,63 @@
 
   </div><!-- /spellview-prepared -->
 
+  {% if cast_type == 'spellbook' %}
+  {# ── Wizard: spellbog (= spells_known). Man forbereder dagligt FRA bogen. ── #}
+  <div id="spellview-spellbook" class="spell-view">
+    <div class="section">
+      <div class="section-title">📕 Spellbog
+        <span style="color:var(--muted);font-size:.7rem;font-style:italic;text-transform:none">(skrevne formler · forbered herfra · {{ cast_ability|upper }})</span>
+      </div>
+      {% if known_data %}
+      {% for lvl in known_data|sort %}
+      <div class="spell-level-header"><span>Level {{ lvl }}</span></div>
+      {% for entry in known_data[lvl] %}
+      <div class="spell-row" data-spell-id="{{ entry.id }}" onclick="showDetail('spell','{{ entry.id }}')">
+        <span>
+          <span class="spell-name">{{ entry.spell.name if entry.spell else entry.id }}</span>
+          {% if entry.spell %}<span class="spell-school">&nbsp;·&nbsp;{{ entry.spell.school }}</span>{% endif %}
+          <span style="color:var(--accent);font-size:.72rem;margin-left:.35rem" title="Save-DC modstandere skal slå">DC {{ entry.dc }}</span>
+        </span>
+        <button onclick="event.stopPropagation();forgetKnown({{ lvl }},'{{ entry.id }}')" title="Fjern fra spellbogen" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:.9rem">✕</button>
+      </div>
+      {% endfor %}
+      {% endfor %}
+      {% else %}
+      <p style="color:var(--muted);font-style:italic;margin-top:.5rem">Spellbogen er tom — tilføj formler nedenfor, og forbered dem så under <strong>Forberedte</strong>.</p>
+      {% endif %}
+    </div>
+    <div class="section">
+      <div class="section-title">Tilføj til spellbog
+        <span style="color:var(--muted);font-size:.7rem;font-style:italic">(alle {{ char.cls }}-formler qua dit level)</span>
+      </div>
+      {% if slots %}
+      {% for lvl in slots|sort %}
+      {% set book_ids = char.spells_known.get(lvl, []) %}
+      {% set lvl_spells = available_spells.get(lvl, [])|sort(attribute='name') %}
+      <div class="spell-level-header">
+        <span>Level {{ lvl }}&nbsp;<span style="color:var(--muted);font-size:.75rem">{{ lvl_spells|length }} formler</span></span>
+      </div>
+      {% for spell in lvl_spells %}
+      <div class="spell-row">
+        <span onclick="showDetail('spell','{{ spell.id }}')">
+          <span class="spell-name">{{ spell.name }}</span>
+          <span class="spell-school">&nbsp;·&nbsp;{{ spell.school }}</span>
+        </span>
+        {% if spell.id in book_ids %}
+        <span class="spell-prepared-badge" title="Allerede i spellbogen">✓ i bog</span>
+        {% else %}
+        <button onclick="learnKnown({{ lvl }},'{{ spell.id }}')" style="background:var(--accent);border:none;color:#000;font-family:Georgia,serif;font-size:.72rem;padding:.2rem .55rem;border-radius:4px;cursor:pointer">+ Tilføj</button>
+        {% endif %}
+      </div>
+      {% endfor %}
+      {% endfor %}
+      {% else %}
+      <p style="color:var(--muted);font-style:italic">Denne karakter har ingen spell slots.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% else %}
   <div id="spellview-available" class="spell-view">
     <div class="section">
       <div class="section-title">Tilgængelige {{ char.cls }}-formler
@@ -1099,6 +1160,7 @@
       {% endif %}
     </div>
   </div>
+  {% endif %}
 
   {% endif %}{# /cast_type spontaneous vs. forberedt #}
 
@@ -1564,6 +1626,8 @@ window.DND = {
   notesRaw: {{ char.notes|tojson }},
   paladinInfo: {{ paladin_info|tojson }},
   spellSchools: {{ spell_schools|tojson }},
+  castType: {{ cast_type|tojson }},
+  spellsKnown: {{ char.spells_known|tojson }},
 };
 </script>
 <script src="{{ url_for('static', filename='character.js') }}"></script>

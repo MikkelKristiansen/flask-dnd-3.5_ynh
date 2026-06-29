@@ -287,6 +287,7 @@ def test_greater_spell_focus_stacks():
 
 @pytest.mark.parametrize("cls,expected", [
     ("Sorcerer", "spontaneous"),
+    ("Wizard", "spellbook"),
     ("Cleric", None),
     ("Druid", None),
 ])
@@ -316,6 +317,16 @@ def test_prepared_caster_unchanged(client):
     """Cleric beholder forberedelses-visningen (ingen spontan 'Kendte')."""
     html = client.get("/karakter/cleric1").get_data(as_text=True)
     assert "📖 Forberedte" in html
+    assert "✨ Kendte" not in html
+
+
+def test_wizard_shows_spellbook_view(client):
+    """Wizard-arket har Forberedte + Spellbog (forbereder FRA bogen), ikke
+    'Alle tilgængelige' eller den spontane 'Kendte'."""
+    html = client.get("/karakter/wiz1").get_data(as_text=True)
+    assert "📖 Forberedte" in html
+    assert "📕 Spellbog" in html
+    assert "Alle tilgængelige" not in html
     assert "✨ Kendte" not in html
 
 

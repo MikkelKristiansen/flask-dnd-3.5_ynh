@@ -1119,8 +1119,16 @@ function renderPrepModal() {
   left.innerHTML  = '<div class="prep-col-title">Tilgængelige spells</div>';
   right.innerHTML = '<div class="prep-col-title">Forberedte spells</div>';
 
+  // Wizard forbereder kun FRA spellbogen (spells_known), ikke hele klasse-listen.
+  const isSpellbook = (D.castType === "spellbook");
+
   levelNums.forEach(lvl => {
-    const spellsAtLevel = (availableSpells[lvl] || []).slice().sort((a, b) => a.name.localeCompare(b.name));
+    let spellsAtLevel = (availableSpells[lvl] || []).slice();
+    if (isSpellbook) {
+      const book = new Set(D.spellsKnown[lvl] || D.spellsKnown[String(lvl)] || []);
+      spellsAtLevel = spellsAtLevel.filter(sp => book.has(sp.id));
+    }
+    spellsAtLevel.sort((a, b) => a.name.localeCompare(b.name));
     const total    = slotTotals[lvl] || 0;
     const prepared = newPrepared[lvl] || [];
     const full     = prepared.length >= total;

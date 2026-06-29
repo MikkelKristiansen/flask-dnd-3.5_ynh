@@ -216,6 +216,7 @@ wizard:
   starting_gold: "3d4*10"
   age_group: slow        # SRD startalders-gruppe (fast/medium/slow)
   cast_ability: int      # Wizarden bruger Intelligence til bonus spell slots
+  cast_type: spellbook   # Forbereder dagligt FRA spellbogen (spells_known)
   weapon_proficiency:
     categories: []
     weapons: [club, dagger, crossbow_heavy, crossbow_light, quarterstaff]
