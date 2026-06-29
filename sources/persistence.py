@@ -92,6 +92,17 @@ def load_character(path: str) -> Character:
     for k, v in (data.get("spells_prepared") or {}).items():
         spells_prepared[int(k)] = list(v) if v else []
 
+    spells_known: dict[int, list[str]] = {}
+    for k, v in (data.get("spells_known") or {}).items():
+        spells_known[int(k)] = list(v) if v else []
+
+    spells_known_used: dict[int, int] = {}
+    for k, v in (data.get("spells_known_used") or {}).items():
+        try:
+            spells_known_used[int(k)] = int(v)
+        except (ValueError, TypeError):
+            pass
+
     def _index_map(raw) -> dict[int, list[int]]:
         out: dict[int, list[int]] = {}
         for k, v in (raw or {}).items():
@@ -145,6 +156,8 @@ def load_character(path: str) -> Character:
         feats=list(data.get("feats") or []),
         attacks=attacks,
         spells_prepared=spells_prepared,
+        spells_known=spells_known,
+        spells_known_used=spells_known_used,
         spells_used=spells_used,
         spells_active=spells_active,
         spell_charges=spell_charges,
@@ -406,6 +419,16 @@ def save_character(path: str, updates: dict) -> None:
     if "spells_prepared" in updates:
         data["spells_prepared"] = {
             int(k): list(v) for k, v in updates["spells_prepared"].items()
+        }
+
+    if "spells_known" in updates:
+        data["spells_known"] = {
+            int(k): list(v) for k, v in updates["spells_known"].items() if v
+        }
+
+    if "spells_known_used" in updates:
+        data["spells_known_used"] = {
+            int(k): int(v) for k, v in updates["spells_known_used"].items() if v
         }
 
     if "spells_used" in updates:

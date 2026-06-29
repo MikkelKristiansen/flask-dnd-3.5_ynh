@@ -1170,14 +1170,16 @@ def build_character_view(char, db):
             "save_text": save_text,
         })
 
-    # Druid spells grouped by level — for preparation modal
+    # Spells grupperet pr. niveau — til forberedelses-/known-modal. Klassen caster
+    # fra sin mappede kolonne: sorcerer → level_wizard, bard → level_bard, osv.
     cls_lower = char.cls.lower()
-    all_cls_spells = db.search_spells(class_filter=cls_lower)
+    spell_col = db.spell_list_column(cls_lower)
     available_spells: dict[int, list] = {}
-    for spell in all_cls_spells:
-        lvl = spell.get(f"level_{cls_lower}")
-        if lvl is not None:
-            available_spells.setdefault(lvl, []).append(spell)
+    if spell_col:
+        for spell in db.search_spells(class_filter=cls_lower):
+            lvl = spell.get(spell_col)
+            if lvl is not None:
+                available_spells.setdefault(lvl, []).append(spell)
 
     # Domain spells — a cleric with chosen domains gets one domain slot per
     # spell level he can cast (SRD). The slot may only hold a domain spell.

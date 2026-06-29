@@ -20,6 +20,20 @@ def get_spell(spell_id: str) -> dict | None:
     return dict(row) if row else None
 
 
+# Hvilken spell-list-kolonne en klasse caster fra. Sorcerer deler wizard-listen
+# (der er ingen level_sorcerer-kolonne i SRD); bard har sin egen level_bard.
+_SPELL_LIST_COLUMN = {
+    "druid": "level_druid", "cleric": "level_cleric", "wizard": "level_wizard",
+    "sorcerer": "level_wizard", "bard": "level_bard",
+}
+
+
+def spell_list_column(cls: str) -> str | None:
+    """Spell-list-kolonnen klassen caster fra (fx 'level_wizard'), eller None for
+    klasser uden spells. Én kilde til sandhed for klasse→spell-liste-mappingen."""
+    return _SPELL_LIST_COLUMN.get((cls or "").lower())
+
+
 def search_spells(
     query: str = "",
     class_filter: str | None = None,
@@ -32,17 +46,12 @@ def search_spells(
         conditions.append("name LIKE ?")
         params.append(f"%{query}%")
 
-    if class_filter == "druid" and level is not None:
-        conditions.append("level_druid = ?")
+    col = spell_list_column(class_filter) if class_filter else None
+    if col and level is not None:
+        conditions.append(f"{col} = ?")   # col fra fast dict — ikke bruger-input
         params.append(level)
-    elif class_filter == "druid":
-        conditions.append("level_druid IS NOT NULL")
-    elif class_filter == "cleric" and level is not None:
-        conditions.append("level_cleric = ?")
-        params.append(level)
-    elif class_filter == "wizard" and level is not None:
-        conditions.append("level_wizard = ?")
-        params.append(level)
+    elif col:
+        conditions.append(f"{col} IS NOT NULL")
     elif level is not None:
         conditions.append(
             "(level_druid = ? OR level_cleric = ? OR level_wizard = ?)"

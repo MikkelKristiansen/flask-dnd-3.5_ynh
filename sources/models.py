@@ -83,6 +83,13 @@ class Character:
     feats: list = field(default_factory=list)
     attacks: list = field(default_factory=list)
     spells_prepared: dict = field(default_factory=dict)
+    # Spontane castere (sorcerer/bard): den faste liste af kendte spells de caster
+    # spontant fra. Wizard: spellbogen (dagligt forberedt = delmængde i
+    # spells_prepared). Forberedte castere (cleric/druid) bruger den ikke. {level: [ids]}
+    spells_known: dict = field(default_factory=dict)
+    # Spontane castere: brugte slots pr. niveau i dag ({level: antal}) — der forberedes
+    # ikke, så slots er en pulje pr. niveau, ikke pr. spell. Nulstilles ved Ny dag.
+    spells_known_used: dict = field(default_factory=dict)
     spells_used: dict = field(default_factory=dict)
     spells_active: dict = field(default_factory=dict)  # spells "I brug" (varighed kører) — {level: [index]}
     spell_charges: dict = field(default_factory=dict)  # ladninger tilbage pr. aktiv spell — {"level-index": antal}
