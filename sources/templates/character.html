@@ -43,7 +43,7 @@
   <div class="header-flex">
     <label class="portrait-wrap" title="Klik for at skifte portræt">
       {% if has_portrait %}
-      <img src="{{ url_for('portrait', slug=slug) }}" alt="{{ char.name }}" class="portrait">
+      <img src="{{ url_for('portrait', slug=slug, v=portrait_ver) }}" alt="{{ char.name }}" class="portrait">
       {% else %}
       <div class="portrait portrait-placeholder">🧙</div>
       {% endif %}

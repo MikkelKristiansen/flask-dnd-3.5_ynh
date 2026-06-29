@@ -711,13 +711,17 @@ def karakter(name):
     if not path.exists():
         abort(404)
     char = char_module.load_character(str(path))
+    portrait_path = _portrait_path(name)
     return render_template(
         "character.html",
         name=name,
         char=char,
         slug=name,
         snapshots=_snapshots_for(name),
-        has_portrait=_portrait_path(name) is not None,
+        has_portrait=portrait_path is not None,
+        # Ændringstidspunkt som cache-buster: URL'en skifter når billedet gør,
+        # så browseren ikke viser et cachet gammelt portræt efter upload.
+        portrait_ver=int(portrait_path.stat().st_mtime) if portrait_path else 0,
         **build_character_view(char, db),
     )
 

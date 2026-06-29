@@ -1662,8 +1662,12 @@ function uploadPortrait(input) {
   fd.append("char", CHAR);
   fd.append("portrait", file);
   fetch(BASE + "/api/portrait", {method: "POST", body: fd})
-    .then(r => r.json())
-    .then(d => { if (d.error) { alert(d.error); input.value = ""; } else { location.reload(); } });
+    .then(r => r.json().then(d => ({ok: r.ok, d})))
+    .then(({ok, d}) => {
+      if (!ok || d.error) { alert((d && d.error) || "Upload mislykkedes."); input.value = ""; }
+      else { location.reload(); }
+    })
+    .catch(() => { alert("Kunne ikke uploade portræt (netværksfejl)."); input.value = ""; });
 }
 
 // Hurtig +/− på antal (fx tæl ammo ned). Lever live, ingen reload.
