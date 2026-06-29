@@ -146,6 +146,7 @@ bard:
   starting_gold: "4d4*10"
   age_group: medium        # SRD startalders-gruppe (fast/medium/slow)
   cast_ability: cha        # Barden bruger Charisma til bonus spell slots
+  cast_type: spontaneous   # Spontan caster m/ egen spell-liste (level_bard)
   weapon_proficiency:
     categories: [simple]
     weapons: [longsword, rapier, sap, sword_short, shortbow, whip]
