@@ -162,6 +162,12 @@ window.EquipmentPicker = (function () {
     name.onclick = () => { cb.checked = !cb.checked; toggle(it, cb.checked); };
     main.appendChild(name);
     main.appendChild(el("div", "eqp-row-sub", detailText(it)));
+    // SRD-beskrivelse (særlige egenskaber) vist direkte under navnet — ingen hover.
+    if (it.description) {
+      const desc = el("div", "eqp-row-desc");
+      desc.textContent = it.description;   // ren tekst — ingen HTML-fortolkning
+      main.appendChild(desc);
+    }
 
     // Materiale-/kvalitets-modifikatorer (masterwork/cold iron/sølv) som toggles.
     if ((it.modifiers || []).length) {

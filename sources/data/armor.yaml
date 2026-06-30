@@ -40,6 +40,7 @@
   type: light
   cost_cp: 10000
   weight: 25.0
+  description: A chain shirt comes with a steel cap.
 - id: hide
   name: Hide
   armor_bonus: 3
@@ -60,6 +61,7 @@
   type: medium
   cost_cp: 5000
   weight: 30.0
+  description: The suit includes gauntlets.
 - id: chainmail
   name: Chainmail
   armor_bonus: 5
@@ -70,6 +72,7 @@
   type: medium
   cost_cp: 15000
   weight: 40.0
+  description: The suit includes gauntlets.
 - id: breastplate
   name: Breastplate
   armor_bonus: 5
@@ -80,6 +83,7 @@
   type: medium
   cost_cp: 20000
   weight: 30.0
+  description: It comes with a helmet and greaves.
 - id: banded_mail
   name: Banded Mail
   armor_bonus: 6
@@ -90,6 +94,7 @@
   type: heavy
   cost_cp: 25000
   weight: 35.0
+  description: The suit includes gauntlets.
 - id: splint_mail
   name: Splint Mail
   armor_bonus: 6
@@ -100,6 +105,7 @@
   type: heavy
   cost_cp: 20000
   weight: 45.0
+  description: The suit includes gauntlets.
 - id: half_plate
   name: Half-Plate
   armor_bonus: 7
@@ -110,6 +116,7 @@
   type: heavy
   cost_cp: 60000
   weight: 50.0
+  description: The suit includes gauntlets.
 - id: full_plate
   name: Full Plate
   armor_bonus: 8
@@ -120,6 +127,7 @@
   type: heavy
   cost_cp: 150000
   weight: 50.0
+  description: The suit includes gauntlets, heavy leather boots, a visored helmet, and a thick layer of padding that is worn underneath the armor. Each suit of full plate must be individually fitted to its owner by a master armorsmith, although a captured suit can be resized to fit a new owner at a cost of 200 to 800 (2d4x100) gold pieces.
 - id: buckler
   name: Buckler
   armor_bonus: 1
@@ -130,6 +138,7 @@
   type: shield
   cost_cp: 1500
   weight: 5.0
+  description: "This small metal shield is worn strapped to your forearm. You can use a bow or crossbow without penalty while carrying it. You can also use your shield arm to wield a weapon (whether you are using an off-hand weapon or using your off hand to help wield a two-handed weapon), but you take a –1 penalty on attack rolls while doing so. This penalty stacks with those that may apply for fighting with your off hand and for fighting with two weapons. In any case, if you use a weapon in your off hand, you don’t get the buckler’s AC bonus for the rest of the round.\n\nYou can’t bash someone with a buckler."
 - id: light_wooden_shield
   name: Light Wooden Shield
   armor_bonus: 1
@@ -140,6 +149,7 @@
   type: shield
   cost_cp: 300
   weight: 5.0
+  description: "You strap a shield to your forearm and grip it with your hand. A light shield’s weight lets you carry other items in that hand, although you cannot use weapons with it.\n\n_Wooden or Steel:_ Wooden and steel shields offer the same basic protection, though they respond differently to special attacks.\n\n_Shield Bash Attacks:_ You can bash an opponent with a light shield, using it as an off-hand weapon. See Table: Weapons for the damage dealt by a shield bash. Used this way, a light shield is a martial bludgeoning weapon. For the purpose of penalties on attack rolls, treat a light shield as a light weapon. If you use your shield as a weapon, you lose its AC bonus until your next action (usually until the next round). An enhancement bonus on a shield does not improve the effectiveness of a shield bash made with it, but the shield can be made into a magic weapon in its own right."
 - id: light_steel_shield
   name: Light Steel Shield
   armor_bonus: 1
@@ -150,6 +160,7 @@
   type: shield
   cost_cp: 900
   weight: 6.0
+  description: "You strap a shield to your forearm and grip it with your hand. A light shield’s weight lets you carry other items in that hand, although you cannot use weapons with it.\n\n_Wooden or Steel:_ Wooden and steel shields offer the same basic protection, though they respond differently to special attacks.\n\n_Shield Bash Attacks:_ You can bash an opponent with a light shield, using it as an off-hand weapon. See Table: Weapons for the damage dealt by a shield bash. Used this way, a light shield is a martial bludgeoning weapon. For the purpose of penalties on attack rolls, treat a light shield as a light weapon. If you use your shield as a weapon, you lose its AC bonus until your next action (usually until the next round). An enhancement bonus on a shield does not improve the effectiveness of a shield bash made with it, but the shield can be made into a magic weapon in its own right."
 - id: heavy_wooden_shield
   name: Heavy Wooden Shield
   armor_bonus: 2
@@ -160,6 +171,7 @@
   type: shield
   cost_cp: 700
   weight: 10.0
+  description: "You strap a shield to your forearm and grip it with your hand. A heavy shield is so heavy that you can’t use your shield hand for anything else.\n\n_Wooden or Steel:_ Wooden and steel shields offer the same basic protection, though they respond differently to special attacks.\n\n_Shield Bash Attacks:_ You can bash an opponent with a heavy shield, using it as an off-hand weapon. See Table: Weapons for the damage dealt by a shield bash. Used this way, a heavy shield is a martial bludgeoning weapon. For the purpose of penalties on attack rolls, treat a heavy shield as a one-handed weapon. If you use your shield as a weapon, you lose its AC bonus until your next action (usually until the next round). An enhancement bonus on a shield does not improve the effectiveness of a shield bash made with it, but the shield can be made into a magic weapon in its own right."
 - id: heavy_steel_shield
   name: Heavy Steel Shield
   armor_bonus: 2
@@ -170,6 +182,7 @@
   type: shield
   cost_cp: 2000
   weight: 15.0
+  description: "You strap a shield to your forearm and grip it with your hand. A heavy shield is so heavy that you can’t use your shield hand for anything else.\n\n_Wooden or Steel:_ Wooden and steel shields offer the same basic protection, though they respond differently to special attacks.\n\n_Shield Bash Attacks:_ You can bash an opponent with a heavy shield, using it as an off-hand weapon. See Table: Weapons for the damage dealt by a shield bash. Used this way, a heavy shield is a martial bludgeoning weapon. For the purpose of penalties on attack rolls, treat a heavy shield as a one-handed weapon. If you use your shield as a weapon, you lose its AC bonus until your next action (usually until the next round). An enhancement bonus on a shield does not improve the effectiveness of a shield bash made with it, but the shield can be made into a magic weapon in its own right."
 - id: tower_shield
   name: Tower Shield
   armor_bonus: 4
@@ -180,3 +193,4 @@
   type: shield
   cost_cp: 3000
   weight: 45.0
+  description: "This massive wooden shield is nearly as tall as you are. In most situations, it provides the indicated shield bonus to your AC. However, you can instead use it as total cover, though you must give up your attacks to do so. The shield does not, however, provide cover against targeted spells; a spellcaster can cast a spell on you by targeting the shield you are holding. You cannot bash with a tower shield, nor can you use your shield hand for anything else.\n\nWhen employing a tower shield in combat, you take a –2 penalty on attack rolls because of the shield’s encumbrance."

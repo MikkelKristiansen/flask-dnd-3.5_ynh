@@ -56,6 +56,7 @@ def _weapon_entry(w: dict, *, weapon_prof, allowed_weapons, recommended, size) -
         "weight": _row_weight(w, "weapons", size),
         "proficient": rules.weapon_proficient(w, weapon_prof, allowed_weapons),
         "recommended": w["id"] in recommended,
+        "description": w.get("description"),
         "modifiers": rules.material_modifiers(w, "weapons"),
         "detail": {
             "dmg": dmg,
@@ -79,6 +80,7 @@ def _armor_entry(a: dict, *, armor_prof, allowed_armor, recommended, size) -> di
         "weight": _row_weight(a, "armor", size),
         "proficient": rules.armor_proficient(a, armor_prof, allowed_armor),
         "recommended": a["id"] in recommended,
+        "description": a.get("description"),
         "modifiers": rules.material_modifiers(a, "armor"),
         "detail": {
             "ac": a.get("armor_bonus"),
@@ -100,6 +102,7 @@ def _item_entry(it: dict, *, recommended, size) -> dict:
         "weight": _row_weight(it, "items", size),
         "proficient": True,           # almindeligt gear har ingen proficiency
         "recommended": it["id"] in recommended,
+        "description": it.get("description"),
         "modifiers": [],              # gear har ingen materiale-modifikatorer
         "detail": {},
     }

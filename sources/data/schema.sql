@@ -135,7 +135,8 @@ CREATE TABLE armor (
     druid_ok      INTEGER NOT NULL DEFAULT 1, -- 0 = forbudt for druider (metal); jf. _DRUID_PROHIBITED_ARMOR
     type          TEXT NOT NULL,              -- light | medium | heavy | shield
     cost_cp       INTEGER,                    -- pris i kobber (1 gp = 100 cp)
-    weight        REAL NOT NULL DEFAULT 0     -- pund (Medium); Small ×½, Large ×2 udregnes
+    weight        REAL NOT NULL DEFAULT 0,    -- pund (Medium); Small ×½, Large ×2 udregnes
+    description   TEXT                        -- SRD-beskrivelse (særlige egenskaber); NULL = ingen særtekst
 );
 
 DROP TABLE IF EXISTS weapons;
@@ -152,7 +153,8 @@ CREATE TABLE weapons (
     weight       REAL NOT NULL DEFAULT 0,    -- pund (Medium-version)
     damage_type  TEXT,                       -- bludgeoning | piercing | slashing | kombinationer
     hands        INTEGER,                    -- hænder våbnet kræver; NULL = udled af weapon_class (kun sat hvor ranged afviger)
-    metal        INTEGER                     -- 0 = ikke-metal (træ/læder): kan ikke laves af cold iron / forsølves; NULL = metal (default)
+    metal        INTEGER,                    -- 0 = ikke-metal (træ/læder): kan ikke laves af cold iron / forsølves; NULL = metal (default)
+    description  TEXT                        -- SRD-beskrivelse (særlige egenskaber); NULL = ingen særtekst
 );
 
 DROP TABLE IF EXISTS items;
@@ -163,7 +165,8 @@ CREATE TABLE items (
     cost_cp       INTEGER,    -- pris i kobber; NULL = variabel / —
     weight        REAL NOT NULL DEFAULT 0,    -- pund (Medium-version)
     small_quarter INTEGER NOT NULL DEFAULT 0, -- 1 = vejer ¼ for Small (SRD fodnote 1); 0 = uændret
-    bundle        INTEGER     -- antal enheder som vægt/pris dækker (ammo: 10/20/5); NULL = per styk
+    bundle        INTEGER,    -- antal enheder som vægt/pris dækker (ammo: 10/20/5); NULL = per styk
+    description   TEXT        -- SRD-beskrivelse (særlige egenskaber); NULL = ingen særtekst
 );
 
 DROP TABLE IF EXISTS animals;

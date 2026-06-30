@@ -43,7 +43,7 @@
 .eqp-empty{color:var(--muted);font-style:italic;font-size:.85rem;padding:1rem .7rem;text-align:center;}
 
 /* Vare-række */
-.eqp-row{display:flex;align-items:center;gap:.6rem;padding:.45rem .7rem;
+.eqp-row{display:flex;align-items:flex-start;gap:.6rem;padding:.45rem .7rem;
   border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;}
 .eqp-row:last-child{border-bottom:none;}
 .eqp-row:hover{background:var(--card);}
@@ -55,6 +55,9 @@
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .eqp-row-sub{font-size:.74rem;color:var(--muted);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* SRD-beskrivelse: ombrydes frit under navnet (ingen hover/tooltip). */
+.eqp-row-desc{font-size:.72rem;color:var(--muted);line-height:1.35;margin-top:.2rem;
+  white-space:normal;font-style:italic;}
 .eqp-row-right{text-align:right;flex-shrink:0;}
 .eqp-row-cost{font-size:.82rem;color:var(--accent);font-weight:bold;}
 .eqp-row-weight{font-size:.72rem;color:var(--muted);}
