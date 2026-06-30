@@ -474,3 +474,98 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
   .dice-bar{padding:.5rem .6rem;gap:.4rem;}
   .dice-result{min-width:3.2rem;font-size:.78rem;}
 }
+
+/* ── Udrustningsbutik (equipment picker) ──────────────────────────────────
+   Genbrugelig komponent (_equipment_picker.html + equipment_picker.js).
+   Port af mockup'ets layout ind i pergament-temaet — ingen Tailwind. */
+.eqp{display:flex;flex-direction:column;gap:.7rem;}
+
+/* Filterbjælke */
+.eqp-filterbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;
+  justify-content:space-between;background:var(--surface);
+  border:1px solid var(--border);border-radius:8px;padding:.55rem .7rem;}
+.eqp-search{position:relative;flex:1 1 14rem;min-width:11rem;}
+.eqp-search-ico{position:absolute;left:.55rem;top:50%;transform:translateY(-50%);
+  font-size:.8rem;opacity:.6;pointer-events:none;}
+.eqp-search input{width:100%;background:var(--card);border:1px solid var(--border);
+  color:var(--text);font-family:Georgia,serif;font-size:.85rem;
+  padding:.4rem .5rem .4rem 1.8rem;border-radius:6px;}
+.eqp-search input:focus{outline:none;border-color:var(--accent);}
+.eqp-filters{display:flex;gap:1rem;flex-wrap:wrap;}
+.eqp-filter{display:flex;align-items:center;gap:.35rem;font-size:.8rem;
+  color:var(--muted);cursor:pointer;user-select:none;}
+.eqp-filter input{accent-color:var(--accent);width:1rem;height:1rem;cursor:pointer;}
+
+/* Kategori-faner */
+.eqp-tabs{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.15rem;}
+.eqp-tab{background:var(--card);border:1px solid var(--border);color:var(--muted);
+  font-family:Georgia,serif;font-size:.8rem;font-weight:bold;white-space:nowrap;
+  padding:.4rem .8rem;border-radius:999px;cursor:pointer;transition:all .15s;}
+.eqp-tab:hover{color:var(--text);}
+.eqp-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* Krop: liste + widget side om side (stables på smalle skærme) */
+.eqp-body{display:flex;gap:.9rem;align-items:flex-start;}
+.eqp-list{flex:1 1 auto;min-width:0;background:var(--surface);
+  border:1px solid var(--border);border-radius:8px;
+  max-height:30rem;overflow-y:auto;}
+.eqp-group{position:sticky;top:0;background:var(--card);color:var(--accent);
+  font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;font-weight:bold;
+  padding:.3rem .7rem;border-bottom:1px solid var(--border);z-index:1;}
+.eqp-empty{color:var(--muted);font-style:italic;font-size:.85rem;padding:1rem .7rem;text-align:center;}
+
+/* Vare-række */
+.eqp-row{display:flex;align-items:center;gap:.6rem;padding:.45rem .7rem;
+  border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;}
+.eqp-row:last-child{border-bottom:none;}
+.eqp-row:hover{background:var(--card);}
+.eqp-row.picked{background:rgba(139,105,20,.13);}
+.eqp-row.not-prof{opacity:.82;}
+.eqp-check{accent-color:var(--accent);width:1.1rem;height:1.1rem;flex-shrink:0;cursor:pointer;}
+.eqp-row-main{flex:1 1 auto;min-width:0;}
+.eqp-row-name{font-size:.9rem;color:var(--text);font-weight:bold;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.eqp-row-sub{font-size:.74rem;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.eqp-row-right{text-align:right;flex-shrink:0;}
+.eqp-row-cost{font-size:.82rem;color:var(--accent);font-weight:bold;}
+.eqp-row-weight{font-size:.72rem;color:var(--muted);}
+.eqp-tag-rec{color:var(--yellow);font-size:.8rem;}
+.eqp-tag-warn{color:var(--red);font-size:.8rem;}
+
+/* Budget + vægt-widget */
+.eqp-widget{flex:0 0 13rem;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:.7rem;display:flex;flex-direction:column;gap:.7rem;
+  position:sticky;top:.5rem;}
+.eqp-widget-title{color:var(--accent);font-size:.72rem;text-transform:uppercase;
+  letter-spacing:.06em;font-weight:bold;border-bottom:1px solid var(--border);
+  padding-bottom:.35rem;display:flex;justify-content:space-between;align-items:baseline;}
+.eqp-count-wrap{color:var(--muted);font-size:.7rem;text-transform:none;letter-spacing:0;}
+.eqp-econ{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;text-align:center;}
+.eqp-econ-box{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:.4rem .2rem;}
+.eqp-econ-box span{display:block;font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.eqp-econ-box b{font-size:.82rem;color:var(--text);font-family:'Courier New',monospace;}
+#eqp-spent{color:var(--red);}
+#eqp-left{color:var(--green);}
+#eqp-left.over{color:var(--red);}
+
+.eqp-enc{display:flex;flex-direction:column;gap:.4rem;border-top:1px solid var(--border);padding-top:.6rem;}
+.eqp-enc-row{display:flex;justify-content:space-between;align-items:center;font-size:.78rem;color:var(--muted);}
+.eqp-enc-row b{color:var(--text);font-family:'Courier New',monospace;font-size:.78rem;}
+.eqp-encbar{height:.5rem;background:var(--card);border:1px solid var(--border);
+  border-radius:999px;overflow:hidden;}
+.eqp-encbar-fill{height:100%;width:0;transition:width .25s;background:var(--green);}
+.eqp-encbar-fill.enc-medium{background:var(--yellow);}
+.eqp-encbar-fill.enc-heavy{background:var(--red);}
+.eqp-encbar-fill.enc-overloaded{background:var(--red);}
+.eqp-badge{padding:.1rem .55rem;border-radius:999px;font-size:.7rem;font-weight:bold;border:1px solid;}
+.eqp-badge.enc-light{color:var(--green);border-color:var(--green);background:rgba(74,110,28,.1);}
+.eqp-badge.enc-medium{color:var(--yellow);border-color:var(--yellow);background:rgba(138,97,0,.1);}
+.eqp-badge.enc-heavy{color:var(--red);border-color:var(--red);background:rgba(181,67,44,.1);}
+.eqp-badge.enc-overloaded{color:#fff;border-color:var(--red);background:var(--red);}
+
+@media (max-width:640px){
+  .eqp-body{flex-direction:column;}
+  .eqp-widget{flex-basis:auto;width:100%;position:static;}
+  .eqp-list{max-height:24rem;width:100%;}
+}

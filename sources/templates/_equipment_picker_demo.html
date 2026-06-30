@@ -1,0 +1,61 @@
+<!doctype html>
+{# Dev-testside for udrustningsbutikken (Fase 2 QA). Kun tilgængelig i debug —
+   ruten /dev/equipment-picker giver 404 i produktion. Lader os drive komponenten
+   med klasse/STR/size/guld og se faner, søg, filtre og live budget/vægt isoleret. #}
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Equipment Picker — dev</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='character.css') }}">
+  <style>
+    body{padding:1rem;max-width:60rem;margin:0 auto;}
+    .demo-controls{display:flex;flex-wrap:wrap;gap:.8rem;align-items:end;
+      background:var(--surface);border:1px solid var(--border);border-radius:8px;
+      padding:.7rem;margin-bottom:1rem;}
+    .demo-controls label{display:flex;flex-direction:column;font-size:.7rem;color:var(--muted);gap:.2rem;}
+    .demo-controls select,.demo-controls input{background:var(--card);border:1px solid var(--border);
+      color:var(--text);font-family:Georgia,serif;padding:.3rem .4rem;border-radius:5px;}
+    h1{color:var(--accent);font-size:1.2rem;margin-bottom:.8rem;}
+  </style>
+</head>
+<body>
+  <h1>⚔ Udrustningsbutik — dev-testside</h1>
+  <div class="demo-controls">
+    <label>Klasse
+      <select id="d-cls">
+        {% for c in classes %}<option value="{{ c.lower() }}">{{ c }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>STR <input type="number" id="d-str" value="14" min="1" max="30" style="width:4rem"></label>
+    <label>Størrelse
+      <select id="d-size">
+        <option value="small">Small</option>
+        <option value="medium" selected>Medium</option>
+        <option value="large">Large</option>
+      </select>
+    </label>
+    <label>Startguld (gp) <input type="number" id="d-gold" value="150" min="0" style="width:6rem"></label>
+  </div>
+
+  {% include "_equipment_picker.html" %}
+
+  <script src="{{ url_for('static', filename='equipment_picker.js') }}"></script>
+  <script>
+    const ctx = () => ({
+      cls:  document.getElementById('d-cls').value,
+      str:  parseInt(document.getElementById('d-str').value) || 10,
+      size: document.getElementById('d-size').value,
+    });
+    const goldCp = () => (parseInt(document.getElementById('d-gold').value) || 0) * 100;
+
+    EquipmentPicker.init({ ...ctx(), budgetCp: goldCp(),
+      onChange: (sel) => console.log('valgt:', sel) });
+
+    document.getElementById('d-cls').onchange  = () => EquipmentPicker.setContext(ctx());
+    document.getElementById('d-str').onchange  = () => EquipmentPicker.setContext(ctx());
+    document.getElementById('d-size').onchange = () => EquipmentPicker.setContext(ctx());
+    document.getElementById('d-gold').oninput  = () => EquipmentPicker.setBudget(goldCp());
+  </script>
+</body>
+</html>

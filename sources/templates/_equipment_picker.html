@@ -1,0 +1,46 @@
+{# _equipment_picker.html — genbrugelig udrustningsbutik.
+   Inkluderes med {% include "_equipment_picker.html" %} i create.html og
+   character.html. Værts-siden initialiserer den med EquipmentPicker.init({...})
+   og lytter via onChange. Markup er ren visning; al regel-data kommer fra
+   /api/catalog. Husk at indlæse static/equipment_picker.js på værts-siden. #}
+<div class="eqp" id="eqp-root">
+
+  {# Filterbjælke: søgning + de to filtre #}
+  <div class="eqp-filterbar">
+    <div class="eqp-search">
+      <span class="eqp-search-ico">🔍</span>
+      <input type="text" id="eqp-search" placeholder="Søg udrustning…" autocomplete="off">
+    </div>
+    <div class="eqp-filters">
+      <label class="eqp-filter"><input type="checkbox" id="eqp-only-prof"> Kun proficient</label>
+      <label class="eqp-filter"><input type="checkbox" id="eqp-only-afford"> Kun råd til</label>
+    </div>
+  </div>
+
+  {# Kategori-faner (fyldes af JS ud fra katalogets kategorier) #}
+  <div class="eqp-tabs" id="eqp-tabs"></div>
+
+  <div class="eqp-body">
+    {# Vareliste #}
+    <div class="eqp-list" id="eqp-list"></div>
+
+    {# Budget- + vægt/encumbrance-widget #}
+    <aside class="eqp-widget">
+      <div class="eqp-widget-title">Økonomi <span class="eqp-count-wrap">(<span id="eqp-count">0</span> valgt)</span></div>
+      <div class="eqp-econ">
+        <div class="eqp-econ-box"><span>Budget</span><b id="eqp-budget">—</b></div>
+        <div class="eqp-econ-box"><span>Brugt</span><b id="eqp-spent">—</b></div>
+        <div class="eqp-econ-box"><span>Tilbage</span><b id="eqp-left">—</b></div>
+      </div>
+
+      <div class="eqp-enc">
+        <div class="eqp-enc-row"><span>Båret vægt</span><b id="eqp-weight">0 lb</b></div>
+        <div class="eqp-encbar"><div class="eqp-encbar-fill enc-light" id="eqp-encbar-fill"></div></div>
+        <div class="eqp-enc-row"><span>Belastning</span><span class="eqp-badge enc-light" id="eqp-enc-badge">Let</span></div>
+      </div>
+    </aside>
+  </div>
+
+  {# Værts-formularen læser dette felt ved submit (Fase 3) #}
+  <input type="hidden" name="equipment" id="eqp-selected" value="[]">
+</div>

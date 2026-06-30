@@ -443,6 +443,14 @@ def api_catalog():
     return jsonify(data)
 
 
+@app.route("/dev/equipment-picker")
+def dev_equipment_picker():
+    """Isoleret dev-testside for udrustningsbutik-komponenten (kun i debug)."""
+    if not app.debug:
+        abort(404)
+    return render_template("_equipment_picker_demo.html", classes=GEN_CLASSES)
+
+
 @app.route("/create")
 def create_form():
     return render_template("create.html", error=request.args.get("error"), **_gen_context())
