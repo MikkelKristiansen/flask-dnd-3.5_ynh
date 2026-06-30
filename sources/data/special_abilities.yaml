@@ -209,3 +209,520 @@
   description: >-
     Skabningen kan se uden nogen lyskilde ud til en angivet rækkevidde. Darkvision
     er sort-hvid, men ellers som normalt syn; skabningen kan fungere fint uden lys.
+
+# ── Elemental-/outsider-/fey-special attacks (Su/Sp arves KUN af en elemental-form) ──
+- id: air_mastery
+  name: Air Mastery
+  kind: ex
+  category: attack
+  description: >-
+    Luftborne skabninger (flyvende eller svævende) tager −1 på angrebsruller og
+    skaderullen mod et luftelement. Evnen er passiv og gælder automatisk så snart
+    en modstander er i luften — elementalet behøver ikke foretage sig noget aktivt.
+
+- id: whirlwind
+  name: Whirlwind
+  kind: su
+  category: attack
+  description: >-
+    Elementalet kan forvandle sig til en hvirvelvind én gang pr. 10 minutter og
+    opretholde formen op til én runde pr. 2 HD. I hvirvelvindsform kan det trække
+    små nok fjender ind i hvirvelvindens krop; ofre kan flygte med et vellykket
+    Reflex-save. Elementalet bevæger sig med sin fly-hastighed i denne form.
+
+- id: burn
+  name: Burn
+  kind: ex
+  category: attack
+  rider_type: on_hit
+  description: >-
+    Ildelementalets krop er i konstant brand, og dets slagangrebs kontakt udsætter
+    offeret for ild. Den ramte skabning skal bestå et Reflex-save eller bryde i
+    brand; branden varer 1d4 runder. En brændende skabning kan bruge en move-action
+    på at slukke ilden.
+
+- id: earth_mastery
+  name: Earth Mastery
+  kind: ex
+  category: attack
+  description: >-
+    Jordelementalet får +1 på angrebsruller og skade når både det og modstanderen
+    rører jordbunden. Er modstanderen eller elementalet i luften eller under vand,
+    tager elementalet −4 på angrebsruller og skade. Disse modifikatorer er ikke
+    inkluderet i statblokken.
+
+- id: push
+  name: Push
+  kind: ex
+  category: attack
+  description: >-
+    Jordelementalet kan starte en bull rush-manøvre uden at provokere attack of
+    opportunity. Earth Mastery-modifikatorerne gælder ligeledes for de modsatte
+    Styrke-checks i bull rush-opgøret, hvilket giver elementalet en betydelig
+    fordel på hjemmebane.
+
+- id: water_mastery
+  name: Water Mastery
+  kind: ex
+  category: attack
+  description: >-
+    Vandelementalet får +1 på angrebsruller og skade når både det og modstanderen
+    rører vand. Rører modstanderen eller elementalet jordbunden, tager elementalet
+    −4 på angrebsruller og skade. Disse modifikatorer er ikke inkluderet i
+    statblokken.
+
+- id: drench
+  name: Drench
+  kind: ex
+  category: attack
+  description: >-
+    Vandelementalets berøring slukker fakler, bål, eksponerede lanterner og andre
+    åbne ikke-magiske flammer af Stor størrelse eller mindre. Magiske ildeffekter
+    det rører kan neutraliseres svarende til dispel magic med kasterniveau lig
+    elementalets HD.
+
+- id: vortex
+  name: Vortex
+  kind: su
+  category: attack
+  description: >-
+    Under vand kan elementalet forvandle sig til en hvirvelstrøm én gang pr.
+    10 minutter og opretholde formen op til én runde pr. 2 HD. I vortex-form
+    bevæger det sig med swim-hastighed og kan trække og fastholde modstandere inde
+    i strømmen; ofre kan frigøre sig med et vellykket Reflex-save.
+
+- id: heat
+  name: Heat
+  kind: ex
+  category: attack
+  rider_type: on_hit
+  description: >-
+    Salamanderens krop udstråler ekstrem varme, og selv en overfladisk berøring
+    påfører ekstra ildskade. Metalvåben som salamanderen bærer leder varmen og
+    giver tilsvarende ekstra ildskade ved hvert vellykket træf.
+
+- id: electricity_ray
+  name: Electricity Ray
+  kind: su
+  category: attack
+  description: >-
+    Arrowhawken affyrer en stråle af elektricitet fra halen som et ranged touch
+    attack én gang pr. runde med en rækkevidde på 50 fod. Som touch attack ignorerer
+    strålen rustningsbeskyttelse og naturlig AC og påfører elektricitets-skade ved træf.
+
+- id: ink_cloud
+  name: Ink Cloud
+  kind: ex
+  category: attack
+  description: >-
+    Skabningen udsprøjter en sfærisk sky af kulsort blæk én gang pr. minut som en
+    fri handling; skyen giver total concealment og blokerer synslinjer fuldstændigt.
+    En tojanida kan uden for vand skyde blæk direkte i øjnene på en modstander — et
+    vellykket Reflex-save er nødvendigt for at undgå blindhed.
+
+- id: pipes
+  name: Pipes
+  kind: su
+  category: attack
+  description: >-
+    Satyren spiller en magisk melodi på sin panfløjte. Alle skabninger (undtagen
+    satyrer) inden for 60 fod skal bestå et Will-save eller blive ramt af charm
+    person, sleep eller fear — satyren vælger melodien og dens effekt. Kasterniveauet
+    er 10.
+
+- id: entangle
+  name: Entangle
+  kind: su
+  category: attack
+  description: >-
+    Assassinranken kan som en fri handling animere planter inden for 30 fod af sig
+    selv. De animerede planter griber fat om alle skabninger i området og holder dem
+    fast; ofre der klarer et Reflex-save er kun delvist indsnøret og bevæger sig halvt.
+
+- id: fiddle
+  name: Fiddle
+  kind: su
+  category: attack
+  description: >-
+    Én grig i gruppen bærer en lillebitte fele. Mens felen spilles, skal alle
+    ikke-sprites inden for 30 fod bestå et Will-save eller blive tvunget til
+    irresistible dance, så længe musikken fortsætter. Save DC er Karisma-baseret.
+
+- id: change_size
+  name: Change Size
+  kind: sp
+  category: attack
+  description: >-
+    Jannien kan to gange om dagen magisk ændre en skabnings størrelse som enlarge
+    person eller reduce person efter eget valg — herunder på sig selv. Den ramte
+    skabning kan afvise effekten med et vellykket Fortitude-save. Svarer til et
+    2.-niveaus-trylleformular.
+
+- id: charm_person
+  name: Charm Person
+  kind: sp
+  category: attack
+  description: >-
+    Nixien kan tre gange om dagen bruge charm person som en spell-like ability.
+    Skabninger der fejler et Will-save er charmede i 24 timer og bruges typisk til
+    tungt arbejde eller vagttjeneste. Kort inden effekten udløber, eskorteres den
+    charmede væk og beordres til at gå. Kasterniveauet er 4.
+
+- id: special_arrows
+  name: Special Arrows
+  kind: ex
+  category: attack
+  description: >-
+    Pixies bruger pile der ikke gør skade, men i stedet fremkalder søvn eller
+    hukommelsestab. Søvnpilen sender offeret i søvn uanset HD (Fortitude-save).
+    Hukommelsestabs-pilen sletter alle minder (Will-save) men bevarer færdigheder,
+    sprog og klassevner; en heal-trylleformular eller lignende genopretter mindet.
+
+# ── Special qualities: senses, DR, immuniteter, traits (arves KUN af elemental-form) ──
+# NB: 'ink_cloud' ligger som special ATTACK ovenfor (samme evne) — ikke gentaget her.
+- id: damage_reduction
+  name: Damage Reduction
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen ignorerer automatisk et vist antal points skade fra normale angreb
+    — sår heler øjeblikkeligt eller våbnet preller af. Energiangreb og magi
+    påvirkes ikke. Bestemt materiale eller magisk egenskab kan gennembryde
+    reduktionen, som specificeret i skabningens beskrivelse.
+
+- id: elemental_traits
+  name: Elemental Traits
+  kind: ex
+  category: quality
+  description: >-
+    En elemental-type skabning er immun over for gift, søvneffekter, lammelse og
+    bedøvelse; den er ikke genstand for kritiske hits eller flanking. Den spiser,
+    sover eller ånder ikke, og dens sjæl og krop udgør én enhed — den kan ikke
+    genopvækkes med normale resurrection-trylleformularer.
+
+- id: immunity_to_fire
+  name: Immunity to Fire
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen er fuldstændig immun over for ild-skade uanset kilde — magisk,
+    elementarisk eller ikke-magisk. Immunitet til ild er typisk knyttet til
+    ild-subtypen eller specifikke race-træk.
+
+- id: vulnerability_to_cold
+  name: Vulnerability to Cold
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen tager halvt mere skade end normalt (+50%) af kuldeangreb, uanset om
+    et saving throw er tilladt, og uanset om det bestås eller mislykkes. Svagheden
+    er modstykket til ild-immunitet hos skabninger med ild-subtypen.
+
+- id: earth_glide
+  name: Earth Glide
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen glider ubesværet igennem sten, jord og lignende jordmateriale (ikke
+    metal) som en fisk svømmer i vand. Den efterlader ingen tunnel, hul eller
+    synlige spor af sin passage. Et move earth-trylleformel i området kaster
+    skabningen 30 fod tilbage og kan bedøve den.
+
+- id: hold_breath
+  name: Hold Breath
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan holde vejret i et antal runder svarende til et multiplum af sin
+    Constitution-score, som angivet i dens beskrivelse, inden den risikerer at
+    drukne. Dette giver den mulighed for at forblive under vand i langt længere
+    tid end normalt.
+
+- id: all_around_vision
+  name: All-Around Vision
+  kind: ex
+  category: quality
+  description: >-
+    Skabningens sanseorganer dækker alle retninger simultant. Den får typisk +4
+    racial bonus på Spot- og Search-checks og kan ikke flankes, da den aldrig
+    betragtes som at have en bagside.
+
+- id: resistance_to_electricity
+  name: Resistance to Electricity
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen ignorerer et vist antal points elektricitetsskade hver gang den
+    rammes. Den specificerede mængde fratrækkes inden resterende skade beregnes.
+    Resistens påvirkes ikke af om et saving throw er tilladt eller bestås.
+
+- id: blindsight
+  name: Blindsight
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen navigerer og kæmper lige så godt som en seende skabning udelukkende
+    via ikke-visuelle sanser — fx ekkolokalisering, vibrationer eller skarp lugt.
+    Usynlighed, mørke og de fleste former for skjul er irrelevante; skabningen
+    kræver dog stadig line of effect til sine mål.
+
+- id: resistance_to_cold
+  name: Resistance to Cold
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen ignorerer et vist antal points kuldeskade hver gang den rammes. Den
+    specificerede mængde fratrækkes inden resterende skade beregnes. Resistens
+    påvirkes ikke af om et saving throw er tilladt eller bestås.
+
+- id: tremorsense
+  name: Tremorsense
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen er følsom over for vibrationer i underlaget og bestemmer automatisk
+    placeringen af alt i kontakt med jorden inden for den angivne rækkevidde.
+    Akvatiske skabninger med tremorsense kan tilsvarende registrere bevægelse i vand.
+
+- id: blindsense
+  name: Blindsense
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen registrerer tilstedeværelsen af skabninger den ikke kan se, via
+    ikke-visuelle sanser som lugt eller hørelse. Modstanderen har dog stadig total
+    concealment og dertilhørende miss chance, og skabningen mister sin
+    Dexterity-bonus mod angreb fra usynlige fjender.
+
+- id: keen_scent
+  name: Keen Scent
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan registrere andre væsner på lugten over usædvanligt store
+    afstande — typisk 180 fod — og kan desuden spore blod i vand over meget lange
+    afstande, op til en mil. Evnen er langt mere skarp end det almindelige Scent-træk.
+
+- id: jet
+  name: Jet
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan springe baglæns i en ret linje med høj hastighed som en
+    full-round-handling én gang pr. runde. Bevægelsen provokerer ikke attacks of
+    opportunity. Præcis hastighed angives i skabningens beskrivelse.
+
+- id: spell_resistance
+  name: Spell Resistance
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan modstå effekter fra trylleformularer og spell-like abilities der
+    direkte påvirker den. Kasteren skal bestå et kasterniveau-check (1t20 +
+    kasterniveau) mod SR-værdien for at tryllet virker — skabningen bevarer dog
+    retten til et saving throw bagefter.
+
+- id: immunity_to_acid_electricity_poison
+  name: "Immunity to Acid, Electricity, and Poison"
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen er fuldstændig immun over for syreskade, elektricitetsskade og alle
+    former for gift. Ingen af disse skadestyper eller effekter har nogen virkning,
+    uanset kilde, og uanset om et saving throw er tilladt.
+
+- id: immunity_to_acid_and_cold
+  name: Immunity to Acid and Cold
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen er fuldstændig immun over for syreskade og kuldeskade. Ingen af
+    disse skadestyper har nogen virkning på skabningen, uanset om de stammer fra
+    magiske eller ikke-magiske kilder.
+
+- id: immunity_to_cold_and_fire
+  name: Immunity to Cold and Fire
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen er fuldstændig immun over for kuldeskade og ildskade. Ingen af disse
+    skadestyper har nogen virkning på skabningen, uanset om de stammer fra magiske
+    eller ikke-magiske kilder.
+
+- id: wild_empathy
+  name: Wild Empathy
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan forbedre et dyrs (animal) holdning på samme måde som
+    Diplomacy-færdigheden forbedrer en persons holdning. Den ruller 1t20 og
+    tilføjer relevante bonusser; skabning og dyr skal normalt befinde sig inden for
+    30 fod af hinanden, og processen tager typisk 1 minut.
+
+- id: immunity_to_electricity
+  name: Immunity to Electricity
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen er fuldstændig immun over for elektricitetsskade uanset kilde —
+    magisk, naturlig eller ikke-magisk. Elektricitet-angreb og -effekter har ingen
+    virkning på skabningen.
+
+- id: plant_traits
+  name: Plant Traits
+  kind: ex
+  category: quality
+  description: >-
+    En plante-type skabning er immun over for alle sinde-påvirkende effekter
+    (charme, tvang, fantomeri, mønstre og morale) samt gift, søvn, lammelse,
+    polymorph og bedøvelse. Den er ikke genstand for kritiske hits, og den spiser
+    og ånder, men sover ikke.
+
+- id: plane_shift
+  name: Plane Shift
+  kind: su
+  category: quality
+  description: >-
+    Skabningen kan flytte sig øjeblikkeligt fra sit nuværende plan til et andet —
+    typisk kun sig selv, medmindre beskrivelsen siger andet. Evnen fungerer som
+    plane shift-tryllet med et kasterniveau svarende til skabningens HD.
+
+- id: telepathy
+  name: Telepathy
+  kind: su
+  category: quality
+  description: >-
+    Skabningen kan kommunikere telepatisk med alle skabninger inden for den angivne
+    rækkevidde som har et sprog. Kommunikationen er tavs og kræver ingen handling;
+    det er muligt at tale med flere skabninger på én gang, dog ligeså kognitivt
+    krævende som at tale med flere personer samtidigt.
+
+- id: resistance_to_fire
+  name: Resistance to Fire
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen ignorerer et vist antal points ildskade hver gang den rammes. Den
+    specificerede mængde fratrækkes inden resterende skade beregnes. Resistens
+    påvirkes ikke af om et saving throw er tilladt eller bestås.
+
+- id: magic_circle_against_evil
+  name: Magic Circle against Evil
+  kind: su
+  category: quality
+  description: >-
+    Skabningen omgives permanent af en effekt svarende til magic circle against
+    evil-tryllet inden for en radius angivet i dens beskrivelse. Effekten beskytter
+    omgivende allierede mod onde skabningers angreb og holder onde summoned
+    creatures i ave. Skabningen kan normalt ikke undertrykke evnen.
+
+- id: immunity_to_poison_charm_compulsion
+  name: "Immunity to Poison, Charm, and Compulsion"
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen er fuldstændig immun over for alle former for gift samt over for
+    sinde-påvirkende charme- og tvang-effekter. Immuniteten gælder uanset om
+    effekternes kilde er magisk, supernaturlig eller ekstraordinær.
+
+- id: camouflage
+  name: Camouflage
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan bruge Hide-færdigheden i alle former for naturligt terræn, selv
+    når terrænet ikke giver cover eller concealment. De naturlige omgivelsers
+    varierede struktur er tilstrækkelig for en erfaren skabning til at forblive skjult.
+
+- id: immunity_to_acid
+  name: Immunity to Acid
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen er fuldstændig immun over for syreskade uanset kilde — magisk,
+    biologisk eller kemisk. Syrebaserede angreb og effekter har ingen virkning på
+    skabningen.
+
+- id: evasion
+  name: Evasion
+  kind: ex
+  category: quality
+  description: >-
+    Lykkes skabningens Reflex-saving throw mod et angreb der normalt giver halv
+    skade ved succesfuldt save, tager den slet ingen skade. Evnen fungerer kun i let
+    eller ingen rustning. En hjælpeløs skabning drager ikke fordel af evasion.
+
+- id: superior_low_light_vision
+  name: Superior Low-Light Vision
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen ser markant længere end normalt i svag belysning — typisk fem gange
+    så langt som et menneske under tilsvarende lysforhold. Ellers fungerer evnen som
+    standard low-light vision og bevarer fuld farve- og detaljeopfattelse.
+
+- id: natural_invisibility
+  name: Natural Invisibility
+  kind: su
+  category: quality
+  description: >-
+    Skabningen er konstant usynlig, også under angreb. Evnen er iboende i
+    skabningens natur, er aktiv i hele dens levetid og er ikke underlagt
+    invisibility purge. Den kan ikke dispelles som et ordinært tryllel.
+
+- id: improved_tracking
+  name: Improved Tracking
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen er en konsummat sporer og benytter Spot-checks i stedet for de
+    normale Survival-checks til at følge en skabnings spor. Dette giver en langt
+    skarpere sporingsevne uafhængig af overfladens beskaffenhed.
+
+- id: elemental_endurance
+  name: Elemental Endurance
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan overleve på elementarplanerne (Luft, Jord, Ild eller Vand) i op
+    til 48 timer. Forbliver den på et elementarplan ud over denne grænse, tager den
+    1 point skade pr. ekstra time, indtil den returnerer til det Materielle Plan
+    eller dør.
+
+- id: amphibious
+  name: Amphibious
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen er vandlevende, men kan overleve ubegrænset tid på land. Den kan ånde
+    både luft og vand og bevæger sig frit i begge miljøer. Normalt holder den sig
+    dog tæt på vand.
+
+- id: water_breathing
+  name: Water Breathing
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan ånde under vand på ubestemt tid og kan bruge alle sine evner —
+    herunder åndedrætsangreb, trylleformularer og særlige egenskaber — fuldstændig
+    frit mens den er nedsænket.
+
+- id: greater_invisibility
+  name: Greater Invisibility
+  kind: su
+  category: quality
+  description: >-
+    Skabningen er konstant usynlig, også når den angriber. Evnen svarer til greater
+    invisibility-tryllet, er aktiv i hele skabningens levetid og er ikke underlagt
+    invisibility purge. Dette er en iboende supernaturlig egenskab, ikke en
+    midlertidig effekt.
+
+- id: energy_resistance
+  name: Energy Resistance
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen ignorerer et vist antal points skade af en bestemt energitype
+    (typisk syre, kulde, ild eller elektricitet) hver gang den rammes. Resistensen
+    angives som antal points plus energitype og fratrækkes inden resterende skade
+    beregnes.
