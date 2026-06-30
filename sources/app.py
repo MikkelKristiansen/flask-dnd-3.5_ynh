@@ -11,6 +11,7 @@ from flask import (Flask, Response, abort, jsonify, redirect, render_template,
 from ruamel.yaml import YAML
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+import catalog
 import character as char_module
 import companion as companion_module
 import db
@@ -313,20 +314,11 @@ def delete_character(slug):
 # ── Karaktergenerator ───────────────────────────────────────────────────────
 
 def _format_cost(cost_cp) -> str:
-    """cp → læsbar pris: 1500→'15 gp', 70→'7 sp', 205→'2 gp 5 cp', 0→'—'."""
-    cp = int(cost_cp or 0)
-    if cp == 0:
-        return "—"
-    gp, rem = divmod(cp, 100)
-    sp, c = divmod(rem, 10)
-    parts = []
-    if gp:
-        parts.append(f"{gp} gp")
-    if sp:
-        parts.append(f"{sp} sp")
-    if c:
-        parts.append(f"{c} cp")
-    return " ".join(parts)
+    """cp → læsbar pris: 1500→'15 gp', 70→'7 sp', 205→'2 gp 5 cp', 0→'—'.
+
+    Tynd façade over catalog.format_cost, så pris-formateringen kun findes ét sted.
+    """
+    return catalog.format_cost(cost_cp)
 
 
 def _class_bonus_feat_ids(cls: str) -> list:
@@ -416,6 +408,39 @@ def _gen_context() -> dict:
         "feat_name_to_id": {x["name"].lower(): x["id"] for x in all_feats},
         "spell_schools": refdata.SPELL_SCHOOLS,
     }
+
+
+@app.route("/api/catalog")
+def api_catalog():
+    """Beriget udstyrs-katalog til udrustningsbutikken (UI tegnes ud fra dette).
+
+    Tager parametre, IKKE en karakter — den bruges også under generering, hvor
+    karakteren endnu ikke findes:
+      cls   klasse-id → proficiency-flag + anbefalet-flag (valgfri)
+      str   styrke-score → bæreevne-grænser (default 10)
+      size  small/medium/large → størrelses-justeret vægt (default medium)
+      race  race-id → ekstra våben-proficiency (fx elv: longsword) (valgfri)
+
+    Python regner alle regel-afledte tal; JS lægger kun sammen. Se catalog.py.
+    """
+    cls = (request.args.get("cls") or "").strip()
+    race = (request.args.get("race") or "").strip()
+    size = (request.args.get("size") or "medium").strip().lower()
+    try:
+        str_score = int(request.args.get("str", 10))
+    except (TypeError, ValueError):
+        str_score = 10
+
+    data = catalog.build_catalog(
+        db,
+        weapon_prof=refdata.class_weapon_proficiency(cls) if cls else None,
+        armor_prof=refdata.class_armor_proficiency(cls) if cls else None,
+        allowed_weapons=_race_weapon_prof_ids(race, db) if race else frozenset(),
+        recommended_ids=refdata.starting_kit_ids(cls) if cls else frozenset(),
+        str_score=str_score,
+        size=size,
+    )
+    return jsonify(data)
 
 
 @app.route("/create")

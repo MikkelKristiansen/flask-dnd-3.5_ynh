@@ -308,6 +308,23 @@ def class_armor_proficiency(cls: str) -> dict | None:
     return class_data(cls).get("armor_proficiency")
 
 
+# ── Startkit (anbefalede køb pr. klasse — data/starting_kits.yaml) ──────────
+_STARTING_KITS: dict[str, list] = (_load_yaml("starting_kits") or {}).get("kits", {}) or {}
+
+
+def _flatten(seq) -> list:
+    """Fladgør én/flere niveauers indlejrede lister (YAML-ankre bliver til lister)."""
+    out: list = []
+    for x in seq or []:
+        out.extend(_flatten(x)) if isinstance(x, list) else out.append(x)
+    return out
+
+
+def starting_kit_ids(cls: str) -> set:
+    """Anbefalede start-køb (bare katalog-id'er) for en klasse — tom hvis ukendt."""
+    return set(_flatten(_STARTING_KITS.get((cls or "").lower(), [])))
+
+
 # Feats hvor man vælger et specifikt våben (gemmes som {id, weapon} i stedet for
 # en ren id-streng). Bruges af generatoren, level-up og visningen.
 WEAPON_CHOICE_FEATS = {"weapon_focus", "weapon_specialization", "improved_critical"}

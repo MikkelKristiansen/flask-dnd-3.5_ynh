@@ -455,6 +455,19 @@ def weight_for_size(base_weight: float, kind: str, size: str = "medium") -> floa
     return round(base_weight * factor, 3)
 
 
+def weight_kind(table: str, record: dict) -> str:
+    """Skaleringsklasse for en katalog-række ud fra dens tabel (til weight_for_size).
+
+    Ét sted for reglen 'hvordan skalerer vægten med størrelse': våben/rustning
+    halveres/fordobles, gear med SRD-fodnote 1 firdeles for Small, resten uændret.
+    """
+    if table in ("weapons", "armor"):
+        return "half"
+    if table == "items":
+        return "quarter" if record.get("small_quarter") else "none"
+    return "none"
+
+
 def resolve_item(item: InventoryItem, db, size: str = "medium") -> dict:
     """Slå en inventory-post op mod kataloget og udregn dens faktiske vægt.
 
@@ -474,10 +487,8 @@ def resolve_item(item: InventoryItem, db, size: str = "medium") -> dict:
             source = table
             name = item.name or record["name"]
             base_weight = record.get("weight") or 0.0
-            if table in ("weapons", "armor"):
-                kind = "half"
-            elif table == "items":
-                kind = "quarter" if record.get("small_quarter") else "none"
+            kind = weight_kind(table, record)
+            if table == "items":
                 # Bundter (ammo) opgives per bundt i kataloget; qty = enkelte
                 # enheder, så vægten regnes per styk.
                 bundle = record.get("bundle") or 1

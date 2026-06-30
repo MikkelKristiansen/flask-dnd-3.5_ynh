@@ -1,0 +1,103 @@
+# starting_kits — anbefalede startkøb pr. klasse (level 1).
+#
+# Dette er DATA, ikke regler: hvad en ny karakter af hver klasse typisk bør købe.
+# Bruges KUN til at markere 'anbefalet'-flaget i udrustningsbutikken — det styrer
+# intet og tvinger ingenting. Id'erne refererer til weapons/armor/items-katalogerne
+# (bare id, matches inden for sin egen tabel).
+#
+# &common-ankeret er fælles eventyrgrej alle klasser vil have; *common indsætter det.
+# Tilføj/ret frit — en ukendt id ignoreres bare (markerer intet).
+
+_common: &common
+  - backpack_empty
+  - bedroll
+  - flint_and_steel
+  - torch
+  - rope_hempen_50_ft
+  - waterskin
+  - rations_trail_per_day
+  - explorer_s_outfit
+
+kits:
+  barbarian:
+    - greataxe
+    - javelin
+    - hide
+    - *common
+
+  bard:
+    - rapier
+    - shortbow
+    - arrows_20
+    - leather
+    - musical_instrument_common
+    - *common
+
+  cleric:
+    - mace_heavy
+    - scale_mail
+    - heavy_steel_shield
+    - holy_symbol_wooden
+    - cleric_s_vestments
+    - *common
+
+  druid:
+    - scimitar
+    - sling
+    - sling_bullets_10
+    - leather
+    - light_wooden_shield
+    - holly_and_mistletoe
+    - holy_symbol_wooden
+    - *common
+
+  fighter:
+    - longsword
+    - javelin
+    - scale_mail
+    - heavy_steel_shield
+    - *common
+
+  monk:
+    - quarterstaff
+    - shuriken_5
+    - monk_s_outfit
+    - *common
+
+  paladin:
+    - longsword
+    - javelin
+    - scale_mail
+    - heavy_steel_shield
+    - holy_symbol_wooden
+    - *common
+
+  ranger:
+    - longbow
+    - arrows_20
+    - sword_short
+    - studded_leather
+    - *common
+
+  rogue:
+    - sword_short
+    - shortbow
+    - arrows_20
+    - leather
+    - thieves_tools
+    - *common
+
+  sorcerer:
+    - dagger
+    - crossbow_light
+    - crossbow_bolts_10
+    - spell_component_pouch
+    - *common
+
+  wizard:
+    - quarterstaff
+    - crossbow_light
+    - crossbow_bolts_10
+    - spell_component_pouch
+    - spellbook_wizard_s_blank
+    - *common
