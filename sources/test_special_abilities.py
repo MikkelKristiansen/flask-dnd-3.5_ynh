@@ -118,3 +118,22 @@ def test_note_only_rider_has_trigger_but_no_rolls():
     pounce = _ability(_wild_form("dire_tiger"), "pounce")
     assert pounce["rider"]["rolls"] == []
     assert "charger" in pounce["rider"]["trigger"]
+
+
+def test_form_skills_use_form_scores_and_size():
+    """Skills i form bruger formens fysiske scores; Hide får størrelses-mod (×4)."""
+    import models
+    from character import size_mod_attack
+    c = cm.load_character("defaults/tjorn.yaml")
+    c.level = 12
+    c.combat = {**c.combat, "bab": 9}
+    c.skills = [models.Skill(id="climb", ranks=5, misc=0),
+                models.Skill(id="hide", ranks=4, misc=1)]
+    c.wild_shape = {"current_form": "dire_tiger"}        # Large-form
+    form = W.build_wild_shape_form(c, WS, db_module)
+    ab = form["abilities"]
+    smod = lambda score: (score - 10) // 2
+    sk = {s["name"]: s["total"] for s in form["skills"]}
+    assert sk["Climb"] == 5 + smod(ab["str"])            # Str-skill: ranks + form-Str-mod
+    # Hide (Dex): ranks + form-Dex-mod + misc + størrelses-mod (Large = −4)
+    assert sk["Hide"] == 4 + smod(ab["dex"]) + 1 + size_mod_attack("large") * 4

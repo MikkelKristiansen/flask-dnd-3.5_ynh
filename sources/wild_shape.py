@@ -151,6 +151,28 @@ def _attach_riders(gained: list, bab: int, str_mod: int, size: str) -> None:
         ab["rider"] = {"trigger": special_abilities.RIDER_TRIGGERS.get(rt, ""), "rolls": rolls}
 
 
+def _form_skills(skills, scores, size: str, db) -> list:
+    """Fysiske (Str/Dex/Con) skills genberegnet med formens scores.
+
+    RAW polymorph: druiden beholder sine egne ranks + misc, men de FYSISKE scores
+    er formens — så kun Str/Dex/Con-baserede skills ændrer sig (mentale er uændrede,
+    vises ikke her). Hide får desuden formens størrelses-modifier (×4 pr. step:
+    Small +4 … Large −4). Formens egne racial skill-bonusser arves IKKE (RAW).
+    Returnerer [{name, total}] sorteret — kun de skills druiden har i sin liste.
+    """
+    hide_mod = size_mod_attack(size) * 4
+    out = []
+    for s in skills:
+        rec = db.get_skill(s.id)
+        if not rec or rec.get("ability") not in ("str", "dex", "con"):
+            continue
+        total = int(s.ranks) + scores.modifier(rec["ability"]) + int(s.misc or 0)
+        if s.id == "hide":
+            total += hide_mod
+        out.append({"name": rec.get("name", s.id), "total": total})
+    return sorted(out, key=lambda x: x["name"])
+
+
 def build_wild_shape_form(char, ws: dict | None, db) -> dict | None:
     """Det merged statblok for druidens nuværende form, eller None hvis ingen.
 
@@ -241,4 +263,5 @@ def build_wild_shape_form(char, ws: dict | None, db) -> dict | None:
         "speed": animal["speed"],
         "attacks": attacks,
         "natural_abilities": natural_abilities,   # {gained: [...], reference: [...]}
+        "skills": _form_skills(char.skills, scores, size, db),  # fysiske skills i form
     }

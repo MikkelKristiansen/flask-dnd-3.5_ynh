@@ -449,6 +449,10 @@
       <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">Fås ikke i animal-form (RAW):
         {% for ab in na.reference %}<span {% if ab.description %}class="ws-abil" onclick="showDetail('ability','{{ ab.slug }}')" title="Tryk for forklaring"{% endif %}>{{ ab.label }}</span>{{ " · " if not loop.last }}{% endfor %}</div>
       {% endif %}
+      {% if wf.skills %}
+      <div style="font-size:.78rem;margin-top:.4rem"><span style="color:var(--muted)">Skills i form (Str/Dex/Con):</span>
+        {% for sk in wf.skills %}<span class="ws-rider">{{ sk.name }} <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(sk.total) }}','{{ sk.name }} ({{ wf.animal_name }})')">{{ "%+d"|format(sk.total) }}</span></span>{{ " · " if not loop.last }}{% endfor %}</div>
+      {% endif %}
       <div style="font-size:.75rem;color:var(--muted);margin-top:.35rem">HP er druidens (uændret, helet ved skift) — se Kamp. Du kan ikke tale; spells kræver Natural Spell.</div>
       <button class="add-btn" style="margin-top:.5rem" onclick="revertWildShape()">↩ Skift tilbage til egen form</button>
     </div>
