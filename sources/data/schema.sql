@@ -151,7 +151,8 @@ CREATE TABLE weapons (
     range_ft     INTEGER,                    -- range increment i fod; NULL = ren nærkamp
     weight       REAL NOT NULL DEFAULT 0,    -- pund (Medium-version)
     damage_type  TEXT,                       -- bludgeoning | piercing | slashing | kombinationer
-    hands        INTEGER                     -- hænder våbnet kræver; NULL = udled af weapon_class (kun sat hvor ranged afviger)
+    hands        INTEGER,                    -- hænder våbnet kræver; NULL = udled af weapon_class (kun sat hvor ranged afviger)
+    metal        INTEGER                     -- 0 = ikke-metal (træ/læder): kan ikke laves af cold iron / forsølves; NULL = metal (default)
 );
 
 DROP TABLE IF EXISTS items;

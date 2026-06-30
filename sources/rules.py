@@ -788,15 +788,15 @@ def material_modifiers(record: dict, table: str) -> list[dict]:
 
     Returnerer [{key, label, delta_cp}] med prisdeltaer pr. SRD:
       masterwork  våben +300 gp / rustning+skjold +150 gp
-      cold_iron   ×2 basispris (delta = basisprisen) — kun nærkampsvåben
-      silvered    efter våbenklasse — kun nærkampsvåben der selv gør skade
-    Cold iron / sølv tilbydes kun på let/enhånds/tohånds våben (ikke buer, slynger
-    eller ubevæbnet, hvor våbnet ikke selv leverer skaden).
+      cold_iron   ×2 basispris (delta = basisprisen) — kun metal-nærkampsvåben
+      silvered    efter våbenklasse — kun metal-nærkampsvåben der selv gør skade
+    Cold iron / sølv tilbydes kun på let/enhånds/tohånds METAL-våben (ikke buer,
+    slynger, ubevæbnet eller træ-/læder-våben som markeret med metal=0 i data).
     """
     if table == "weapons":
         mods = [{"key": "masterwork", "label": "Masterwork", "delta_cp": 30000}]
         wclass = record.get("weapon_class")
-        if wclass in ("light", "one-handed", "two-handed"):
+        if wclass in ("light", "one-handed", "two-handed") and record.get("metal") != 0:
             base = record.get("cost_cp")
             if base:
                 mods.append({"key": "cold_iron", "label": "Cold Iron", "delta_cp": int(base)})

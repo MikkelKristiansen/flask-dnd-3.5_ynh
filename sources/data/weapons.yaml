@@ -1,5 +1,8 @@
 # weapons — SRD v3.5 (OGL v1.0a), parset fra equipment.md. Kilden til sandheden.
 # cost_cp = pris i kobber (1 gp = 100 cp; null = — / variabel). weight = pund.
+# metal: 0 = ikke-metal våben (træ/læder) der hverken kan laves af cold iron eller
+#   forsølves (alkymisk sølv). Udeladt = metal (default) — de fleste våben. Styrer
+#   hvilke materiale-modifikatorer udrustningsbutikken tilbyder (se rules.material_modifiers).
 - id: gauntlet
   name: Gauntlet
   category: simple
@@ -88,6 +91,7 @@
   range_ft: 10
   weight: 3.0
   damage_type: Bludgeoning
+  metal: 0
 - id: mace_heavy
   name: Mace, heavy
   category: simple
@@ -143,6 +147,7 @@
   range_ft:
   weight: 4.0
   damage_type: Bludgeoning
+  metal: 0
 - id: spear
   name: Spear
   category: simple
@@ -280,6 +285,7 @@
   range_ft:
   weight: 2.0
   damage_type: Bludgeoning
+  metal: 0
 - id: shield_light
   name: Shield, light
   category: martial
@@ -478,6 +484,7 @@
   range_ft:
   weight: 8.0
   damage_type: Bludgeoning
+  metal: 0
 - id: flail_heavy
   name: Flail, heavy
   category: martial
@@ -625,6 +632,7 @@
   range_ft:
   weight: 2.0
   damage_type: Bludgeoning
+  metal: 0
 - id: sai
   name: Sai
   category: exotic
@@ -680,6 +688,7 @@
   range_ft:
   weight: 2.0
   damage_type: Slashing
+  metal: 0
 - id: axe_orc_double
   name: Axe, orc double
   category: exotic
