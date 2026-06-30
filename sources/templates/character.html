@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ char.name }}</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='character.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='equipment_picker.css') }}">
 </head>
 <body>
 
@@ -1187,24 +1188,10 @@
     <div id="enc-limits-text" style="color:var(--muted);font-size:.75rem;margin-top:.4rem"></div>
 
     <div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)">
-      <div style="color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Tilføj fra katalog</div>
-      <div class="add-grid">
-        <select class="form-input" id="cat-type" onchange="populateCatalogItems()">
-          <option value="weapons">Våben</option>
-          <option value="armor">Rustning</option>
-          <option value="items">Genstand</option>
-        </select>
-        <select class="form-input" id="cat-state">
-          <option value="wielded">i hånden</option>
-          <option value="worn">båret</option>
-          <option value="backpack">rygsæk</option>
-          <option value="stored">opbevaret</option>
-          <option value="dropped">droppet</option>
-        </select>
-        <input class="form-input" id="cat-qty" type="number" min="1" value="1">
-      </div>
-      <select class="form-input" id="cat-item" style="width:100%;margin-top:.3rem"></select>
-      <button class="add-btn" onclick="addFromCatalog()" style="width:100%;margin-top:.3rem">+ Tilføj fra katalog</button>
+      <div style="color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Tilføj fra katalog (butik)</div>
+      {# Udrustningsbutikken — tilstand udledes af kategori; juster bagefter i detalje-modalen. #}
+      {% include "_equipment_picker.html" %}
+      <button class="add-btn" onclick="addSelectedFromShop()" style="width:100%;margin-top:.5rem">+ Tilføj valgte til inventar</button>
     </div>
 
     <div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)">
@@ -1623,6 +1610,8 @@ window.DND = {
   abScores: { str: {{ char.ability_scores.str }}, dex: {{ char.ability_scores.dex }}, con: {{ char.ability_scores.con }}, int: {{ char.ability_scores.int }}, wis: {{ char.ability_scores.wis }}, cha: {{ char.ability_scores.cha }} },
   baseRanks: { {% for item in skill_data %}"{{ item.skill.id }}": {{ item.skill.ranks }}{% if not loop.last %}, {% endif %}{% endfor %} },
   cls: {{ char.cls|tojson }},
+  size: {{ char.size|tojson }},
+  goldCp: {{ (char.gold.get('pp',0)*1000 + char.gold.get('gp',0)*100 + char.gold.get('sp',0)*10 + char.gold.get('cp',0)) if char.gold is defined else 0 }},
   notesRaw: {{ char.notes|tojson }},
   paladinInfo: {{ paladin_info|tojson }},
   spellSchools: {{ spell_schools|tojson }},
@@ -1630,6 +1619,7 @@ window.DND = {
   spellsKnown: {{ char.spells_known|tojson }},
 };
 </script>
+<script src="{{ url_for('static', filename='equipment_picker.js') }}"></script>
 <script src="{{ url_for('static', filename='character.js') }}"></script>
 </body>
 </html>

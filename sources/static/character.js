@@ -1799,48 +1799,33 @@ function addItem() {
   });
 }
 
-// ── Tilføj fra katalog ───────────────────────────────────────────────────────
-function populateCatalogItems() {
-  const type = document.getElementById("cat-type").value;
-  const sel  = document.getElementById("cat-item");
-  sel.innerHTML = "";
-  const groups = {};
-  (catalogData[type] || []).forEach(it => {
-    (groups[it.group] = groups[it.group] || []).push(it);
-  });
-  Object.keys(groups).sort().forEach(g => {
-    const og = document.createElement("optgroup");
-    og.label = g;
-    groups[g].forEach(it => {
-      const o = document.createElement("option");
-      o.value = it.ref; o.textContent = it.name;
-      og.appendChild(o);
-    });
-    sel.appendChild(og);
-  });
-  // Fornuftig default-tilstand ud fra type
-  document.getElementById("cat-state").value =
-    type === "weapons" ? "wielded" : (type === "armor" ? "worn" : "backpack");
-}
+// ── Tilføj fra katalog (udrustningsbutikken) ─────────────────────────────────
+// Komponenten (equipment_picker.js) ejer visningen; her er kun glue: init med
+// karakterens kontekst + send de valgte items til den eksisterende /api/inventory.
+// Tilstanden udledes af kategori (våben=wielded, rustning=worn, gear=backpack);
+// finjuster bagefter i detalje-modalen.
+const SHOP_STATE_BY_CATEGORY = {weapons: "wielded", armor: "worn", items: "backpack"};
 
-function addFromCatalog() {
-  const ref = document.getElementById("cat-item").value;
-  if (!ref) return;
-  const state = document.getElementById("cat-state").value;
-  const qty   = Math.max(1, parseInt(document.getElementById("cat-qty").value) || 1);
-  fetch(BASE + "/api/inventory", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, action: "add", ref, state, qty})
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.error) return;
-    // Genindlæs: et wielded-våben/worn-rustning påvirker afledte angreb + AC (server-side)
+function addSelectedFromShop() {
+  const sel = EquipmentPicker.getSelected();
+  if (!sel.length) return;
+  Promise.all(sel.map(it =>
+    fetch(BASE + "/api/inventory", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({char: CHAR, action: "add", ref: it.ref,
+                            state: SHOP_STATE_BY_CATEGORY[it.category] || "backpack",
+                            qty: it.qty})
+    }).then(r => r.json())
+  )).then(() => {
+    // Genindlæs: wielded-våben/worn-rustning påvirker afledte angreb + AC (server-side).
     location.reload();
   });
 }
-populateCatalogItems();
+
+EquipmentPicker.init({
+  base: BASE, cls: D.cls, str: D.abScores.str, size: D.size, budgetCp: D.goldCp || 0,
+});
 
 // ── Level-up ───────────────────────────────────────────────────────────────
 const luBase       = D.luBase;
