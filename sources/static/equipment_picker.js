@@ -70,12 +70,24 @@ window.EquipmentPicker = (function () {
     }
   }
 
+  // Pris-delta for én valgt materiale-mod (kom færdig fra serveren).
+  function modDelta(item, key) {
+    const m = (item.modifiers || []).find((x) => x.key === key);
+    return m ? m.delta_cp : 0;
+  }
+  // Linjepris pr. styk = basispris + valgte mod-deltaer (ren summering).
+  function lineCost(sel) {
+    let cp = sel.item.cost_cp || 0;
+    sel.mods.forEach((k) => (cp += modDelta(sel.item, k)));
+    return cp;
+  }
+
   // ── Totaler (ren summering — OK i JS) ────────────────────────────────────
   function totals() {
     let costCp = 0, weight = 0;
-    for (const { item, qty } of state.selected.values()) {
-      costCp += (item.cost_cp || 0) * qty;
-      weight += (item.weight || 0) * qty;
+    for (const sel of state.selected.values()) {
+      costCp += lineCost(sel) * sel.qty;
+      weight += (sel.item.weight || 0) * sel.qty;
     }
     return { costCp, weight: Math.round(weight * 1000) / 1000 };
   }
@@ -132,9 +144,11 @@ window.EquipmentPicker = (function () {
   }
 
   function renderRow(it) {
-    const checked = state.selected.has(it.ref);
-    const row = el("label", "eqp-row" + (checked ? " picked" : "") +
-                            (it.proficient ? "" : " not-prof"));
+    const sel = state.selected.get(it.ref);
+    const checked = !!sel;
+    // Rækken er en <div> (ikke <label>), så mod-checkboxe ikke også toggler varen.
+    const row = el("div", "eqp-row" + (checked ? " picked" : "") +
+                          (it.proficient ? "" : " not-prof"));
     const cb = el("input");
     cb.type = "checkbox";
     cb.className = "eqp-check";
@@ -145,12 +159,31 @@ window.EquipmentPicker = (function () {
     const name = el("div", "eqp-row-name", it.name +
       (it.recommended ? ' <span class="eqp-tag-rec" title="Anbefalet for klassen">★</span>' : "") +
       (it.proficient ? "" : ' <span class="eqp-tag-warn" title="Ikke proficient (straf)">⚠</span>'));
-    const sub = el("div", "eqp-row-sub", detailText(it));
+    name.onclick = () => { cb.checked = !cb.checked; toggle(it, cb.checked); };
     main.appendChild(name);
-    main.appendChild(sub);
+    main.appendChild(el("div", "eqp-row-sub", detailText(it)));
+
+    // Materiale-/kvalitets-modifikatorer (masterwork/cold iron/sølv) som toggles.
+    if ((it.modifiers || []).length) {
+      const mods = el("div", "eqp-mods");
+      for (const m of it.modifiers) {
+        const on = checked && sel.mods.has(m.key);
+        const lab = el("label", "eqp-mod" + (on ? " on" : ""));
+        const mcb = el("input");
+        mcb.type = "checkbox";
+        mcb.checked = on;
+        mcb.onchange = () => toggleMod(it, m.key, mcb.checked);
+        lab.appendChild(mcb);
+        lab.appendChild(el("span", null, `${m.label} +${formatCost(m.delta_cp)}`));
+        mods.appendChild(lab);
+      }
+      main.appendChild(mods);
+    }
 
     const right = el("div", "eqp-row-right");
-    right.appendChild(el("div", "eqp-row-cost", it.cost_str));
+    // Vis effektiv linjepris når mods er valgt, ellers basisprisen.
+    const costStr = (sel && sel.mods.size) ? formatCost(lineCost(sel)) : it.cost_str;
+    right.appendChild(el("div", "eqp-row-cost", costStr));
     right.appendChild(el("div", "eqp-row-weight", (it.weight || 0) + " lb"));
 
     row.appendChild(cb);
@@ -216,15 +249,26 @@ window.EquipmentPicker = (function () {
 
   // ── Handlinger ────────────────────────────────────────────────────────────
   function toggle(it, on) {
-    if (on) state.selected.set(it.ref, { item: it, qty: 1 });
-    else state.selected.delete(it.ref);
-    // Opdater rækkens udseende uden fuld gen-tegning (medmindre filter skjuler den).
+    if (on) {
+      if (!state.selected.has(it.ref))
+        state.selected.set(it.ref, { item: it, qty: 1, mods: new Set() });
+    } else {
+      state.selected.delete(it.ref);
+    }
+    refresh();
+  }
+
+  // Slå en materiale-mod til/fra; vælger automatisk varen hvis den ikke var valgt.
+  function toggleMod(it, key, on) {
+    let sel = state.selected.get(it.ref);
+    if (!sel) { sel = { item: it, qty: 1, mods: new Set() }; state.selected.set(it.ref, sel); }
+    if (on) sel.mods.add(key); else sel.mods.delete(key);
     refresh();
   }
 
   function getSelected() {
-    return [...state.selected.values()].map(({ item, qty }) => ({
-      ref: item.ref, category: item.category, qty,
+    return [...state.selected.values()].map(({ item, qty, mods }) => ({
+      ref: item.ref, category: item.category, qty, mods: [...mods],
     }));
   }
 
@@ -244,7 +288,7 @@ window.EquipmentPicker = (function () {
     if (Array.isArray(opts.selected)) {
       const byRef = new Map(state.items.map((it) => [it.ref, it]));
       for (const ref of opts.selected)
-        if (byRef.has(ref)) state.selected.set(ref, { item: byRef.get(ref), qty: 1 });
+        if (byRef.has(ref)) state.selected.set(ref, { item: byRef.get(ref), qty: 1, mods: new Set() });
     }
     renderTabs();
     refresh();

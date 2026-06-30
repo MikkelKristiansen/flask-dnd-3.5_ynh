@@ -56,6 +56,7 @@ def _weapon_entry(w: dict, *, weapon_prof, allowed_weapons, recommended, size) -
         "weight": _row_weight(w, "weapons", size),
         "proficient": rules.weapon_proficient(w, weapon_prof, allowed_weapons),
         "recommended": w["id"] in recommended,
+        "modifiers": rules.material_modifiers(w, "weapons"),
         "detail": {
             "dmg": dmg,
             "crit": w.get("critical"),
@@ -78,6 +79,7 @@ def _armor_entry(a: dict, *, armor_prof, allowed_armor, recommended, size) -> di
         "weight": _row_weight(a, "armor", size),
         "proficient": rules.armor_proficient(a, armor_prof, allowed_armor),
         "recommended": a["id"] in recommended,
+        "modifiers": rules.material_modifiers(a, "armor"),
         "detail": {
             "ac": a.get("armor_bonus"),
             "max_dex": a.get("max_dex"),
@@ -98,6 +100,7 @@ def _item_entry(it: dict, *, recommended, size) -> dict:
         "weight": _row_weight(it, "items", size),
         "proficient": True,           # almindeligt gear har ingen proficiency
         "recommended": it["id"] in recommended,
+        "modifiers": [],              # gear har ingen materiale-modifikatorer
         "detail": {},
     }
 
@@ -129,3 +132,40 @@ def build_catalog(db, *, weapon_prof=None, armor_prof=None,
         items.append(_item_entry(it, recommended=recommended_ids, size=size))
 
     return {"items": items, "enc_limits": rules.carry_limits(str_score, size)}
+
+
+def apply_material_overlay(record: dict, table: str, mods) -> dict:
+    """Oversæt valgte materiale-mods → ekstra inventar-felter (Fase A-semantik).
+
+    Kun masterwork har en rigtig regel-effekt: rustning får ACP-forbedring via
+    masterwork-flaget; et våben får +1 til-hit (masterwork-flaget er armor-semantik
+    i denne kodebase, så til-hit lægges i `bonus`). Cold iron / sølv har ingen
+    model-felter → de gemmes som materiale-mærkat i navnet + en note (prisen tæller
+    i butikken; DR-bypass og sølvets −1 skade noteres til spilleren/DM).
+
+    Returnerer et overlay af InventoryItem-felter (masterwork/bonus/name/notes).
+    Ukendte eller for varen ugyldige mod-nøgler ignoreres (valideres mod
+    rules.material_modifiers).
+    """
+    valid = {m["key"] for m in rules.material_modifiers(record, table)}
+    chosen = [m for m in (mods or []) if m in valid]
+    if not chosen:
+        return {}
+    overlay: dict = {}
+    prefix, notes = [], []
+    if "masterwork" in chosen:
+        overlay["masterwork"] = True
+        if table == "weapons":
+            overlay["bonus"] = 1
+        prefix.append("Masterwork")
+    if "cold_iron" in chosen:
+        prefix.append("Cold Iron")
+        notes.append("Cold iron: omgår DR/cold iron.")
+    if "silvered" in chosen:
+        prefix.append("Alch. Silver")
+        notes.append("Alkymisk sølv: −1 skade, omgår DR/silver.")
+    if prefix:
+        overlay["name"] = " ".join(prefix + [record["name"]])
+    if notes:
+        overlay["notes"] = " ".join(notes)
+    return overlay

@@ -775,6 +775,40 @@ def spell_max_charges(spell_id: str, db) -> int | None:
     return max(vals) if vals else None
 
 
+# ── Materiale-/kvalitets-modifikatorer (SRD special materials) ──────────────
+# Kun PRIS-reglen bor her (i kobber). Hvilke felter en valgt mod sætter på en
+# inventory-post (masterwork-flag, +1 til-hit, materiale-mærkat) afgøres i
+# catalog.py — så rules.py forbliver rene regel-tal.
+# Alkymisk sølv koster efter våbenklasse (SRD: let 20 gp, enhånds 90, tohånds 180).
+_SILVER_DELTA_CP = {"light": 2000, "one-handed": 9000, "two-handed": 18000}
+
+
+def material_modifiers(record: dict, table: str) -> list[dict]:
+    """Tilgængelige materiale-/kvalitets-modifikatorer for en katalog-række.
+
+    Returnerer [{key, label, delta_cp}] med prisdeltaer pr. SRD:
+      masterwork  våben +300 gp / rustning+skjold +150 gp
+      cold_iron   ×2 basispris (delta = basisprisen) — kun nærkampsvåben
+      silvered    efter våbenklasse — kun nærkampsvåben der selv gør skade
+    Cold iron / sølv tilbydes kun på let/enhånds/tohånds våben (ikke buer, slynger
+    eller ubevæbnet, hvor våbnet ikke selv leverer skaden).
+    """
+    if table == "weapons":
+        mods = [{"key": "masterwork", "label": "Masterwork", "delta_cp": 30000}]
+        wclass = record.get("weapon_class")
+        if wclass in ("light", "one-handed", "two-handed"):
+            base = record.get("cost_cp")
+            if base:
+                mods.append({"key": "cold_iron", "label": "Cold Iron", "delta_cp": int(base)})
+            silver = _SILVER_DELTA_CP.get(wclass)
+            if silver:
+                mods.append({"key": "silvered", "label": "Alch. Silver", "delta_cp": silver})
+        return mods
+    if table == "armor":
+        return [{"key": "masterwork", "label": "Masterwork", "delta_cp": 15000}]
+    return []
+
+
 def _effective_armor_row(rec: dict, item: InventoryItem) -> dict:
     """Påfør masterwork/magi på en katalog-række → en effektiv kopi.
 

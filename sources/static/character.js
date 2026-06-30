@@ -1815,7 +1815,7 @@ function addSelectedFromShop() {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({char: CHAR, action: "add", ref: it.ref,
                             state: SHOP_STATE_BY_CATEGORY[it.category] || "backpack",
-                            qty: it.qty})
+                            qty: it.qty, mods: it.mods || []})
     }).then(r => r.json())
   )).then(() => {
     // Genindlæs: wielded-våben/worn-rustning påvirker afledte angreb + AC (server-side).

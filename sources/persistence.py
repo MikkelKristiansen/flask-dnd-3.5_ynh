@@ -314,6 +314,10 @@ def _serialize_inventory_item(item: InventoryItem) -> dict:
     out: dict = {}
     if item.ref:
         out["ref"] = item.ref
+        # Ref-poster slår normalt navnet op i kataloget; gem kun et navn hvis det
+        # er sat eksplicit (fx materiale-mærkat "Masterwork Cold Iron Longsword").
+        if item.name:
+            out["name"] = item.name
     else:
         out["name"] = item.name
         if item.weight:

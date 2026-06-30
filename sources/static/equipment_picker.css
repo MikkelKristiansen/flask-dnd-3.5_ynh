@@ -51,7 +51,7 @@
 .eqp-row.not-prof{opacity:.82;}
 .eqp-check{accent-color:var(--accent);width:1.1rem;height:1.1rem;flex-shrink:0;cursor:pointer;}
 .eqp-row-main{flex:1 1 auto;min-width:0;}
-.eqp-row-name{font-size:.9rem;color:var(--text);font-weight:bold;
+.eqp-row-name{font-size:.9rem;color:var(--text);font-weight:bold;cursor:pointer;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .eqp-row-sub{font-size:.74rem;color:var(--muted);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -60,6 +60,14 @@
 .eqp-row-weight{font-size:.72rem;color:var(--muted);}
 .eqp-tag-rec{color:var(--yellow);font-size:.8rem;}
 .eqp-tag-warn{color:var(--red);font-size:.8rem;}
+
+/* Materiale-/kvalitets-modifikator-toggles (masterwork/cold iron/sølv) */
+.eqp-mods{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.25rem;}
+.eqp-mod{display:inline-flex;align-items:center;gap:.25rem;cursor:pointer;
+  font-size:.68rem;color:var(--muted);background:var(--card);
+  border:1px solid var(--border);border-radius:999px;padding:.05rem .45rem;}
+.eqp-mod input{accent-color:var(--accent);width:.85rem;height:.85rem;cursor:pointer;margin:0;}
+.eqp-mod.on{color:var(--accent);border-color:var(--accent);font-weight:bold;}
 
 /* Budget + vægt-widget */
 .eqp-widget{flex:0 0 13rem;background:var(--surface);border:1px solid var(--border);

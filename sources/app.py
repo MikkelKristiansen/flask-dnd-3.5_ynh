@@ -93,11 +93,7 @@ def _parse_equipment(raw: str) -> list[dict]:
         raise ValueError("Ugyldigt udstyrs-valg (kunne ikke læses).")
     if not isinstance(picked, list):
         raise ValueError("Ugyldigt udstyrs-valg.")
-    valid = {
-        "armor": {a["id"] for a in db.get_all_armor()},
-        "weapons": {w["id"] for w in db.get_all_weapons()},
-        "items": {it["id"] for it in db.get_all_items()},
-    }
+    getters = {"weapons": db.get_weapon, "armor": db.get_armor, "items": db.get_item}
     inventory: list[dict] = []
     seen: set[str] = set()
     for entry in picked:
@@ -105,7 +101,8 @@ def _parse_equipment(raw: str) -> list[dict]:
             continue
         ref = str(entry.get("ref", "")).strip()
         table, _, oid = ref.partition("/")
-        if table not in valid or oid not in valid[table]:
+        record = getters[table](oid) if table in getters else None
+        if not record:
             raise ValueError(f"Ukendt genstand i udstyr: {ref or '—'}.")
         if ref in seen:
             continue
@@ -114,7 +111,10 @@ def _parse_equipment(raw: str) -> list[dict]:
             qty = max(1, int(entry.get("qty", 1)))
         except (ValueError, TypeError):
             qty = 1
-        inventory.append({"ref": ref, "state": _EQUIP_STATE_BY_TABLE[table], "qty": qty})
+        item = {"ref": ref, "state": _EQUIP_STATE_BY_TABLE[table], "qty": qty}
+        # Materiale-/kvalitets-mods (masterwork/cold iron/sølv) → ekstra felter.
+        item.update(catalog.apply_material_overlay(record, table, entry.get("mods")))
+        inventory.append(item)
     return inventory
 
 
@@ -1963,13 +1963,21 @@ def api_inventory():
         if ref:
             # Katalog-genstand: navn/vægt slås op via ref ved visning
             sm = data.get("str_mult")
-            inventory.append(char_module.InventoryItem(
+            kwargs = dict(
                 ref=ref, state=state,
                 qty=max(1, int(data.get("qty", 1))),
                 bonus=int(data.get("bonus", 0)),
                 str_mult=(None if sm in (None, "") else float(sm)),
                 notes=str(data.get("notes", "")),
-            ))
+            )
+            # Materiale-/kvalitets-mods fra butikken (masterwork/cold iron/sølv) →
+            # ekstra felter (masterwork-flag, +1 til-hit, materiale-mærkat i navn).
+            table, _, oid = ref.partition("/")
+            getter = {"weapons": db.get_weapon, "armor": db.get_armor}.get(table)
+            record = getter(oid) if getter else None
+            if record:
+                kwargs.update(catalog.apply_material_overlay(record, table, data.get("mods")))
+            inventory.append(char_module.InventoryItem(**kwargs))
             _enforce_armor_slots(inventory, len(inventory) - 1, db)
         else:
             name = str(data.get("name", "")).strip()
