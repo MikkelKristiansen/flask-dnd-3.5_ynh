@@ -61,6 +61,17 @@
 .eqp-row-right{text-align:right;flex-shrink:0;}
 .eqp-row-cost{font-size:.82rem;color:var(--accent);font-weight:bold;}
 .eqp-row-weight{font-size:.72rem;color:var(--muted);}
+
+/* Antal-vælger (− / felt / +) på valgte varer */
+.eqp-qty{display:flex;align-items:center;gap:.25rem;margin-top:.3rem;}
+.eqp-qty-btn{width:1.3rem;height:1.3rem;line-height:1;background:var(--card);
+  border:1px solid var(--border);border-radius:4px;color:var(--text);
+  font-size:.8rem;font-weight:bold;cursor:pointer;padding:0;}
+.eqp-qty-btn:hover{border-color:var(--accent);color:var(--accent);}
+.eqp-qty-input{width:2.6rem;text-align:center;background:var(--card);
+  border:1px solid var(--border);border-radius:4px;color:var(--text);
+  font-size:.78rem;font-family:'Courier New',monospace;padding:.1rem 0;}
+.eqp-qty-input:focus{outline:none;border-color:var(--accent);}
 .eqp-tag-rec{color:var(--yellow);font-size:.8rem;}
 .eqp-tag-warn{color:var(--red);font-size:.8rem;}
 

@@ -187,15 +187,37 @@ window.EquipmentPicker = (function () {
     }
 
     const right = el("div", "eqp-row-right");
-    // Vis effektiv linjepris når mods er valgt, ellers basisprisen.
+    // Vis effektiv linjepris når mods er valgt, ellers basisprisen (altid pr. styk).
     const costStr = (sel && sel.mods.size) ? formatCost(lineCost(sel)) : it.cost_str;
     right.appendChild(el("div", "eqp-row-cost", costStr));
     right.appendChild(el("div", "eqp-row-weight", (it.weight || 0) + " lb"));
+    if (checked) right.appendChild(renderQtyStepper(it, sel));
 
     row.appendChild(cb);
     row.appendChild(main);
     row.appendChild(right);
     return row;
+  }
+
+  // Antal-vælger (− / felt / +) for et valgt item — pr. styk-priser ganges op i totals().
+  function renderQtyStepper(it, sel) {
+    const box = el("div", "eqp-qty");
+    const minus = el("button", "eqp-qty-btn", "−");
+    minus.type = "button";
+    minus.onclick = (e) => { e.stopPropagation(); setQty(it, sel.qty - 1); };
+    const input = el("input", "eqp-qty-input");
+    input.type = "number";
+    input.min = "1";
+    input.value = sel.qty;
+    input.onclick = (e) => e.stopPropagation();
+    input.onchange = (e) => setQty(it, parseInt(e.target.value, 10));
+    const plus = el("button", "eqp-qty-btn", "+");
+    plus.type = "button";
+    plus.onclick = (e) => { e.stopPropagation(); setQty(it, sel.qty + 1); };
+    box.appendChild(minus);
+    box.appendChild(input);
+    box.appendChild(plus);
+    return box;
   }
 
   function renderList() {
@@ -261,6 +283,14 @@ window.EquipmentPicker = (function () {
     } else {
       state.selected.delete(it.ref);
     }
+    refresh();
+  }
+
+  // Sæt antal for et valgt item (min. 1; ugyldigt/blankt → 1).
+  function setQty(it, qty) {
+    const sel = state.selected.get(it.ref);
+    if (!sel) return;
+    sel.qty = Math.max(1, Math.floor(qty) || 1);
     refresh();
   }
 
