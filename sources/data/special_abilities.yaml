@@ -37,6 +37,7 @@
   name: Trip
   kind: ex
   category: attack
+  rider_type: on_hit
   description: >-
     Rammer skabningen med det angreb evnen er knyttet til (typisk bid), kan den
     forsøge at vælte (trip) modstanderen som en fri handling uden at lave et
@@ -47,6 +48,7 @@
   name: Pounce
   kind: ex
   category: attack
+  rider_type: on_charge
   description: >-
     Når skabningen laver en charge, må den udføre et fuldt angreb (full attack)
     i samme runde — inkl. rake-angreb hvis den også har rake.
@@ -55,6 +57,7 @@
   name: Improved Grab
   kind: ex
   category: attack
+  rider_type: on_hit
   description: >-
     Rammer skabningen med det angreb evnen er knyttet til, kan den starte en
     grapple som en fri handling uden at provokere attack of opportunity. Vinder
@@ -66,6 +69,7 @@
   name: Constrict
   kind: ex
   category: attack
+  rider_type: on_grapple
   description: >-
     Skabningen påfører automatisk skade (svarende til det anførte angreb) hver
     gang den vinder et grapple-check mod en fastholdt modstander.
@@ -74,6 +78,8 @@
   name: Rake
   kind: ex
   category: attack
+  rider_type: extra_attacks
+  rider_count: 2
   description: >-
     En skabning med rake får ekstra naturlige angreb (typisk med bagbenene) mod
     en modstander den har fat i. Den skal begynde sin tur med at gribe for at
@@ -84,6 +90,7 @@
   name: Poison
   kind: ex
   category: attack
+  rider_type: on_hit
   description: >-
     Et angreb fra skabningen leverer gift. Offeret skal bestå et Fortitude-save
     (DC er Constitution-baseret) eller tage giftens initiale skade; efter en kort
@@ -93,6 +100,7 @@
   name: Rend
   kind: ex
   category: attack
+  rider_type: two_hit
   description: >-
     Rammer skabningen samme mål med to anførte angreb (typisk begge kløer),
     river den i kødet og påfører automatisk ekstra skade.
@@ -101,6 +109,7 @@
   name: Trample
   kind: ex
   category: attack
+  rider_type: trample
   description: >-
     Som en full-round-handling kan skabningen bevæge sig op til dobbelt fart og
     løbe hen over modstandere mindst én størrelseskategori mindre end den selv,
@@ -111,6 +120,7 @@
   name: Powerful Charge
   kind: ex
   category: attack
+  rider_type: on_charge
   description: >-
     Når skabningen charger og rammer, påfører dens angreb ekstra skade ud over
     den normale charge.
@@ -127,6 +137,7 @@
   name: Disease
   kind: ex
   category: attack
+  rider_type: on_hit
   description: >-
     Et angreb fra skabningen kan overføre en sygdom. Offeret skal bestå et
     Fortitude-save (DC er Constitution-baseret) eller blive smittet; sygdommen
@@ -136,6 +147,7 @@
   name: Blood Drain
   kind: ex
   category: attack
+  rider_type: on_grapple
   description: >-
     Skabningen suger blod fra en fastholdt modstander og påfører Constitution-
     skade hver runde den opretholder sit hold.
@@ -144,6 +156,7 @@
   name: Swallow Whole
   kind: ex
   category: attack
+  rider_type: on_grapple
   description: >-
     Begynder skabningen sin tur med et grabbet, mindre offer, kan den sluge det
     med et vellykket grapple-check. Slugte ofre tager bid-/syre-/ildskade hver
@@ -153,6 +166,7 @@
   name: Attach
   kind: ex
   category: attack
+  rider_type: on_hit
   description: >-
     Skabningen hægter sig fast på et offer ved at ramme med et angreb; derefter
     sidder den fast (AC falder) og kan automatisk gøre skade eller dræne blod

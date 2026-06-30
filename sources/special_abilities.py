@@ -14,6 +14,17 @@ parsingen af fritekst + selve overførsels-logikken.
 """
 import re
 
+# Kort "udløses ved X"-tekst pr. rytter-type (vist under evnen i form-blokken).
+# Selve rul-matematikken (ekstra angreb / bonus-skade) ligger i wild_shape.py.
+RIDER_TRIGGERS = {
+    "extra_attacks": "Ekstra angreb mens du holder fat (kræver grapple/charge først)",
+    "two_hit": "Automatisk hvis begge angreb rammer samme mål",
+    "on_charge": "Når du charger og rammer",
+    "on_hit": "Når det udløsende angreb rammer",
+    "on_grapple": "Automatisk når du vinder et grapple-check",
+    "trample": "Full-round: løb hen over en mindre modstander (Reflex for halv)",
+}
+
 
 def _split_tokens(text: str | None) -> list[str]:
     """Split en fritekst-evneliste på topniveau-kommaer (ikke inde i parenteser).
@@ -68,6 +79,8 @@ def _entry(token: str, source: str, db) -> dict:
         "category": rec.get("category"),
         "description": rec.get("description"),
         "buff_id": rec.get("buff_id"),
+        "rider_type": rec.get("rider_type"),         # engangs-angrebsrytter (eller None)
+        "rider_count": rec.get("rider_count"),
         "source": source,                            # 'attack' | 'quality'
     }
 

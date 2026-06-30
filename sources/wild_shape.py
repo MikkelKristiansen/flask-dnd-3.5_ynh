@@ -9,10 +9,13 @@ Tynd tilstand i char.wild_shape: {animal_used, elemental_used, current_form}.
 Det merged statblok beregnes her (gemmes aldrig) — som companion.py/summon.py.
 """
 import math
+import re
 
 import special_abilities
 from character import (AbilityScores, armor_class, size_mod_attack,
                        grapple_total, initiative_total, save_total, race_data)
+
+_DICE_RE = re.compile(r"\d*d\d+")   # første terning-udtryk i en evne-label (fx '2d4')
 
 
 def _threshold(table: dict, level: int):
@@ -114,6 +117,40 @@ def _apply_active_abilities(scores, gained: list, active_slugs, db):
     return AbilityScores(**{k: getattr(scores, k) + deltas[k] for k in keys}), ac_delta
 
 
+def _damage_str(dice: str, mod: int) -> str:
+    return f"{dice}{mod:+d}" if mod else dice
+
+
+def _attach_riders(gained: list, bab: int, str_mod: int, size: str) -> None:
+    """Beregn engangs-angrebsryttere (rake/rend/constrict/trample) for formen.
+
+    Rul-rækker bruger formens BAB + Str-mod + størrelse — som de øvrige naturlige
+    angreb (RAW). Grundterningen hentes fra evnens label ('rake 2d4+4' → 2d4), så
+    formens egen Str-bonus erstattes af druidens. Note-ryttere (trip/pounce/improved
+    grab/poison) får kun en trigger-tekst. Hver gained-rytter får ab['rider'] =
+    {trigger, rolls:[{name, to_hit?, damage, count?}]}.
+    """
+    smod = size_mod_attack(size)
+    for ab in gained:
+        rt = ab.get("rider_type")
+        if not rt:
+            continue
+        m = _DICE_RE.search(ab.get("label") or "")
+        dice = m.group(0) if m else None
+        rolls = []
+        if rt == "extra_attacks" and dice:                  # rake: ekstra naturlige angreb
+            rolls = [{"name": ab["name"], "to_hit": bab + smod + str_mod,
+                      "damage": _damage_str(dice, str_mod),
+                      "count": int(ab.get("rider_count") or 1)}]
+        elif rt == "two_hit" and dice:                      # rend: skade + 1,5×Str
+            rolls = [{"name": ab["name"], "damage": _damage_str(dice, math.floor(str_mod * 1.5))}]
+        elif rt == "on_grapple" and dice:                   # constrict: auto skade ved grapple
+            rolls = [{"name": ab["name"], "damage": _damage_str(dice, str_mod)}]
+        elif rt == "trample" and dice:                      # trample: skade + 1,5×Str
+            rolls = [{"name": ab["name"], "damage": _damage_str(dice, math.floor(str_mod * 1.5))}]
+        ab["rider"] = {"trigger": special_abilities.RIDER_TRIGGERS.get(rt, ""), "rolls": rolls}
+
+
 def build_wild_shape_form(char, ws: dict | None, db) -> dict | None:
     """Det merged statblok for druidens nuværende form, eller None hvis ingen.
 
@@ -182,6 +219,10 @@ def build_wild_shape_form(char, ws: dict | None, db) -> dict | None:
             "to_hit": to_hit, "damage": damage,
             "group": atk.get("group", "primary"),
         })
+
+    # Angrebsryttere (rake/rend/constrict/trample → rul; trip/pounce/… → note).
+    # Bruger formens endelige str_mod, så en aktiv Rage også løfter rytter-skaden.
+    _attach_riders(natural_abilities["gained"], bab, str_mod, size)
 
     return {
         "animal_id": animal["id"],

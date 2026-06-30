@@ -126,10 +126,12 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 /* ── Wild shape: natural abilities (tryk for forklaring) ── */
 .ws-abil{cursor:pointer;text-decoration:underline dotted;}
 .ws-kind{opacity:.55;font-size:.92em;}
-.ws-gained{white-space:nowrap;}
+.ws-gained-row{margin-top:.18rem;}
 .ws-toggle{margin-left:.25rem;font-size:.7rem;padding:0 .35rem;border-radius:8px;
            border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;}
 .ws-toggle.on{border-color:var(--green);color:var(--green);font-weight:bold;}
+.ws-rider{margin-left:.4rem;display:inline-flex;gap:.3rem;}
+.ws-rider-note{margin-left:.4rem;color:var(--muted);font-style:italic;font-size:.92em;}
 
 /* ── Effekt-deltaer: tal ændret af aktive buffs/tilstande ── */
 .ability-box.eff-changed{cursor:pointer;}

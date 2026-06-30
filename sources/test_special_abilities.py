@@ -85,3 +85,36 @@ def test_active_rage_applies_to_form_scores_and_ac():
     assert on["attacks"][0]["to_hit"] == off["attacks"][0]["to_hit"] + 2
     rage = next(e for e in on["natural_abilities"]["gained"] if e["slug"] == "rage")
     assert rage["active"]
+
+
+def _wild_form(form_id, level=12, bab=9):
+    c = cm.load_character("defaults/tjorn.yaml")
+    c.level = level
+    c.combat = {**c.combat, "bab": bab}
+    c.wild_shape = {"current_form": form_id}
+    return W.build_wild_shape_form(c, WS, db_module)
+
+
+def _ability(form, slug):
+    return next(e for e in form["natural_abilities"]["gained"] if e["slug"] == slug)
+
+
+def test_rake_rider_rolls_use_form_str_and_bab():
+    """Dire tiger: rake = 2 ekstra angreb, til-hit BAB+Str+størrelse, skade 2d4+Str."""
+    rake = _ability(_wild_form("dire_tiger"), "rake")
+    roll = rake["rider"]["rolls"][0]
+    # dire_tiger Str 27 (+8), Large (−1), BAB 9 → til-hit +16; skade 2d4+8; ×2.
+    assert roll["to_hit"] == 16 and roll["damage"] == "2d4+8" and roll["count"] == 2
+
+
+def test_rend_rider_adds_1_5_str_and_has_no_to_hit():
+    rend = _ability(_wild_form("dire_ape"), "rend")
+    roll = rend["rider"]["rolls"][0]
+    # dire_ape Str 23 (+6) → 2d6 + floor(1.5*6)=+9; rend er automatisk (intet til-hit).
+    assert roll["damage"] == "2d6+9" and "to_hit" not in roll
+
+
+def test_note_only_rider_has_trigger_but_no_rolls():
+    pounce = _ability(_wild_form("dire_tiger"), "pounce")
+    assert pounce["rider"]["rolls"] == []
+    assert "charger" in pounce["rider"]["trigger"]

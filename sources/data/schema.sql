@@ -234,5 +234,8 @@ CREATE TABLE special_abilities (
     kind        TEXT,              -- ex | su | sp (afgør overførsel ved wild shape)
     category    TEXT,              -- attack | quality (informativt; feltet i animals afgør reelt)
     buff_id     TEXT,              -- valgfri FK til effects.id: aktiverbar stat-buff (fx rage)
+    rider_type  TEXT,              -- engangs-angrebsrytter: extra_attacks | two_hit |
+                                   -- on_charge | on_hit | on_grapple | trample (NULL = ingen)
+    rider_count INTEGER,           -- antal ekstra angreb (extra_attacks, fx rake = 2)
     description TEXT               -- SRD/OGL-forklaring
 );
