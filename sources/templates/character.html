@@ -438,7 +438,8 @@
       {% set na = wf.natural_abilities %}
       {% if na.gained %}
       <div style="font-size:.78rem;margin-top:.4rem"><span style="color:var(--muted)">Natural abilities:</span>
-        {% for ab in na.gained %}<span {% if ab.description %}class="ws-abil" onclick="showDetail('ability','{{ ab.slug }}')" title="Tryk for forklaring"{% endif %}>{{ ab.label }}{% if ab.kind %} <span class="ws-kind">({{ ab.kind|upper }})</span>{% endif %}</span>{{ " · " if not loop.last }}{% endfor %}</div>
+        {% for ab in na.gained %}<span class="ws-gained">
+          <span {% if ab.description %}class="ws-abil" onclick="showDetail('ability','{{ ab.slug }}')" title="Tryk for forklaring"{% endif %}>{{ ab.label }}{% if ab.kind %} <span class="ws-kind">({{ ab.kind|upper }})</span>{% endif %}</span>{% if ab.activatable %}<button class="ws-toggle{% if ab.active %} on{% endif %}" onclick="toggleWildAbility('{{ ab.slug }}')">{{ "● Aktiv" if ab.active else "Tænd" }}</button>{% endif %}</span>{{ " · " if not loop.last }}{% endfor %}</div>
       {% endif %}
       {% if na.reference %}
       <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">Fås ikke i animal-form (RAW):

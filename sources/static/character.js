@@ -240,6 +240,16 @@ function revertWildShape() {
   .then(d => { if (d.ok) window.location.reload(); else alert(d.error || "Fejl"); });
 }
 
+function toggleWildAbility(slug) {
+  fetch(BASE + "/api/wild_shape", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "toggle_ability", ability: slug})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) window.location.reload(); else alert(d.error || "Fejl"); });
+}
+
 // ── Manuelle angreb (redigerbare) ─────────────────────────────────────────
 const attacksData = D.attacksData;
 

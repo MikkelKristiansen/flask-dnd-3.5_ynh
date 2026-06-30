@@ -84,6 +84,36 @@ def eligible_forms(info: dict | None, level: int, db) -> list:
     return sorted(forms, key=lambda f: f["name"])
 
 
+def _apply_active_abilities(scores, gained: list, active_slugs, db):
+    """Anvend aktive form-evne-buffs (fx Rage) på formens scores.
+
+    Hver gained-evne med et buff_id markeres 'activatable'; er dens slug i
+    active_slugs, slås buff_id'et op i effects-tabellen og dens ability-modifiers
+    (str..cha) lægges på scoren mens en ac-modifier samles som ac_delta (føres
+    siden ind i AC's misc). Returnerer (scores, ac_delta) — scores er en ny
+    AbilityScores hvis noget ændrede sig, ellers den oprindelige.
+    """
+    keys = ("str", "dex", "con", "int", "wis", "cha")
+    deltas = {k: 0 for k in keys}
+    ac_delta = 0
+    active = set(active_slugs or [])
+    for ab in gained:
+        buff_id = ab.get("buff_id")
+        ab["activatable"] = bool(buff_id)
+        ab["active"] = bool(buff_id) and ab["slug"] in active
+        if not ab["active"]:
+            continue
+        for m in (db.get_effect(buff_id) or {}).get("modifiers", []):
+            target, value = m.get("target"), int(m.get("value", 0))
+            if target in deltas:
+                deltas[target] += value
+            elif target == "ac":
+                ac_delta += value
+    if not any(deltas.values()):
+        return scores, ac_delta
+    return AbilityScores(**{k: getattr(scores, k) + deltas[k] for k in keys}), ac_delta
+
+
 def build_wild_shape_form(char, ws: dict | None, db) -> dict | None:
     """Det merged statblok for druidens nuværende form, eller None hvis ingen.
 
@@ -103,17 +133,26 @@ def build_wild_shape_form(char, ws: dict | None, db) -> dict | None:
     scores = AbilityScores(
         str=animal["str"], dex=animal["dex"], con=animal["con"],
         int=d.int, wis=d.wis, cha=d.cha)
-    str_mod = scores.modifier("str")
     size = animal["size"]
     bab = int(char.combat.get("bab", 0))
     natural = int(animal.get("natural_armor", 0) or 0)
 
+    # Natural abilities: hvad kobles på (animal: kun Ex special attacks; elemental:
+    # alt) + forklaring. Aktiverbare stat-evner (fx Rage = +4 Str/+4 Con/−2 AC)
+    # anvendes på formens scores/AC, så tallene slår igennem mens de er tændt.
+    form_type = animal.get("type") or "animal"
+    natural_abilities = special_abilities.resolve_form_abilities(
+        animal.get("special_attacks"), animal.get("special_qualities"), form_type, db)
+    scores, ac_delta = _apply_active_abilities(
+        scores, natural_abilities["gained"], state.get("active_abilities"), db)
+    str_mod = scores.modifier("str")
+
     # AC: udstyr meldt væk → ingen armor/shield. Druidens typede ikke-gear-bonusser
-    # (deflection/dodge/misc) beholdes, og størrelse/Dex/naturlig rustning er formens.
+    # (deflection/dodge/misc) beholdes; en aktiv stat-evne (Rage −2) føjes til misc.
     ac = armor_class(scores, size, natural=natural,
                      deflection=int(char.combat.get("deflection", 0)),
                      dodge=int(char.combat.get("dodge", 0)),
-                     misc=int(char.combat.get("misc_ac", 0)))
+                     misc=int(char.combat.get("misc_ac", 0)) + ac_delta)
 
     # Saves: druidens base + de NYE ability-mods (Fort=form-Con, Ref=form-Dex),
     # Will bruger druidens egen Wis (mentale stats ændres ikke). Racial bonus med.
@@ -143,13 +182,6 @@ def build_wild_shape_form(char, ws: dict | None, db) -> dict | None:
             "to_hit": to_hit, "damage": damage,
             "group": atk.get("group", "primary"),
         })
-
-    # Natural abilities: oversæt formens special attacks/qualities til struktureret
-    # liste med Ex/Su/Sp + forklaring, og afgør hvad der RENT FAKTISK kobles på.
-    # En elemental-form arver alt (Ex+Su+Sp); en animal-form kun Ex special attacks.
-    form_type = animal.get("type") or "animal"
-    natural_abilities = special_abilities.resolve_form_abilities(
-        animal.get("special_attacks"), animal.get("special_qualities"), form_type, db)
 
     return {
         "animal_id": animal["id"],

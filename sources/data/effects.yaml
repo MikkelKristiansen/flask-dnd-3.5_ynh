@@ -399,3 +399,14 @@
   editable: 1
   negative: 1
   prompt: Hvor mange point Cha-skade?
+
+# ── Wild shape: aktiverbare form-evner (ikke i den almindelige buff-vælger) ──
+# Tændes/slukkes fra wild shape-form-blokken; build_wild_shape_form anvender
+# tallene direkte på formens scores/AC. picker udeladt = vises ikke i picker.
+# NB: dyre-rage er IKKE barbar-rage (id 'rage') — den har ingen +2 morale Will.
+- id: animal_rage
+  name: Rage
+  kind: buff
+  modifiers: '[{"target": "str", "type": "untyped", "value": 4}, {"target": "con", "type": "untyped", "value": 4}, {"target": "ac", "type": "untyped", "value": -2}]'
+  note: '+4 Str, +4 Con, −2 AC — dyrets bersærkergang (kan ikke afsluttes frivilligt)'
+  affects: '["str", "con", "ac"]'

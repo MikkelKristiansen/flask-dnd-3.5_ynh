@@ -2319,8 +2319,27 @@ def api_wild_shape():
 
     if action == "revert":
         state["current_form"] = ""
+        state["active_abilities"] = []   # form forlades → aktive evner (Rage) ender
         char_module.save_character(str(path), {"wild_shape": state})
         return jsonify({"ok": True})
+
+    if action == "toggle_ability":
+        if not state.get("current_form"):
+            return jsonify({"error": "Ikke i en form."}), 400
+        ability = str(data.get("ability", "")).strip()
+        form = wild_shape_module.build_wild_shape_form(char, ws_data, db)
+        activatable = {a["slug"] for a in form["natural_abilities"]["gained"]
+                       if a.get("activatable")}
+        if ability not in activatable:
+            return jsonify({"error": "Evnen kan ikke aktiveres i denne form."}), 400
+        active = list(state.get("active_abilities") or [])
+        if ability in active:
+            active.remove(ability)
+        else:
+            active.append(ability)
+        state["active_abilities"] = active
+        char_module.save_character(str(path), {"wild_shape": state})
+        return jsonify({"ok": True, "active": ability in active})
 
     if action == "shape":
         form_id = str(data.get("form", "")).strip()
@@ -2336,6 +2355,7 @@ def api_wild_shape():
             return jsonify({"error": f"Ingen {kind}-uses tilbage i dag."}), 400
         state[used_key] = int(state.get(used_key, 0)) + 1
         state["current_form"] = form_id
+        state["active_abilities"] = []   # ny form starter uden aktive evner
         # Heal HP = niveau (en nats hvile) ved hvert wild shape, RAW.
         new_hp = min(char.hp_max, char.hp_current + char.level)
         char_module.save_character(str(path), {"wild_shape": state, "hp_current": new_hp})

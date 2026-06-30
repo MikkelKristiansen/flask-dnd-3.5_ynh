@@ -33,7 +33,7 @@ def test_animal_form_gains_only_ex_special_attacks():
     reference = {e["slug"] for e in r["reference"]}
     assert gained == {"rage"}
     assert reference == {"low_light_vision", "scent"}
-    assert r["gained"][0]["buff_id"] == "rage"  # aktiverbar
+    assert r["gained"][0]["buff_id"] == "animal_rage"  # aktiverbar (≠ barbar-rage)
 
 
 def test_su_sp_attacks_not_gained_on_animal_form():
@@ -62,5 +62,26 @@ def test_build_form_exposes_natural_abilities():
     c.wild_shape = {"current_form": "badger"}
     form = W.build_wild_shape_form(c, WS, db_module)
     na = form["natural_abilities"]
-    assert any(e["slug"] == "rage" for e in na["gained"])
+    rage = next(e for e in na["gained"] if e["slug"] == "rage")
+    assert rage["activatable"] and not rage["active"]
     assert all("special_attacks" != k for k in form)  # gamle rå felter er væk
+
+
+def test_active_rage_applies_to_form_scores_and_ac():
+    """Rage tændt → +4 Str/+4 Con og −2 AC slår igennem i formen."""
+    c = cm.load_character("defaults/tjorn.yaml")
+    c.level = 5
+    c.combat = {**c.combat, "bab": 3}
+    c.wild_shape = {"current_form": "badger"}
+    off = W.build_wild_shape_form(c, WS, db_module)
+
+    c.wild_shape = {"current_form": "badger", "active_abilities": ["rage"]}
+    on = W.build_wild_shape_form(c, WS, db_module)
+
+    assert on["abilities"]["str"] == off["abilities"]["str"] + 4
+    assert on["abilities"]["con"] == off["abilities"]["con"] + 4
+    assert on["ac"]["ac"] == off["ac"]["ac"] - 2
+    # +4 Str = +2 mod → primær-klo-angreb rammer +2 og slår +2 mere i skade
+    assert on["attacks"][0]["to_hit"] == off["attacks"][0]["to_hit"] + 2
+    rage = next(e for e in on["natural_abilities"]["gained"] if e["slug"] == "rage")
+    assert rage["active"]

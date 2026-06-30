@@ -26,7 +26,7 @@
   name: Rage
   kind: ex
   category: attack
-  buff_id: rage
+  buff_id: animal_rage
   description: >-
     En skabning med rage flyver i bersærkergang når den tager skade i kamp, og
     angriber vildt indtil enten den eller dens modstander er død. Den får +4
