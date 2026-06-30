@@ -10,6 +10,7 @@ Det merged statblok beregnes her (gemmes aldrig) — som companion.py/summon.py.
 """
 import math
 
+import special_abilities
 from character import (AbilityScores, armor_class, size_mod_attack,
                        grapple_total, initiative_total, save_total, race_data)
 
@@ -143,6 +144,13 @@ def build_wild_shape_form(char, ws: dict | None, db) -> dict | None:
             "group": atk.get("group", "primary"),
         })
 
+    # Natural abilities: oversæt formens special attacks/qualities til struktureret
+    # liste med Ex/Su/Sp + forklaring, og afgør hvad der RENT FAKTISK kobles på.
+    # En elemental-form arver alt (Ex+Su+Sp); en animal-form kun Ex special attacks.
+    form_type = animal.get("type") or "animal"
+    natural_abilities = special_abilities.resolve_form_abilities(
+        animal.get("special_attacks"), animal.get("special_qualities"), form_type, db)
+
     return {
         "animal_id": animal["id"],
         "animal_name": animal["name"],
@@ -159,6 +167,5 @@ def build_wild_shape_form(char, ws: dict | None, db) -> dict | None:
         "saves": saves,
         "speed": animal["speed"],
         "attacks": attacks,
-        "special_attacks": animal.get("special_attacks"),
-        "special_qualities": animal.get("special_qualities"),
+        "natural_abilities": natural_abilities,   # {gained: [...], reference: [...]}
     }

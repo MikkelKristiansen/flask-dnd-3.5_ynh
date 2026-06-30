@@ -833,6 +833,11 @@ function showDetail(dtype, did) {
       title.textContent = data.name;
       subtitle.textContent = data.summary || "";
       body.innerHTML = `<p style="line-height:1.5">${data.description || ""}</p>`;
+    } else if (dtype === "ability") {
+      const KIND = {ex: "Extraordinary (Ex)", su: "Supernatural (Su)", sp: "Spell-like (Sp)"};
+      title.textContent = data.name;
+      subtitle.textContent = KIND[data.kind] || "";
+      body.innerHTML = `<p style="line-height:1.6">${escHtml(data.description || "")}</p>`;
     }
 
     // Gør condition-ord i beskrivelsen klikbare (ikke for skills — kort tekst)

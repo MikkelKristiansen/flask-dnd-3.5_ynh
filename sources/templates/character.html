@@ -435,8 +435,15 @@
           <span class="roll-tap" onclick="quickRoll('{{ a.damage }}','{{ a.name }} skade', 1)">{{ a.damage }}</span>
         </span></div>
       {% endfor %}
-      {% if wf.special_attacks %}<div style="font-size:.78rem;color:var(--muted);margin-top:.35rem">Special attacks: {{ wf.special_attacks }}</div>{% endif %}
-      {% if wf.special_qualities %}<div style="font-size:.78rem;color:var(--muted)">Special qualities: {{ wf.special_qualities }}</div>{% endif %}
+      {% set na = wf.natural_abilities %}
+      {% if na.gained %}
+      <div style="font-size:.78rem;margin-top:.4rem"><span style="color:var(--muted)">Natural abilities:</span>
+        {% for ab in na.gained %}<span {% if ab.description %}class="ws-abil" onclick="showDetail('ability','{{ ab.slug }}')" title="Tryk for forklaring"{% endif %}>{{ ab.label }}{% if ab.kind %} <span class="ws-kind">({{ ab.kind|upper }})</span>{% endif %}</span>{{ " · " if not loop.last }}{% endfor %}</div>
+      {% endif %}
+      {% if na.reference %}
+      <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">Fås ikke i animal-form (RAW):
+        {% for ab in na.reference %}<span {% if ab.description %}class="ws-abil" onclick="showDetail('ability','{{ ab.slug }}')" title="Tryk for forklaring"{% endif %}>{{ ab.label }}</span>{{ " · " if not loop.last }}{% endfor %}</div>
+      {% endif %}
       <div style="font-size:.75rem;color:var(--muted);margin-top:.35rem">HP er druidens (uændret, helet ved skift) — se Kamp. Du kan ikke tale; spells kræver Natural Spell.</div>
       <button class="add-btn" style="margin-top:.5rem" onclick="revertWildShape()">↩ Skift tilbage til egen form</button>
     </div>

@@ -209,6 +209,22 @@ def get_all_effects() -> list[dict]:
     return [_effect_row(r) for r in rows]
 
 
+def get_special_ability(ability_id: str) -> dict | None:
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM special_abilities WHERE id = ?", (ability_id,)
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def get_all_special_abilities() -> list[dict]:
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM special_abilities ORDER BY name"
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def get_domain(domain_id: str) -> dict | None:
     with _connect() as conn:
         row = conn.execute(

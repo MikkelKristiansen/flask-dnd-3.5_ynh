@@ -2392,7 +2392,8 @@ def api_restore():
 def api_detail(dtype, did):
     lookup = {"spell": db.get_spell, "skill": db.get_skill,
               "feat": db.get_feat, "condition": db.get_condition,
-              "weapon": db.get_weapon, "armor": db.get_armor, "item": db.get_item}
+              "weapon": db.get_weapon, "armor": db.get_armor, "item": db.get_item,
+              "ability": db.get_special_ability}
     fn = lookup.get(dtype)
     if not fn:
         return jsonify({"error": "unknown type"}), 400

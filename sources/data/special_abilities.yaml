@@ -1,0 +1,197 @@
+# special_abilities — forklarings-katalog for væsners natural abilities (OGL v1.0a).
+#
+# Bruges af wild_shape.py: når en druide antager en form, slås formens
+# special_attacks/special_qualities-fritekst op her, så hver evne kan vises med
+# sin art (Ex/Su/Sp) og en forklaring.
+#
+# id        = slug. SKAL matche det normaliserede ledende navn i animals' fritekst:
+#             lowercase, ikke-bogstaver/tal og parenteser strippes, mellemrum/bindestreg
+#             → '_'. Fx "Improved grab" → improved_grab, "Low-light vision" → low_light_vision,
+#             "Pounce, rake 1d6+2" → tokens 'pounce' + 'rake'.
+# kind      = ex | su | sp. AFGØR overførsel ved wild shape:
+#             animal-form  → kun Ex special ATTACKS kobles på (polymorph-RAW).
+#             elemental-form (druide L16+) → alt (Ex+Su+Sp) + formens feats.
+# category  = attack | quality (informativt; animals-feltet afgør reelt attack vs quality).
+# buff_id   = valgfri FK til effects.id — en aktiverbar stat-buff (fx rage giver
+#             +4 Str/+4 Con/−2 AC via det almindelige buff-system).
+# description = generisk SRD/OGL-forklaring (form-specifikke tal står i selve labelen).
+#
+# SRD-tekst er Open Game Content fra System Reference Document v3.5 under OGL v1.0a.
+#
+# NB: Dette er kerne-kataloget. Resterende evner (elemental masteries, sjældnere
+# special attacks, flere senses/immuniteter) udfyldes batch-vis.
+
+# ── Special attacks (Ex — kobles på ved wild shape) ──────────────────────────
+- id: rage
+  name: Rage
+  kind: ex
+  category: attack
+  buff_id: rage
+  description: >-
+    En skabning med rage flyver i bersærkergang når den tager skade i kamp, og
+    angriber vildt indtil enten den eller dens modstander er død. Den får +4
+    Styrke, +4 Constitution og −2 til Armor Class. Skabningen kan ikke selv
+    afslutte sin rage.
+
+- id: trip
+  name: Trip
+  kind: ex
+  category: attack
+  description: >-
+    Rammer skabningen med det angreb evnen er knyttet til (typisk bid), kan den
+    forsøge at vælte (trip) modstanderen som en fri handling uden at lave et
+    touch-angreb og uden at provokere attack of opportunity. Mislykkes forsøget,
+    kan modstanderen ikke modtrippe.
+
+- id: pounce
+  name: Pounce
+  kind: ex
+  category: attack
+  description: >-
+    Når skabningen laver en charge, må den udføre et fuldt angreb (full attack)
+    i samme runde — inkl. rake-angreb hvis den også har rake.
+
+- id: improved_grab
+  name: Improved Grab
+  kind: ex
+  category: attack
+  description: >-
+    Rammer skabningen med det angreb evnen er knyttet til, kan den starte en
+    grapple som en fri handling uden at provokere attack of opportunity. Vinder
+    den grapple-checket, etablerer den et hold og kan bruge fx constrict eller
+    swallow whole. Uden at risikere egen AC kan den vælge at tage −20 på grapple
+    for at holde fast med kun én lem.
+
+- id: constrict
+  name: Constrict
+  kind: ex
+  category: attack
+  description: >-
+    Skabningen påfører automatisk skade (svarende til det anførte angreb) hver
+    gang den vinder et grapple-check mod en fastholdt modstander.
+
+- id: rake
+  name: Rake
+  kind: ex
+  category: attack
+  description: >-
+    En skabning med rake får ekstra naturlige angreb (typisk med bagbenene) mod
+    en modstander den har fat i. Den skal begynde sin tur med at gribe for at
+    rake — den kan ikke både starte en grapple og rake i samme tur. Pounce
+    tillader dog rake som del af et charge-fuldangreb.
+
+- id: poison
+  name: Poison
+  kind: ex
+  category: attack
+  description: >-
+    Et angreb fra skabningen leverer gift. Offeret skal bestå et Fortitude-save
+    (DC er Constitution-baseret) eller tage giftens initiale skade; efter en kort
+    periode kræves endnu et save mod den sekundære skade.
+
+- id: rend
+  name: Rend
+  kind: ex
+  category: attack
+  description: >-
+    Rammer skabningen samme mål med to anførte angreb (typisk begge kløer),
+    river den i kødet og påfører automatisk ekstra skade.
+
+- id: trample
+  name: Trample
+  kind: ex
+  category: attack
+  description: >-
+    Som en full-round-handling kan skabningen bevæge sig op til dobbelt fart og
+    løbe hen over modstandere mindst én størrelseskategori mindre end den selv,
+    og påføre trampeskade. Et offer kan vælge et Reflex-save for halv skade i
+    stedet for et attack of opportunity (DC er Styrke-baseret).
+
+- id: powerful_charge
+  name: Powerful Charge
+  kind: ex
+  category: attack
+  description: >-
+    Når skabningen charger og rammer, påfører dens angreb ekstra skade ud over
+    den normale charge.
+
+- id: ferocity
+  name: Ferocity
+  kind: ex
+  category: attack
+  description: >-
+    Skabningen er så vild at den forbliver ved bevidsthed og kan kæmpe videre,
+    selv når den er disabled (0 hp) eller dying (negativ hp).
+
+- id: disease
+  name: Disease
+  kind: ex
+  category: attack
+  description: >-
+    Et angreb fra skabningen kan overføre en sygdom. Offeret skal bestå et
+    Fortitude-save (DC er Constitution-baseret) eller blive smittet; sygdommen
+    gør skade efter sin inkubationsperiode.
+
+- id: blood_drain
+  name: Blood Drain
+  kind: ex
+  category: attack
+  description: >-
+    Skabningen suger blod fra en fastholdt modstander og påfører Constitution-
+    skade hver runde den opretholder sit hold.
+
+- id: swallow_whole
+  name: Swallow Whole
+  kind: ex
+  category: attack
+  description: >-
+    Begynder skabningen sin tur med et grabbet, mindre offer, kan den sluge det
+    med et vellykket grapple-check. Slugte ofre tager bid-/syre-/ildskade hver
+    runde og kan skære sig ud med et let stikkende/skærende våben.
+
+- id: attach
+  name: Attach
+  kind: ex
+  category: attack
+  description: >-
+    Skabningen hægter sig fast på et offer ved at ramme med et angreb; derefter
+    sidder den fast (AC falder) og kan automatisk gøre skade eller dræne blod
+    hver runde indtil den rystes af.
+
+# ── Su/Sp special attacks (fås IKKE ved animal-wild shape; KUN ved elemental) ──
+- id: spell_like_abilities
+  name: Spell-Like Abilities
+  kind: sp
+  category: attack
+  description: >-
+    Skabningen kan frembringe bestemte spell-effekter efter behag eller et antal
+    gange om dagen, som spell-like abilities (Sp). En wild-shapet druide får dem
+    IKKE i en almindelig (animal-)form — kun en elemental-form arver Su/Sp-evner.
+
+# ── Special qualities / senses (Ex quality — fås IKKE ved animal-wild shape) ──
+# (Vises gråt som reference. Overføres kun til en elemental-form, L16+.)
+- id: scent
+  name: Scent
+  kind: ex
+  category: quality
+  description: >-
+    Lader skabningen opdage fjender på lugten inden for 30 fod (mere i medvind,
+    mindre i modvind), lokalisere en kilde inden for 5 fod, og spore via lugt
+    (Survival/Wisdom). Stærk lugt og frisk spor øger rækkevidden.
+
+- id: low_light_vision
+  name: Low-Light Vision
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen ser dobbelt så langt som et menneske i stjernelys, måneskin,
+    fakkellys og lignende svag belysning, og bevarer evnen til at skelne farver
+    og detaljer under sådanne forhold.
+
+- id: darkvision
+  name: Darkvision
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan se uden nogen lyskilde ud til en angivet rækkevidde. Darkvision
+    er sort-hvid, men ellers som normalt syn; skabningen kan fungere fint uden lys.

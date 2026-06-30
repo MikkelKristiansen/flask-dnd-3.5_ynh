@@ -223,3 +223,16 @@ CREATE TABLE effects (
     negative        INTEGER NOT NULL DEFAULT 0, -- 1 = gem værdien negativ (skade)
     prompt          TEXT                        -- spørgsmålstekst når editable
 );
+
+-- Special-evner (natural abilities): forklarings-katalog for væsners special attacks
+-- og special qualities. Slug'en matcher det ledende navn i animals' fritekst-felter
+-- (fx "Rage", "Improved grab"), så wild_shape kan slå en forklaring + Ex/Su/Sp-art op.
+DROP TABLE IF EXISTS special_abilities;
+CREATE TABLE special_abilities (
+    id          TEXT PRIMARY KEY,  -- slug, fx 'rage', 'improved_grab', 'low_light_vision'
+    name        TEXT NOT NULL,     -- visningsnavn, fx 'Rage'
+    kind        TEXT,              -- ex | su | sp (afgør overførsel ved wild shape)
+    category    TEXT,              -- attack | quality (informativt; feltet i animals afgør reelt)
+    buff_id     TEXT,              -- valgfri FK til effects.id: aktiverbar stat-buff (fx rage)
+    description TEXT               -- SRD/OGL-forklaring
+);

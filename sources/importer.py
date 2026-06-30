@@ -43,6 +43,7 @@ TABLES = [
     "items",
     "animals",
     "effects",
+    "special_abilities",
 ]
 
 
