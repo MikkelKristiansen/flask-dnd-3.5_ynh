@@ -8,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Equipment Picker — dev</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='character.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='equipment_picker.css') }}">
   <style>
     body{padding:1rem;max-width:60rem;margin:0 auto;}
     .demo-controls{display:flex;flex-wrap:wrap;gap:.8rem;align-items:end;
@@ -49,7 +50,7 @@
     });
     const goldCp = () => (parseInt(document.getElementById('d-gold').value) || 0) * 100;
 
-    EquipmentPicker.init({ ...ctx(), budgetCp: goldCp(),
+    EquipmentPicker.init({ base: "{{ request.script_root }}", ...ctx(), budgetCp: goldCp(),
       onChange: (sel) => console.log('valgt:', sel) });
 
     document.getElementById('d-cls').onchange  = () => EquipmentPicker.setContext(ctx());

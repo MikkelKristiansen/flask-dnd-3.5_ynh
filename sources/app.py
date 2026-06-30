@@ -71,6 +71,53 @@ def _race_weapon_prof_ids(race: str, db) -> set:
     return ids
 
 
+# Tilstand en butiks-valgt genstand får ud fra sin katalog-tabel.
+_EQUIP_STATE_BY_TABLE = {"armor": "worn", "weapons": "wielded", "items": "backpack"}
+
+
+def _parse_equipment(raw: str) -> list[dict]:
+    """Parse udrustningsbutikkens skjulte 'equipment'-JSON → inventar-poster.
+
+    Felt-format pr. post: {ref, category, qty}. Tilstanden udledes af tabellen i
+    ref (armor=worn, weapons=wielded, items=backpack). Hver ref valideres mod
+    kataloget; ugyldig JSON eller ukendt ref afvises med en klar fejl. Dubletter
+    (samme ref) ignoreres. Returnerer den eksisterende inventar-dict-form, så den
+    fodres uændret ind i create_character()s gem-logik.
+    """
+    raw = (raw or "").strip()
+    if not raw:
+        return []
+    try:
+        picked = json.loads(raw)
+    except (ValueError, TypeError):
+        raise ValueError("Ugyldigt udstyrs-valg (kunne ikke læses).")
+    if not isinstance(picked, list):
+        raise ValueError("Ugyldigt udstyrs-valg.")
+    valid = {
+        "armor": {a["id"] for a in db.get_all_armor()},
+        "weapons": {w["id"] for w in db.get_all_weapons()},
+        "items": {it["id"] for it in db.get_all_items()},
+    }
+    inventory: list[dict] = []
+    seen: set[str] = set()
+    for entry in picked:
+        if not isinstance(entry, dict):
+            continue
+        ref = str(entry.get("ref", "")).strip()
+        table, _, oid = ref.partition("/")
+        if table not in valid or oid not in valid[table]:
+            raise ValueError(f"Ukendt genstand i udstyr: {ref or '—'}.")
+        if ref in seen:
+            continue
+        seen.add(ref)
+        try:
+            qty = max(1, int(entry.get("qty", 1)))
+        except (ValueError, TypeError):
+            qty = 1
+        inventory.append({"ref": ref, "state": _EQUIP_STATE_BY_TABLE[table], "qty": qty})
+    return inventory
+
+
 def _inv_row(item, r: dict) -> dict:
     """Byg en inventar-række til JSON (delt af render + /api/inventory).
 
@@ -382,7 +429,8 @@ def _gen_context() -> dict:
         ({**by_id[fid], "eligible": " ".join(sorted(cs))}
          for fid, cs in bonus_eligible.items() if fid in by_id),
         key=lambda f: f["name"])
-    armor = db.get_all_armor()
+    # weapons: bruges af våben-valg-feats (Weapon Focus m.fl.) — grupperet på group.
+    # (Udstyrs-dropdowns er væk; udrustningsbutikken henter selv via /api/catalog.)
     weapons = [{"ref": f"weapons/{w['id']}", "name": w["name"], "group": w["category"],
                 "cost_str": _format_cost(w.get("cost_cp"))}
                for w in db.get_all_weapons()]
@@ -392,10 +440,6 @@ def _gen_context() -> dict:
         "skills": db.get_all_skills(),
         "feats": all_feats,
         "bonus_feat_candidates": bonus_feat_candidates,
-        "armors": [{**a, "cost_str": _format_cost(a.get("cost_cp"))}
-                   for a in armor if a.get("type") != "shield"],
-        "shields": [{**a, "cost_str": _format_cost(a.get("cost_cp"))}
-                    for a in armor if a.get("type") == "shield"],
         "weapons": weapons,
         # Kun companion-egnede væsner i companion-vælgeren (companion_ok != 0).
         # Kataloget rummer også summon-kun-væsner (Summon Nature's Ally).
@@ -617,34 +661,12 @@ def create_character():
             gen_companion = {"name": comp_name, "animal": animal_id,
                              "hp_current": hp_max, "tricks": []}
 
-        # Udstyr → forenet inventar (refs + tilstand). Rustning/skjold = worn,
-        # våben = wielded; afledte angreb + AC + vægt udregnes fra inventaret.
-        armor_id = f.get("armor", "").strip()
-        shield_id = f.get("shield", "").strip()
-        valid_armor = {a["id"] for a in db.get_all_armor()}
-        valid_weapons = {w["id"] for w in db.get_all_weapons()}
-        inventory = []
-        if armor_id:
-            if armor_id not in valid_armor:
-                raise ValueError("Ukendt rustning valgt.")
-            inventory.append({"ref": f"armor/{armor_id}", "state": "worn"})
-        if shield_id:
-            if shield_id not in valid_armor:
-                raise ValueError("Ukendt skjold valgt.")
-            inventory.append({"ref": f"armor/{shield_id}", "state": "worn"})
-        wrefs = f.getlist("weapon_ref")
-        wstates = f.getlist("weapon_state")
-        for i, ref in enumerate(wrefs):
-            ref = ref.strip()
-            if not ref:
-                continue
-            table, _, wid = ref.partition("/")
-            if table != "weapons" or wid not in valid_weapons:
-                raise ValueError(f"Ukendt våben: {ref}.")
-            state = wstates[i].strip() if i < len(wstates) else "wielded"
-            if state not in char_module.INVENTORY_STATES:
-                state = "wielded"
-            inventory.append({"ref": ref, "state": state})
+        # Udstyr fra udrustningsbutikken → forenet inventar (refs + tilstand).
+        # Butikken afleverer valget i det skjulte felt 'equipment' som JSON:
+        # en liste af {ref, category, qty}. Tilstanden udledes af kategorien
+        # (rustning/skjold = worn, våben = wielded, øvrigt gear = backpack);
+        # afledte angreb + AC + vægt udregnes derefter fra inventaret som før.
+        inventory = _parse_equipment(f.get("equipment", ""))
 
         # Afledte rå-værdier (én gang, gemmes som rå data).
         cl1 = db.get_class_level(cls.lower(), 1) or {}

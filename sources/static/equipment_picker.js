@@ -28,6 +28,7 @@ window.EquipmentPicker = (function () {
     items: [],            // beriget katalog fra /api/catalog
     encLimits: {},        // {light, medium, heavy}
     selected: new Map(),  // ref → {item, qty}
+    base: "",             // WSGI script_root (YunoHost-subpath) — sættes af værten
     cls: "", str: 10, size: "medium", race: "",
     budgetCp: 0,
     category: "alle", search: "", onlyProf: false, onlyAfford: false,
@@ -55,7 +56,7 @@ window.EquipmentPicker = (function () {
     const q = new URLSearchParams({ str: state.str, size: state.size });
     if (state.cls)  q.set("cls", state.cls);
     if (state.race) q.set("race", state.race);
-    const res = await fetch(`api/catalog?${q.toString()}`);
+    const res = await fetch(`${state.base}/api/catalog?${q.toString()}`);
     if (!res.ok) throw new Error(`/api/catalog: ${res.status}`);
     const data = await res.json();
     state.items = data.items || [];
@@ -230,9 +231,9 @@ window.EquipmentPicker = (function () {
   // ── Offentligt API ──────────────────────────────────────────────────────
   async function init(opts = {}) {
     Object.assign(state, {
-      cls: opts.cls || "", str: opts.str || 10, size: opts.size || "medium",
-      race: opts.race || "", budgetCp: opts.budgetCp || 0,
-      onChange: opts.onChange || null,
+      base: opts.base || "", cls: opts.cls || "", str: opts.str || 10,
+      size: opts.size || "medium", race: opts.race || "",
+      budgetCp: opts.budgetCp || 0, onChange: opts.onChange || null,
     });
     // Bind filter-kontroller.
     $("eqp-search").oninput = (e) => { state.search = e.target.value; renderList(); };

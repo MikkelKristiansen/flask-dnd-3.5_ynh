@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>D&D 3.5 — Ny karakter</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='equipment_picker.css') }}">
 <style>
 :root {
   --bg:#403932; --surface:#4a4139; --card:#554c43; --accent:#DAC597;
@@ -276,54 +277,19 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
   </div>
 
   <div class="section">
-    <div class="section-title">Udstyr <span style="color:var(--muted);font-size:.75rem">(valgfrit — kan også udfyldes på arket)</span></div>
-    <div class="row">
-      <div>
-        <label for="armor">Rustning</label>
-        <select id="armor" name="armor">
-          <option value="">— ingen —</option>
-          {% for a in armors %}<option value="{{ a.id }}" data-atype="{{ a.type }}">{{ a.name }} (+{{ a.armor_bonus }} AC · {{ a.cost_str }})</option>{% endfor %}
-        </select>
-      </div>
-      <div>
-        <label for="shield">Skjold</label>
-        <select id="shield" name="shield">
-          <option value="">— intet —</option>
-          {% for s in shields %}<option value="{{ s.id }}" data-aid="{{ s.id }}">{{ s.name }} (+{{ s.armor_bonus }} AC · {{ s.cost_str }})</option>{% endfor %}
-        </select>
-      </div>
-    </div>
-    <label>Våben <span style="color:var(--muted);font-size:.75rem">(vælg fra katalog — angreb afledes automatisk)</span></label>
-    <div class="row">
-      <div>
-        <select id="weapon-pick">
-          <option value="">— vælg våben —</option>
-          {% for grp, items in weapons|groupby('group') %}
-          <optgroup label="{{ grp }}">
-            {% for w in items %}<option value="{{ w.ref }}" data-wcat="{{ w.group }}" data-wid="{{ w.ref.split('/')[1] }}">{{ w.name }} — {{ w.cost_str }}</option>{% endfor %}
-          </optgroup>
-          {% endfor %}
-        </select>
-      </div>
-      <div>
-        <select id="weapon-state">
-          <option value="wielded">i hånden</option>
-          <option value="backpack">rygsæk</option>
-          <option value="stored">opbevaret</option>
-        </select>
-      </div>
-    </div>
-    <button type="button" class="add-btn" onclick="addWeapon()">+ Tilføj våben</button>
-    <div id="weapons" style="margin-top:.5rem"></div>
-    <label style="margin-top:.8rem">Startguld
+    <div class="section-title">Udstyr <span style="color:var(--muted);font-size:.75rem">(valgfrit — vælg i butikken; kan også udfyldes på arket)</span></div>
+    <label>Startguld
       <span id="gold-formula" style="color:var(--muted);font-size:.75rem;font-weight:normal"></span>
       <button type="button" onclick="rollGold()" style="font-size:.75rem;padding:.15rem .5rem;margin-left:.4rem">🎲 Rul</button>
     </label>
     <div class="gold-grid">
       {% for coin in ['pp','gp','sp','cp'] %}
-      <div><input type="number" id="gold_{{ coin }}" name="gold_{{ coin }}" min="0" value="0" placeholder="{{ coin }}"></div>
+      <div><input type="number" id="gold_{{ coin }}" name="gold_{{ coin }}" min="0" value="0" placeholder="{{ coin }}" oninput="syncBudget()"></div>
       {% endfor %}
     </div>
+
+    {# Udrustningsbutikken — afleverer valget i det skjulte felt name="equipment". #}
+    {% include "_equipment_picker.html" %}
   </div>
 
   <div style="text-align:center;margin-bottom:2rem">
@@ -331,6 +297,7 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
   </div>
 </form>
 
+<script src="{{ url_for('static', filename='equipment_picker.js') }}"></script>
 <script>
 // Live thumbnail af det valgte portræt (vises kun lokalt før upload).
 function previewPortrait(input){
@@ -381,6 +348,7 @@ function rollGold(){
   let sum = 0;
   for (let i=0;i<+n;i++) sum += 1 + Math.floor(Math.random()*(+die));
   document.getElementById('gold_gp').value = sum * (mult ? +mult : 1);
+  syncBudget();
 }
 
 // Escape til HTML-attribut (skill-beskrivelser i title= indeholder " og &).
@@ -488,26 +456,6 @@ function buildSkillList(){
   document.getElementById('skill-list').innerHTML = html;
 }
 
-const STATE_LABELS = {wielded:'i hånden', backpack:'rygsæk', stored:'opbevaret'};
-function addWeapon(){
-  const pick = document.getElementById('weapon-pick');
-  const ref = pick.value;
-  if(!ref) return;
-  const name = pick.options[pick.selectedIndex].text.split(' — ')[0].trim();
-  const state = document.getElementById('weapon-state').value;
-  const div = document.createElement('div');
-  div.className = 'weapon-chip';
-  div.style.cssText = 'display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem;'
-    + 'background:var(--panel,#222);border:1px solid var(--border);border-radius:4px;margin-bottom:.3rem';
-  div.innerHTML = `
-    <input type="hidden" name="weapon_ref" value="${ref}">
-    <input type="hidden" name="weapon_state" value="${state}">
-    <span style="flex:1">${name} <span style="color:var(--muted);font-size:.78rem">(${STATE_LABELS[state]||state})</span></span>
-    <button type="button" class="add-btn" style="padding:.1rem .5rem"
-            onclick="this.parentElement.remove()">✕</button>`;
-  document.getElementById('weapons').appendChild(div);
-  pick.value = '';
-}
 
 function onUpdate(){
   const race = document.getElementById('race').value;
@@ -718,41 +666,38 @@ function renderLanguages(race, cls, intMod){
   return vals.length === count && !dup;
 }
 
-// Markér udstyr man ikke er proficient med (blokerer ikke — blød håndhævelse).
-// Bygger på den valgte klasses proficiency + race-givne våben (fx elv: longsword).
-function markEquipmentProficiency(){
-  const cd = CLASSES[document.getElementById('cls').value.toLowerCase()] || {};
+// Udrustningsbutikken: generator-formularen ejer kontekst (klasse/styrke/størrelse/
+// race) + budget; butikken regner selv proficiency/anbefalet/vægt server-side og
+// markerer uvant grej med ⚠. Vi fodrer den bare med formularens aktuelle værdier.
+function pickerCtx(){
   const rd = RACES[document.getElementById('race').value.toLowerCase()] || {};
-  const wp = cd.weapon_proficiency, ap = cd.armor_proficiency;
-  const raceWeapons = rd.weapon_prof_ids || [];
-  const MARK = "  ⚠ ikke proficient";
-  function relabel(opt, ok){
-    if (opt.dataset.base === undefined) opt.dataset.base = opt.textContent;
-    opt.textContent = ok ? opt.dataset.base : opt.dataset.base + MARK;
-  }
-  document.querySelectorAll('#armor option[data-atype]').forEach(opt=>{
-    relabel(opt, !ap || (ap.types||[]).includes(opt.dataset.atype));
-  });
-  document.querySelectorAll('#shield option[data-aid]').forEach(opt=>{
-    const tower = opt.dataset.aid === 'tower_shield';
-    relabel(opt, !ap || (tower ? !!ap.tower_shield : !!ap.shields));
-  });
-  document.querySelectorAll('#weapon-pick option[data-wid]').forEach(opt=>{
-    relabel(opt, !wp || (wp.categories||[]).includes(opt.dataset.wcat)
-                     || (wp.weapons||[]).includes(opt.dataset.wid)
-                     || raceWeapons.includes(opt.dataset.wid));
-  });
+  // Endelig STR = basis + race-justering (bæreevnen afhænger af den endelige score).
+  const baseStr = parseInt(document.getElementById('score_str').value || '10', 10) || 10;
+  const adj = (rd.ability_adjust && rd.ability_adjust.str) || 0;
+  return {
+    cls:  document.getElementById('cls').value.toLowerCase(),
+    race: document.getElementById('race').value.toLowerCase(),
+    str:  baseStr + adj,
+    size: rd.size || 'medium',
+  };
 }
+// Samlet budget i kobber (cp): pp×1000 + gp×100 + sp×10 + cp.
+function budgetCp(){
+  const v = (id) => parseInt(document.getElementById(id).value || '0', 10) || 0;
+  return v('gold_pp')*1000 + v('gold_gp')*100 + v('gold_sp')*10 + v('gold_cp');
+}
+function syncBudget(){ if (window.EquipmentPicker) EquipmentPicker.setBudget(budgetCp()); }
+function syncPickerContext(){ if (window.EquipmentPicker) EquipmentPicker.setContext(pickerCtx()); }
 
-// Genbyg skill-listen når klassen skifter (klasse-markering + caps ændrer sig)
-document.getElementById('cls').addEventListener('change', ()=>{ buildSkillList(); onUpdate(); rollBio(); markEquipmentProficiency(); });
-document.getElementById('race').addEventListener('change', markEquipmentProficiency);
+// Genbyg skill-listen + opdatér butikken når klasse/race/styrke skifter.
+document.getElementById('cls').addEventListener('change', ()=>{ buildSkillList(); onUpdate(); rollBio(); syncPickerContext(); });
+document.getElementById('race').addEventListener('change', syncPickerContext);
+document.getElementById('score_str').addEventListener('input', syncPickerContext);
 
 buildSkillList();
-addWeapon();
 onUpdate();
 rollBio();
-markEquipmentProficiency();
+EquipmentPicker.init({ base: "{{ request.script_root }}", ...pickerCtx(), budgetCp: budgetCp() });
 </script>
 </body>
 </html>
