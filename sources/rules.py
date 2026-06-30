@@ -455,6 +455,23 @@ def weight_for_size(base_weight: float, kind: str, size: str = "medium") -> floa
     return round(base_weight * factor, 3)
 
 
+def cost_for_size(base_cost_cp, kind: str, size: str = "medium") -> int:
+    """Størrelses-justeret pris (i cp) fra Medium-basisprisen.
+
+    Modstykke til weight_for_size. SRD: prisen er ens for en Small og en Medium
+    udgave; en Large udgave koster det dobbelte (equipment.md: våben linje 81,
+    rustning/skjold tabellen for 'unusual creatures'). Gear (items) ændrer aldrig
+    pris med størrelse.
+
+    kind: 'half' -> våben/rustning (Large ×2, ellers ×1)
+          alt andet -> uændret med størrelse
+    """
+    base = int(base_cost_cp or 0)
+    if kind == "half" and (size or "medium").lower() == "large":
+        return base * 2
+    return base
+
+
 def weight_kind(table: str, record: dict) -> str:
     """Skaleringsklasse for en katalog-række ud fra dens tabel (til weight_for_size).
 
@@ -783,21 +800,24 @@ def spell_max_charges(spell_id: str, db) -> int | None:
 _SILVER_DELTA_CP = {"light": 2000, "one-handed": 9000, "two-handed": 18000}
 
 
-def material_modifiers(record: dict, table: str) -> list[dict]:
+def material_modifiers(record: dict, table: str, size: str = "medium") -> list[dict]:
     """Tilgængelige materiale-/kvalitets-modifikatorer for en katalog-række.
 
     Returnerer [{key, label, delta_cp}] med prisdeltaer pr. SRD:
-      masterwork  våben +300 gp / rustning+skjold +150 gp
-      cold_iron   ×2 basispris (delta = basisprisen) — kun metal-nærkampsvåben
-      silvered    efter våbenklasse — kun metal-nærkampsvåben der selv gør skade
+      masterwork  våben +300 gp / rustning+skjold +150 gp (fast — skalerer IKKE)
+      cold_iron   ×2 basispris (delta = basisprisen, størrelses-justeret) — kun metal-nærkampsvåben
+      silvered    efter våbenklasse (fast beløb) — kun metal-nærkampsvåben der selv gør skade
     Cold iron / sølv tilbydes kun på let/enhånds/tohånds METAL-våben (ikke buer,
     slynger, ubevæbnet eller træ-/læder-våben som markeret med metal=0 i data).
+
+    SRD: masterwork-kvaliteten og magisk enhancement koster det samme uanset størrelse,
+    så kun cold irons ×2-delta følger den størrelses-justerede basispris.
     """
     if table == "weapons":
         mods = [{"key": "masterwork", "label": "Masterwork", "delta_cp": 30000}]
         wclass = record.get("weapon_class")
         if wclass in ("light", "one-handed", "two-handed") and record.get("metal") != 0:
-            base = record.get("cost_cp")
+            base = cost_for_size(record.get("cost_cp"), "half", size)
             if base:
                 mods.append({"key": "cold_iron", "label": "Cold Iron", "delta_cp": int(base)})
             silver = _SILVER_DELTA_CP.get(wclass)

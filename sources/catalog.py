@@ -44,20 +44,30 @@ def _row_weight(record: dict, table: str, size: str) -> float:
     return rules.weight_for_size(base, rules.weight_kind(table, record), size)
 
 
+def _row_cost(record: dict, table: str, size: str) -> int:
+    """Størrelses-justeret enhedspris (cp) for én katalog-række (via rules.py).
+
+    Samme skaleringsklasse som vægten (weight_kind): kun våben/rustning ændrer pris
+    med størrelse, og kun ved Large (×2). Gear er uændret.
+    """
+    return rules.cost_for_size(record.get("cost_cp"), rules.weight_kind(table, record), size)
+
+
 def _weapon_entry(w: dict, *, weapon_prof, allowed_weapons, recommended, size) -> dict:
     dmg = w.get("dmg_s") if (size or "").lower() == "small" else w.get("dmg_m")
+    cost = _row_cost(w, "weapons", size)
     return {
         "ref": f"weapons/{w['id']}",
         "name": w["name"],
         "category": "weapons",
         "group": f"{_humanize(w.get('category'))} {_humanize(w.get('weapon_class'))}".strip(),
-        "cost_cp": w.get("cost_cp"),
-        "cost_str": format_cost(w.get("cost_cp")),
+        "cost_cp": cost,
+        "cost_str": format_cost(cost),
         "weight": _row_weight(w, "weapons", size),
         "proficient": rules.weapon_proficient(w, weapon_prof, allowed_weapons),
         "recommended": w["id"] in recommended,
         "description": w.get("description"),
-        "modifiers": rules.material_modifiers(w, "weapons"),
+        "modifiers": rules.material_modifiers(w, "weapons", size),
         "detail": {
             "dmg": dmg,
             "crit": w.get("critical"),
@@ -70,18 +80,19 @@ def _weapon_entry(w: dict, *, weapon_prof, allowed_weapons, recommended, size) -
 def _armor_entry(a: dict, *, armor_prof, allowed_armor, recommended, size) -> dict:
     is_shield = a.get("type") == "shield"
     group = "Shields" if is_shield else f"{_humanize(a.get('type'))} Armor"
+    cost = _row_cost(a, "armor", size)
     return {
         "ref": f"armor/{a['id']}",
         "name": a["name"],
         "category": "armor",
         "group": group,
-        "cost_cp": a.get("cost_cp"),
-        "cost_str": format_cost(a.get("cost_cp")),
+        "cost_cp": cost,
+        "cost_str": format_cost(cost),
         "weight": _row_weight(a, "armor", size),
         "proficient": rules.armor_proficient(a, armor_prof, allowed_armor),
         "recommended": a["id"] in recommended,
         "description": a.get("description"),
-        "modifiers": rules.material_modifiers(a, "armor"),
+        "modifiers": rules.material_modifiers(a, "armor", size),
         "detail": {
             "ac": a.get("armor_bonus"),
             "max_dex": a.get("max_dex"),
@@ -92,13 +103,14 @@ def _armor_entry(a: dict, *, armor_prof, allowed_armor, recommended, size) -> di
 
 
 def _item_entry(it: dict, *, recommended, size) -> dict:
+    cost = _row_cost(it, "items", size)
     return {
         "ref": f"items/{it['id']}",
         "name": it["name"],
         "category": "items",
         "group": _humanize(it.get("category")),
-        "cost_cp": it.get("cost_cp"),
-        "cost_str": format_cost(it.get("cost_cp")),
+        "cost_cp": cost,
+        "cost_str": format_cost(cost),
         "weight": _row_weight(it, "items", size),
         "proficient": True,           # almindeligt gear har ingen proficiency
         "recommended": it["id"] in recommended,
