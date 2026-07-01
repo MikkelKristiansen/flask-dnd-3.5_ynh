@@ -61,6 +61,12 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
 .add-btn:hover{border-color:var(--accent);color:var(--accent);}
 .submit-btn{font-size:1rem;padding:.7rem 2rem;background:var(--accent);color:#000;border:none;font-weight:bold;}
 .submit-btn:disabled{opacity:.45;cursor:not-allowed;}
+.sk-list{max-height:230px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;
+  padding:.4rem .5rem;columns:2;column-gap:1rem;}
+.sk-item{display:block;font-size:.82rem;break-inside:avoid;margin-bottom:.15rem;cursor:pointer;}
+.sk-item input{margin-right:.35rem;}
+.sk-school{color:var(--muted);font-size:.72rem;font-style:italic;}
+.sk-auto{font-size:.8rem;color:var(--muted);line-height:1.5;}
 .banner-err{background:rgba(181,67,44,.18);border:1px solid var(--red);color:var(--text);
   border-radius:6px;padding:.6rem .9rem;margin-bottom:1rem;font-size:.85rem;}
 .err-inline{color:var(--red);font-size:.78rem;margin-top:.4rem;min-height:1rem;}
@@ -251,6 +257,21 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
     <div class="err-inline" id="domain-err"></div>
   </div>
 
+  <div class="section hidden" id="spells-known-section">
+    <div class="section-title">Kendte spells <span style="color:var(--muted);font-size:.75rem">(ved oprettelse)</span></div>
+    <div id="sk-cantrip-wrap" style="margin-bottom:.6rem">
+      <div id="sk-cantrip-label" style="font-size:.82rem;margin-bottom:.35rem"></div>
+      <div id="sk-cantrip-list"></div>
+    </div>
+    <div id="sk-first-wrap">
+      <div id="sk-first-label" style="font-size:.82rem;margin-bottom:.35rem"></div>
+      <div id="sk-first-list"></div>
+    </div>
+    <div class="err-inline" id="spells-known-err"></div>
+    <input type="hidden" name="spells_known_0" id="sk-field-0">
+    <input type="hidden" name="spells_known_1" id="sk-field-1">
+  </div>
+
   <div class="section" id="language-section">
     <div class="section-title">Sprog <span style="color:var(--muted);font-size:.75rem">(automatiske gratis · antal bonussprog = Int-mod)</span></div>
     <div id="lang-auto" style="margin-bottom:.5rem"></div>
@@ -316,6 +337,7 @@ const CLASSES = {{ classes_json|tojson }};
 const SKILLS = {{ skills|tojson }};
 const FEAT_PREREQS = {{ feat_prereqs|tojson }};
 const FEAT_NAME_TO_ID = {{ feat_name_to_id|tojson }};
+const SK = {{ spells_known_gen|tojson }};
 const FEAT_ID_TO_NAME = Object.fromEntries(Object.entries(FEAT_NAME_TO_ID).map(([n,i])=>[i,n]));
 const WEAPON_CHOICE_FEATS = ['weapon_focus','weapon_specialization','improved_critical'];
 const SCHOOL_CHOICE_FEATS = ['spell_focus','greater_spell_focus'];
@@ -604,6 +626,9 @@ function onUpdate(){
     domSec.classList.add('hidden');
   }
 
+  // Kendte spells (spontane castere + wizard) — vises kun for castere i SK.
+  const skOk = renderSpellsKnown(cls, intMod);
+
   // Sprog (automatiske + bonussprog = Int-mod)
   const langOk = renderLanguages(race, cls, intMod);
 
@@ -619,8 +644,69 @@ function onUpdate(){
     cd.starting_gold ? '(' + goldFormula(cd.starting_gold) + ')' : '';
 
   // Submit-spærring
-  const valid = ok && spent<=budget && featsOk && bfOk && domOk && langOk;
+  const valid = ok && spent<=budget && featsOk && bfOk && domOk && skOk && langOk;
   document.getElementById('submit-btn').disabled = !valid;
+}
+
+// Spell-vælger ved oprettelse. Konfiguration pr. klasse kommer fra SK (server):
+//   cantrips/first = {mode, list, n/base}. mode 'auto' = alle gives (read-only,
+//   wizard-cantrips), 'pick' = vælg fast n (sorcerer/bard), 'int' = vælg base +
+//   Int-mod (wizard 1.-levels). Listerne bygges kun når klassen skifter (bevarer
+//   afkrydsninger); antal + validering genberegnes hver gang (Int kan ændres).
+function renderSpellsKnown(cls, intMod){
+  const sec = document.getElementById('spells-known-section');
+  const cfg = SK[cls.toLowerCase()];
+  if (!cfg){
+    sec.classList.add('hidden');
+    document.getElementById('sk-field-0').value = '';
+    document.getElementById('sk-field-1').value = '';
+    return true;
+  }
+  sec.classList.remove('hidden');
+  let ok = true;
+  const errs = [];
+
+  function group(kind, gcfg, listId, labelId, wrapId, fieldId){
+    const wrap = document.getElementById(wrapId);
+    if (!gcfg){
+      wrap.classList.add('hidden');
+      document.getElementById(fieldId).value = '';
+      return;
+    }
+    wrap.classList.remove('hidden');
+    const list = document.getElementById(listId);
+    const auto = gcfg.mode === 'auto';
+    const need = auto ? gcfg.list.length
+               : (gcfg.mode === 'int' ? gcfg.base + Math.max(0, intMod) : gcfg.n);
+    // Byg listen kun når klassen skifter (så afkrydsninger bevares ved re-render).
+    const sig = cls;
+    if (list.dataset.sig !== sig){
+      if (auto){
+        list.innerHTML = `<div class="sk-auto">${gcfg.list.map(o=>o.name).join(', ')}</div>`;
+      } else {
+        list.innerHTML = `<div class="sk-list">` + gcfg.list.map(o=>
+          `<label class="sk-item"><input type="checkbox" value="${o.id}" onchange="onUpdate()"> ${o.name}` +
+          (o.school ? ` <span class="sk-school">${o.school}</span>` : '') + `</label>`).join('') + `</div>`;
+      }
+      list.dataset.sig = sig;
+    }
+    const chosen = auto ? gcfg.list.map(o=>o.id)
+                        : [...list.querySelectorAll('input:checked')].map(i=>i.value);
+    document.getElementById(fieldId).value = JSON.stringify(chosen);
+    const lvlName = kind === 'cantrips' ? 'cantrips (0-level)' : '1.-levels spells';
+    const lbl = document.getElementById(labelId);
+    if (auto){
+      lbl.textContent = `Alle ${need} ${lvlName} gives automatisk til din spellbog.`;
+    } else {
+      lbl.innerHTML = `Vælg <b>${need}</b> ${lvlName} — valgt <b>${chosen.length}</b>`;
+      if (chosen.length !== need){ ok = false; errs.push(`Vælg ${need} ${lvlName}.`); }
+    }
+  }
+
+  group('cantrips', cfg.cantrips, 'sk-cantrip-list', 'sk-cantrip-label', 'sk-cantrip-wrap', 'sk-field-0');
+  group('first', cfg.first, 'sk-first-list', 'sk-first-label', 'sk-first-wrap', 'sk-field-1');
+  document.getElementById('spells-known-err').textContent = errs.join(' · ');
+  return ok;
 }
 
 // Byg sprog-blokken: automatiske som chips + N bonussprog-vælgere (N = Int-mod).

@@ -86,6 +86,23 @@ def _format_cost(cost_cp) -> str:
     return catalog.format_cost(cost_cp)
 
 
+def _parse_spell_ids(raw: str) -> list:
+    """Skjult spell-vælger-felt (JSON-liste af spell-ids) → liste af strings.
+
+    Samme teknik som _parse_equipment: klienten afleverer valget i et skjult felt.
+    Robust ved tomt/ugyldigt input (→ tom liste); serverside-validering tjekker
+    antal + at id'erne findes i klassens spell-liste.
+    """
+    raw = (raw or "").strip()
+    if not raw:
+        return []
+    try:
+        val = json.loads(raw)
+    except (ValueError, TypeError):
+        return []
+    return [str(x) for x in val] if isinstance(val, list) else []
+
+
 def _class_bonus_feat_ids(cls: str) -> list:
     """Feat-id'er klassens level-1 bonus-feat vælges fra. Eksplicit pulje (monk:
     improved_grapple/stunning_fist) eller den brede fighter-bonus-pulje."""
@@ -152,6 +169,34 @@ def _gen_context() -> dict:
     weapons = [{"ref": f"weapons/{w['id']}", "name": w["name"], "group": w["category"],
                 "cost_str": _format_cost(w.get("cost_cp"))}
                for w in db.get_all_weapons()]
+
+    # Spell-vælger ved oprettelse (level 1). Wizard får ALLE cantrips automatisk og
+    # vælger 3 + Int-mod stk 1.-levels spells (Int-formel). Sorcerer/bard vælger
+    # efter den faste Spells Known-tabel — antallet læses datadrevet fra
+    # spells_known_N (level 1), så tabellen er eneste kilde til "hvor mange".
+    def _spell_opts(cls_key, level):
+        return [{"id": s["id"], "name": s["name"], "school": s.get("school") or ""}
+                for s in db.search_spells(class_filter=cls_key, level=level)]
+
+    def _known_n(cls_key, col):
+        return int((db.get_class_level(cls_key, 1) or {}).get(col) or 0)
+
+    spells_known_gen = {
+        "wizard": {
+            "cantrips": {"mode": "auto", "list": _spell_opts("wizard", 0)},
+            "first":    {"mode": "int", "base": 3, "list": _spell_opts("wizard", 1)},
+        },
+        "sorcerer": {
+            "cantrips": {"mode": "pick", "n": _known_n("sorcerer", "spells_known_0"),
+                         "list": _spell_opts("sorcerer", 0)},
+            "first":    {"mode": "pick", "n": _known_n("sorcerer", "spells_known_1"),
+                         "list": _spell_opts("sorcerer", 1)},
+        },
+        "bard": {
+            "cantrips": {"mode": "pick", "n": _known_n("bard", "spells_known_0"),
+                         "list": _spell_opts("bard", 0)},
+        },
+    }
     return {
         "races": GEN_RACES,
         "classes": GEN_CLASSES,
@@ -169,6 +214,7 @@ def _gen_context() -> dict:
         "feat_prereqs": {x["id"]: (x.get("prerequisites") or "") for x in all_feats},
         "feat_name_to_id": {x["name"].lower(): x["id"] for x in all_feats},
         "spell_schools": refdata.SPELL_SCHOOLS,
+        "spells_known_gen": spells_known_gen,
     }
 
 
@@ -340,6 +386,36 @@ def build_character_data(f) -> dict:
 
     # Afledte rå-værdier (én gang, gemmes som rå data).
     cl1 = db.get_class_level(cls.lower(), 1) or {}
+
+    # Kendte spells ved oprettelse (spontane castere + wizard). Klient-valideringen
+    # er UX; her er den bindende kontrol. Antal er datadrevet: wizard = alle cantrips
+    # automatisk + (3 + Int-mod) 1.-levels spells; sorcerer/bard = spells_known_N.
+    spells_known = {}
+    if char_module.class_cast_type(cls) in ("spontaneous", "spellbook"):
+        is_wizard = cls == "Wizard"
+        cantrip_pool = {s["id"] for s in db.search_spells(class_filter=cls.lower(), level=0)}
+        first_pool = {s["id"] for s in db.search_spells(class_filter=cls.lower(), level=1)}
+        # Level 0 (cantrips): wizard får alle automatisk, ellers spillervalg.
+        if is_wizard:
+            lvl0 = sorted(cantrip_pool)
+        else:
+            lvl0 = _parse_spell_ids(f.get("spells_known_0", ""))
+            n0 = int(cl1.get("spells_known_0") or 0)
+            if len(lvl0) != n0 or any(s not in cantrip_pool for s in lvl0):
+                raise ValueError(f"Vælg præcis {n0} cantrips.")
+        # Level 1: wizard = 3 + Int-mod, sorcerer = fast tal, bard = 0 (intet valg).
+        n1 = (3 + max(0, int_mod)) if is_wizard else int(cl1.get("spells_known_1") or 0)
+        lvl1 = _parse_spell_ids(f.get("spells_known_1", ""))
+        if n1 or lvl1:
+            if len(lvl1) != n1 or any(s not in first_pool for s in lvl1):
+                raise ValueError(f"Vælg præcis {n1} stk 1.-levels spells.")
+        if len(set(lvl0)) != len(lvl0) or len(set(lvl1)) != len(lvl1):
+            raise ValueError("Samme spell valgt flere gange.")
+        if lvl0:
+            spells_known[0] = lvl0
+        if lvl1:
+            spells_known[1] = lvl1
+
     hp = max(1, char_module.hit_die(cls) + con_mod)
     rd = char_module.race_data(race)
     raw_features = cl1.get("features") or []
@@ -394,6 +470,8 @@ def build_character_data(f) -> dict:
         "class_features": class_features,
         "racial_traits": rd.get("traits", {}),
     }
+    if spells_known:
+        data["spells_known"] = spells_known
     if domains:
         data["domains"] = domains
         data["domain_spells_prepared"] = {}

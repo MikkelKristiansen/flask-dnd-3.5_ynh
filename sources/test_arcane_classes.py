@@ -348,3 +348,71 @@ def test_spells_known_round_trip(tmp_path):
     c = char_module.load_character(str(path))
     assert c.spells_known == {0: ["detect_magic", "light"], 1: ["magic_missile"]}
     assert c.spells_known_used == {1: 2}   # 0-værdier persisteres ikke
+
+
+def _gen_form(cls, **extra):
+    """Minimal gyldig generator-form (MultiDict) til build_character_data.
+
+    Elf (1 feat, ingen prereq via Alertness), standard-scores (springer
+    point-buy-validering over), Int 10 (0 bonussprog)."""
+    from werkzeug.datastructures import MultiDict
+    d = MultiDict()
+    d["name"] = "Test"; d["race"] = "Elf"; d["cls"] = cls
+    d["score_method"] = "standard"; d["alignment"] = "N"
+    for a in ("str", "dex", "con", "int", "wis", "cha"):
+        d["score_" + a] = "10"
+    d["feats"] = "alertness"
+    for k, v in extra.items():
+        d[k] = v
+    return d
+
+
+def _ids(cls, level, n):
+    return [s["id"] for s in db_module.search_spells(class_filter=cls, level=level)][:n]
+
+
+def test_generator_spells_known_sorcerer():
+    """Sorcerer vælger 4 cantrips + 2 1.-levels spells (fast tabel-antal)."""
+    import json
+    import creation
+    f = _gen_form("Sorcerer",
+                  spells_known_0=json.dumps(_ids("sorcerer", 0, 4)),
+                  spells_known_1=json.dumps(_ids("sorcerer", 1, 2)))
+    data = creation.build_character_data(f)
+    assert len(data["spells_known"][0]) == 4
+    assert len(data["spells_known"][1]) == 2
+
+
+def test_generator_spells_known_bard_no_first_level():
+    """Bard vælger 4 cantrips og har intet 1.-levels-valg ved level 1."""
+    import json
+    import creation
+    f = _gen_form("Bard", spells_known_0=json.dumps(_ids("bard", 0, 4)))
+    data = creation.build_character_data(f)
+    assert len(data["spells_known"][0]) == 4
+    assert 1 not in data["spells_known"]
+
+
+def test_generator_spells_known_wizard_auto_cantrips_int_formula():
+    """Wizard får ALLE cantrips automatisk + (3 + Int-mod) 1.-levels spells."""
+    import json
+    import creation
+    # Int 14 → mod +2 → 5 stk 1.-levels spells; cantrips auto (uanset felt).
+    # Int-mod +2 ⇒ 2 bonussprog kræves også (uafhængig validering) — tilføj dem.
+    f = _gen_form("Wizard", score_int="14",
+                  spells_known_1=json.dumps(_ids("wizard", 1, 5)))
+    f.setlist("languages", ["Draconic", "Gnoll"])
+    data = creation.build_character_data(f)
+    assert len(data["spells_known"][0]) == 19        # alle wizard-cantrips
+    assert len(data["spells_known"][1]) == 5         # 3 + 2
+
+
+def test_generator_spells_known_wrong_count_raises():
+    """Forkert antal blokerer (serverside-validering, ikke kun UX)."""
+    import json
+    import creation
+    f = _gen_form("Sorcerer",
+                  spells_known_0=json.dumps(_ids("sorcerer", 0, 3)),   # skal være 4
+                  spells_known_1=json.dumps(_ids("sorcerer", 1, 2)))
+    with pytest.raises(ValueError):
+        creation.build_character_data(f)
