@@ -2094,15 +2094,20 @@ function addNewLuSkill() {
 }
 
 function filterLuFeats() {
-  const q   = (document.getElementById("lu-feat-search").value || "").toLowerCase();
-  const sel = document.getElementById("lu-feat-sel");
+  const q          = (document.getElementById("lu-feat-search").value || "").toLowerCase();
+  const onlyOk     = document.getElementById("lu-feat-eligible-only").checked;
+  const sel        = document.getElementById("lu-feat-sel");
   sel.innerHTML = "";
   allFeats.filter(f => !charFeatIds.has(f.id) &&
+    (onlyOk ? f.eligible : true) &&
     (f.name.toLowerCase().includes(q) || (f.prerequisites||"").toLowerCase().includes(q)))
   .forEach(f => {
     const opt = document.createElement("option");
     opt.value = f.id;
-    opt.textContent = f.name + (f.prerequisites ? ` · kræver: ${f.prerequisites}` : "");
+    // Ulovlige feats (kun synlige når "vis alle") markeres og kan ikke vælges.
+    opt.textContent = (f.eligible ? "" : "⚠ ") + f.name +
+      (f.prerequisites ? ` · kræver: ${f.prerequisites}` : "");
+    if (!f.eligible) { opt.disabled = true; opt.style.color = "var(--muted)"; }
     if (f.id === luFeat) opt.selected = true;
     sel.appendChild(opt);
   });
@@ -2144,8 +2149,11 @@ function showLuFeatInfo(fid) {
   const f = allFeats.find(f => f.id === fid);
   const el = document.getElementById("lu-feat-info");
   if (f) {
-    el.innerHTML = (f.prerequisites ? `<em>Kræver: ${escHtml(f.prerequisites)}</em><br>` : "") +
-      escHtml(f.benefit || "");
+    let head = "";
+    if (f.prerequisites) head += `<em>Kræver: ${escHtml(f.prerequisites)}</em><br>`;
+    if (!f.eligible && f.unmet && f.unmet.length)
+      head += `<span style="color:var(--red,#c66)">⚠ Mangler: ${escHtml(f.unmet.join(", "))}</span><br>`;
+    el.innerHTML = head + escHtml(f.benefit || "");
   } else {
     el.innerHTML = "";
   }

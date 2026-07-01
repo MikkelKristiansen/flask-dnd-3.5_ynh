@@ -1336,6 +1336,10 @@
 
     <div class="lu-section" id="lu-feat-sec" style="display:none">
       <div class="lu-sh">Feat (niveau <span id="lu-feat-lvl"></span>)</div>
+      <label style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--muted);margin-bottom:.4rem;cursor:pointer">
+        <input type="checkbox" id="lu-feat-eligible-only" checked onchange="filterLuFeats()">
+        Vis kun feats jeg kan tage nu
+      </label>
       <input type="text" class="form-input" id="lu-feat-search" placeholder="Søg feat…"
              oninput="filterLuFeats()" style="margin-bottom:.4rem">
       <select id="lu-feat-sel" class="lu-select" size="5" onchange="pickLuFeat(this.value)"></select>

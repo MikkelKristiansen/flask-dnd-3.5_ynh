@@ -484,13 +484,30 @@ def build_character_view(char, db):
         "new_features":  new_features,
         "xp_ready":      xp_info["ready"],
     }
-    all_feats_json = [
-        {"id": f["id"], "name": f["name"],
-         "type": f.get("type") or "",
-         "prerequisites": f.get("prerequisites") or "",
-         "benefit": f.get("benefit") or ""}
-        for f in db.get_all_feats()
-    ]
+    # Feat-eligibility til level-up-vælgeren: genbrug den samme prereq-motor som
+    # oprettelse (feat_prereq_unmet), så reglerne kun bor ét sted. Evalueres mod
+    # Tjørns AKTUELLE tilstand (ejede feats + scores + klasse) og BAB på ny level.
+    # Ved level-up vælges kun ét feat ad gangen, så kæder skal opfyldes af allerede
+    # ejede feats — derfor er owned = nuværende feats (ikke det man er ved at vælge).
+    _all_feats = db.get_all_feats()
+    _name_by_id = {f["id"]: f["name"] for f in _all_feats}
+    _name_to_id = {f["name"].lower(): f["id"] for f in _all_feats}
+    _owned = char_module.owned_feat_tokens(char.feats, _name_by_id)
+    _scores = {a: getattr(ab, a) for a in ("str", "dex", "con", "int", "wis", "cha")}
+    _new_bab = int((new_level_data or {}).get("bab", 0))
+    all_feats_json = []
+    for f in _all_feats:
+        unmet = char_module.feat_prereq_unmet(
+            f.get("prerequisites") or "", _owned, _scores,
+            char.cls, new_level, _new_bab, _name_to_id)
+        all_feats_json.append({
+            "id": f["id"], "name": f["name"],
+            "type": f.get("type") or "",
+            "prerequisites": f.get("prerequisites") or "",
+            "benefit": f.get("benefit") or "",
+            "eligible": not unmet,
+            "unmet": unmet,
+        })
     all_skills_json = [
         {"id": s["id"], "name": s["name"], "ability": s.get("ability", ""),
          "trained_only": bool(s.get("trained_only")),

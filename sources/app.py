@@ -777,6 +777,26 @@ def api_levelup():
     ability_boost = data.get("ability_boost") or None
     new_level     = char.level + 1
 
+    # Håndhæv feat-prerequisites server-side (klienten filtrerer også, men reglerne
+    # bestemmes her). Genbruger samme motor som oprettelse; kæder skal opfyldes af
+    # allerede ejede feats, da man kun vælger ét feat pr. level-up.
+    if new_feat:
+        all_feats = db.get_all_feats()
+        name_by_id = {f["id"]: f["name"] for f in all_feats}
+        name_to_id = {f["name"].lower(): f["id"] for f in all_feats}
+        prereq_by_id = {f["id"]: f.get("prerequisites") for f in all_feats}
+        owned = char_module.owned_feat_tokens(char.feats, name_by_id)
+        scores = {a: getattr(char.ability_scores, a)
+                  for a in ("str", "dex", "con", "int", "wis", "cha")}
+        new_bab = int((db.get_class_level(char.cls.lower(), new_level) or {}).get("bab", 0))
+        fid = char_module.feat_id(new_feat)
+        missing = char_module.feat_prereq_unmet(
+            prereq_by_id.get(fid) or "", owned, scores,
+            char.cls, new_level, new_bab, name_to_id)
+        if missing:
+            return jsonify({"error":
+                f"{name_by_id.get(fid, fid)} kræver: {', '.join(missing)}."}), 400
+
     char_module.save_character(str(path), {
         "level":         new_level,
         "hp_max":        char.hp_max + hp_gained,
