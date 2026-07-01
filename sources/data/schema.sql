@@ -84,6 +84,20 @@ CREATE TABLE class_levels (
     spells_7    INTEGER NOT NULL,
     spells_8    INTEGER NOT NULL,
     spells_9    INTEGER NOT NULL,
+    -- Antal spells KENDT pr. niveau (spontane castere: sorcerer/bard). Fast
+    -- SRD-opslagstabel, IKKE Cha-afhængig (modsat wizards Int-formel). Nullable:
+    -- NULL = klassen bruger ikke "spells known" (behandles som 0). Kun sorcerer/
+    -- bard-rækker fylder disse; øvrige klasser udelader feltet.
+    spells_known_0 INTEGER,
+    spells_known_1 INTEGER,
+    spells_known_2 INTEGER,
+    spells_known_3 INTEGER,
+    spells_known_4 INTEGER,
+    spells_known_5 INTEGER,
+    spells_known_6 INTEGER,
+    spells_known_7 INTEGER,
+    spells_known_8 INTEGER,
+    spells_known_9 INTEGER,
     features    TEXT NOT NULL,
     PRIMARY KEY (class, level)
 );
