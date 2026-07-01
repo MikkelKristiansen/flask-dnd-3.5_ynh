@@ -795,6 +795,60 @@
     When laying your hand upon a creature, you channel negative energy that deals 1d8 points of damage +1 point per caster level (maximum +5).
 
     Since undead are powered by negative energy, this spell cures such a creature of a like amount of damage, rather than harming it.
+- id: inflict_moderate_wounds
+  name: Inflict Moderate Wounds
+  level_druid:
+  level_cleric: 2
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Necromancy
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature touched
+  duration: Instantaneous
+  save: Will half
+  spell_resistance: Yes
+  components: V, S
+  target_label: Target
+  description: This spell functions like _inflict light wounds_, except that it
+    deals 2d8 points of damage +1 point per caster level (maximum +10).
+- id: inflict_serious_wounds
+  name: Inflict Serious Wounds
+  level_druid:
+  level_cleric: 3
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Necromancy
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature touched
+  duration: Instantaneous
+  save: Will half
+  spell_resistance: Yes
+  components: V, S
+  target_label: Target
+  description: This spell functions like _inflict light wounds_, except that it
+    deals 3d8 points of damage +1 point per caster level (maximum +15).
+- id: inflict_critical_wounds
+  name: Inflict Critical Wounds
+  level_druid:
+  level_cleric: 4
+  level_wizard:
+  level_ranger:
+  level_paladin:
+  school: Necromancy
+  cast_time: 1 standard action
+  range: Touch
+  target: Creature touched
+  duration: Instantaneous
+  save: Will half
+  spell_resistance: Yes
+  components: V, S
+  target_label: Target
+  description: This spell functions like _inflict light wounds_, except that it
+    deals 4d8 points of damage +1 point per caster level (maximum +20).
 - id: magic_weapon
   name: Magic Weapon
   level_druid:
@@ -5769,6 +5823,46 @@
   target_label: ''
   description: This spell functions like _mass cure light wounds_, except that 
     it cures 2d8 points of damage +1 point per caster level (maximum +30).
+- id: inflict_light_wounds_mass
+  name: Inflict Light Wounds, Mass
+  level_druid:
+  level_cleric: 5
+  level_wizard:
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Necromancy
+  cast_time: 1 standard action
+  range: Close (25 ft. + 5 ft./2 levels)
+  target: One creature/level, no two of which can be more than 30 ft. apart
+  duration: Instantaneous
+  save: Will half
+  spell_resistance: Yes
+  components: V, S
+  target_label: Target
+  description: |-
+    You channel negative energy to deal 1d8 points of damage +1 point per caster level (maximum +25) to each selected creature.
+
+    Like other inflict spells, mass inflict light wounds cures undead in its area rather than damaging them. Each affected undead may attempt a Will save for half damage.
+- id: inflict_moderate_wounds_mass
+  name: Inflict Moderate Wounds, Mass
+  level_druid:
+  level_cleric: 6
+  level_wizard:
+  level_bard:
+  level_ranger:
+  level_paladin:
+  school: Necromancy
+  cast_time: ''
+  range: ''
+  target: ''
+  duration: ''
+  save: ''
+  spell_resistance: ''
+  components: ''
+  target_label: ''
+  description: This spell functions like _mass inflict light wounds_, except that
+    it deals 2d8 points of damage +1 point per caster level (maximum +30).
 - id: darkness
   name: Darkness
   level_druid:
