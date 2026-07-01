@@ -1904,6 +1904,7 @@ function addSelectedFromShop() {
 
 EquipmentPicker.init({
   base: BASE, cls: D.cls, str: D.abScores.str, size: D.size, budgetCp: D.goldCp || 0,
+  baseWeight: D.currentWeight || 0,   // allerede båret vægt → butikkens enc bliver reel
 });
 
 // ── Level-up ───────────────────────────────────────────────────────────────

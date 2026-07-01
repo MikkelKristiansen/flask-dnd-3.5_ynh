@@ -6,7 +6,7 @@
  * færdige fra serveren. Holdt adskilt fra character.js med vilje.
  *
  * Brug fra værts-siden:
- *   EquipmentPicker.init({ cls, str, size, budgetCp, selected, onChange });
+ *   EquipmentPicker.init({ cls, str, size, budgetCp, baseWeight, selected, onChange });
  *   EquipmentPicker.setBudget(cp);              // når startguld ændres
  *   EquipmentPicker.setContext({ cls, str, size, race });  // genhenter kataloget
  *   EquipmentPicker.getSelected();              // → [{ref, category, qty}]
@@ -31,6 +31,8 @@ window.EquipmentPicker = (function () {
     base: "",             // WSGI script_root (YunoHost-subpath) — sættes af værten
     cls: "", str: 10, size: "medium", race: "",
     budgetCp: 0,
+    baseWeight: 0,        // allerede båret vægt (karakterark) — valgte varer lægges oveni
+
     category: "alle", search: "", onlyProf: false, onlyAfford: false,
     onChange: null,
   };
@@ -251,12 +253,15 @@ window.EquipmentPicker = (function () {
     left.textContent = formatCost(remaining);
     left.classList.toggle("over", remaining < 0);
 
+    // Båret vægt = allerede båret (baseWeight) + de valgte varer. Belastning følger
+    // totalen, så butikken viser den reelle enc-konsekvens af et køb.
+    const carried = Math.round((state.baseWeight + weight) * 1000) / 1000;
     const heavy = state.encLimits.heavy || 0;
-    $("eqp-weight").textContent = `${weight} lb / ${heavy} lb`;
+    $("eqp-weight").textContent = `${carried} lb / ${heavy} lb`;
     const fill = $("eqp-encbar-fill");
-    fill.style.width = heavy ? Math.min(100, (weight / heavy) * 100) + "%" : "0%";
+    fill.style.width = heavy ? Math.min(100, (carried / heavy) * 100) + "%" : "0%";
 
-    const lvl = encLevel(weight);
+    const lvl = encLevel(carried);
     const badge = $("eqp-enc-badge");
     badge.textContent = ENC_LABEL[lvl] || lvl;
     badge.className = "eqp-badge enc-" + lvl.toLowerCase();
@@ -316,7 +321,8 @@ window.EquipmentPicker = (function () {
     Object.assign(state, {
       base: opts.base || "", cls: opts.cls || "", str: opts.str || 10,
       size: opts.size || "medium", race: opts.race || "",
-      budgetCp: opts.budgetCp || 0, onChange: opts.onChange || null,
+      budgetCp: opts.budgetCp || 0, baseWeight: opts.baseWeight || 0,
+      onChange: opts.onChange || null,
     });
     // Bind filter-kontroller.
     $("eqp-search").oninput = (e) => { state.search = e.target.value; renderList(); };
