@@ -95,6 +95,20 @@ def _entry(token: str, source: str, db) -> dict:
     }
 
 
+def describe_ability_list(text, source: str, db) -> list:
+    """Parse en fritekst-evneliste til strukturerede, katalog-berigede tokens.
+
+    Genbruges af summon.py/companion for at gøre et væsens special_attacks/
+    special_qualities klikbare: hvert token får {slug, label, description, kind, …}
+    (samme form som gained/reference i resolve_form_abilities). Ukendte evner (ikke
+    i kataloget) får description=None og vises som ren tekst uden tooltip.
+
+    Til forskel fra resolve_form_abilities gælder INGEN polymorph-overførselsregel
+    her — et summonet/companion-væsen ER selve skabningen og har alle sine evner.
+    """
+    return [_entry(tok, source, db) for tok in _split_tokens(text)]
+
+
 def resolve_form_abilities(special_attacks, special_qualities, form_type, db) -> dict:
     """→ {'gained': [...], 'reference': [...]} for en wild-shapet form.
 

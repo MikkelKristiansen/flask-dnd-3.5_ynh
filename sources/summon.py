@@ -27,6 +27,7 @@ from character import (AbilityScores, armor_class, size_mod_attack,
                        save_effect_bonus, skill_effect_bonus)
 from effects import collect_active_effects, collect_riders
 import creature_template
+import special_abilities
 
 
 # Augment Summoning (feat): +4 enhancement til Str og Con på alt man conjurerer.
@@ -205,8 +206,12 @@ def build_summon_stat(animal: dict, db, active_modifiers: list | None = None,
         "saves": saves,
         "speed": animal["speed"],
         "attacks": attacks,
-        "special_attacks": animal.get("special_attacks"),
-        "special_qualities": animal.get("special_qualities"),
+        # Struktureret + klikbart: hvert token beriges med katalog-forklaring, så
+        # skabelonen kan vise tooltips (Trip, scent, low-light vision, …).
+        "special_attacks": special_abilities.describe_ability_list(
+            animal.get("special_attacks"), "attack", db),
+        "special_qualities": special_abilities.describe_ability_list(
+            animal.get("special_qualities"), "quality", db),
         "skills": skills,
         "feats": feats,
         "effect_flags": riders.get("flags", []),
