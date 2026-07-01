@@ -185,13 +185,16 @@ window.EquipmentPicker = (function () {
       }
       main.appendChild(mods);
     }
+    // Antal-vælgeren ligger i hovedkolonnen på egen fuld-bredde-linje. Lå den i
+    // højre-kolonnen (flex-shrink:0) stjal den bredde fra navn/stats/materiale-
+    // pills og klemte dem sammen, når varen blev valgt.
+    if (checked) main.appendChild(renderQtyStepper(it, sel));
 
     const right = el("div", "eqp-row-right");
     // Vis effektiv linjepris når mods er valgt, ellers basisprisen (altid pr. styk).
     const costStr = (sel && sel.mods.size) ? formatCost(lineCost(sel)) : it.cost_str;
     right.appendChild(el("div", "eqp-row-cost", costStr));
     right.appendChild(el("div", "eqp-row-weight", (it.weight || 0) + " lb"));
-    if (checked) right.appendChild(renderQtyStepper(it, sel));
 
     row.appendChild(cb);
     row.appendChild(main);
