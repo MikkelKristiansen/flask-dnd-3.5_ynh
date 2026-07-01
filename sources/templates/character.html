@@ -408,8 +408,8 @@
     </div>
 
     <div style="font-size:.85rem;margin-bottom:.5rem">
-      Brug i dag: <strong>dyr {{ wi.animal_left }}/{{ wi.animal_uses }}</strong>{% if wi.elemental_uses %} ·
-      <strong>elemental {{ wi.elemental_left }}/{{ wi.elemental_uses }}</strong>{% endif %}
+      Brug i dag: <strong>dyr <span id="ws-animal-left">{{ wi.animal_left }}</span>/<span id="ws-animal-uses">{{ wi.animal_uses }}</span></strong>{% if wi.elemental_uses %} ·
+      <strong>elemental <span id="ws-elemental-left">{{ wi.elemental_left }}</span>/<span id="ws-elemental-uses">{{ wi.elemental_uses }}</span></strong>{% endif %}
       <span style="color:var(--muted)"> · størrelser: {{ wi.sizes|join(", ") }} · typer: {{ wi.types|join(", ") }}</span>
     </div>
 

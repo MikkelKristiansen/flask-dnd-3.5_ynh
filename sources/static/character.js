@@ -1113,6 +1113,13 @@ function newDay() {
       const lay = document.getElementById("lay-remaining");
       if (lay) lay.textContent = D.paladinInfo.lay_pool;
     }
+    // Wild Shape: serveren har nulstillet dagens brug (wild_shape: {}); sæt
+    // "brug tilbage"-tælleren til fuld igen (= dagens maks) uden reload.
+    ["animal", "elemental"].forEach(kind => {
+      const left = document.getElementById("ws-" + kind + "-left");
+      const uses = document.getElementById("ws-" + kind + "-uses");
+      if (left && uses) left.textContent = uses.textContent;
+    });
   });
 }
 
