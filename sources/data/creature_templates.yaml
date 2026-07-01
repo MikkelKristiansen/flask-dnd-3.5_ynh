@@ -9,7 +9,7 @@
 # Verificeret mod SRD (Fase B, 1. jul): "Celestial Creature" (monsters-b-c.md
 #   L233-271) og "Fiendish Creature" (monsters-e-f.md L391-425). Begge skabeloner
 #   bruger PRÆCIS samme HD-tabel (kun energitype/smite-alignment forskellig):
-#     HD 1-3:  resist —,  DR —
+#     HD 1-3:  resist 5,  DR —
 #     HD 4-7:  resist 5,  DR 5/magic
 #     HD 8-11: resist 10, DR 5/magic
 #     HD 12+:  resist 10, DR 10/magic
