@@ -161,19 +161,34 @@ def build_summon_stat(animal: dict, db, active_modifiers: list | None = None,
     lone_primary = (len(attack_list) == 1
                     and attack_list[0].get("group") == "primary"
                     and attack_list[0].get("count", 1) == 1)
+    size_m = size_mod_attack(size)
     attacks = []
     for atk in attack_list:
         secondary = atk.get("group") == "secondary"
         hit_mod = dex_mod if finesse else str_mod
         focus = 1 if _has_feat(feats, f"weapon focus ({atk['name'].lower()})") else 0
-        to_hit = (bab + size_mod_attack(size) + hit_mod + focus
+        to_hit = (bab + size_m + hit_mod + focus
                   + (-5 if secondary else 0) + attack_extra)
+        # Navngiven til-hit-opdeling til hover (samme format som hovedkarakterens
+        # attack_to_hit_breakdown). Augment Summoning ligger inde i STR/DEX-modet,
+        # da det hæver scoren — præcis som effekter på hovedkarakteren.
+        hit_parts = [{"label": "BAB", "value": bab},
+                     {"label": "DEX" if finesse else "STR", "value": hit_mod}]
+        if size_m:
+            hit_parts.append({"label": "størrelse", "value": size_m})
+        if focus:
+            hit_parts.append({"label": "Weapon Focus", "value": focus})
+        if secondary:
+            hit_parts.append({"label": "sekundær", "value": -5})
+        if attack_extra:
+            hit_parts.append({"label": "effekter", "value": attack_extra})
         mult = 1.5 if lone_primary else (0.5 if secondary else 1.0)
         bonus = _str_damage(str_mod, mult) + damage_extra
         damage = f"{atk['damage']}{bonus:+d}" if bonus else atk["damage"]
         attacks.append({
             "name": atk["name"], "count": atk.get("count", 1), "to_hit": to_hit,
             "damage": damage, "group": atk.get("group", "primary"),
+            "hit_parts": hit_parts,
         })
 
     # Skills: total = misc + ability-mod (fra skill-definitionen) + effekt-bonus.
