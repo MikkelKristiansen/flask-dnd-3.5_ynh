@@ -26,6 +26,7 @@ from character import (AbilityScores, armor_class, size_mod_attack,
                        resolve_modifiers, resolve_ac_bonuses,
                        save_effect_bonus, skill_effect_bonus)
 from effects import collect_active_effects, collect_riders
+import creature_template
 
 
 # Augment Summoning (feat): +4 enhancement til Str og Con på alt man conjurerer.
@@ -227,6 +228,9 @@ def build_summon(ref: dict, db) -> dict | None:
     animal = db.get_animal(creature_id)
     if not animal:
         return None
+    # Summon Monster: læg celestial/fiendish-skabelon på basis-dyret (SNA sender
+    # ingen template → uændret). Ændrer kun beskrivende felter (DR/resist/SR/smite).
+    animal = creature_template.apply_template(animal, ref.get("template"))
 
     # Aktive effekter (samme motor som hovedkarakter/companion) + Augment Summoning.
     active_modifiers, sources = collect_active_effects(

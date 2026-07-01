@@ -13,6 +13,7 @@ import re
 import character as char_module
 import class_features as class_features_module
 import companion as companion_module
+import creature_template
 import effects
 import refdata
 import summon as summon_module
@@ -226,7 +227,7 @@ def build_character_view(char, db):
                 "id": sid, "index": i, "spell": spell,
                 "used": state != "free", "state": state,
                 "self_duration": bool(spell and spell.get("self_duration")),
-                "is_summon": sid.startswith("summon_natures_ally_"),
+                "is_summon": refdata.summon_family(sid) is not None,
             })
         spell_data[lvl] = rows
 
@@ -234,17 +235,26 @@ def build_character_view(char, db):
     # et forberedt spell til SNA af samme niveau.
     can_sacrifice = bool(refdata.class_data(char.cls).get("spontaneous_summon"))
 
-    # Summon-picker-katalog: {SNA-niveau: [{id, name}]}. Et niveau er med hvis der
-    # er summonbare væsner på det OG enten et forberedt SNA-spell (→ Kast-knap) eller
-    # klassen kan ofre (→ Ofre-knap på ethvert spell af det niveau).
+    # Summon-picker-katalog: {niveau: [{id, template, name}]}. Væsnerne kommer fra
+    # de summon-familier casteren faktisk har på niveauet: SNA og/eller SM (udledt
+    # af de forberedte spells' familie), plus SNA hvis klassen kan ofre (druide).
+    # Summon Monster-væsner bærer en celestial/fiendish-skabelon → vist i navnet.
     summon_catalog: dict[int, list] = {}
     for lvl, spell_ids in char.spells_prepared.items():
-        creatures = refdata.summon_creatures(lvl)
-        has_sna = any(sid.startswith("summon_natures_ally_") for sid in spell_ids)
-        if creatures and (has_sna or can_sacrifice):
-            summon_catalog[lvl] = [
-                {"id": cid, "name": (db.get_animal(cid) or {}).get("name", cid)}
-                for cid in creatures]
+        families = {refdata.summon_family(sid) for sid in spell_ids}
+        families.discard(None)
+        if can_sacrifice:
+            families.add("sna")          # offer kan lave SNA på ethvert niveau
+        entries = []
+        for fam in families:
+            for e in refdata.summon_entries(fam, lvl):
+                base_name = (db.get_animal(e["base"]) or {}).get("name", e["base"])
+                entries.append({
+                    "id": e["base"], "template": e["template"],
+                    "name": creature_template.display_name(base_name, e["template"]),
+                })
+        if entries:
+            summon_catalog[lvl] = entries
 
     # Spontan cure/inflict (cleric, SRD): ofre en forberedt IKKE-domæne-plads til
     # en cure-spell af samme niveau eller lavere. Retning følger alignment (evil →

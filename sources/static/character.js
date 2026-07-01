@@ -593,18 +593,21 @@ const summonCatalog = D.summonCatalog;
 
 const SNA_NUM = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"];
 
-// mode = "cast" (kast et SNA-spell) | "sacrifice" (ofre et andet spell til SNA N).
-function openSummonPicker(level, idx, mode) {
+// mode = "cast" (kast et summon-spell, SNA/SM) | "sacrifice" (ofre et andet spell
+// til SNA N — kun druide). label = spell-navnet, bruges i overskriften ved cast.
+function openSummonPicker(level, idx, mode, label) {
   mode = mode || "cast";
   const list = summonCatalog[level] || [];
-  if (!list.length) { alert("Ingen summonbare væsner for SNA " + level + "."); return; }
+  if (!list.length) { alert("Ingen summonbare væsner på niveau " + level + "."); return; }
   document.getElementById("summon-modal-level").value = level;
   document.getElementById("summon-modal-index").value = idx;
   document.getElementById("summon-modal-mode").value = mode;
   document.getElementById("summon-modal-subtitle").textContent =
-    (mode === "sacrifice" ? "Ofre plads → " : "") + "Summon Nature's Ally " + SNA_NUM[level];
+    (mode === "sacrifice" ? "Ofre plads → Summon Nature's Ally " + SNA_NUM[level]
+                          : (label || "Summon " + SNA_NUM[level]));
   const sel = document.getElementById("summon-modal-creature");
-  sel.innerHTML = list.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+  // value = indeks i listen, så vi kan hente både id og skabelon ved kast.
+  sel.innerHTML = list.map((c, i) => `<option value="${i}">${c.name}</option>`).join("");
   // Antal kun relevant for SNA II+ (kan summone flere mindre væsner).
   document.getElementById("summon-modal-count-row").style.display = level >= 2 ? "" : "none";
   document.getElementById("summon-modal-count").value = 1;
@@ -617,12 +620,14 @@ function castSummon() {
   const level = parseInt(document.getElementById("summon-modal-level").value);
   const idx   = parseInt(document.getElementById("summon-modal-index").value);
   const mode  = document.getElementById("summon-modal-mode").value;
-  const creature = document.getElementById("summon-modal-creature").value;
+  const chosen = (summonCatalog[level] || [])[parseInt(document.getElementById("summon-modal-creature").value)] || {};
+  const creature = chosen.id;
+  const template = chosen.template || null;
   const count = level >= 2 ? Math.max(1, parseInt(document.getElementById("summon-modal-count").value) || 1) : 1;
   fetch(BASE + "/api/summon", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, mode, level, spell_index: idx, creature, count})
+    body: JSON.stringify({char: CHAR, mode, level, spell_index: idx, creature, template, count})
   })
   .then(r => r.json())
   .then(data => {

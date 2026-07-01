@@ -356,11 +356,11 @@ def api_spells():
     spells_active = {k: list(v) for k, v in char.spells_active.items()}
     spell_charges = dict(char.spell_charges)
 
-    # Et slot der forlader "I brug" og bærer et væsen (direkte SNA-kast ELLER et
-    # ofret spell) rydder det. is_sna styrer desuden reload (Kast-knappens synlighed).
+    # Et slot der forlader "I brug" og bærer et væsen (direkte summon-kast ELLER et
+    # ofret spell) rydder det. is_summon_spell styrer desuden reload (Kast-knappen).
     prepared = char.spells_prepared.get(level, [])
-    is_sna = (0 <= spell_index < len(prepared)
-              and prepared[spell_index].startswith("summon_natures_ally_"))
+    is_summon_spell = (0 <= spell_index < len(prepared)
+                       and refdata.summon_family(prepared[spell_index]) is not None)
     bound_summon = _find_summon(char.summons, level, spell_index) is not None
 
     # Tre-tilstands-spells (self_duration) sender "state" = free|active|used.
@@ -407,8 +407,8 @@ def api_spells():
         "spells_used": {str(k): v for k, v in spells_used.items()},
         "spells_active": {str(k): v for k, v in spells_active.items()},
         "spell_charges": spell_charges,
-        # Reload hvis et SNA-spell (Kast-knap skifter) eller et væsen var bundet (fane).
-        "is_summon": is_sna or bound_summon,
+        # Reload hvis et summon-spell (Kast-knap skifter) eller et væsen var bundet (fane).
+        "is_summon": is_summon_spell or bound_summon,
     })
 
 
@@ -460,25 +460,26 @@ def api_cast_known():
 
 @app.route("/api/summon", methods=["POST"])
 def api_summon():
-    """Kast et Summon Nature's Ally-væsen — direkte eller ved spontant offer.
+    """Kast et summonet væsen (Summon Nature's Ally ELLER Summon Monster).
 
     To modes:
-    - "cast": slot'et ER et forberedt SNA-spell, der sættes "I brug".
+    - "cast": slot'et ER et forberedt/kendt summon-spell (SNA eller SM), der sættes
+      "I brug". Familien udledes af spell-id'et (refdata.summon_family).
     - "sacrifice": slot'et er et hvilket som helst andet forberedt spell, der ofres
-      til SNA af samme niveau (kun klasser med spontaneous_summon). Det ofrede slot
-      sættes også "I brug" — så fanen lever, mens slot'et er optaget, og fjernes når
-      det sættes "Brugt" (samme livscyklus som direkte kast; jf. /api/spells).
+      til SNA af samme niveau (kun klasser med spontaneous_summon — druide). SM har
+      ingen spontan-vej. Det ofrede slot sættes også "I brug".
 
-    Begge: SNA-niveau N = slot-niveauet. Augment Summoning snapshottes fra feats.
-    HP sættes til fuld (hp_max pr. væsen). En tynd ref bindes til (spell_level=N,
-    spell_index).
+    Begge: summon-niveau N = slot-niveauet. Summon Monster kan bære en celestial/
+    fiendish-skabelon (data.template). Augment Summoning snapshottes fra feats. HP
+    sættes til fuld (hp_max pr. væsen). En tynd ref bindes til (spell_level=N, index).
     """
     data        = request.get_json()
     slug        = data.get("char")
     mode        = data.get("mode", "cast")
-    level       = int(data.get("level"))           # slot-niveau = SNA-niveau
+    level       = int(data.get("level"))           # slot-niveau = summon-niveau
     spell_index = int(data.get("spell_index", 0))
     creature    = (data.get("creature") or "").strip()
+    template    = (data.get("template") or "").strip() or None
     count       = max(1, int(data.get("count") or 1))
     path = _char_path(slug)
     if not path.exists():
@@ -486,38 +487,43 @@ def api_summon():
 
     char = char_module.load_character(str(path))
 
-    # Validér slot'et efter mode.
+    # Validér slot'et efter mode + udled hvilken familie der castes.
     prepared = char.spells_prepared.get(level, [])
     if not (0 <= spell_index < len(prepared)):
         return jsonify({"error": "ugyldigt slot"}), 400
     sid = prepared[spell_index]
+    family = refdata.summon_family(sid)
     if mode == "sacrifice":
         if not refdata.class_data(char.cls).get("spontaneous_summon"):
             return jsonify({"error": "klassen kan ikke spontant summone"}), 400
-        if sid.startswith("summon_natures_ally_"):
-            return jsonify({"error": "brug Kast på selve SNA-spellet"}), 400
-    elif not sid.startswith("summon_natures_ally_"):
-        return jsonify({"error": "ikke et SNA-spell"}), 400
+        if family is not None:
+            return jsonify({"error": "brug Kast på selve summon-spellet"}), 400
+        cast_family = "sna"          # offer konverteres altid til SNA (druide)
+    else:  # cast
+        if family is None:
+            return jsonify({"error": "ikke et summon-spell"}), 400
+        cast_family = family
     if spell_index in char.spells_active.get(level, []) or \
             spell_index in char.spells_used.get(level, []):
         return jsonify({"error": "spell allerede brugt"}), 400
 
-    # Validér: væsenet hører til denne SNA-niveau-liste.
-    if creature not in refdata.summon_creatures(level):
+    # Validér: (væsen, skabelon) hører til denne families niveau-liste.
+    if not any(e["base"] == creature and e["template"] == template
+               for e in refdata.summon_entries(cast_family, level)):
         return jsonify({"error": "ugyldigt væsen"}), 400
 
     # Augment Summoning-snapshot fra karakterens feats (+4 Str/+4 Con på væsenet).
     augment = any(char_module.feat_id(e) == "augment_summoning" for e in char.feats)
 
     # Byg statblokken én gang for at få hp_max → fuld HP pr. væsen ved kast.
-    ref = {"creature": creature, "spell_level": level, "spell_index": spell_index,
-           "count": count, "augment": augment}
+    ref = {"creature": creature, "template": template, "spell_level": level,
+           "spell_index": spell_index, "count": count, "augment": augment}
     stat = summon_module.build_summon(ref, db)
     if not stat:
         return jsonify({"error": "ugyldigt væsen"}), 400
     ref["hp_current"] = [stat["hp_max"]] * count
 
-    # Sæt SNA-spellet "I brug" (samme mekanik som cycleSpell → state=active).
+    # Sæt summon-spellet "I brug" (samme mekanik som cycleSpell → state=active).
     spells_active = {k: list(v) for k, v in char.spells_active.items()}
     spells_used   = {k: list(v) for k, v in char.spells_used.items()}
     spells_active.setdefault(level, []).append(spell_index)

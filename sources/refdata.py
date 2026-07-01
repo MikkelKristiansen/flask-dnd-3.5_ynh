@@ -507,14 +507,59 @@ def spell_like_dc(spell_level: int, cha_modifier: int, extra: int = 0) -> int:
     return 10 + spell_level + cha_modifier + extra
 
 
-# Summon Nature's Ally-tabellen: SNA-spellniveau → liste af væsen-id'er (refererer
-# ind i animals-kataloget). Dokument-formet, derfor her og ikke i SQLite.
+# Summon-tabeller (dokument-formet: spellniveau → væsner, derfor her og ikke i
+# SQLite). To FAMILIER deler samme motor og adskilles kun af et spell-præfiks og
+# deres væsen-liste:
+#   • sna = Summon Nature's Ally (druide/ranger) — rene væsen-id'er.
+#   • sm  = Summon Monster (cleric/arkane) — entries kan være {base, template},
+#           fordi de fleste SM-væsner er celestial/fiendish-udgaver af eksisterende
+#           katalog-dyr (skabelonen lægges på ved kast, jf. creature_template.py).
 _SUMMON_LISTS: dict = _load_yaml("summon_lists")
+_SUMMON_MONSTER_LISTS: dict = _load_yaml("summon_monster_lists")
+
+# familie → (spell-id-præfiks, niveau-tabel). Ny familie tilføjes her alene.
+_SUMMON_FAMILIES: dict = {
+    "sna": ("summon_natures_ally_", _SUMMON_LISTS),
+    "sm":  ("summon_monster_",      _SUMMON_MONSTER_LISTS),
+}
+
+
+def summon_family(spell_id: str) -> str | None:
+    """Hvilken summon-familie et spell-id tilhører ('sna'/'sm'), ellers None."""
+    for fam, (prefix, _table) in _SUMMON_FAMILIES.items():
+        if spell_id.startswith(prefix):
+            return fam
+    return None
+
+
+def summon_entries(family: str, spell_level: int) -> list[dict]:
+    """Normaliserede summon-kandidater for en familie + spellniveau.
+
+    Returnerer [{"base": <katalog-id>, "template": <'celestial'|'fiendish'|None>}].
+    SNA-listens rene id'er normaliseres til template=None; SM-listens dict-entries
+    bevarer deres skabelon. Tom liste hvis familien/niveauet ikke (endnu) findes.
+    """
+    _prefix, table = _SUMMON_FAMILIES.get(family, (None, {}))
+    entries = []
+    for e in (table.get(spell_level) or []):
+        if isinstance(e, dict):
+            entries.append({"base": e["base"], "template": e.get("template")})
+        else:
+            entries.append({"base": e, "template": None})
+    return entries
 
 
 def summon_creatures(spell_level: int) -> list[str]:
-    """Væsen-id'er der kan summones med Summon Nature's Ally af et givet niveau.
+    """Bagudkompatibel SNA-hjælper: væsen-id'er for Summon Nature's Ally af niveauet."""
+    return [e["base"] for e in summon_entries("sna", spell_level)]
 
-    Tom liste hvis niveauet ikke (endnu) findes i tabellen.
-    """
-    return list(_SUMMON_LISTS.get(spell_level) or [])
+
+# Celestial/Fiendish-skabeloner (Summon Monster). Dokument-formet (definitioner +
+# HD-skalering); selve overlay-logikken ligger i creature_template.py, så data
+# forbliver ren og fortolkes ét sted.
+_CREATURE_TEMPLATES: dict = _load_yaml("creature_templates")
+
+
+def creature_templates() -> dict:
+    """Rå skabelon-data ({templates: {...}, scaling: {...}}) — se creature_template.py."""
+    return _CREATURE_TEMPLATES

@@ -1,0 +1,31 @@
+# summon_monster_lists — Summon Monster-tabellen (SRD v3.5, OGL v1.0a).
+#
+# Mapper Summon Monster-spellniveau (I=1 … IX=9) → liste af væsner. Hver entry er
+# enten:
+#   - {base: <id>, template: celestial|fiendish}   # skabelon-udgave af et katalog-dyr
+#   - {base: <id>}                                  # ægte outsider (uden skabelon)
+# `base` refererer ind i data/animals.yaml (det delte katalog). Skabelonen lægges
+# på ved kast (creature_template.apply_template) — DR/resist/SR/smite/darkvision.
+#
+# Dokument-formet — indlæses af refdata.py (summon_entries("sm", niveau)).
+#
+# ⚠ STATUS (Fase A): kun SM I er udfyldt, og KUN med dyr der allerede findes i
+#   kataloget — nok til at bevise motoren. Fase B (Sonnet): udfyld SM I-III komplet
+#   mod SRD (rules/srd-v3.5-md/), tilføj manglende outsider-/dyre-statblokke i
+#   animals.yaml (fire beetle, centipede, scorpion, spider, lemure, dretch, archon…),
+#   og verificér celestial/fiendish-skalering i creature_templates.yaml.
+
+1:
+  - {base: dog, template: celestial}
+  - {base: badger, template: celestial}
+  - {base: monkey, template: celestial}
+  - {base: owl, template: celestial}
+  - {base: porpoise, template: celestial}
+  - {base: eagle, template: celestial}
+  - {base: dire_rat, template: fiendish}
+  - {base: hawk, template: fiendish}
+  - {base: viper_small, template: fiendish}
+  - {base: octopus, template: fiendish}
+
+# 2:   # udfyldes i Fase B (Sonnet) mod SRD
+# 3:   # udfyldes i Fase B (Sonnet) mod SRD

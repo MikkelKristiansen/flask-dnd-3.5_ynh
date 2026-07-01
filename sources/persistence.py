@@ -392,6 +392,8 @@ def _serialize_summon(s: dict) -> dict:
     hp = s.get("hp_current")
     if hp is not None:
         out["hp_current"] = [int(x) for x in hp]
+    if s.get("template"):          # Summon Monster: celestial/fiendish — SNA har ingen
+        out["template"] = str(s["template"])
     if s.get("augment"):
         out["augment"] = True
     if s.get("name"):

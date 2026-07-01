@@ -1,0 +1,36 @@
+# creature_templates — Celestial/Fiendish-skabeloner til Summon Monster (SRD v3.5, OGL v1.0a).
+#
+# En skabelon lægges oven på et RÅT katalog-dyr (creature_template.apply_template)
+# og ændrer KUN de beskrivende felter: navne-præfiks, darkvision, DR, energi-
+# resistens, SR og smite. Ability scores, HP, AC og angreb er uændrede (SRD).
+#
+# Dokument-formet — indlæses af refdata.py, fortolkes af creature_template.py.
+#
+# ⚠ SRD-VERIFIKATION UDESTÅR (Fase B / Sonnet): HD-skalerings-tallene i `scaling`
+#   er en foreløbig struktur og skal verificeres mod rules/srd-v3.5-md/ før deploy.
+
+templates:
+  celestial:
+    name_prefix: Celestial
+    darkvision: 60                       # ft.
+    resist_energies: [acid, cold, electricity]
+    smite: evil                          # smite evil 1/dag
+  fiendish:
+    name_prefix: Fiendish
+    darkvision: 60
+    resist_energies: [cold, fire]
+    smite: good                          # smite good 1/dag
+
+# Fælles HD-skalering for begge skabeloner. Hver tier er [min_hd, værdi]; den
+# HØJESTE tier hvis min_hd ≤ væsenets HD vinder (0/ingen hvis intet matcher).
+scaling:
+  dr:                                    # DR X/magic
+    - [4, 5]
+    - [8, 10]
+    - [12, 15]
+  resist:                                # energiresistens X (mod skabelonens energier)
+    - [1, 5]
+    - [4, 10]
+    - [8, 15]
+  sr_bonus: 5                            # SR = HD + 5  (0 ⇒ ingen SR)
+  smite_max: 20                          # smite tilføjer +HD skade, dog højst dette
