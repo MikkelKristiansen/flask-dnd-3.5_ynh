@@ -38,6 +38,7 @@ class Attack:
     base_damage: str = "1d4"       # KUN terningen; Str lægges på i koden
     str_damage_mult: float = 1.0   # 1 normal · 1.5 tohånds · 0.5 off-hand · 0 ingen Str
     bonus: int = 0                 # situations-uafhængig til-hit (Weapon Focus, masterwork, magi)
+    bonus_parts: list = field(default_factory=list)  # navngiven opdeling af `bonus` [{label,value}] (til hover)
     fixed_damage: str = ""         # skade sat af kilden (spell/touch); tilsidesætter base+Str
     crit: str = "x2"
     type: str = ""

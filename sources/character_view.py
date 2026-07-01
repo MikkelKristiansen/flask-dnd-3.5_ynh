@@ -358,7 +358,8 @@ def build_character_view(char, db):
     # Kun manuelle angreb kan redigeres her (idx = position i char.attacks).
     attack_rows = [_row(a, False, None)
                    for a in char_module.derive_attacks(char.inventory, db, char.size,
-                                                        weapon_prof, allowed_weapons, twf_ctx)
+                                                        weapon_prof, allowed_weapons, twf_ctx,
+                                                        char.feats)
                    if char_module.attack_visible(a, active_keys)]
     attack_rows += [_row(a, True, i) for i, a in enumerate(char.attacks)
                     if char_module.attack_visible(a, active_keys)]

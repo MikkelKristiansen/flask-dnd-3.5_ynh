@@ -14,7 +14,7 @@ import dataclasses
 import math
 
 from models import AbilityScores, Skill, Attack, InventoryItem, Character
-from refdata import feat_id
+from refdata import feat_id, feat_weapon
 
 
 # Point-buy (D&D 3.5 standard). Pris pr. pre-race score; interval 8-18. Budget 28
@@ -346,7 +346,11 @@ def attack_to_hit_breakdown(attack: Attack, ability_scores: AbilityScores,
              {"label": hit_ability.upper(), "value": ability_mod}]
     if size_m:
         parts.append({"label": "størrelse", "value": size_m})
-    if attack.bonus:
+    # Navngivne våben-/feat-dele (Weapon Focus, masterwork/magi, ikke-prof., TWF) hvis
+    # angrebet bærer dem (udledte våben); ellers vises attack.bonus som én linje.
+    if attack.bonus_parts:
+        parts += [dict(p) for p in attack.bonus_parts]
+    elif attack.bonus:
         parts.append({"label": "våben (ikke-prof.)" if attack.not_proficient else "våben/magi",
                       "value": attack.bonus})
     if extra_bonus:
@@ -651,10 +655,30 @@ def twf_context(cls: str, level: int, class_features: dict | None,
     }
 
 
+def weapon_focus_parts(feats: list | None, weapon_name: str) -> list[dict]:
+    """Til-hit-dele fra Weapon Focus (+1) på det navngivne våben, som [{label,value}].
+
+    Feat-posten bærer det valgte våben ({id: weapon_focus, weapon: 'Battleaxe'});
+    matches mod våbnets katalog-navn. (Greater Weapon Focus findes ikke i data endnu
+    — tilføjes her når det gør.)
+    """
+    target = (weapon_name or "").strip().lower()
+    if not target:
+        return []
+    parts = []
+    for e in (feats or []):
+        if feat_weapon(e).strip().lower() != target:
+            continue
+        if feat_id(e) == "weapon_focus":
+            parts.append({"label": "Weapon Focus", "value": 1})
+    return parts
+
+
 def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
                    weapon_prof: dict | None = None,
                    allowed_weapons: set = frozenset(),
-                   twf: dict | None = None) -> list[Attack]:
+                   twf: dict | None = None,
+                   feats: list | None = None) -> list[Attack]:
     """Lav Attack-objekter ud fra våben i tilstand 'wielded'.
 
     Skade/crit/type/range slås op i weapons-kataloget (dmg_s for Small, ellers
@@ -698,12 +722,23 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
         not_prof = not (item.house_rule
                         or weapon_proficient(w, weapon_prof, allowed_weapons))
         wclass = w["weapon_class"]
+        # Navngiven opdeling af til-hit-bonusen; summen bliver Attack.bonus. Weapon
+        # Focus lægges HER på (matches mod våbnets navn) — tidligere gik feat'en tabt.
+        parts = []
+        if item.bonus:
+            parts.append({"label": "masterwork/magi", "value": item.bonus})
+        parts += weapon_focus_parts(feats, w["name"])
+        if not_prof:
+            parts.append({"label": "ikke-proficient", "value": -4})
+        if pen:
+            parts.append({"label": "TWF", "value": pen})
         return Attack(
             name=name,
             kind="ranged" if wclass == "ranged" else "melee",
             base_damage=base_damage,
             str_damage_mult=mult,
-            bonus=item.bonus - (4 if not_prof else 0) + pen,
+            bonus=sum(p["value"] for p in parts),
+            bonus_parts=parts,
             crit=w["critical"] or "x2",
             type=w["damage_type"] or "",
             range=f"{w['range_ft']} ft." if w["range_ft"] else "",
@@ -747,6 +782,7 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
                 template,
                 name=f"{template.name} ({lbl})",
                 bonus=template.bonus + extra_pen,
+                bonus_parts=template.bonus_parts + [{"label": lbl, "value": extra_pen}],
                 note=f"{extra_pen:+d} ekstra off-hånd",
             ))
 
