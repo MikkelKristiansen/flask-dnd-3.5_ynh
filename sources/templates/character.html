@@ -385,13 +385,14 @@
   </div>
   {% endif %}
 
-  {% if char.class_features %}
+  {% if class_feature_rows %}
   <div class="section">
     <div class="section-title">Klasseevner</div>
-    {% for key, val in char.class_features.items() %}
+    {% for cf in class_feature_rows %}
     <div class="stat-row">
-      <span class="stat-label" style="text-transform:capitalize">{{ key|replace("_"," ") }}</span>
-      <span style="color:var(--muted);font-size:.8rem;text-align:right;max-width:65%">{{ val }}</span>
+      <span class="stat-label{% if cf.slug %} ws-abil{% endif %}" style="text-transform:capitalize"
+        {% if cf.slug %}onclick="showDetail('ability','{{ cf.slug }}')" title="Tryk for forklaring"{% endif %}>{{ cf.name|replace("_"," ") }}</span>
+      <span style="color:var(--muted);font-size:.8rem;text-align:right;max-width:65%">{{ cf.val }}</span>
     </div>
     {% endfor %}
   </div>

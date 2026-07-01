@@ -726,3 +726,642 @@
     (typisk syre, kulde, ild eller elektricitet) hver gang den rammes. Resistensen
     angives som antal points plus energitype og fratrækkes inden resterende skade
     beregnes.
+
+
+# ── Klasseevner (class features) ──────────────────────────────────────────
+# Tilføjet for klik-for-forklaring på karakterarkets "Klasseevner"-sektion
+# (se briefs/BRIEF-class-feature-descriptions.md). id'et er den normaliserede
+# slug fra class_features.py/feature_slug() — dækker alle level-varianter af
+# samme evne (fx "Rage 3/day" og "Rage 6/day" deler id'et 'rage').
+
+# --- Barbarian --------------------------------------------------------------
+- id: fast_movement
+  name: Fast Movement
+  kind: ex
+  category: quality
+  description: >-
+    Skabningens landbevægelseshastighed er højere end normalt for hendes
+    størrelse og udrustning, forudsat hun ikke bærer tung rustning og ikke er
+    overbelastet.
+
+- id: greater_rage
+  name: Greater Rage
+  kind: ex
+  category: quality
+  description: >-
+    Som rage, men giver en større bonus til Styrke og Constitution samt til
+    Will-saves, mens straffen på Armor Class forbliver den samme. Erstatter
+    ikke rage — det er den samme tilstand, blot med bedre tal ved højere niveau.
+
+- id: illiteracy
+  name: Illiteracy
+  kind: ex
+  category: quality
+  description: >-
+    Barbaren kan hverken læse eller skrive fra start. Hun kan opnå læsefærdighed
+    ved at bruge et færdighedspoint som var det et ekstra sprog, eller senere
+    tage niveauer i en klasse der giver læsefærdighed automatisk.
+
+- id: improved_uncanny_dodge
+  name: Improved Uncanny Dodge
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan ikke længere flankeres, undtagen af en angriber med
+    tilstrækkeligt flere niveauer/hit dice end hende selv i en klasse der giver
+    uncanny dodge. Bygger oven på uncanny dodge (bibeholder Dex-bonus til AC
+    selv caught flat-footed eller mod usynlige modstandere).
+
+- id: indomitable_will
+  name: Indomitable Will
+  kind: ex
+  category: quality
+  description: >-
+    Mens barbaren rager, får hun en yderligere bonus på Will-saves mod
+    enchantment-trylleformularer og -effekter, oveni enhver anden bonus hun
+    måtte have.
+
+- id: mighty_rage
+  name: Mighty Rage
+  kind: ex
+  category: quality
+  description: >-
+    Som rage, men giver en endnu større bonus til Styrke, Constitution og
+    Will-saves end greater rage, mens straffen på Armor Class forbliver
+    uændret.
+
+- id: tireless_rage
+  name: Tireless Rage
+  kind: ex
+  category: quality
+  description: >-
+    Barbaren bliver ikke længere fatigued (svækket) efter at hendes rage
+    slutter.
+
+- id: trap_sense
+  name: Trap Sense
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen får en intuitiv sans for fælder: en bonus på Reflex-saves for
+    at undgå fælder og en bonus på Armor Class mod angreb fra fælder.
+    Bonusser fra flere klasser der giver trap sense lægges sammen.
+
+- id: uncanny_dodge
+  name: Uncanny Dodge
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen beholder sin Dexterity-bonus til Armor Class selv når hun er
+    caught flat-footed eller angribes af en usynlig modstander (hun mister dog
+    stadig Dex-bonussen mod visse andre effekter). Hun kan heller ikke
+    flankeres af en angriber med for få niveauer/hit dice til at omgå evnen.
+
+# --- Bard --------------------------------------------------------------------
+- id: bardic_knowledge
+  name: Bardic Knowledge
+  kind: ex
+  category: quality
+  description: >-
+    Barden kan foretage et særligt check (1t20 + barde-niveau + Intelligence-
+    modifikator) for at genkalde en løsreven, relevant oplysning om berømte
+    personer, sagn, steder eller genstande. Sværhedsgraden afhænger af hvor
+    obskur informationen er.
+
+- id: bardic_music
+  name: Bardic Music
+  kind: ex
+  category: quality
+  description: >-
+    Et antal gange om dagen kan barden bruge sang, digtning eller oration til
+    at udløse særlige effekter (countersong, fascinate, inspire courage m.fl.),
+    hver på bekostning af én runde af hendes bardic music-pulje. Kræver
+    normalt at hun frit kan handle og blive hørt eller set af sine mål.
+
+- id: countersong
+  name: Countersong
+  kind: su
+  category: quality
+  description: >-
+    Barden bruger musik eller lyd til at modvirke sound- og language-baserede
+    effekter. Alle inden for hørevidde der er udsat for en sådan effekt, kan
+    bruge barden Perform-check i stedet for deres eget saving throw, så længe
+    countersong-optrædenen fortsætter.
+
+- id: fascinate
+  name: Fascinate
+  kind: sp
+  category: quality
+  description: >-
+    Barden kan fange opmærksomheden hos et antal skabninger inden for
+    rækkevidde med en musikalsk eller poetisk optræden. De skal bestå et
+    Will-save eller sidde stille og opmærksomme på barden, distraheret fra
+    andre handlinger, så længe optrædenen fortsætter.
+
+- id: inspire_competence
+  name: Inspire Competence
+  kind: su
+  category: quality
+  description: >-
+    Barden opmuntrer en forbunden skabning med sin optræden og giver hende en
+    bonus på et bestemt færdigheds-check, så længe barden fortsætter med at
+    optræde.
+
+- id: inspire_courage
+  name: Inspire Courage
+  kind: su
+  category: quality
+  description: >-
+    Barden opmuntrer sine forbundne med mod gennem sang eller ord. Alle der
+    kan høre optrædenen får en bonus på saving throws mod frygt- og
+    charm-effekter samt på angreb og skade, så længe optrædenen fortsætter.
+
+- id: inspire_greatness
+  name: Inspire Greatness
+  kind: su
+  category: quality
+  description: >-
+    Barden inspirerer op til et antal forbundne skabninger til storhed: hver
+    får ekstra bonus hit dice (med tilhørende hit points og bonus på angreb)
+    samt en bonus på Fortitude-saves, så længe de kan se og høre barden.
+
+- id: inspire_heroics
+  name: Inspire Heroics
+  kind: su
+  category: quality
+  description: >-
+    Barden inspirerer en enkelt forbunden skabning til heltemod og giver
+    hende en betydelig bonus på alle saving throws samt på Armor Class, så
+    længe optrædenen fortsætter.
+
+- id: mass_suggestion
+  name: Mass Suggestion
+  kind: sp
+  category: quality
+  description: >-
+    Som suggestion, men barden kan påvirke flere skabninger samtidig — alle
+    inden for rækkevidde og i stand til at høre hendes optræden.
+
+- id: song_of_freedom
+  name: Song of Freedom
+  kind: sp
+  category: quality
+  description: >-
+    Barden kan opnå samme virkning som trylleformularen break enchantment på
+    en enkelt skabning, ved at synge eller recitere i stedet for at kaste
+    trylleformularen.
+
+- id: suggestion
+  name: Suggestion
+  kind: sp
+  category: quality
+  description: >-
+    Barden kan give en enkelt lyttende skabning et forslag til handling, som
+    ved trylleformularen suggestion, gennem sin optræden i stedet for gennem
+    almindelig casting.
+
+# --- Monk ----------------------------------------------------------------
+- id: abundant_step
+  name: Abundant Step
+  kind: su
+  category: quality
+  description: >-
+    Munken kan forsvinde fra ét sted og genopstå et andet sted inden for kort
+    rækkevidde, som ved trylleformularen dimension door, én gang om dagen.
+    Hun kan ikke tage andre med sig.
+
+- id: ac_bonus
+  name: AC Bonus
+  kind: ex
+  category: quality
+  description: >-
+    Så længe munken er ubevæbnet, ikke bærer rustning eller skjold og ikke er
+    overbelastet, tilføjer hun sin Wisdom-bonus til Armor Class (oveni
+    Dexterity-bonussen). Ved højere niveau får hun desuden en fast bonus
+    oveni. Bonussen mistes under samme omstændigheder som en Dex-bonus til AC.
+
+- id: diamond_body
+  name: Diamond Body
+  kind: su
+  category: quality
+  description: >-
+    Munken opnår immunitet over for alle gifte — hverken indtaget, injiceret,
+    kontakt- eller inhaleret gift har effekt på hende.
+
+- id: diamond_soul
+  name: Diamond Soul
+  kind: ex
+  category: quality
+  description: >-
+    Munken får spell resistance svarende til hendes niveau plus en fast
+    bonus. En caster skal bestå et caster level check mod denne SR for at
+    kunne påvirke munken med en trylleformular.
+
+- id: empty_body
+  name: Empty Body
+  kind: su
+  category: quality
+  description: >-
+    Munken kan bruge sin ki til at blive æterisk i et antal runder om dagen,
+    som ved trylleformularen etherealness, men kun på sig selv. Rundene
+    behøver ikke bruges samlet.
+
+- id: flurry_of_blows
+  name: Flurry of Blows
+  kind: ex
+  category: quality
+  description: >-
+    Ved et fuldt angreb kan munken give afkald på sin normale angrebsrække
+    for i stedet at få ét ekstra unarmed strike-angreb, mod en straf på
+    angrebsbonussen for alle angreb i runden. Kræver at hun angriber ubevæbnet
+    eller med et monk-våben.
+
+- id: greater_flurry
+  name: Greater Flurry
+  kind: ex
+  category: quality
+  description: >-
+    Ved højt niveau giver flurry of blows endnu et ekstra unarmed
+    strike-angreb ved munkens højeste angrebsbonus, oveni det ekstra angreb
+    hun allerede får fra flurry of blows.
+
+- id: improved_evasion
+  name: Improved Evasion
+  kind: ex
+  category: quality
+  description: >-
+    Som evasion, men munken tager kun halv skade selv ved et mislykket
+    Reflex-save mod angreb der normalt giver halv skade ved succes — og intet
+    ved et vellykket save. Fungerer kun i let eller ingen rustning; en
+    hjælpeløs skabning drager stadig ikke fordel.
+
+- id: ki_strike
+  name: Ki Strike
+  kind: su
+  category: quality
+  description: >-
+    Munkens unarmed strikes behandles som magiske våben ved afgørelse af
+    damage reduction. Ved højere niveau regnes angrebene desuden som lawful
+    og/eller adamantine i denne sammenhæng.
+
+- id: perfect_self
+  name: Perfect Self
+  kind: ex
+  category: quality
+  description: >-
+    Munken bliver en outsider (native) i stedet for en humanoid, hvilket kan
+    påvirke effekter der målretter kreaturtype. Hun får desuden damage
+    reduction, som kun gennembrydes af magiske våben.
+
+- id: purity_of_body
+  name: Purity of Body
+  kind: ex
+  category: quality
+  description: >-
+    Munken bliver immun over for alle sygdomme, inklusive overnaturlige og
+    magiske sygdomme.
+
+- id: quivering_palm
+  name: Quivering Palm
+  kind: su
+  category: quality
+  description: >-
+    Et begrænset antal gange om ugen kan munken sætte et dødeligt slag mod et
+    mål hun rammer med et unarmed strike. Vælger hun senere at aktivere
+    slaget (inden for et vist antal dage), skal målet bestå et Fortitude-save
+    eller dø.
+
+- id: slow_fall
+  name: Slow Fall
+  kind: ex
+  category: quality
+  description: >-
+    Er munken inden for arms reach af en væg når hun falder, bremser hun
+    faldet som ved feather fall og tager ingen faldskade. Ved højere niveau
+    fungerer evnen uanset afstand til en væg.
+
+- id: still_mind
+  name: Still Mind
+  kind: ex
+  category: quality
+  description: >-
+    Munkens disciplinerede sind giver hende en bonus på saving throws mod
+    enchantment-trylleformularer og -effekter.
+
+- id: tongue_of_the_sun_and_moon
+  name: Tongue of the Sun and Moon
+  kind: su
+  category: quality
+  description: >-
+    Munken kan tale og forstå alle sprog samt konversere med enhver skabning
+    der har et sprog, uanset om hun normalt ville forstå det.
+
+- id: unarmed_strike
+  name: Unarmed Strike
+  kind: ex
+  category: quality
+  description: >-
+    Munken er trænet i ubevæbnet kamp og kan påføre dødelig eller
+    ikke-dødelig skade med et unarmed strike-angreb uden straf, og rammer
+    lige så effektivt med albuer, knæ og fødder som med næver. Hun udløser
+    ikke attack of opportunity ved at angribe ubevæbnet.
+
+- id: wholeness_of_body
+  name: Wholeness of Body
+  kind: su
+  category: quality
+  description: >-
+    Munken kan bruge sin ki-pulje til at hele sig selv for et antal hit
+    points om dagen, i stedet for at bruge ki-en til andre evner. Helbredelsen
+    kan fordeles over flere anvendelser samme dag.
+
+- id: timeless_body
+  name: Timeless Body
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen tager ikke længere ability-straffe fra alderdom (eksisterende
+    straffe forbliver), men kan stadig dø af alderdom. Bonusser fra alder
+    gælder fortsat.
+
+# --- Paladin ---------------------------------------------------------------
+- id: aura_of_courage
+  name: Aura of Courage
+  kind: su
+  category: quality
+  description: >-
+    Paladinen er immun over for frygt (magisk eller ej). Alle allierede inden
+    for kort rækkevidde af hende får en bonus på deres saving throws mod
+    frygt.
+
+- id: aura_of_good
+  name: Aura of Good
+  kind: ex
+  category: quality
+  description: >-
+    Paladinens aura af godhed, som målt af effekter der detekterer eller
+    reagerer på aura (fx detect good), er lige så stærk som en clerics af
+    samme niveau.
+
+- id: detect_evil
+  name: Detect Evil
+  kind: sp
+  category: quality
+  description: >-
+    Paladinen kan til enhver tid, som en fri handling, koncentrere sig om at
+    detektere ondskab i sine omgivelser, som ved trylleformularen detect
+    evil.
+
+- id: divine_grace
+  name: Divine Grace
+  kind: su
+  category: quality
+  description: >-
+    Paladinen tilføjer sin Charisma-modifikator (hvis positiv) som bonus på
+    alle sine saving throws.
+
+- id: divine_health
+  name: Divine Health
+  kind: ex
+  category: quality
+  description: >-
+    Paladinen er immun over for alle sygdomme, inklusive overnaturlige og
+    magiske sygdomme.
+
+- id: lay_on_hands
+  name: Lay on Hands
+  kind: su
+  category: quality
+  description: >-
+    Paladinen kan helbrede skade ved berøring, med et samlet antal hit
+    points om dagen svarende til hendes niveau ganget Charisma-modifikator.
+    Hun kan bruge evnen på sig selv eller andre og fordele den over flere
+    anvendelser.
+
+- id: remove_disease
+  name: Remove Disease
+  kind: sp
+  category: quality
+  description: >-
+    Et begrænset antal gange om ugen kan paladinen fjerne sygdom fra en
+    berørt skabning, som ved trylleformularen remove disease.
+
+- id: smite_evil
+  name: Smite Evil
+  kind: su
+  category: quality
+  description: >-
+    Et begrænset antal gange om dagen kan paladinen forsøge et smite
+    evil-angreb: som del af et normalt angreb tilføjer hun sin
+    Charisma-modifikator til angrebsrullet og en fast bonus til skaden, hvis
+    målet er ondt. Rammer hun et ikke-ondt mål, udføres angrebet stadig, men
+    uden smite-bonusserne, og forsøget er brugt.
+
+- id: special_mount
+  name: Special Mount
+  kind: su
+  category: quality
+  description: >-
+    Paladinen kan tilkalde et særligt, magisk styrket ridedyr som en loyal
+    følgesvend. Dør mountet, kan et nyt tilkaldes efter en ventetid.
+
+- id: turn_undead
+  name: Turn Undead
+  kind: su
+  category: quality
+  description: >-
+    Skabningen kan et antal gange om dagen forsøge at fordrive eller
+    destruere udøde inden for rækkevidde. Et check afgør hvilken maksimal
+    hit dice-styrke der påvirkes, og hvor mange udøde der berøres af
+    forsøget.
+
+# --- Ranger ------------------------------------------------------------------
+- id: animal_companion
+  name: Animal Companion
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen tiltrækker en loyal dyre-følgesvend, som kæmper ved hendes
+    side og bliver stærkere i takt med hendes niveau. Companionens egne
+    egenskaber og evner fremgår af dens statblok.
+
+- id: combat_style
+  name: Combat Style
+  kind: ex
+  category: quality
+  description: >-
+    Rangeren vælger en kampstil (kamp med to våben eller bueskydning) og
+    modtager den første feat i den valgte kæde gratis, selv hvis hun ikke
+    opfylder de normale forudsætninger.
+
+- id: combat_style_mastery
+  name: Combat Style Mastery
+  kind: ex
+  category: quality
+  description: >-
+    Rangeren modtager den tredje og sidste feat i sin valgte kampstils-kæde
+    gratis, selv hvis hun ikke opfylder de normale forudsætninger.
+
+- id: endurance
+  name: Endurance
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen får en bonus på checks for at modstå ikke-dødelig skade fra
+    træthed og på visse Constitution-baserede checks (fx svømning, gå uden
+    søvn, sult og tørst, ekstremt vejr). Svarer til Endurance-feat'en, som
+    gives gratis.
+
+- id: favored_enemy
+  name: Favored Enemy
+  kind: ex
+  category: quality
+  description: >-
+    Rangeren vælger en skabningstype (senere flere) som sin yndlingsfjende og
+    får bonus på Bluff-, Listen-, Sense Motive-, Spot- og Survival-checks mod
+    skabninger af den type, samt en bonus på skade i kamp mod dem.
+
+- id: hide_in_plain_sight
+  name: Hide in Plain Sight
+  kind: ex
+  category: quality
+  description: >-
+    Rangeren kan bruge Hide-færdigheden selv mens hun observeres, blot hun
+    befinder sig i en form for naturligt terræn — undtagen mens hun
+    observeres direkte i klart lys uden nogen form for dækning.
+
+- id: improved_combat_style
+  name: Improved Combat Style
+  kind: ex
+  category: quality
+  description: >-
+    Rangeren modtager den anden feat i sin valgte kampstils-kæde gratis, selv
+    hvis hun ikke opfylder de normale forudsætninger.
+
+- id: swift_tracker
+  name: Swift Tracker
+  kind: ex
+  category: quality
+  description: >-
+    Rangeren kan spore i normal bevægelseshastighed uden straf, og i dobbelt
+    hastighed med kun den almindelige straf på Survival-checket, i stedet for
+    de skærpede straffe der normalt gælder for hurtig sporing.
+
+- id: track
+  name: Track
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan bruge Survival-færdigheden til at følge skabningers spor.
+    Svarer til Track-feat'en.
+
+# --- Druid -------------------------------------------------------------------
+- id: a_thousand_faces
+  name: A Thousand Faces
+  kind: su
+  category: quality
+  description: >-
+    Druiden kan ændre sit udseende, som ved trylleformularen alter self, når
+    som helst hun ønsker, uden begrænsning på antal gange om dagen.
+
+- id: nature_sense
+  name: Nature Sense
+  kind: ex
+  category: quality
+  description: >-
+    Druiden får en bonus på Knowledge (nature) og Survival-checks.
+
+- id: resist_nature_s_lure
+  name: Resist Nature's Lure
+  kind: ex
+  category: quality
+  description: >-
+    Druiden får en bonus på saving throws mod feers og planters magiske
+    evner, herunder deres spell-like abilities.
+
+- id: spontaneous_casting
+  name: Spontaneous Casting
+  kind: ex
+  category: quality
+  description: >-
+    Druiden kan omdanne et forberedt trylleslag i sekundet til en Summon
+    Nature's Ally-trylleformular af samme niveau, på samme måde som en
+    cleric spontant kan omdanne trylleslag til cure- eller
+    inflict-trylleformularer.
+
+- id: trackless_step
+  name: Trackless Step
+  kind: ex
+  category: quality
+  description: >-
+    Druiden efterlader intet spor i naturlige omgivelser og kan ikke spores,
+    medmindre hun ønsker det. En normal Survival-baseret sporing af hende
+    mislykkes automatisk.
+
+- id: venom_immunity
+  name: Venom Immunity
+  kind: ex
+  category: quality
+  description: >-
+    Druiden er immun over for alle former for gift.
+
+- id: wild_shape
+  name: Wild Shape
+  kind: su
+  category: quality
+  description: >-
+    Druiden kan antage form som et dyr af en given størrelseskategori, som
+    ved trylleformularen polymorph, et antal gange om dagen. Formens fysiske
+    egenskaber overtages, mens druidens egne mentale evner og en begrænset
+    evne til at kommunikere bevares. Ved højere niveau udvides evnen til også
+    at omfatte elemental- og planteformer.
+
+- id: woodland_stride
+  name: Woodland Stride
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan bevæge sig gennem tætvokset naturligt terræn (tornekrat,
+    underskov m.m.) i normal hastighed uden at tage skade eller på anden
+    måde blive hindret af det. Magisk manipuleret plantevækst hindrer stadig
+    som normalt.
+
+# --- Rogue -------------------------------------------------------------------
+- id: sneak_attack
+  name: Sneak Attack
+  kind: ex
+  category: quality
+  description: >-
+    Skabningens angreb påfører ekstra skade når hun rammer et mål der er
+    denied its Dexterity-bonus til AC, eller når hun flankerer målet.
+    Gælder kun mod skabninger med sårbar anatomi — ikke fx oozes eller udøde
+    uden vitale organer.
+
+- id: trapfinding
+  name: Trapfinding
+  kind: ex
+  category: quality
+  description: >-
+    Skabningen kan bruge Search-færdigheden til at finde fælder med en
+    Disable Device-sværhedsgrad over 20, og kan bruge Disable Device til at
+    desarmere magiske fælder.
+
+# --- Wizard / Sorcerer -------------------------------------------------------
+- id: scribe_scroll
+  name: Scribe Scroll
+  kind: ex
+  category: quality
+  description: >-
+    Wizarden kan skrive magiske ruller af enhver trylleformular hun kender,
+    hvilket indskriver formularens effekt i en genstand der senere kan
+    aktiveres af hende selv eller andre. Svarer til Scribe Scroll-feat'en,
+    som wizarden får gratis ved 1. niveau.
+
+- id: summon_familiar
+  name: Summon Familiar
+  kind: sp
+  category: quality
+  description: >-
+    Casteren kan tilkalde en familiar — et lille magisk væsen der tjener som
+    følgesvend og forbedrer visse af hendes evner. Dør familiaren, kan en ny
+    tilkaldes efter en ventetid, med en midlertidig straf for casteren.

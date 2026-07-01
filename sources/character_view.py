@@ -11,6 +11,7 @@ inspector. Importerer kun logik-moduler, aldrig app -- så ingen cyklisk import.
 import re
 
 import character as char_module
+import class_features as class_features_module
 import companion as companion_module
 import effects
 import refdata
@@ -640,7 +641,16 @@ def build_character_view(char, db):
             "unarmored":            monk_flurry_active,
         }
 
+    # Klasseevner → klikbar visnings-model: hver evne får evt. en slug til
+    # /api/detail/ability (samme klik-forklaring som wild shape). Kendes slug'en
+    # ikke i kataloget, vises evnen uden klik (fallback), så data kan fyldes på
+    # bagefter uden at nogen evne 404'er ved klik.
+    known_ability_ids = {a["id"] for a in db.get_all_special_abilities()}
+    class_feature_rows = class_features_module.feature_rows(
+        char.class_features, known_ability_ids)
+
     return {
+        "class_feature_rows": class_feature_rows,
         "companion": companion,
         "can_summon_companion": can_summon_companion,
         "companion_animals": companion_animals,
