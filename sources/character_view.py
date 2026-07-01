@@ -246,6 +246,27 @@ def build_character_view(char, db):
                 {"id": cid, "name": (db.get_animal(cid) or {}).get("name", cid)}
                 for cid in creatures]
 
+    # Spontan cure/inflict (cleric, SRD): ofre en forberedt IKKE-domæne-plads til
+    # en cure-spell af samme niveau eller lavere. Retning følger alignment (evil →
+    # inflict, ellers cure — en neutral cleric vælger reelt selv ved level 1, vi
+    # defaulter til cure). Domæne-spells ligger separat (domain_spells_prepared),
+    # så alt i spells_prepared er per definition ikke-domæne og kan ofres.
+    can_spontaneous_cure = bool(refdata.class_data(char.cls).get("spontaneous_cure"))
+    cure_direction = "inflict" if "evil" in (char.alignment or "").lower() else "cure"
+    cure_catalog: dict[int, list] = {}
+    if can_spontaneous_cure:
+        convertible = sorted(
+            ({"id": s["id"], "name": s["name"], "level": s.get("level_cleric") or 0}
+             for s in db.search_spells(class_filter="cleric")
+             if s["id"].startswith(cure_direction + "_")
+             and s.get("level_cleric") is not None),
+            key=lambda s: (s["level"], s["name"]))
+        # Pr. forberedt slot-niveau: cure-spells af det niveau eller lavere.
+        for lvl in char.spells_prepared:
+            eligible = [s for s in convertible if s["level"] <= lvl]
+            if eligible:
+                cure_catalog[lvl] = eligible
+
     condition_data  = [(cid, db.get_condition(cid)) for cid in char.conditions]
     all_conditions  = db.get_all_conditions()
 
@@ -660,6 +681,9 @@ def build_character_view(char, db):
         "summons": summons,
         "summon_catalog": summon_catalog,
         "can_sacrifice": can_sacrifice,
+        "can_spontaneous_cure": can_spontaneous_cure,
+        "cure_direction": cure_direction,
+        "cure_catalog": cure_catalog,
         "abilities": abilities,
         "saves": saves,
         "skill_data": skill_data,

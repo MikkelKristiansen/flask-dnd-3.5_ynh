@@ -416,3 +416,45 @@ def test_generator_spells_known_wrong_count_raises():
                   spells_known_1=json.dumps(_ids("sorcerer", 1, 2)))
     with pytest.raises(ValueError):
         creation.build_character_data(f)
+
+
+def test_cleric_spontaneous_cure_catalog(tmp_path):
+    """Good/neutral cleric: cure-retning + katalog filtreret til niveau ≤ slot."""
+    import character_view
+    path = _make_char(tmp_path, "clr", "Cleric", level=3, wis=16)
+    char = char_module.load_character(str(path))
+    # Giv nogle forberedte (ikke-domæne) pladser på level 0-2.
+    char_module.save_character(str(path), {
+        "spells_prepared": {0: ["guidance"], 1: ["bless"], 2: ["aid"]},
+    })
+    char = char_module.load_character(str(path))
+    v = character_view.build_character_view(char, db_module)
+    assert v["can_spontaneous_cure"] is True
+    assert v["cure_direction"] == "cure"
+    # Level 2-slot kan konverteres til cure af level 0, 1 og 2.
+    lvl2 = {s["id"] for s in v["cure_catalog"][2]}
+    assert "cure_light_wounds" in lvl2          # L1 ≤ 2
+    assert "cure_moderate_wounds" in lvl2       # L2 ≤ 2
+    assert "cure_serious_wounds" not in lvl2    # L3 > 2
+
+
+def test_cleric_spontaneous_cure_evil_is_inflict(tmp_path):
+    """Evil cleric konverterer til inflict, ikke cure."""
+    import character_view
+    path = _make_char(tmp_path, "clre", "Cleric", level=1, wis=16)
+    char = char_module.load_character(str(path))
+    # alignment persisteres ikke af save_character (kun spil-state) — sæt direkte.
+    char.alignment = "Neutral Evil"
+    char.spells_prepared = {1: ["bless"]}
+    v = character_view.build_character_view(char, db_module)
+    assert v["cure_direction"] == "inflict"
+    assert all(s["id"].startswith("inflict_") for s in v["cure_catalog"][1])
+
+
+def test_druid_has_no_spontaneous_cure(tmp_path):
+    """Kun cleric har spontan cure — druiden har SNA-offer, ikke cure."""
+    import character_view
+    path = _make_char(tmp_path, "dru", "Druid", level=3, wis=16)
+    char = char_module.load_character(str(path))
+    v = character_view.build_character_view(char, db_module)
+    assert v["can_spontaneous_cure"] is False

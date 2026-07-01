@@ -632,6 +632,53 @@ function castSummon() {
   });
 }
 
+// ── Spontan cure/inflict (cleric) ──────────────────────────────────────────
+// cureCatalog: {slot-niveau: [{id, name, level}]} — cure/inflict-spells man kan
+// konvertere til pr. forberedt slot-niveau. Ofre = markér pladsen "Brugt" (genbrug
+// /api/spells) og åbn den kastede spell, så spilleren kan slå helbredelsen.
+const cureCatalog = D.cureCatalog || {};
+const cureDirection = D.cureDirection || "cure";
+
+function openCurePicker(level, idx) {
+  const list = cureCatalog[level] || [];
+  if (!list.length) { alert("Ingen " + cureDirection + "-spells for niveau " + level + "."); return; }
+  document.getElementById("cure-modal-level").value = level;
+  document.getElementById("cure-modal-index").value = idx;
+  document.getElementById("cure-modal-title").textContent =
+    (cureDirection === "inflict" ? "✚ Spontan inflict" : "✚ Spontan cure");
+  document.getElementById("cure-modal-subtitle").textContent =
+    "Ofre plads (level " + level + ") → " + (cureDirection === "inflict" ? "inflict" : "cure") + "-spell";
+  const sel = document.getElementById("cure-modal-spell");
+  sel.innerHTML = list.map(s => `<option value="${s.id}">${s.name} (L${s.level})</option>`).join("");
+  document.getElementById("cure-modal-overlay").classList.add("open");
+}
+
+function castSpontaneousCure() {
+  const level = parseInt(document.getElementById("cure-modal-level").value);
+  const idx   = parseInt(document.getElementById("cure-modal-index").value);
+  const spellId = document.getElementById("cure-modal-spell").value;
+  // Kapacitets-tjek (samme som cycleSpell): en frisk plads forbruges.
+  if (slotUsedCount(level) >= (slotTotals[level] || 0)) {
+    alert("Ingen slots tilbage på level " + level + "!");
+    return;
+  }
+  // Ofre pladsen = sæt den "Brugt" via det eksisterende spell-state-endpoint.
+  fetch(BASE + "/api/spells", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, level, spell_index: idx, state: "used"})
+  })
+  .then(r => r.json())
+  .then(data => {
+    spellsUsed = Object.fromEntries(Object.entries(data.spells_used).map(([k, v]) => [parseInt(k), v]));
+    spellsActive = Object.fromEntries(Object.entries(data.spells_active).map(([k, v]) => [parseInt(k), v]));
+    updateSpellDisplay(level);
+    document.getElementById("cure-modal-overlay").classList.remove("open");
+    // Åbn den kastede spell, så spilleren ser og kan slå helbredelsen.
+    showDetail("spell", spellId);
+  });
+}
+
 // Brug en ladning (fx en Magic Stone-sten). Rammer den 0 → spell bliver "Brugt".
 // Angreb er server-renderet, så vi reloader bagefter.
 function spendCharge(level, spellIndex) {
