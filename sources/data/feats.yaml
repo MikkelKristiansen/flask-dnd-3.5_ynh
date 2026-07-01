@@ -487,4 +487,46 @@
   benefit: "You must declare that you are using this feat before you make your attack roll. Stunning Fist forces a foe damaged by your unarmed attack to make a Fortitude saving throw (DC 10 + 1/2 your character level + your Wis modifier), in addition to dealing damage normally. A defender who fails this saving throw is stunned for 1 round. You may attempt a stunning attack once per day for every four levels you have attained, and no more than once per round."
   normal:
   special: A monk may select Stunning Fist as a bonus feat at 1st level, even if she does not meet the prerequisites.
+- id: awesome_blow
+  name: Awesome Blow
+  type: Monster
+  prerequisites: Str 25, Power Attack, Improved Bull Rush, size Large or larger.
+  benefit: "As a standard action, the creature may choose to subtract 4 from its melee attack roll and deliver an awesome blow. If the creature hits a corporeal opponent smaller than itself with an awesome blow, its opponent must succeed on a Reflex save (DC = damage dealt) or be knocked flying 10 feet in a direction of the attacking creature's choice and fall prone. The attacking creature can only push the opponent in a straight line, and the opponent can't move closer to the attacking creature than the square it started in. If an obstacle prevents the completion of the opponent's move, the opponent and the obstacle each take 1d6 points of damage, and the opponent stops in the space adjacent to the obstacle."
+  normal:
+  special:
+- id: flyby_attack
+  name: Flyby Attack
+  type: Monster
+  prerequisites: Fly speed.
+  benefit: When flying, the creature can take a move action (including a dive) and another standard action at any point during the move. The creature cannot take a second move action during a round when it makes a flyby attack.
+  normal: Without this feat, the creature takes a standard action either before or after its move.
+  special:
+- id: improved_natural_attack
+  name: Improved Natural Attack
+  type: Monster
+  prerequisites: Natural weapon, base attack bonus +4.
+  benefit: "Choose one of the creature's natural attack forms. The damage for this natural weapon increases by one step, as if the creature's size had increased by one category: 1d2, 1d3, 1d4, 1d6, 1d8, 2d6, 3d6, 4d6, 6d6, 8d6, 12d6. A weapon or attack that deals 1d10 points of damage increases as follows: 1d10, 2d8, 3d8, 4d8, 6d8, 8d8, 12d8."
+  normal:
+  special:
+- id: multiattack
+  name: Multiattack
+  type: Monster
+  prerequisites: Three or more natural attacks.
+  benefit: The creature's secondary attacks with natural weapons take only a -2 penalty.
+  normal: Without this feat, the creature's secondary attacks with natural weapons take a -5 penalty.
+  special:
+- id: snatch
+  name: Snatch
+  type: Monster
+  prerequisites: Size Huge or larger.
+  benefit: "The creature can choose to start a grapple when it hits with a claw or bite attack, as though it had the improved grab special attack. If the creature gets a hold on a creature three or more sizes smaller, it squeezes each round for automatic bite or claw damage. A snatched opponent held in the creature's mouth is not allowed a Reflex save against the creature's breath weapon, if it has one. The creature can drop a creature it has snatched as a free action or use a standard action to fling it aside. A flung creature travels 1d6 x 10 feet, and takes 1d6 points of damage per 10 feet traveled. If the creature flings a snatched opponent while flying, the opponent takes this amount or falling damage, whichever is greater."
+  normal:
+  special:
+- id: wingover
+  name: Wingover
+  type: Monster
+  prerequisites: Fly speed.
+  benefit: A flying creature with this feat can change direction quickly once each round as a free action. This feat allows it to turn up to 180 degrees regardless of its maneuverability, in addition to any other turns it is normally allowed. A creature cannot gain altitude during a round when it executes a wingover, but it can dive. The change of direction consumes 10 feet of flying movement.
+  normal:
+  special:
   fighter_bonus: 1

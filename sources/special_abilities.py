@@ -66,6 +66,16 @@ def _slug(label: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
 
 
+def slug_from_label(label: str) -> str:
+    """Offentlig indgang til navn→slug-normaliseringen.
+
+    Genbruges af class_features.py (klasseevner) og companion.py (companion-feats/
+    -specials), så de tre lag deler præcis samme regel: 'Weapon Focus (Bite)' →
+    'weapon_focus', 'Improved Speed (+10 ft.)' → 'improved_speed'.
+    """
+    return _slug(label)
+
+
 def _entry(token: str, source: str, db) -> dict:
     """Byg én struktureret evne ud fra et fritekst-token (beriget fra kataloget)."""
     slug = _slug(token)

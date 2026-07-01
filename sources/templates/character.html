@@ -632,11 +632,11 @@
 
   <div class="section">
     <div class="section-title">Evner</div>
-    {% if cp.specials %}
-    <div class="stat-row"><span class="stat-label">{{ 'Mount' if cp.kind == 'mount' else 'Companion' }}</span><span class="stat-val" style="font-size:.8rem;text-align:right">{{ cp.specials|join(', ') }}</span></div>
+    {% if cp.special_refs %}
+    <div class="stat-row"><span class="stat-label">{{ 'Mount' if cp.kind == 'mount' else 'Companion' }}</span><span class="stat-val" style="font-size:.8rem;text-align:right">{% for e in cp.special_refs %}<span {% if e.id %}class="ws-abil" onclick="showDetail('ability','{{ e.id }}')" title="Tryk for forklaring"{% endif %}>{{ e.label }}</span>{{ ", " if not loop.last }}{% endfor %}</span></div>
     {% endif %}
-    {% if cp.feats %}
-    <div class="stat-row"><span class="stat-label">Feats</span><span class="stat-val" style="font-size:.8rem;text-align:right">{{ cp.feats|join(', ') }}</span></div>
+    {% if cp.feat_refs %}
+    <div class="stat-row"><span class="stat-label">Feats</span><span class="stat-val" style="font-size:.8rem;text-align:right">{% for e in cp.feat_refs %}<span {% if e.id %}class="ws-abil" onclick="showDetail('feat','{{ e.id }}')" title="Tryk for forklaring"{% endif %}>{{ e.label }}</span>{{ ", " if not loop.last }}{% endfor %}</span></div>
     {% endif %}
     {# Mounts er intelligente (Int 6+) og bruger ikke trick-systemet. #}
     {% if cp.kind != 'mount' %}

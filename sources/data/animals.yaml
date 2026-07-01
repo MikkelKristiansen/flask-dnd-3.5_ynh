@@ -1097,7 +1097,7 @@
   special_attacks: "Improved grab, pounce, rake 1d8+3"
   special_qualities: "Low-light vision, scent"
   skills: '[{"id": "balance", "misc": 4}, {"id": "hide", "misc": 1, "note": "+4 i højt græs/tæt vegetation"}, {"id": "listen", "misc": 2}, {"id": "move_silently", "misc": 7}, {"id": "spot", "misc": 2}, {"id": "swim", "misc": 5}]'
-  feats: '["Alertness", "Improved Natural Weapon (Bite)", "Improved Natural Weapon (Claw)"]'
+  feats: '["Alertness", "Improved Natural Attack (Bite)", "Improved Natural Attack (Claw)"]'
   companion_ok: false
 
 # --- SNA 5. niveau (delvist: elementaler; flere væsner følger) ---

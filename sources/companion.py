@@ -21,6 +21,7 @@ from character import (AbilityScores, armor_class, size_mod_attack,
                        resolve_modifiers, resolve_ac_bonuses,
                        save_effect_bonus, skill_effect_bonus)
 from effects import collect_active_effects, collect_riders
+from special_abilities import slug_from_label
 
 
 # Companion-avancement pr. EFFEKTIVT druideniveau. Universel regel-tabel (ikke
@@ -111,6 +112,21 @@ def _good_save(hd: int) -> int:
 
 def _poor_save(hd: int) -> int:
     return hd // 3
+
+
+def _labeled_refs(labels: list, exists) -> list[dict]:
+    """Companion-evner (feats/specials) → klikbar visnings-model [{label, id}].
+
+    id = normaliseret slug ('Weapon Focus (Bite)' → 'weapon_focus'); parentesen
+    beholdes i label'en, kun opslags-id'et strippes. id sættes kun når opslaget
+    findes (`exists`), ellers None ⇒ evnen vises uden klik (graceful fallback,
+    ingen 404) — samme mønster som klasseevnerne på hovedarket.
+    """
+    refs = []
+    for label in labels:
+        slug = slug_from_label(label)
+        refs.append({"label": label, "id": slug if slug and exists(slug) else None})
+    return refs
 
 
 def _has_feat(feats: list, needle: str) -> bool:
@@ -251,6 +267,10 @@ def advance_companion(animal: dict, deltas: dict, db,
         "skills": skills,
         "feats": feats,
         "specials": specials,
+        # Klikbare visnings-modeller (label + evt. slug til showDetail). feats/
+        # specials ovenfor beholdes som rå strenge til intern logik/tests.
+        "feat_refs": _labeled_refs(feats, lambda s: db.get_feat(s) is not None),
+        "special_refs": _labeled_refs(specials, lambda s: db.get_special_ability(s) is not None),
         "bonus_tricks": bonus_tricks,
         "effect_flags": riders.get("flags", []),
     }

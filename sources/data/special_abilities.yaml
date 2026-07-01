@@ -1365,3 +1365,74 @@
     Casteren kan tilkalde en familiar — et lille magisk væsen der tjener som
     følgesvend og forbedrer visse af hendes evner. Dør familiaren, kan en ny
     tilkaldes efter en ventetid, med en midlertidig straf for casteren.
+
+# ── Animal companion / paladin-mount specials ──────────────────────────────
+- id: link
+  name: Link
+  kind: ex
+  category: quality
+  description: >-
+    Druiden eller rangeren kan håndtere sin animal companion som en free
+    action, eller give den kommandoer som en move action, uden at have ranks
+    i Handle Animal. Herudover får ejeren et cirkumstansbonus på +4 til wild
+    empathy-checks og Handle Animal-checks der vedrører companion'en.
+
+- id: share_spells
+  name: Share Spells
+  kind: ex
+  category: quality
+  description: >-
+    Ejeren kan lade en trylleformular (ikke en spell-like ability) hun kaster
+    på sig selv, også ramme companion'en, hvis den er inden for 5 fod på
+    kastetidspunktet. Har effekten en varighed, ophører den hvis companion'en
+    bevæger sig længere væk, og virker ikke igen selv om den vender tilbage.
+    En formular med mål "dig selv" kan i stedet kastes direkte på companion'en
+    som en touch-range-formular.
+
+- id: devotion
+  name: Devotion
+  kind: ex
+  category: quality
+  description: >-
+    Companion'en får et moralsk bonus på +4 til Will saves mod enchantment-
+    trylleformularer og -effekter.
+
+- id: empathic_link
+  name: Empathic Link
+  kind: su
+  category: quality
+  description: >-
+    Paladinen har en empatisk forbindelse til sin mount ud til en afstand af
+    op til 1 mil. Hun kan ikke se gennem mountens øjne, men de kan
+    kommunikere empatisk. Forbindelsen giver desuden paladinen samme
+    tilknytning til en genstand eller et sted som mounten har, ligesom en
+    herre og hans familiar.
+
+- id: share_saving_throws
+  name: Share Saving Throws
+  kind: ex
+  category: quality
+  description: >-
+    For hver af sine saving throws bruger mounten enten sit eget grundlæggende
+    save-bonus eller paladinens, alt efter hvad der er højest. Mounten
+    anvender fortsat sine egne ability-modifikatorer på saves og deler ikke
+    andre bonusser paladinen måtte have.
+
+- id: improved_speed
+  name: Improved Speed
+  kind: ex
+  category: quality
+  description: >-
+    Mountens hastighed forbedres permanent i forhold til dens grundform, som
+    en del af den overnaturlige styrkelse den får i paladinens tjeneste.
+
+- id: command
+  name: Command
+  kind: sp
+  category: quality
+  description: >-
+    Et vist antal gange om dagen (afhængigt af paladinens niveau) kan mounten
+    bruge denne evne til at kommandere andre normale dyr af nogenlunde samme
+    art som den selv, forudsat målet har færre Hit Dice end mounten. Evnen
+    fungerer som command-trylleformularen; målet kan forsøge et Will save for
+    at afværge effekten.

@@ -13,7 +13,7 @@ statblokke bruger ("Rage 3/day" → ``rage``) — så de to lag ikke driver fra
 hinanden. Kun de rå navne der *over-splitter* eller optræder i to stavemåder
 samles her til ét kanonisk id.
 """
-from special_abilities import _slug
+from special_abilities import slug_from_label
 
 # Rå klasseevne-navn (efter _slug) → kanonisk special_abilities-id.
 # Grunde: level-suffikser der ikke fanges af tal-reglen ("any distance"),
@@ -37,7 +37,7 @@ def feature_slug(name: str) -> str:
     'Rage 3/day' → 'rage' · 'Sneak Attack +7d6' → 'sneak_attack' ·
     'Slow Fall any distance' → 'slow_fall' (via alias).
     """
-    slug = _slug(name)
+    slug = slug_from_label(name)
     return _ALIAS.get(slug, slug)
 
 
