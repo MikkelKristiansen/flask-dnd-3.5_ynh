@@ -1025,8 +1025,10 @@ function hideSpellTooltip() {
 // Skill-opdeling på hover: viser hvordan totalen er sammensat (ranks + ability +
 // misc m/ kilde + synergi + ACP + effekter). Genbruger spell-tooltip-elementet.
 const skillBreakdowns = D.skillBreakdowns;
-function showSkillBreakdown(sid, el) {
-  const b = skillBreakdowns[sid];
+
+// Fælles renderer for en "total = sum af navngivne dele"-tooltip (skills + angreb).
+// b = {name, total, parts:[{label,value}]}. Genbruger spell-tooltip-elementet.
+function renderBreakdownTooltip(b, el) {
   if (!b || !b.parts || !b.parts.length) return;
   const tt = document.getElementById("spell-tooltip");
   const sgn = n => (n >= 0 ? "+" : "") + n;
@@ -1044,6 +1046,16 @@ function showSkillBreakdown(sid, el) {
   tt.style.left = left + "px";
   tt.style.top  = top + "px";
   tt.style.display = "block";
+}
+
+function showSkillBreakdown(sid, el) {
+  renderBreakdownTooltip(skillBreakdowns[sid], el);
+}
+
+// Angrebs-til-hit-opdeling: BAB + ability + størrelse + våben + effekter. Data
+// ligger på selve elementet (data-bd), så vi ikke behøver et server-keyet katalog.
+function showAttackBreakdown(el) {
+  try { renderBreakdownTooltip(JSON.parse(el.dataset.bd), el); } catch (e) {}
 }
 
 // Skill-tooltip i level-up — genbruger spell-tooltip-elementet (z-index over modalen).

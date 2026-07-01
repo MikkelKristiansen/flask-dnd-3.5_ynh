@@ -237,7 +237,8 @@
       </span>
       <span class="attack-bonus roll-tap"
             onclick="guidedRoll('1d20{{ "%+d"|format(row.to_hit) }}','{{ atk.name }} angreb')"
-            title="{% if row.hit_changed %}Basis {{ "%+d"|format(row.base_to_hit) }} — ændret af effekt{% else %}Slå angrebsbonus{% endif %}">{{ "%+d"|format(row.to_hit) }}{% if row.hit_changed %}<span class="eff-delta {{ 'up' if row.hit_up else 'down' }}">{{ '▲' if row.hit_up else '▼' }}</span>{% endif %}</span>
+            onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+            data-bd='{{ {"name": atk.name ~ " til-hit", "total": row.to_hit, "parts": row.hit_parts}|tojson }}'>{{ "%+d"|format(row.to_hit) }}{% if row.hit_changed %}<span class="eff-delta {{ 'up' if row.hit_up else 'down' }}">{{ '▲' if row.hit_up else '▼' }}</span>{% endif %}</span>
       <span class="attack-dmg roll-tap"
             onclick="quickRoll('{{ row.damage }}','{{ atk.name }} skade', 1)"
             title="{% if row.dmg_changed %}Basis {{ row.base_dmg }} — ændret af effekt{% else %}Slå skade (min. 1 ved træffer){% endif %}">{{ row.damage }}{% if row.dmg_changed %}<span class="eff-delta {{ 'up' if row.dmg_up else 'down' }}">{{ '▲' if row.dmg_up else '▼' }}</span>{% endif %}</span>

@@ -323,6 +323,37 @@ def attack_total(attack: Attack, ability_scores: AbilityScores,
     return {"to_hit": to_hit, "damage": damage}
 
 
+def attack_to_hit_breakdown(attack: Attack, ability_scores: AbilityScores,
+                            bab: int, size: str, extra_bonus: int = 0,
+                            has_finesse: bool = False) -> dict:
+    """Navngiven opdeling af til-hit-bonusen (til hover). Summen = attack_total's to_hit.
+
+    Samme komponenter som attack_total lægger sammen: BAB + ability-mod (Str melee /
+    Dex ranged, eller den bedste af de to ved Weapon Finesse) + størrelse + attack.bonus
+    (Weapon Focus/masterwork/magi/proficiens-straf/TWF — bundtet i modellen) + effekter.
+    BAB og ability vises altid; øvrige dele kun når de ≠ 0.
+    """
+    if attack.kind in ("ranged", "ranged_touch"):
+        hit_ability = "dex"
+    elif has_finesse and attack.finesse:
+        hit_ability = "dex" if ability_scores.modifier("dex") > ability_scores.modifier("str") else "str"
+    else:
+        hit_ability = "str"
+    ability_mod = ability_scores.modifier(hit_ability)
+    size_m = size_mod_attack(size)
+
+    parts = [{"label": "BAB", "value": bab},
+             {"label": hit_ability.upper(), "value": ability_mod}]
+    if size_m:
+        parts.append({"label": "størrelse", "value": size_m})
+    if attack.bonus:
+        parts.append({"label": "våben (ikke-prof.)" if attack.not_proficient else "våben/magi",
+                      "value": attack.bonus})
+    if extra_bonus:
+        parts.append({"label": "effekter", "value": extra_bonus})
+    return {"total": bab + ability_mod + size_m + attack.bonus + extra_bonus, "parts": parts}
+
+
 def grapple_total(bab: int, str_score: int, size: str) -> int:
     """Grapple-modifier: bab + Str-mod + den SÆRLIGE grapple-størrelses-modifier."""
     return bab + (str_score - 10) // 2 + size_mod_grapple(size)
