@@ -6,8 +6,16 @@
 #
 # Dokument-formet — indlæses af refdata.py, fortolkes af creature_template.py.
 #
-# ⚠ SRD-VERIFIKATION UDESTÅR (Fase B / Sonnet): HD-skalerings-tallene i `scaling`
-#   er en foreløbig struktur og skal verificeres mod rules/srd-v3.5-md/ før deploy.
+# Verificeret mod SRD (Fase B, 1. jul): "Celestial Creature" (monsters-b-c.md
+#   L233-271) og "Fiendish Creature" (monsters-e-f.md L391-425). Begge skabeloner
+#   bruger PRÆCIS samme HD-tabel (kun energitype/smite-alignment forskellig):
+#     HD 1-3:  resist —,  DR —
+#     HD 4-7:  resist 5,  DR 5/magic
+#     HD 8-11: resist 10, DR 5/magic
+#     HD 12+:  resist 10, DR 10/magic
+#   SR = HD + 5 (maks. 25 — dvs. relevant fra HD 20; ingen af vores SM-væsner
+#   kommer i nærheden, så `sr_max` er ikke tilføjet som kode-felt, kun noteret her).
+#   Smite: +HD skade, maks. +20 (matcher `smite_max` nedenfor).
 
 templates:
   celestial:
@@ -26,11 +34,9 @@ templates:
 scaling:
   dr:                                    # DR X/magic
     - [4, 5]
-    - [8, 10]
-    - [12, 15]
+    - [12, 10]
   resist:                                # energiresistens X (mod skabelonens energier)
     - [1, 5]
-    - [4, 10]
-    - [8, 15]
-  sr_bonus: 5                            # SR = HD + 5  (0 ⇒ ingen SR)
+    - [8, 10]
+  sr_bonus: 5                            # SR = HD + 5  (0 ⇒ ingen SR; SRD-maks 25 uden for vores HD-range)
   smite_max: 20                          # smite tilføjer +HD skade, dog højst dette
