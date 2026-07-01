@@ -480,7 +480,6 @@ def api_summon():
     spell_index = int(data.get("spell_index", 0))
     creature    = (data.get("creature") or "").strip()
     template    = (data.get("template") or "").strip() or None
-    count       = max(1, int(data.get("count") or 1))
     path = _char_path(slug)
     if not path.exists():
         return jsonify({"error": "not found"}), 404
@@ -507,10 +506,14 @@ def api_summon():
             spell_index in char.spells_used.get(level, []):
         return jsonify({"error": "spell allerede brugt"}), 400
 
-    # Validér: (væsen, skabelon) hører til denne families niveau-liste.
-    if not any(e["base"] == creature and e["template"] == template
-               for e in refdata.summon_entries(cast_family, level)):
+    # Validér + udled antal: væsenet skal ligge i ét af cast-niveauets spor (niveau-N-
+    # listen eller en lavere liste for flere svagere væsner). Sporet bestemmer antals-
+    # udtrykket (1 / 1d3 / 1d4+1), som rulles server-side — klienten bestemmer det ikke.
+    count_expr = refdata.summon_count_expr(cast_family, level, creature, template)
+    if count_expr is None:
         return jsonify({"error": "ugyldigt væsen"}), 400
+    # "1" (niveau-N-listen) er en konstant; lavere spor ("1d3"/"1d4+1") rulles.
+    count = int(count_expr) if count_expr.isdigit() else dice_module.roll(count_expr)["total"]
 
     # Augment Summoning-snapshot fra karakterens feats (+4 Str/+4 Con på væsenet).
     augment = any(char_module.feat_id(e) == "augment_summoning" for e in char.feats)
@@ -535,7 +538,7 @@ def api_summon():
         "spells_active": spells_active,
         "spells_used": spells_used,
     })
-    return jsonify({"ok": True})
+    return jsonify({"ok": True, "count": count, "count_expr": count_expr})
 
 
 def _find_summon(summons: list, level: int, index: int) -> dict | None:

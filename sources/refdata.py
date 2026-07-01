@@ -554,6 +554,44 @@ def summon_creatures(spell_level: int) -> list[str]:
     return [e["base"] for e in summon_entries("sna", spell_level)]
 
 
+# Summon N (SNA og Summon Monster): vælg ÉT væsen fra niveau-N-listen, ELLER flere
+# svagere væsner af SAMME slags fra en lavere liste. SRD-fast: én liste ned → 1d3,
+# to lister ned → 1d4+1. Offset = hvor mange lister ned man går.
+_SUMMON_COUNT_BY_OFFSET = {0: "1", 1: "1d3", 2: "1d4+1"}
+
+
+def summon_tiers(family: str, spell_level: int) -> list[dict]:
+    """De 'spor' et Summon-spell af et niveau tilbyder — stærkeste først.
+
+    Hvert spor: {"offset", "list_level", "count", "entries"}. offset 0 = niveau-N-
+    listen (1 væsen); offset 1/2 = liste N-1/N-2 (1d3 / 1d4+1 væsner af samme slags).
+    Kun spor med et gyldigt (>=1) listeniveau og mindst ét væsen tages med.
+    """
+    tiers = []
+    for offset, count in _SUMMON_COUNT_BY_OFFSET.items():
+        list_level = spell_level - offset
+        if list_level < 1:
+            continue
+        entries = summon_entries(family, list_level)
+        if entries:
+            tiers.append({"offset": offset, "list_level": list_level,
+                          "count": count, "entries": entries})
+    return tiers
+
+
+def summon_count_expr(family: str, spell_level: int, base: str,
+                      template: str | None) -> str | None:
+    """Antals-udtrykket ('1'/'1d3'/'1d4+1') for et valgt væsen ved et cast-niveau.
+
+    Slår væsenet op i sporene for cast-niveauet og returnerer sporets antal-udtryk;
+    None hvis væsenet ikke findes i noget spor (ugyldigt valg → afvises af kalderen).
+    """
+    for tier in summon_tiers(family, spell_level):
+        if any(e["base"] == base and e["template"] == template for e in tier["entries"]):
+            return tier["count"]
+    return None
+
+
 # Celestial/Fiendish-skabeloner (Summon Monster). Dokument-formet (definitioner +
 # HD-skalering); selve overlay-logikken ligger i creature_template.py, så data
 # forbliver ren og fortolkes ét sted.

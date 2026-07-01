@@ -1556,11 +1556,10 @@
     <input type="hidden" id="summon-modal-mode">
     <div style="margin-top:.4rem">
       <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Vælg væsen</div>
-      <select class="form-input" id="summon-modal-creature"></select>
+      <select class="form-input" id="summon-modal-creature" onchange="updateSummonCount()"></select>
     </div>
-    <div style="margin-top:.6rem" id="summon-modal-count-row">
-      <div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Antal (SNA II+: typisk 1d3)</div>
-      <input class="form-input" id="summon-modal-count" type="number" min="1" max="9" step="1" value="1">
+    <div style="margin-top:.6rem;display:none" id="summon-modal-count-row">
+      <div id="summon-modal-count-note" style="color:var(--accent);font-size:.8rem"></div>
     </div>
     <div id="summon-modal-augment" style="margin-top:.6rem;color:var(--accent);font-size:.8rem;display:none">
       ⚡ Augment Summoning aktiv — væsenet får +4 Str / +4 Con.

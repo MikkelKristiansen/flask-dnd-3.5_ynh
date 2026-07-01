@@ -606,14 +606,36 @@ function openSummonPicker(level, idx, mode, label) {
     (mode === "sacrifice" ? "Ofre plads → Summon Nature's Ally " + SNA_NUM[level]
                           : (label || "Summon " + SNA_NUM[level]));
   const sel = document.getElementById("summon-modal-creature");
-  // value = indeks i listen, så vi kan hente både id og skabelon ved kast.
-  sel.innerHTML = list.map((c, i) => `<option value="${i}">${c.name}</option>`).join("");
-  // Antal kun relevant for SNA II+ (kan summone flere mindre væsner).
-  document.getElementById("summon-modal-count-row").style.display = level >= 2 ? "" : "none";
-  document.getElementById("summon-modal-count").value = 1;
+  // Grupér efter spor (offset): niveau-N-listen (1 væsen), niveau N-1 (1d3), N-2
+  // (1d4+1). value = indeks i listen, så vi kan hente id/skabelon/antal ved kast.
+  const byOffset = {};
+  list.forEach((c, i) => { (byOffset[c.offset] = byOffset[c.offset] || []).push({c, i}); });
+  sel.innerHTML = Object.keys(byOffset).map(Number).sort((a, b) => a - b).map(off => {
+    const grp = byOffset[off], c0 = grp[0].c;
+    const glabel = off === 0 ? `1 væsen (niveau ${SNA_NUM[c0.tier_level]})`
+                             : `${c0.count} af samme slags (niveau ${SNA_NUM[c0.tier_level]})`;
+    const opts = grp.map(({c, i}) => `<option value="${i}">${escHtml(c.name)}</option>`).join("");
+    return `<optgroup label="${glabel}">${opts}</optgroup>`;
+  }).join("");
+  updateSummonCount();
   document.getElementById("summon-modal-augment").style.display =
     charFeatIds.has("augment_summoning") ? "" : "none";
   document.getElementById("summon-modal-overlay").classList.add("open");
+}
+
+// Vis antal-udtrykket for det valgte væsen (rulles server-side ved kast). Skjules
+// for 1-væsen-sporet, hvor der aldrig er andet end præcis ét.
+function updateSummonCount() {
+  const level  = parseInt(document.getElementById("summon-modal-level").value);
+  const chosen = (summonCatalog[level] || [])[parseInt(document.getElementById("summon-modal-creature").value)] || {};
+  const row = document.getElementById("summon-modal-count-row");
+  if (chosen.count && chosen.count !== "1") {
+    document.getElementById("summon-modal-count-note").textContent =
+      `Antal: ${chosen.count} af samme slags — rulles automatisk ved kast.`;
+    row.style.display = "";
+  } else {
+    row.style.display = "none";
+  }
 }
 
 function castSummon() {
@@ -623,11 +645,11 @@ function castSummon() {
   const chosen = (summonCatalog[level] || [])[parseInt(document.getElementById("summon-modal-creature").value)] || {};
   const creature = chosen.id;
   const template = chosen.template || null;
-  const count = level >= 2 ? Math.max(1, parseInt(document.getElementById("summon-modal-count").value) || 1) : 1;
+  // Antal bestemmes/rulles server-side ud fra sporet — klienten sender det ikke.
   fetch(BASE + "/api/summon", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, mode, level, spell_index: idx, creature, template, count})
+    body: JSON.stringify({char: CHAR, mode, level, spell_index: idx, creature, template})
   })
   .then(r => r.json())
   .then(data => {

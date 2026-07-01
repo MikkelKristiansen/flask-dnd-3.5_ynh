@@ -57,8 +57,9 @@ def _load(slug):
 
 def test_cast_creates_summon_and_marks_active(client):
     r = client.post("/api/summon", json={"char": "druid", "mode": "cast",
-                    "level": 1, "spell_index": 3, "creature": "wolf", "count": 1})
-    assert r.get_json() == {"ok": True}
+                    "level": 1, "spell_index": 3, "creature": "wolf"})
+    body = r.get_json()
+    assert body["ok"] is True and body["count"] == 1   # SNA I → altid 1 væsen
     char = _load("druid")
     assert len(char.summons) == 1
     s = char.summons[0]
@@ -140,7 +141,7 @@ def test_sacrifice_druid(client):
     # Ofre cure_light_wounds (index 1) til SNA I → eagle.
     r = client.post("/api/summon", json={"char": "druid", "mode": "sacrifice",
                     "level": 1, "spell_index": 1, "creature": "eagle"})
-    assert r.get_json() == {"ok": True}
+    assert r.get_json()["ok"] is True
     char = _load("druid")
     assert char.summons[0]["creature"] == "eagle"
     assert 1 in char.spells_active[1]

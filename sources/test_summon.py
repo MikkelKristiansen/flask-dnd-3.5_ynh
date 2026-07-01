@@ -238,3 +238,29 @@ def test_unicorn_magical_beast_saves():
     s = stat("unicorn")
     assert s["hp_max"] == 42                        # 4×4.5 + 4×5 (Con) = 18+20=... wait
     assert s["saves"] == {"fort": 9, "ref": 7, "will": 6}
+
+
+# ── Multi-tier summon: 1 væsen (top-liste) / 1d3 (én ned) / 1d4+1 (to ned) ──
+
+def test_summon_tiers_offsets_and_counts():
+    import refdata
+    tiers = refdata.summon_tiers("sna", 3)
+    assert [(t["offset"], t["list_level"], t["count"]) for t in tiers] == [
+        (0, 3, "1"), (1, 2, "1d3"), (2, 1, "1d4+1")]
+
+
+def test_summon_tiers_level1_only_top():
+    import refdata
+    tiers = refdata.summon_tiers("sna", 1)
+    assert [t["offset"] for t in tiers] == [0]      # ingen lavere lister
+
+
+def test_summon_count_expr_by_tier():
+    import refdata
+    # black_bear er på liste 2: top-spor ved SNA II, ét-ned-spor (1d3) ved SNA III.
+    assert refdata.summon_count_expr("sna", 2, "black_bear", None) == "1"
+    assert refdata.summon_count_expr("sna", 3, "black_bear", None) == "1d3"
+    # wolf er på liste 1: to ned ved SNA III → 1d4+1.
+    assert refdata.summon_count_expr("sna", 3, "wolf", None) == "1d4+1"
+    # ukendt/uden for sporene → None (afvises af app-laget).
+    assert refdata.summon_count_expr("sna", 2, "tarrasque", None) is None

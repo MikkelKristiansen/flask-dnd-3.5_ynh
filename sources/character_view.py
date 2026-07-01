@@ -245,14 +245,26 @@ def build_character_view(char, db):
         families.discard(None)
         if can_sacrifice:
             families.add("sna")          # offer kan lave SNA på ethvert niveau
+        # Sporene (niveau-N-listen + evt. lavere lister for 1d3 / 1d4+1 af samme slags)
+        # slås sammen; hvert væsen bærer sit spor (antal + hvilken liste det kom fra).
+        # Dedup på (id, skabelon), stærkeste spor først (offset 0 vises før 1/2).
         entries = []
+        seen: set = set()
         for fam in families:
-            for e in refdata.summon_entries(fam, lvl):
-                base_name = (db.get_animal(e["base"]) or {}).get("name", e["base"])
-                entries.append({
-                    "id": e["base"], "template": e["template"],
-                    "name": creature_template.display_name(base_name, e["template"]),
-                })
+            for tier in refdata.summon_tiers(fam, lvl):
+                for e in tier["entries"]:
+                    key = (e["base"], e["template"])
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    base_name = (db.get_animal(e["base"]) or {}).get("name", e["base"])
+                    entries.append({
+                        "id": e["base"], "template": e["template"],
+                        "name": creature_template.display_name(base_name, e["template"]),
+                        "count": tier["count"],
+                        "tier_level": tier["list_level"],
+                        "offset": tier["offset"],
+                    })
         if entries:
             summon_catalog[lvl] = entries
 
