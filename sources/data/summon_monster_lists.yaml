@@ -9,23 +9,72 @@
 #
 # Dokument-formet — indlæses af refdata.py (summon_entries("sm", niveau)).
 #
-# ⚠ STATUS (Fase A): kun SM I er udfyldt, og KUN med dyr der allerede findes i
-#   kataloget — nok til at bevise motoren. Fase B (Sonnet): udfyld SM I-III komplet
-#   mod SRD (rules/srd-v3.5-md/), tilføj manglende outsider-/dyre-statblokke i
-#   animals.yaml (fire beetle, centipede, scorpion, spider, lemure, dretch, archon…),
-#   og verificér celestial/fiendish-skalering i creature_templates.yaml.
+# Status (Fase B, Sonnet, 1. jul): SM I-III komplet og SRD-verificeret mod
+# rules/srd-v3.5-md/spells/spells-s.md (Summon Monster-tabellen, linje ~1887).
+# SM IV-IX udestår (samme mønster: udfyld + tilføj manglende statblokke).
+#
+# Note: Aquatic-væsner (porpoise, octopus, squid, shark) kan kun summones i
+# vand/vådt miljø (SRD-fodnote 1 på tabellen). Håndhæves ikke mekanisk — samme
+# spil-beslutning som i summon_lists.yaml (SNA).
+#
+# Udeladt: "Fiendish raven" (SM I, LE). SRD giver Raven 1/4 HD (1 hp) — motoren
+# (summon.py) kræver et heltals base_hd og udleder HP af FULDE hit dice
+# (floor((hit_die+1)/2 · hd) + con_mod·hd), hvilket ikke kan give et 1/4-HD-væsen
+# korrekt uden schema-/beregningsændring. Uden for denne fases scope (data-only).
 
 1:
   - {base: dog, template: celestial}
+  - {base: owl, template: celestial}
+  - {base: giant_fire_beetle, template: celestial}
+  - {base: porpoise, template: celestial}   # aquatic
   - {base: badger, template: celestial}
   - {base: monkey, template: celestial}
-  - {base: owl, template: celestial}
-  - {base: porpoise, template: celestial}
-  - {base: eagle, template: celestial}
   - {base: dire_rat, template: fiendish}
+  - {base: monstrous_centipede_medium, template: fiendish}
+  - {base: monstrous_scorpion_small, template: fiendish}
   - {base: hawk, template: fiendish}
+  - {base: monstrous_spider_small, template: fiendish}
+  - {base: octopus, template: fiendish}   # aquatic
   - {base: viper_small, template: fiendish}
-  - {base: octopus, template: fiendish}
 
-# 2:   # udfyldes i Fase B (Sonnet) mod SRD
-# 3:   # udfyldes i Fase B (Sonnet) mod SRD
+2:
+  - {base: giant_bee, template: celestial}
+  - {base: giant_bombardier_beetle, template: celestial}
+  - {base: riding_dog, template: celestial}
+  - {base: eagle, template: celestial}
+  - {base: lemure}
+  - {base: squid, template: fiendish}   # aquatic
+  - {base: wolf, template: fiendish}
+  - {base: monstrous_centipede_large, template: fiendish}
+  - {base: monstrous_scorpion_medium, template: fiendish}
+  - {base: shark_medium, template: fiendish}   # aquatic
+  - {base: monstrous_spider_medium, template: fiendish}
+  - {base: viper_medium, template: fiendish}
+
+3:
+  - {base: black_bear, template: celestial}
+  - {base: bison, template: celestial}
+  - {base: dire_badger, template: celestial}
+  - {base: hippogriff, template: celestial}
+  - {base: elemental_air_small}
+  - {base: elemental_earth_small}
+  - {base: elemental_fire_small}
+  - {base: elemental_water_small}
+  - {base: ape, template: fiendish}
+  - {base: dire_weasel, template: fiendish}
+  - {base: hell_hound}
+  - {base: snake_constrictor, template: fiendish}
+  - {base: boar, template: fiendish}
+  - {base: dire_bat, template: fiendish}
+  - {base: monstrous_centipede_huge, template: fiendish}
+  - {base: crocodile, template: fiendish}
+  - {base: dretch}
+  - {base: viper_large, template: fiendish}
+  - {base: wolverine, template: fiendish}
+
+# 4:   # udestår
+# 5:   # udestår
+# 6:   # udestår
+# 7:   # udestår
+# 8:   # udestår
+# 9:   # udestår

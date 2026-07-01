@@ -2327,3 +2327,321 @@
   skills: '[]'
   feats: '["Dodge", "Weapon Finesse"]'
   companion_ok: false
+
+# ── Summon Monster I-III: nye basis-væsner (vermin/dyr/outsidere) ────────────
+# Tilføjet Fase B (Sonnet, 1. jul) for at udfylde SRD's SM I-III-tabeller
+# (data/summon_monster_lists.yaml). Skabelon-væsner (celestial/fiendish) er BASIS-
+# statblokke — skabelonen lægges på af creature_template.py ved kast, IKKE her.
+# type: vermin bruger samme BAB-formel som animal (¾·HD, jf. summon.py's default-
+# gren) men har kun Fortitude som god save (good_saves overskrevet nedenfor).
+
+- id: giant_fire_beetle
+  name: Giant Fire Beetle
+  size: small
+  type: vermin
+  base_hd: 1
+  good_saves: '["fort"]'
+  str: 10
+  dex: 11
+  con: 11
+  int: 0
+  wis: 10
+  cha: 7
+  natural_armor: 5
+  speed: "30 ft."
+  attacks: '[{"name": "Bite", "damage": "2d4", "group": "primary"}]'
+  special_attacks: null
+  special_qualities: "Darkvision 60 ft., vermin traits"
+  skills: '[]'
+  feats: '[]'
+  companion_ok: false
+
+- id: giant_bee
+  name: Giant Bee
+  size: medium
+  type: vermin
+  base_hd: 3
+  good_saves: '["fort"]'
+  str: 11
+  dex: 14
+  con: 11
+  int: 0
+  wis: 12
+  cha: 9
+  natural_armor: 2
+  speed: "20 ft., fly 80 ft. (good)"
+  attacks: '[{"name": "Sting", "damage": "1d4", "group": "primary"}]'
+  special_attacks: Poison
+  special_qualities: "Darkvision 60 ft., vermin traits"
+  skills: '[{"id": "spot", "misc": 4}, {"id": "survival", "misc": 0, "note": "+4 for at orientere sig"}]'
+  feats: '[]'
+  companion_ok: false
+
+- id: giant_bombardier_beetle
+  name: Giant Bombardier Beetle
+  size: medium
+  type: vermin
+  base_hd: 2
+  good_saves: '["fort"]'
+  str: 13
+  dex: 10
+  con: 14
+  int: 0
+  wis: 10
+  cha: 9
+  natural_armor: 6
+  speed: "30 ft."
+  attacks: '[{"name": "Bite", "damage": "1d4", "group": "primary"}]'
+  special_attacks: "Acid spray (10-ft. kegle, 1d4+2 syre, Fort DC 13 halv)"
+  special_qualities: "Darkvision 60 ft., vermin traits"
+  skills: '[]'
+  feats: '[]'
+  companion_ok: false
+
+- id: monstrous_centipede_medium
+  name: Monstrous Centipede, Medium
+  size: medium
+  type: vermin
+  base_hd: 1
+  good_saves: '["fort"]'
+  str: 9
+  dex: 15
+  con: 10
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 2
+  speed: "40 ft., climb 40 ft."
+  attacks: '[{"name": "Bite", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Poison (bid, Fort DC 10, 1d3 Dex)"
+  special_qualities: "Darkvision 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 11}, {"id": "hide", "misc": 8}, {"id": "spot", "misc": 4}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: monstrous_centipede_large
+  name: Monstrous Centipede, Large
+  size: large
+  type: vermin
+  base_hd: 3
+  good_saves: '["fort"]'
+  str: 13
+  dex: 15
+  con: 10
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 3
+  speed: "40 ft., climb 40 ft."
+  attacks: '[{"name": "Bite", "damage": "1d8", "group": "primary"}]'
+  special_attacks: "Poison (bid, Fort DC 11, 1d4 Dex)"
+  special_qualities: "Darkvision 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 9}, {"id": "hide", "misc": 4}, {"id": "spot", "misc": 4}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: monstrous_centipede_huge
+  name: Monstrous Centipede, Huge
+  size: huge
+  type: vermin
+  base_hd: 6
+  good_saves: '["fort"]'
+  str: 17
+  dex: 15
+  con: 12
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 6
+  speed: "40 ft., climb 40 ft."
+  attacks: '[{"name": "Bite", "damage": "2d6", "group": "primary"}]'
+  special_attacks: "Poison (bid, Fort DC 14, 1d6 Dex)"
+  special_qualities: "Darkvision 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 8}, {"id": "hide", "misc": -4}, {"id": "spot", "misc": 4}]'
+  feats: '[]'
+  companion_ok: false
+
+- id: monstrous_scorpion_small
+  name: Monstrous Scorpion, Small
+  size: small
+  type: vermin
+  base_hd: 1
+  good_saves: '["fort"]'
+  str: 9
+  dex: 10
+  con: 14
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 3
+  speed: "30 ft."
+  attacks: '[{"name": "Claw", "damage": "1d3", "group": "primary", "count": 2}, {"name": "Sting", "damage": "1d3", "group": "secondary"}]'
+  special_attacks: "Constrict 1d3-1, improved grab, poison (stik, Fort DC 12, 1d2 Con)"
+  special_qualities: "Darkvision 60 ft., tremorsense 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 4}, {"id": "hide", "misc": 8}, {"id": "spot", "misc": 4}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: monstrous_scorpion_medium
+  name: Monstrous Scorpion, Medium
+  size: medium
+  type: vermin
+  base_hd: 2
+  good_saves: '["fort"]'
+  str: 13
+  dex: 10
+  con: 14
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 4
+  speed: "40 ft."
+  attacks: '[{"name": "Claw", "damage": "1d4", "group": "primary", "count": 2}, {"name": "Sting", "damage": "1d4", "group": "secondary"}]'
+  special_attacks: "Constrict 1d4+1, improved grab, poison (stik, Fort DC 13, 1d3 Con)"
+  special_qualities: "Darkvision 60 ft., tremorsense 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 4}, {"id": "hide", "misc": 4}, {"id": "spot", "misc": 4}]'
+  feats: '[]'
+  companion_ok: false
+
+- id: monstrous_spider_small
+  name: Monstrous Spider, Small
+  size: small
+  type: vermin
+  base_hd: 1
+  good_saves: '["fort"]'
+  str: 7
+  dex: 17
+  con: 10
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 0
+  speed: "30 ft., climb 20 ft."
+  attacks: '[{"name": "Bite", "damage": "1d4", "group": "primary"}]'
+  special_attacks: "Poison (bid, Fort DC 10, 1d3 Str), web"
+  special_qualities: "Darkvision 60 ft., tremorsense 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 13}, {"id": "hide", "misc": 8, "note": "web-spindere +8 ved brug af web"}, {"id": "jump", "misc": 0, "note": "jagende spindere +10"}, {"id": "spot", "misc": 4, "note": "jagende spindere +8"}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: monstrous_spider_medium
+  name: Monstrous Spider, Medium
+  size: medium
+  type: vermin
+  base_hd: 2
+  good_saves: '["fort"]'
+  str: 11
+  dex: 17
+  con: 12
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 1
+  speed: "30 ft., climb 20 ft."
+  attacks: '[{"name": "Bite", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Poison (bid, Fort DC 12, 1d4 Str), web"
+  special_qualities: "Darkvision 60 ft., tremorsense 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 11}, {"id": "hide", "misc": 4, "note": "web-spindere +8 ved brug af web"}, {"id": "jump", "misc": 0, "note": "jagende spindere +10"}, {"id": "spot", "misc": 4, "note": "jagende spindere +8"}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: bison
+  name: Bison
+  size: large
+  base_hd: 5
+  str: 22
+  dex: 10
+  con: 16
+  int: 2
+  wis: 11
+  cha: 4
+  natural_armor: 4
+  speed: "40 ft."
+  attacks: '[{"name": "Gore", "damage": "1d8", "group": "primary"}]'
+  special_attacks: "Stampede"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 7}, {"id": "spot", "misc": 5}]'
+  feats: '["Alertness", "Endurance"]'
+  companion_ok: false
+
+- id: boar
+  name: Boar
+  size: medium
+  base_hd: 3
+  str: 15
+  dex: 10
+  con: 17
+  int: 2
+  wis: 13
+  cha: 4
+  natural_armor: 6
+  speed: "40 ft."
+  attacks: '[{"name": "Gore", "damage": "1d8", "group": "primary"}]'
+  special_attacks: Ferocity
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "listen", "misc": 6}, {"id": "spot", "misc": 4}]'
+  feats: '["Alertness", "Toughness"]'
+  companion_ok: false
+
+- id: hell_hound
+  name: Hell Hound
+  size: medium
+  type: outsider
+  base_hd: 4
+  good_saves: '["fort","ref","will"]'
+  str: 13
+  dex: 13
+  con: 13
+  int: 6
+  wis: 10
+  cha: 6
+  natural_armor: 5
+  speed: "40 ft."
+  attacks: '[{"name": "Bite", "damage": "1d8", "group": "primary"}]'
+  special_attacks: "Breath weapon (10-ft. kegle hvert 2d4 runder, 2d6 fire, Ref DC 13 halv), fiery bite (+1d6 fire pr. bid)"
+  special_qualities: "Darkvision 60 ft., immunity to fire, scent, vulnerability to cold"
+  skills: '[{"id": "hide", "misc": 12}, {"id": "jump", "misc": 11}, {"id": "listen", "misc": 7}, {"id": "move_silently", "misc": 12}, {"id": "spot", "misc": 7}, {"id": "survival", "misc": 7, "note": "+8 ved tracking by scent"}]'
+  feats: '["Improved Initiative", "Run", "Track"]'
+  companion_ok: false
+
+- id: lemure
+  name: Lemure
+  size: medium
+  type: outsider
+  base_hd: 2
+  good_saves: '["fort","ref","will"]'
+  str: 10
+  dex: 10
+  con: 10
+  int: 0
+  wis: 11
+  cha: 5
+  natural_armor: 4
+  speed: "20 ft."
+  attacks: '[{"name": "Claw", "damage": "1d4", "group": "primary", "count": 2}]'
+  special_attacks: null
+  special_qualities: "Damage reduction 5/good or silver, darkvision 60 ft., immunity to fire and poison, mindless, resistance to acid 10 and cold 10, see in darkness"
+  skills: '[]'
+  feats: '[]'
+  companion_ok: false
+
+- id: dretch
+  name: Dretch
+  size: small
+  type: outsider
+  base_hd: 2
+  good_saves: '["fort","ref","will"]'
+  str: 12
+  dex: 10
+  con: 14
+  int: 5
+  wis: 11
+  cha: 11
+  natural_armor: 5
+  speed: "20 ft."
+  attacks: '[{"name": "Claw", "damage": "1d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d4", "group": "secondary"}]'
+  special_attacks: "Spell-like abilities (1/dag: scare DC 12, stinking cloud DC 13), summon demon (1/dag, 35% chance for endnu en dretch)"
+  special_qualities: "Damage reduction 5/cold iron or good, darkvision 60 ft., immunity to electricity and poison, resistance to acid 10, cold 10, and fire 10, telepathy 100 ft."
+  skills: '[{"id": "hide", "misc": 9}, {"id": "listen", "misc": 5}, {"id": "move_silently", "misc": 5}, {"id": "spot", "misc": 5}, {"id": "search", "misc": 5}, {"id": "survival", "misc": 0, "note": "+2 ved at følge spor"}]'
+  feats: '["Multiattack"]'
+  companion_ok: false
