@@ -436,7 +436,19 @@ def armor_class(ability_scores: AbilityScores, size: str, *,
     full = 10 + armor_bonus + ac_dex + size_mod + natural + deflection + ac_dodge + misc
     touch = 10 + ac_dex + size_mod + deflection + ac_dodge + misc
     flat = 10 + armor_bonus + size_mod + natural + deflection + misc + dex_penalty
-    return {"ac": full, "touch": touch, "flat_footed": flat}
+
+    # Opdeling af hoved-AC (til hover). base vises altid; øvrige dele kun når ≠ 0.
+    # Summen af parts er lig full. Rustning og skjold vises hver for sig.
+    parts = [{"label": "base", "value": 10}]
+    if armor and armor["armor_bonus"]:
+        parts.append({"label": "rustning", "value": armor["armor_bonus"]})
+    if shield and shield["armor_bonus"]:
+        parts.append({"label": "skjold", "value": shield["armor_bonus"]})
+    for label, value in (("Dex", ac_dex), ("størrelse", size_mod), ("natural", natural),
+                         ("deflection", deflection), ("dodge", ac_dodge), ("misc", misc)):
+        if value:
+            parts.append({"label": label, "value": value})
+    return {"ac": full, "touch": touch, "flat_footed": flat, "parts": parts}
 
 
 def xp_to_next_level(current_level: int) -> int | None:

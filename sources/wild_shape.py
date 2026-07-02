@@ -229,17 +229,31 @@ def build_wild_shape_form(char, ws: dict | None, db) -> dict | None:
     lone_primary = (len(attack_list) == 1
                     and attack_list[0].get("group") == "primary"
                     and attack_list[0].get("count", 1) == 1)
+    size_m = size_mod_attack(size)
     attacks = []
     for atk in attack_list:
         secondary = atk.get("group") == "secondary"
-        to_hit = bab + size_mod_attack(size) + str_mod + (-5 if secondary else 0)
+        to_hit = bab + size_m + str_mod + (-5 if secondary else 0)
+        # Til-hit-opdeling til hover (formens feats gælder ikke → ingen Weapon Focus).
+        hit_parts = [{"label": "BAB", "value": bab},
+                     {"label": "STR", "value": str_mod}]
+        if size_m:
+            hit_parts.append({"label": "størrelse", "value": size_m})
+        if secondary:
+            hit_parts.append({"label": "sekundær", "value": -5})
         mult = 1.5 if lone_primary else (0.5 if secondary else 1.0)
-        bonus = math.floor(str_mod * mult)
-        damage = f"{atk['damage']}{bonus:+d}" if bonus else atk["damage"]
+        str_dmg = math.floor(str_mod * mult)
+        damage = f"{atk['damage']}{str_dmg:+d}" if str_dmg else atk["damage"]
+        # Skade-opdeling til hover (terning + Str×mult).
+        dmg_parts = [{"label": "terning", "die": atk["damage"]}]
+        if str_dmg:
+            dmg_parts.append({"label": "STR" if mult == 1.0 else f"STR ×{mult:g}",
+                              "value": str_dmg})
         attacks.append({
             "name": atk["name"], "count": atk.get("count", 1),
             "to_hit": to_hit, "damage": damage,
             "group": atk.get("group", "primary"),
+            "hit_parts": hit_parts, "dmg_parts": dmg_parts,
         })
 
     # Angrebsryttere (rake/rend/constrict/trample → rul; trip/pounce/… → note).

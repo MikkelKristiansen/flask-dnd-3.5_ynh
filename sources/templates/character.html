@@ -206,7 +206,9 @@
       <div class="section-title">Kamp</div>
       <div id="buff-rem-combat-character" class="buff-reminder" style="display:none"></div>
       {% set co = char.combat %}
-      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ ac.ac }}{{ dmark(ac_delta.ac) }}</span></div>
+      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val" style="cursor:help"
+            onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+            data-bd='{{ {"name": "AC", "total": ac.ac|string, "parts": ac.parts}|tojson }}'>{{ ac.ac }}{{ dmark(ac_delta.ac) }}</span></div>
       <div class="stat-row"><span class="stat-label">Touch</span><span class="stat-val">{{ ac.touch }}{{ dmark(ac_delta.touch) }}</span></div>
       <div class="stat-row"><span class="stat-label">FF</span><span class="stat-val">{{ ac.flat_footed }}{{ dmark(ac_delta.flat_footed) }}</span></div>
       <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(initiative.val) }}','Initiativ')" title="Slå initiativ"><span class="stat-label">Init</span><span class="stat-val">{{ "%+d"|format(initiative.val) }}{{ dmark(initiative) }}</span></div>
@@ -420,7 +422,9 @@
       <div style="color:var(--accent);font-weight:bold;margin-bottom:.4rem">
         🐾 I form som {{ wf.animal_name }} <span style="font-weight:normal;color:var(--muted);font-size:.8rem">({{ wf.size|capitalize }}, {{ wf.hd }} HD)</span>
       </div>
-      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ wf.ac.ac }}
+      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val"><span style="cursor:help"
+            onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+            data-bd='{{ {"name": "AC", "total": wf.ac.ac|string, "parts": wf.ac.parts}|tojson }}'>{{ wf.ac.ac }}</span>
         <span style="color:var(--muted);font-size:.75rem">(touch {{ wf.ac.touch }}, flat {{ wf.ac.flat_footed }}, nat +{{ wf.natural_armor }} · udstyr meldt væk)</span></span></div>
       <div class="stat-row"><span class="stat-label">Init</span>
         <span class="stat-val roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(wf.initiative) }}','Init ({{ wf.animal_name }})')">{{ "%+d"|format(wf.initiative) }}</span></div>
@@ -434,8 +438,12 @@
       {% for a in wf.attacks %}
       <div class="stat-row"><span class="stat-label">{{ a.name }}{% if a.count > 1 %} ×{{ a.count }}{% endif %}</span>
         <span style="display:flex;gap:.5rem">
-          <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(a.to_hit) }}','{{ a.name }} ({{ wf.animal_name }})')">{{ "%+d"|format(a.to_hit) }}</span>
-          <span class="roll-tap" onclick="quickRoll('{{ a.damage }}','{{ a.name }} skade', 1)">{{ a.damage }}</span>
+          <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(a.to_hit) }}','{{ a.name }} ({{ wf.animal_name }})')"
+                onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+                data-bd='{{ {"name": a.name ~ " til-hit", "total": a.to_hit, "parts": a.hit_parts}|tojson }}'>{{ "%+d"|format(a.to_hit) }}</span>
+          <span class="roll-tap" onclick="quickRoll('{{ a.damage }}','{{ a.name }} skade', 1)"
+                onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+                data-bd='{{ {"name": a.name ~ " skade", "total": a.damage, "parts": a.dmg_parts}|tojson }}'>{{ a.damage }}</span>
         </span></div>
       {% endfor %}
       {% set na = wf.natural_abilities %}
@@ -551,7 +559,9 @@
         <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjCompHp(+1)">+</button>
       </span>
     </div>
-    <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ cp.ac.ac }}
+    <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val"><span style="cursor:help"
+          onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+          data-bd='{{ {"name": "AC", "total": cp.ac.ac|string, "parts": cp.ac.parts}|tojson }}'>{{ cp.ac.ac }}</span>
       <span style="color:var(--muted);font-size:.75rem">(touch {{ cp.ac.touch }}, flat {{ cp.ac.flat_footed }}, nat +{{ cp.natural_armor }})</span></span></div>
     <div class="stat-row"><span class="stat-label">Initiativ</span>
       <span class="stat-val roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(cp.initiative) }}','Initiativ ({{ cp.name }})')">{{ "%+d"|format(cp.initiative) }}</span></div>
@@ -606,8 +616,12 @@
     <div class="stat-row">
       <span class="stat-label">{% if atk.count > 1 %}{{ atk.count }}× {% endif %}{{ atk.name }}{% if atk.group == 'secondary' %} <span style="color:var(--muted);font-size:.7rem">(sek.)</span>{% endif %}</span>
       <span class="stat-val" style="font-size:.85rem">
-        <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(atk.to_hit) }}','{{ atk.name }} til-hit ({{ cp.name }})')">{{ "%+d"|format(atk.to_hit) }}</span>
-        / <span class="roll-tap" onclick="quickRoll('{{ atk.damage }}','{{ atk.name }} skade ({{ cp.name }})', 1)">{{ atk.damage }}</span>
+        <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(atk.to_hit) }}','{{ atk.name }} til-hit ({{ cp.name }})')"
+              onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+              data-bd='{{ {"name": atk.name ~ " til-hit", "total": atk.to_hit, "parts": atk.hit_parts}|tojson }}'>{{ "%+d"|format(atk.to_hit) }}</span>
+        / <span class="roll-tap" onclick="quickRoll('{{ atk.damage }}','{{ atk.name }} skade ({{ cp.name }})', 1)"
+              onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+              data-bd='{{ {"name": atk.name ~ " skade", "total": atk.damage, "parts": atk.dmg_parts}|tojson }}'>{{ atk.damage }}</span>
       </span>
     </div>
     {% endfor %}
@@ -712,7 +726,9 @@
       </span>
     </div>
     {% endif %}
-    <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val">{{ sp.ac.ac }}
+    <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val"><span style="cursor:help"
+          onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+          data-bd='{{ {"name": "AC", "total": sp.ac.ac|string, "parts": sp.ac.parts}|tojson }}'>{{ sp.ac.ac }}</span>
       <span style="color:var(--muted);font-size:.75rem">(touch {{ sp.ac.touch }}, flat {{ sp.ac.flat_footed }}, nat +{{ sp.natural_armor }})</span></span></div>
     <div class="stat-row"><span class="stat-label">Initiativ</span>
       <span class="stat-val roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(sp.initiative) }}','Initiativ ({{ sp.name }})')">{{ "%+d"|format(sp.initiative) }}</span></div>
@@ -769,7 +785,9 @@
         <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(atk.to_hit) }}','{{ atk.name }} til-hit ({{ sp.name }})')"
               onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
               data-bd='{{ {"name": atk.name ~ " til-hit", "total": atk.to_hit, "parts": atk.hit_parts}|tojson }}'>{{ "%+d"|format(atk.to_hit) }}</span>
-        / <span class="roll-tap" onclick="quickRoll('{{ atk.damage }}','{{ atk.name }} skade ({{ sp.name }})', 1)">{{ atk.damage }}</span>
+        / <span class="roll-tap" onclick="quickRoll('{{ atk.damage }}','{{ atk.name }} skade ({{ sp.name }})', 1)"
+              onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+              data-bd='{{ {"name": atk.name ~ " skade", "total": atk.damage, "parts": atk.dmg_parts}|tojson }}'>{{ atk.damage }}</span>
       </span>
     </div>
     {% endfor %}

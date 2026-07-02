@@ -210,20 +210,41 @@ def advance_companion(animal: dict, deltas: dict, db,
     lone_primary = (len(attack_list) == 1
                     and attack_list[0].get("group") == "primary"
                     and attack_list[0].get("count", 1) == 1)
+    size_m = size_mod_attack(size)
     attacks = []
     for atk in attack_list:
         secondary = atk.get("group") == "secondary"
         hit_mod = dex_mod if finesse else str_mod
         focus = 1 if _has_feat(feats, f"weapon focus ({atk['name'].lower()})") else 0
-        to_hit = (bab + size_mod_attack(size) + hit_mod + focus
+        to_hit = (bab + size_m + hit_mod + focus
                   + (-5 if secondary else 0) + attack_extra)
+        # Til-hit-opdeling til hover (samme format som hovedkarakteren).
+        hit_parts = [{"label": "BAB", "value": bab},
+                     {"label": "DEX" if finesse else "STR", "value": hit_mod}]
+        if size_m:
+            hit_parts.append({"label": "størrelse", "value": size_m})
+        if focus:
+            hit_parts.append({"label": "Weapon Focus", "value": focus})
+        if secondary:
+            hit_parts.append({"label": "sekundær", "value": -5})
+        if attack_extra:
+            hit_parts.append({"label": "effekter", "value": attack_extra})
         mult = 1.5 if lone_primary else (0.5 if secondary else 1.0)
-        bonus = _str_damage(str_mod, mult) + damage_extra
+        str_dmg = _str_damage(str_mod, mult)
+        bonus = str_dmg + damage_extra
         damage = f"{atk['damage']}{bonus:+d}" if bonus else atk["damage"]
+        # Skade-opdeling til hover (terning + Str×mult + effekter).
+        dmg_parts = [{"label": "terning", "die": atk["damage"]}]
+        if str_dmg:
+            dmg_parts.append({"label": "STR" if mult == 1.0 else f"STR ×{mult:g}",
+                              "value": str_dmg})
+        if damage_extra:
+            dmg_parts.append({"label": "effekter", "value": damage_extra})
         count = atk.get("count", 1)
         attacks.append({
             "name": atk["name"], "count": count, "to_hit": to_hit,
             "damage": damage, "group": atk.get("group", "primary"),
+            "hit_parts": hit_parts, "dmg_parts": dmg_parts,
         })
 
     # Skills: total = misc + ability-mod (fra skill-definitionen) + effekt-bonus,

@@ -183,12 +183,20 @@ def build_summon_stat(animal: dict, db, active_modifiers: list | None = None,
         if attack_extra:
             hit_parts.append({"label": "effekter", "value": attack_extra})
         mult = 1.5 if lone_primary else (0.5 if secondary else 1.0)
-        bonus = _str_damage(str_mod, mult) + damage_extra
+        str_dmg = _str_damage(str_mod, mult)
+        bonus = str_dmg + damage_extra
         damage = f"{atk['damage']}{bonus:+d}" if bonus else atk["damage"]
+        # Skade-opdeling til hover (terning + Str×mult + effekter), som hovedkarakteren.
+        dmg_parts = [{"label": "terning", "die": atk["damage"]}]
+        if str_dmg:
+            dmg_parts.append({"label": "STR" if mult == 1.0 else f"STR ×{mult:g}",
+                              "value": str_dmg})
+        if damage_extra:
+            dmg_parts.append({"label": "effekter", "value": damage_extra})
         attacks.append({
             "name": atk["name"], "count": atk.get("count", 1), "to_hit": to_hit,
             "damage": damage, "group": atk.get("group", "primary"),
-            "hit_parts": hit_parts,
+            "hit_parts": hit_parts, "dmg_parts": dmg_parts,
         })
 
     # Skills: total = misc + ability-mod (fra skill-definitionen) + effekt-bonus.
