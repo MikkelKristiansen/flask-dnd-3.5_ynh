@@ -1301,7 +1301,8 @@
 <!-- ── Dice bar ── -->
 <div class="dice-bar">
   <input class="dice-input" id="dice-expr" type="text" value="1d20"
-         placeholder="1d20+4" onkeydown="if(event.key==='Enter')rollDice()">
+         placeholder="1d20+4" oninput="onDiceInput()"
+         onkeydown="if(event.key==='Enter')rollDice()">
   <button class="dice-roll-btn" onclick="rollDice()">⚄ Rul</button>
   <div class="dice-result" id="dice-result"></div>
 </div>

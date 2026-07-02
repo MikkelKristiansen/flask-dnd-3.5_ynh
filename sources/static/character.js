@@ -749,10 +749,18 @@ function updatePips(level) {
 }
 
 // ── Dice roller ───────────────────────────────────────────────────────────
+// Value-knapperne (til-hit, skade, skills, saves …) RULLER ikke — de sætter blot
+// udtrykket i feltet via setDice(). Man ruller først når man trykker ⚄ Rul (eller
+// Enter). Det skal føles som at slå med rigtige terninger.
+let pendingMin = null;       // damage-gulv (min 1) husket fra value-knappen til næste Rul
+let pendingLabel = "";       // hvad rulles der for — vises over resultatet ved Rul
+let pendingGuidance = false; // et armeret Guidance-rul afventer at man trykker Rul
+
 function rollDice(min) {
   const expr = document.getElementById("dice-expr").value.trim() || "1d20";
+  const useMin = (min != null) ? min : pendingMin;   // value-knappens min huskes til Rul
   let url = BASE + "/api/roll/" + encodeURIComponent(expr);
-  if (min != null) url += "?min=" + min;
+  if (useMin != null) url += "?min=" + useMin;
   fetch(url)
   .then(r => r.json())
   .then(data => {
@@ -763,22 +771,45 @@ function rollDice(min) {
     }
     const rollStr = data.rolls.join("+");
     const modStr = data.modifier !== 0 ? (data.modifier > 0 ? "+" + data.modifier : data.modifier) : "";
-    const flooredStr = data.floored ? ` <span style="color:var(--muted)">(min ${min})</span>` : "";
-    el.innerHTML = `<span class="total">${data.total}</span><br><span class="detail">[${rollStr}]${modStr}${flooredStr}</span>`;
+    const flooredStr = data.floored ? ` <span style="color:var(--muted)">(min ${useMin})</span>` : "";
+    const labelStr = pendingLabel ? `<span style="color:var(--muted);font-size:.72rem">${escHtml(pendingLabel)}</span><br>` : "";
+    el.innerHTML = labelStr + `<span class="total">${data.total}</span><br><span class="detail">[${rollStr}]${modStr}${flooredStr}</span>`;
+    // Guidance forbruges FØRST når det guidede rul faktisk sker (ikke ved populate).
+    if (pendingGuidance && guidanceArmed && guidanceIdx >= 0) {
+      guidanceArmed = false;
+      pendingGuidance = false;
+      renderGuidanceChip();
+      fetch(BASE + "/api/buffs", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({char: CHAR, action: "remove", target: "character", index: guidanceIdx})
+      }).then(() => setTimeout(() => location.reload(), 1500));
+    }
   });
 }
 
+// Sæt et udtryk i terningefeltet UDEN at rulle. min (damage-gulv) og label huskes,
+// så Rul kan bruge dem. Result-feltet viser en "tryk Rul"-hint.
+function setDice(expr, label, min) {
+  document.getElementById("dice-expr").value = expr;
+  pendingMin = (min != null) ? min : null;
+  pendingLabel = label || "";
+  const el = document.getElementById("dice-result");
+  el.innerHTML = `<span style="color:var(--muted);font-size:.72rem">${label ? escHtml(label) + " — " : ""}tryk ⚄ Rul</span>`;
+}
+
+// Value-knap: sæt udtryk i feltet (ruller ikke). Navnet bevares for de mange
+// eksisterende onclick-kald i skabelonen.
 function quickRoll(expr, label, min) {
-  const inp = document.getElementById("dice-expr");
-  inp.value = expr;
-  rollDice(min);
-  if (label) {
-    const el = document.getElementById("dice-result");
-    // Prepend label after result renders (next microtask)
-    setTimeout(() => {
-      el.innerHTML = `<span style="color:var(--muted);font-size:.72rem">${escHtml(label)}</span><br>` + el.innerHTML;
-    }, 80);
-  }
+  pendingGuidance = false;
+  setDice(expr, label, min);
+}
+
+// Manuel redigering af feltet løsriver det fra en value-knap → almindeligt rul
+// uden husket min/label/guidance.
+function onDiceInput() {
+  pendingMin = null;
+  pendingLabel = "";
+  pendingGuidance = false;
 }
 
 // ── Guidance: +1 competence på ÉT angreb/save/skill (engangs) ───────────────
@@ -812,19 +843,18 @@ function addToMod(expr, delta) {
   return expr + (delta >= 0 ? "+" : "") + delta;
 }
 
-// Rul der kan modtage Guidance. Er buffen armet, lægges +1 på dette ENE rul og
-// buffen forbruges (fjernes server-side, hvorefter siden genindlæses).
+// Value-knap der kan modtage Guidance. Er buffen armet, sættes udtrykket i feltet
+// med +1 allerede lagt til (så man kan se det), og markeres som ventende guidance.
+// Selve buffen forbruges først når man trykker Rul (se rollDice) — ellers ville et
+// utaget slag brænde buffen. Ruller ikke selv.
 function guidedRoll(expr, label, min) {
   if (guidanceArmed && guidanceIdx >= 0) {
-    quickRoll(addToMod(expr, 1), (label || "") + " (+1 Guidance)", min);
-    guidanceArmed = false;
-    fetch(BASE + "/api/buffs", {
-      method: "POST", headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({char: CHAR, action: "remove", target: "character", index: guidanceIdx})
-    }).then(() => setTimeout(() => location.reload(), 1500));
+    setDice(addToMod(expr, 1), (label || "") + " (+1 Guidance)", min);
+    pendingGuidance = true;
     return;
   }
-  quickRoll(expr, label, min);
+  pendingGuidance = false;
+  setDice(expr, label, min);
 }
 renderGuidanceChip();
 
