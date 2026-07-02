@@ -498,6 +498,7 @@ def build_character_view(char, db):
         "con_modifier":  ab.modifier("con"),
         "skill_points":  char_module.skill_points_per_level(char.cls, ab.modifier("int"), char.race),
         "feat_level":    char_module.is_feat_level(new_level),
+        "bonus_feat_level": "Bonus Feat" in new_features,   # klasse-bonus-feat (fx fighter), drevet af class_levels-data
         "ability_level": char_module.is_ability_level(new_level),
         "new_features":  new_features,
         "xp_ready":      xp_info["ready"],
@@ -525,6 +526,7 @@ def build_character_view(char, db):
             "benefit": f.get("benefit") or "",
             "eligible": not unmet,
             "unmet": unmet,
+            "fighter_bonus": bool(f.get("fighter_bonus")),
         })
     all_skills_json = [
         {"id": s["id"], "name": s["name"], "ability": s.get("ability", ""),
