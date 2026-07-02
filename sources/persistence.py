@@ -405,6 +405,24 @@ def _serialize_summon(s: dict) -> dict:
     return out
 
 
+def _add_feat(feats: list, nf) -> None:
+    """Normaliser ét feat-valg og tilføj det til feats-listen (mutation), medmindre
+    det allerede findes (dedup på id+weapon+school). Bruges til at loope over
+    flere feat-valg på samme level-up (generel + fighter-bonus)."""
+    # nf kan være en ren id-streng, {id, weapon} for våben-feats eller
+    # {id, school} for skole-feats (Spell Focus m.fl.).
+    if isinstance(nf, dict) and nf.get("weapon"):
+        entry: object = {"id": str(nf["id"]), "weapon": str(nf["weapon"])}
+    elif isinstance(nf, dict) and nf.get("school"):
+        entry = {"id": str(nf["id"]), "school": str(nf["school"])}
+    else:
+        entry = feat_id(nf)
+    new_key = (feat_id(entry), feat_weapon(entry), feat_school(entry))
+    existing = {(feat_id(e), feat_weapon(e), feat_school(e)) for e in feats}
+    if new_key not in existing:
+        feats.append(entry)
+
+
 def save_character(path: str, updates: dict) -> None:
     """Gem kun angivne felter — overskriv aldrig hele filen.
 
@@ -557,21 +575,16 @@ def save_character(path: str, updates: dict) -> None:
                 flat[sid] = {"id": sid, "ranks": delta, "misc": 0}
         data["skills"] = list(flat.values())
 
-    if "new_feat" in updates and updates["new_feat"]:
+    # new_feats (liste, fx generel + fighter-bonus på samme niveau) + new_feat
+    # (enkelt, bagudkompatibel) — begge kan gemmes på samme kald. Dedup gælder
+    # på tværs af hele listen via _add_feat, der tjekker mod feats som den bygger.
+    _new_feats = list(updates.get("new_feats") or [])
+    if updates.get("new_feat"):
+        _new_feats.append(updates["new_feat"])
+    if _new_feats:
         feats = list(data.get("feats") or [])
-        nf = updates["new_feat"]
-        # new_feat kan være en ren id-streng, {id, weapon} for våben-feats eller
-        # {id, school} for skole-feats (Spell Focus m.fl.).
-        if isinstance(nf, dict) and nf.get("weapon"):
-            entry: object = {"id": str(nf["id"]), "weapon": str(nf["weapon"])}
-        elif isinstance(nf, dict) and nf.get("school"):
-            entry = {"id": str(nf["id"]), "school": str(nf["school"])}
-        else:
-            entry = feat_id(nf)
-        new_key = (feat_id(entry), feat_weapon(entry), feat_school(entry))
-        existing = {(feat_id(e), feat_weapon(e), feat_school(e)) for e in feats}
-        if new_key not in existing:
-            feats.append(entry)
+        for nf in _new_feats:
+            _add_feat(feats, nf)
         data["feats"] = feats
 
     if "ability_boost" in updates and updates["ability_boost"]:

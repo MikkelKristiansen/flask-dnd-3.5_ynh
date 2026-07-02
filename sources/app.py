@@ -777,13 +777,16 @@ def api_levelup():
     hp_gained = max(1, hp_roll + con_mod)
     skill_deltas  = {k: float(v) for k, v in (data.get("skill_deltas") or {}).items()}
     new_feat      = data.get("new_feat") or None
+    new_feats     = list(data.get("new_feats") or [])   # op til to: generel + fighter-bonus
+    if new_feat:
+        new_feats.append(new_feat)
     ability_boost = data.get("ability_boost") or None
     new_level     = char.level + 1
 
     # Håndhæv feat-prerequisites server-side (klienten filtrerer også, men reglerne
     # bestemmes her). Genbruger samme motor som oprettelse; kæder skal opfyldes af
-    # allerede ejede feats, da man kun vælger ét feat pr. level-up.
-    if new_feat:
+    # allerede ejede feats + de øvrige feats valgt på SAMME level-up.
+    if new_feats:
         all_feats = db.get_all_feats()
         name_by_id = {f["id"]: f["name"] for f in all_feats}
         name_to_id = {f["name"].lower(): f["id"] for f in all_feats}
@@ -792,20 +795,21 @@ def api_levelup():
         scores = {a: getattr(char.ability_scores, a)
                   for a in ("str", "dex", "con", "int", "wis", "cha")}
         new_bab = int((db.get_class_level(char.cls.lower(), new_level) or {}).get("bab", 0))
-        fid = char_module.feat_id(new_feat)
-        missing = char_module.feat_prereq_unmet(
-            prereq_by_id.get(fid) or "", owned, scores,
-            char.cls, new_level, new_bab, name_to_id)
-        if missing:
-            return jsonify({"error":
-                f"{name_by_id.get(fid, fid)} kræver: {', '.join(missing)}."}), 400
+        for nf in new_feats:
+            fid = char_module.feat_id(nf)
+            missing = char_module.feat_prereq_unmet(
+                prereq_by_id.get(fid) or "", owned, scores,
+                char.cls, new_level, new_bab, name_to_id)
+            if missing:
+                return jsonify({"error":
+                    f"{name_by_id.get(fid, fid)} kræver: {', '.join(missing)}."}), 400
 
     char_module.save_character(str(path), {
         "level":         new_level,
         "hp_max":        char.hp_max + hp_gained,
         "hp_current":    char.hp_current + hp_gained,
         "skill_deltas":  skill_deltas,
-        "new_feat":      new_feat,
+        "new_feats":     new_feats,
         "ability_boost": ability_boost,
     })
     return jsonify({"ok": True, "new_level": new_level, "hp_gained": hp_gained})
