@@ -327,7 +327,7 @@ def starting_kit_ids(cls: str) -> set:
 
 # Feats hvor man vælger et specifikt våben (gemmes som {id, weapon} i stedet for
 # en ren id-streng). Bruges af generatoren, level-up og visningen.
-WEAPON_CHOICE_FEATS = {"weapon_focus", "weapon_specialization", "improved_critical"}
+WEAPON_CHOICE_FEATS = {"weapon_focus", "greater_weapon_focus", "weapon_specialization", "improved_critical"}
 
 # Feats hvor man i stedet vælger en troldskole (gemmes som {id, school}). Spell
 # Focus/Greater Spell Focus gælder hver én skole og kan tages flere gange (SRD).

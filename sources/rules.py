@@ -696,11 +696,11 @@ def twf_context(cls: str, level: int, class_features: dict | None,
 
 
 def weapon_focus_parts(feats: list | None, weapon_name: str) -> list[dict]:
-    """Til-hit-dele fra Weapon Focus (+1) på det navngivne våben, som [{label,value}].
+    """Til-hit-dele fra Weapon Focus (+1) / Greater Weapon Focus (+1 mere) på det
+    navngivne våben, som [{label,value}].
 
     Feat-posten bærer det valgte våben ({id: weapon_focus, weapon: 'Battleaxe'});
-    matches mod våbnets katalog-navn. (Greater Weapon Focus findes ikke i data endnu
-    — tilføjes her når det gør.)
+    matches mod våbnets katalog-navn.
     """
     target = (weapon_name or "").strip().lower()
     if not target:
@@ -711,6 +711,8 @@ def weapon_focus_parts(feats: list | None, weapon_name: str) -> list[dict]:
             continue
         if feat_id(e) == "weapon_focus":
             parts.append({"label": "Weapon Focus", "value": 1})
+        elif feat_id(e) == "greater_weapon_focus":
+            parts.append({"label": "Gr. Weapon Focus", "value": 1})
     return parts
 
 

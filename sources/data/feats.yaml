@@ -204,6 +204,14 @@
   benefit: You gain a +1 bonus on all attack rolls you make using the selected weapon.
   normal:
   special: You can gain this feat multiple times. Each time it applies to a new weapon.
+- id: greater_weapon_focus
+  name: Greater Weapon Focus
+  type: Fighter
+  fighter_bonus: 1
+  prerequisites: Weapon Focus with selected weapon, fighter level 8, BAB +8
+  benefit: You gain a +1 bonus on all attack rolls you make using the selected weapon. This bonus stacks with Weapon Focus.
+  normal:
+  special: You can gain this feat multiple times; each time it applies to a new weapon.
 - id: weapon_finesse
   name: Weapon Finesse
   type: General
