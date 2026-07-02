@@ -280,6 +280,7 @@
       {{ attack_row(row, "spell-attack") }}
     {% endfor %}
     {% endif %}
+    <button class="add-attack-btn" onclick="openWeaponSwitch()">⇄ Skift våben</button>
     <button class="add-attack-btn" onclick="openAttackModal('add')">+ Tilføj angreb</button>
   </div>
 
@@ -1486,6 +1487,16 @@
       <button class="notes-save-btn" style="flex:1" onclick="saveItemDetail()">Gem</button>
       <button class="notes-cancel-btn" onclick="document.getElementById('item-modal-overlay').classList.remove('open')">Annuller</button>
     </div>
+  </div>
+</div>
+
+<!-- ── Skift våben — hurtig-vælger over inventarets våben ── -->
+<div class="modal-overlay" id="weapon-switch-overlay" onclick="closeWeaponSwitchIfOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('weapon-switch-overlay').classList.remove('open')">✕</button>
+    <div class="modal-title">Skift våben</div>
+    <p style="color:var(--muted);font-size:.78rem;margin:.2rem 0 .6rem">Vælg hvilke våben du har i hånden. Du kan have flere fremme (to-våbenskæmpe).</p>
+    <div id="weapon-switch-list"></div>
   </div>
 </div>
 

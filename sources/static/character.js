@@ -1721,6 +1721,51 @@ function closeItemModalIfOutside(event) {
     document.getElementById("item-modal-overlay").classList.remove("open");
 }
 
+// ── Skift våben ─────────────────────────────────────────────────────────────
+// Hurtig-vælger: list inventarets våben og skift dem mellem hånd og rygsæk uden
+// at gå gennem hver genstands-modal. Våben skiftes uafhængigt (to-våbenskæmpe).
+function openWeaponSwitch() {
+  const list = document.getElementById("weapon-switch-list");
+  const NON_WIELDED = {backpack: "rygsæk", stored: "opbevaret", dropped: "droppet", worn: "båret"};
+  const weapons = inventoryData
+    .map((it, idx) => ({it, idx}))
+    .filter(x => (x.it.ref || "").startsWith("weapons/"));
+  if (!weapons.length) {
+    list.innerHTML = `<p style="color:var(--muted);font-size:.85rem">Ingen våben i inventaret. Tilføj våben under Udrustning.</p>`;
+  } else {
+    list.innerHTML = weapons.map(({it, idx}) => {
+      const wielded = it.state === "wielded";
+      const badge = wielded
+        ? `<span class="inv-state st-wielded">i hånden</span>`
+        : `<span class="inv-state">${NON_WIELDED[it.state] || "rygsæk"}</span>`;
+      const btn = wielded
+        ? `<button class="notes-cancel-btn" onclick="quickWield(${idx},'backpack')">Læg i rygsæk</button>`
+        : `<button class="notes-save-btn" onclick="quickWield(${idx},'wielded')">Tag i hånden</button>`;
+      return `<div style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid var(--border)">
+                <span style="min-width:0;overflow:hidden;text-overflow:ellipsis">${escHtml(it.name)} ${badge}</span>
+                ${btn}
+              </div>`;
+    }).join("");
+  }
+  document.getElementById("weapon-switch-overlay").classList.add("open");
+}
+
+// Skift ét våbens tilstand (hånd/rygsæk) og genindlæs — afledte angreb + hånd-
+// forbrug + AC skal genberegnes. Genbruger inventar-update-endpointet.
+function quickWield(idx, state) {
+  fetch(BASE + "/api/inventory", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "update", index: idx, state})
+  })
+  .then(r => r.json())
+  .then(data => { if (!data.error) location.reload(); });
+}
+
+function closeWeaponSwitchIfOutside(event) {
+  if (event.target === document.getElementById("weapon-switch-overlay"))
+    document.getElementById("weapon-switch-overlay").classList.remove("open");
+}
+
 // ── Angrebs-editor (manuelle angreb) ──────────────────────────────────────
 // Kilde styrer skade-modellen: spell → fast skade (Str ikke med); våben →
 // terning + Str×mult. Vi gemmer server-side og reloader (angreb påvirker
