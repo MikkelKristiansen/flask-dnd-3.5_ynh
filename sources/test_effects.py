@@ -230,6 +230,23 @@ def test_derive_attacks_wires_weapon_specialization_and_greater_weapon_focus():
     assert r["to_hit"] == 1 + 2 + 2       # bab + str + (WF+GrWF)
     assert r["damage"] == "1d8+4"          # +2 Str +2 Weapon Specialization
 
+
+def test_greater_weapon_specialization_stacks_on_damage():
+    # Greater Weapon Specialization (+2) stacker med Weapon Specialization (+2).
+    import db
+    inv = [InventoryItem(ref="weapons/longsword", state="wielded")]
+    feats = [{"id": "weapon_specialization", "weapon": "Longsword"},
+             {"id": "greater_weapon_specialization", "weapon": "Longsword"}]
+    atk = derive_attacks(inv, db, feats=feats)[0]
+    assert atk.damage_bonus == 4   # Weapon Spec +2 + Greater Weapon Spec +2
+    s = AbilityScores(str=14)      # +2
+    r = attack_total(atk, s, bab=12, size="medium")
+    assert r["damage"] == "1d8+6"          # +2 Str +2 WS +2 GrWS
+    bd = attack_damage_breakdown(atk, s)   # hover-delene summer stadig til tallet
+    assert bd["total"] == "1d8+6"
+    part_sum = sum(p["value"] for p in bd["parts"] if "value" in p)
+    assert bd["total"] == f"1d8{part_sum:+d}"
+
     bd = attack_damage_breakdown(atk, s)
     part_sum = sum(p["value"] for p in bd["parts"] if "value" in p)
     assert bd["total"] == f"1d8{part_sum:+d}"

@@ -721,9 +721,9 @@ def weapon_focus_parts(feats: list | None, weapon_name: str) -> list[dict]:
 
 
 def weapon_specialization_parts(feats: list | None, weapon_name: str) -> list[dict]:
-    """Skade-dele fra Weapon Specialization (+2) på det navngivne våben, som
-    [{label,value}]. Samme navne-match som weapon_focus_parts — ikke Str-skaleret,
-    tælles fuldt pr. angreb (også off-hånd)."""
+    """Skade-dele fra Weapon Specialization (+2) / Greater Weapon Specialization
+    (+2 mere) på det navngivne våben, som [{label,value}]. Samme navne-match som
+    weapon_focus_parts — ikke Str-skaleret, tælles fuldt pr. angreb (også off-hånd)."""
     target = (weapon_name or "").strip().lower()
     if not target:
         return []
@@ -733,6 +733,8 @@ def weapon_specialization_parts(feats: list | None, weapon_name: str) -> list[di
             continue
         if feat_id(e) == "weapon_specialization":
             parts.append({"label": "Weapon Specialization", "value": 2})
+        elif feat_id(e) == "greater_weapon_specialization":
+            parts.append({"label": "Gr. Weapon Spec", "value": 2})
     return parts
 
 

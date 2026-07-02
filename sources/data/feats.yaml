@@ -316,6 +316,14 @@
   benefit: Choose one type of weapon for which you have Weapon Focus. You gain a +2 bonus on damage rolls with that weapon.
   normal:
   special: You can gain this feat multiple times; each time it applies to a new weapon.
+- id: greater_weapon_specialization
+  name: Greater Weapon Specialization
+  type: Fighter
+  fighter_bonus: 1
+  prerequisites: Weapon Focus with selected weapon, Greater Weapon Focus with selected weapon, Weapon Specialization with selected weapon, fighter level 12
+  benefit: You gain a +2 bonus on damage rolls you make using the selected weapon. This bonus stacks with Weapon Specialization.
+  normal:
+  special: You can gain this feat multiple times; each time it applies to a new weapon.
 - id: improved_two_weapon_fighting
   name: Improved Two-Weapon Fighting
   type: Fighter
