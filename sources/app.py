@@ -856,6 +856,10 @@ def api_inventory():
         state = str(data.get("state", "backpack")).lower()
         if state not in char_module.INVENTORY_STATES:
             state = "backpack"
+        # "worn" (rustning → AC) giver kun mening for rustning; våben/grej kan ikke
+        # bæres som rustning. Coerce til "backpack" (på person).
+        if state == "worn" and not ref.startswith("armor/"):
+            state = "backpack"
         if ref:
             # Katalog-genstand: navn/vægt slås op via ref ved visning
             sm = data.get("str_mult")
@@ -901,6 +905,9 @@ def api_inventory():
             if "state" in data:
                 st = str(data["state"]).lower()
                 if st in char_module.INVENTORY_STATES:
+                    # "worn" (rustning → AC) kun for rustning; ellers på person.
+                    if st == "worn" and _armor_slot(old, db) is None:
+                        st = "backpack"
                     old.state = st
                     _enforce_armor_slots(inventory, idx, db)
             if "off_hand" in data:

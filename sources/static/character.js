@@ -1642,7 +1642,13 @@ function openItemDetail(idx) {
   const nameEl = document.getElementById("item-modal-name");
   const wtEl   = document.getElementById("item-modal-weight");
   nameEl.disabled = wtEl.disabled = !!item.is_ref;
-  document.getElementById("item-modal-state").value = item.state || "backpack";
+  // "Worn" (rustning → AC) kun for rustning — våben/grej kan ikke bæres som rustning.
+  const isArmorItem = (item.ref || "").startsWith("armor/");
+  const wornOpt = document.getElementById("item-state-worn");
+  wornOpt.hidden = wornOpt.disabled = !isArmorItem;
+  let startState = item.state || "backpack";
+  if (startState === "worn" && !isArmorItem) startState = "backpack";  // ryd gammel ulovlig tilstand
+  document.getElementById("item-modal-state").value = startState;
   // Våben-felter (bonus/Str-mult) kun for våben i kataloget
   const isWeapon = (item.ref || "").startsWith("weapons/");
   document.getElementById("item-modal-weapon").style.display = isWeapon ? "flex" : "none";
