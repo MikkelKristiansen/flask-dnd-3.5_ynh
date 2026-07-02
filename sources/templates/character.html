@@ -241,7 +241,8 @@
             data-bd='{{ {"name": atk.name ~ " til-hit", "total": row.to_hit, "parts": row.hit_parts}|tojson }}'>{{ "%+d"|format(row.to_hit) }}{% if row.hit_changed %}<span class="eff-delta {{ 'up' if row.hit_up else 'down' }}">{{ '▲' if row.hit_up else '▼' }}</span>{% endif %}</span>
       <span class="attack-dmg roll-tap"
             onclick="quickRoll('{{ row.damage }}','{{ atk.name }} skade', 1)"
-            title="{% if row.dmg_changed %}Basis {{ row.base_dmg }} — ændret af effekt{% else %}Slå skade (min. 1 ved træffer){% endif %}">{{ row.damage }}{% if row.dmg_changed %}<span class="eff-delta {{ 'up' if row.dmg_up else 'down' }}">{{ '▲' if row.dmg_up else '▼' }}</span>{% endif %}</span>
+            onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+            data-bd='{{ {"name": atk.name ~ " skade", "total": row.damage, "parts": row.dmg_parts}|tojson }}'>{{ row.damage }}{% if row.dmg_changed %}<span class="eff-delta {{ 'up' if row.dmg_up else 'down' }}">{{ '▲' if row.dmg_up else '▼' }}</span>{% endif %}</span>
       <span class="attack-type">{{ atk.type }}{% if atk.range %} · {{ atk.range }}{% endif %}</span>
     </div>
   {% endmacro %}

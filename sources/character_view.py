@@ -348,10 +348,13 @@ def build_character_view(char, db):
         # størrelse + våben + effekter. Genbruger skill-breakdown-tooltippen i JS.
         hit_bd = char_module.attack_to_hit_breakdown(
             atk, eff, bab, char.size, attack_extra, has_finesse)
+        # Skade-opdeling (terning + Str×mult + effekter) — samme hover som til-hit.
+        dmg_bd = char_module.attack_damage_breakdown(atk, eff, damage_extra)
         return {**e,
                 "hit_parts": hit_bd["parts"],
                 "hit_changed": e["to_hit"] != b["to_hit"], "hit_up": e["to_hit"] > b["to_hit"],
                 "base_to_hit": b["to_hit"],
+                "dmg_parts": dmg_bd["parts"],
                 "dmg_changed": e["damage"] != b["damage"],
                 "dmg_up": effects.damage_bonus(e["damage"]) > effects.damage_bonus(b["damage"]),
                 "base_dmg": b["damage"]}

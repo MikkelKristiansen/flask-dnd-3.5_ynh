@@ -358,6 +358,34 @@ def attack_to_hit_breakdown(attack: Attack, ability_scores: AbilityScores,
     return {"total": bab + ability_mod + size_m + attack.bonus + extra_bonus, "parts": parts}
 
 
+def attack_damage_breakdown(attack: Attack, ability_scores: AbilityScores,
+                            extra_damage: int = 0) -> dict:
+    """Navngiven opdeling af skaden (til hover). Parallel til til-hit-opdelingen.
+
+    Skade = terning + floor(Str-mod · str_damage_mult) + effekter — ELLER fixed_damage
+    (spell/touch: kilden sætter tallet, Str og effekter tæller ikke).
+    Hver del har enten "die" (terning-streng, vises råt) eller "value" (heltal, vises
+    med fortegn); "total" er hele skade-strengen, præcis som attack_total bygger den.
+    """
+    if attack.fixed_damage:
+        return {"total": attack.fixed_damage,
+                "parts": [{"label": "kilde (fast)", "die": attack.fixed_damage}]}
+
+    parts = [{"label": "terning", "die": attack.base_damage}]
+    str_bonus = math.floor(ability_scores.modifier("str") * attack.str_damage_mult)
+    if str_bonus != 0:
+        # Vis multiplikatoren når den ikke er 1 (tohånds ×1.5, off-hånd ×0.5), så
+        # spilleren kan se hvorfor Str-bidraget afviger fra sin rå modifier.
+        label = "STR" if attack.str_damage_mult == 1.0 else f"STR ×{attack.str_damage_mult:g}"
+        parts.append({"label": label, "value": str_bonus})
+    if extra_damage:
+        parts.append({"label": "effekter", "value": extra_damage})
+
+    total_bonus = str_bonus + extra_damage
+    total = attack.base_damage if total_bonus == 0 else f"{attack.base_damage}{total_bonus:+d}"
+    return {"total": total, "parts": parts}
+
+
 def grapple_total(bab: int, str_score: int, size: str) -> int:
     """Grapple-modifier: bab + Str-mod + den SÆRLIGE grapple-størrelses-modifier."""
     return bab + (str_score - 10) // 2 + size_mod_grapple(size)

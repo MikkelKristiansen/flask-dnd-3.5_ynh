@@ -1054,11 +1054,14 @@ function renderBreakdownTooltip(b, el) {
   if (!b || !b.parts || !b.parts.length) return;
   const tt = document.getElementById("spell-tooltip");
   const sgn = n => (n >= 0 ? "+" : "") + n;
+  // Værdier er enten tal (til-hit/skill: vises med fortegn) eller strenge
+  // (skade-terning som "1d8": vises råt). p.die er en terning-del.
+  const fmt = v => (typeof v === "number" ? sgn(v) : escHtml(String(v)));
   const rows = b.parts.map(p =>
     `<div style="display:flex;justify-content:space-between;gap:1.2rem">
-       <span>${escHtml(p.label)}</span><span>${sgn(p.value)}</span></div>`).join("");
+       <span>${escHtml(p.label)}</span><span>${fmt(p.die !== undefined ? p.die : p.value)}</span></div>`).join("");
   tt.innerHTML =
-    `<div class="tt-name">${escHtml(b.name)} = ${sgn(b.total)}</div>` +
+    `<div class="tt-name">${escHtml(b.name)} = ${fmt(b.total)}</div>` +
     `<div class="tt-desc" style="margin-top:.3rem">${rows}</div>`;
   const r = el.getBoundingClientRect();
   const tw = 220, gap = 8;

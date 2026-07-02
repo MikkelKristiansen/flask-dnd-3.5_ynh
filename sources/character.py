@@ -46,7 +46,7 @@ from rules import (  # noqa: F401
     compute_synergy_bonuses, synergy_sources, armor_check_penalty, druid_armor_violations,
     weapon_proficient, armor_proficient, proficiency_violations, armor_attack_penalty,
     skill_total, save_total, size_mod_attack, size_mod_grapple, attack_total,
-    attack_to_hit_breakdown,
+    attack_to_hit_breakdown, attack_damage_breakdown,
     grapple_total, initiative_total, armor_class, xp_to_next_level, xp_progress,
     carry_limits, encumbrance_level, total_weight, weight_for_size, resolve_item,
     carried_weight, derive_attacks, spell_charge_key, spell_attack_damage,
