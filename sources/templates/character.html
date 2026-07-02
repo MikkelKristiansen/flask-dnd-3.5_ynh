@@ -1373,6 +1373,22 @@
       <div id="lu-feat-info" style="color:var(--muted);font-size:.78rem;margin-top:.4rem;line-height:1.4"></div>
     </div>
 
+    <div class="lu-section" id="lu-bonus-feat-sec" style="display:none">
+      <div class="lu-sh">Bonus-kampfeat (niveau <span id="lu-bonus-feat-lvl"></span>)</div>
+      <label style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--muted);margin-bottom:.4rem;cursor:pointer">
+        <input type="checkbox" id="lu-bonus-feat-eligible-only" checked onchange="filterLuBonusFeats()">
+        Vis kun feats jeg kan tage nu
+      </label>
+      <input type="text" class="form-input" id="lu-bonus-feat-search" placeholder="Søg feat…"
+             oninput="filterLuBonusFeats()" style="margin-bottom:.4rem">
+      <select id="lu-bonus-feat-sel" class="lu-select" size="5" onchange="pickLuBonusFeat(this.value)"></select>
+      <select id="lu-bonus-feat-weapon" class="lu-select" style="display:none;margin-top:.4rem"
+              onchange="luBonusFeatWeapon=this.value"></select>
+      <select id="lu-bonus-feat-school" class="lu-select" style="display:none;margin-top:.4rem"
+              onchange="luBonusFeatSchool=this.value"></select>
+      <div id="lu-bonus-feat-info" style="color:var(--muted);font-size:.78rem;margin-top:.4rem;line-height:1.4"></div>
+    </div>
+
     <div class="lu-section" id="lu-ab-sec" style="display:none">
       <div class="lu-sh">Ability Score Boost (+1)</div>
       <div id="lu-ab-btns" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem"></div>

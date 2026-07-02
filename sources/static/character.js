@@ -2037,6 +2037,10 @@ let luSkillDeltas = {};   // {id: delta float}
 let luFeat        = null;
 let luFeatWeapon  = "";   // valgt våben for våben-feats (Weapon Focus m.fl.)
 let luFeatSchool  = "";   // valgt troldskole for skole-feats (Spell Focus m.fl.)
+// Bonus-kampfeat (fx fighter) — separat valg, kun fra fighter_bonus-puljen.
+let luBonusFeat       = null;
+let luBonusFeatWeapon = "";
+let luBonusFeatSchool = "";
 let luAbBoost     = null;
 const LU_WEAPON_CHOICE_FEATS = ['weapon_focus','weapon_specialization','improved_critical'];
 const LU_SCHOOL_CHOICE_FEATS = ['spell_focus','greater_spell_focus'];
@@ -2052,8 +2056,11 @@ function luSPUsed() {
 
 function openLevelUpModal() {
   luHpRoll = 0; luSkillDeltas = {}; luFeat = null; luFeatWeapon = ""; luFeatSchool = ""; luAbBoost = null;
+  luBonusFeat = null; luBonusFeatWeapon = ""; luBonusFeatSchool = "";
   document.getElementById("lu-feat-weapon").style.display = "none";
   document.getElementById("lu-feat-school").style.display = "none";
+  document.getElementById("lu-bonus-feat-weapon").style.display = "none";
+  document.getElementById("lu-bonus-feat-school").style.display = "none";
   // Vis kun skills man allerede har ranks i — resten tilføjes via dropdownen.
   luShownSkills = Object.keys(baseRanks).filter(sid => baseRanks[sid] > 0);
   document.getElementById("lu-hp-manual").value = "";
@@ -2078,6 +2085,13 @@ function renderLuModal() {
   if (luBase.feat_level) {
     document.getElementById("lu-feat-lvl").textContent = nl;
     filterLuFeats();
+  }
+
+  const bonusFeatSec = document.getElementById("lu-bonus-feat-sec");
+  bonusFeatSec.style.display = luBase.bonus_feat_level ? "block" : "none";
+  if (luBase.bonus_feat_level) {
+    document.getElementById("lu-bonus-feat-lvl").textContent = nl;
+    filterLuBonusFeats();
   }
 
   const abSec = document.getElementById("lu-ab-sec");
@@ -2204,7 +2218,7 @@ function filterLuFeats() {
   const onlyOk     = document.getElementById("lu-feat-eligible-only").checked;
   const sel        = document.getElementById("lu-feat-sel");
   sel.innerHTML = "";
-  allFeats.filter(f => !charFeatIds.has(f.id) &&
+  allFeats.filter(f => !charFeatIds.has(f.id) && f.id !== luBonusFeat &&
     (onlyOk ? f.eligible : true) &&
     (f.name.toLowerCase().includes(q) || (f.prerequisites||"").toLowerCase().includes(q)))
   .forEach(f => {
@@ -2218,6 +2232,28 @@ function filterLuFeats() {
     sel.appendChild(opt);
   });
   if (luFeat) showLuFeatInfo(luFeat);
+}
+
+// Bonus-kampfeat: samme mønster som filterLuFeats, men begrænset til
+// fighter_bonus-puljen (db.get_fighter_bonus_feats() → fighter_bonus-flag i all_feats_json).
+function filterLuBonusFeats() {
+  const q          = (document.getElementById("lu-bonus-feat-search").value || "").toLowerCase();
+  const onlyOk     = document.getElementById("lu-bonus-feat-eligible-only").checked;
+  const sel        = document.getElementById("lu-bonus-feat-sel");
+  sel.innerHTML = "";
+  allFeats.filter(f => f.fighter_bonus && !charFeatIds.has(f.id) && f.id !== luFeat &&
+    (onlyOk ? f.eligible : true) &&
+    (f.name.toLowerCase().includes(q) || (f.prerequisites||"").toLowerCase().includes(q)))
+  .forEach(f => {
+    const opt = document.createElement("option");
+    opt.value = f.id;
+    opt.textContent = (f.eligible ? "" : "⚠ ") + f.name +
+      (f.prerequisites ? ` · kræver: ${f.prerequisites}` : "");
+    if (!f.eligible) { opt.disabled = true; opt.style.color = "var(--muted)"; }
+    if (f.id === luBonusFeat) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  if (luBonusFeat) showLuBonusFeatInfo(luBonusFeat);
 }
 
 function pickLuFeat(fid) {
@@ -2265,6 +2301,51 @@ function showLuFeatInfo(fid) {
   }
 }
 
+function pickLuBonusFeat(fid) {
+  luBonusFeat = fid || null;
+  showLuBonusFeatInfo(fid);
+  // Våben-feats: vis en våben-dropdown og kræv et valg.
+  const wsel = document.getElementById("lu-bonus-feat-weapon");
+  if (luBonusFeat && LU_WEAPON_CHOICE_FEATS.includes(luBonusFeat)) {
+    if (!wsel.options.length) {
+      wsel.innerHTML = '<option value="">— vælg våben —</option>' +
+        (catalogData.weapons || []).map(w => `<option value="${escHtml(w.name)}">${escHtml(w.name)}</option>`).join("");
+    }
+    wsel.value = luBonusFeatWeapon || "";
+    wsel.style.display = "block";
+  } else {
+    wsel.style.display = "none";
+    luBonusFeatWeapon = "";
+  }
+  // Skole-feats (Spell Focus m.fl.): vis en troldskole-dropdown og kræv et valg.
+  const ssel = document.getElementById("lu-bonus-feat-school");
+  if (luBonusFeat && LU_SCHOOL_CHOICE_FEATS.includes(luBonusFeat)) {
+    if (!ssel.options.length) {
+      ssel.innerHTML = '<option value="">— vælg troldskole —</option>' +
+        (D.spellSchools || []).map(s => `<option value="${escHtml(s)}">${escHtml(s)}</option>`).join("");
+    }
+    ssel.value = luBonusFeatSchool || "";
+    ssel.style.display = "block";
+  } else {
+    ssel.style.display = "none";
+    luBonusFeatSchool = "";
+  }
+}
+
+function showLuBonusFeatInfo(fid) {
+  const f = allFeats.find(f => f.id === fid);
+  const el = document.getElementById("lu-bonus-feat-info");
+  if (f) {
+    let head = "";
+    if (f.prerequisites) head += `<em>Kræver: ${escHtml(f.prerequisites)}</em><br>`;
+    if (!f.eligible && f.unmet && f.unmet.length)
+      head += `<span style="color:var(--red,#c66)">⚠ Mangler: ${escHtml(f.unmet.join(", "))}</span><br>`;
+    el.innerHTML = head + escHtml(f.benefit || "");
+  } else {
+    el.innerHTML = "";
+  }
+}
+
 function renderLuAbBtns() {
   const cont = document.getElementById("lu-ab-btns");
   cont.innerHTML = "";
@@ -2282,20 +2363,37 @@ function confirmLevelUp() {
   const warn = document.getElementById("lu-warning");
   warn.textContent = "";
   if (luHpRoll <= 0) { warn.textContent = "⚠ Rul eller angiv HP-stigning først."; return; }
+  if (luBase.feat_level && !luFeat) { warn.textContent = "⚠ Vælg en feat."; return; }
+  if (luBase.bonus_feat_level && !luBonusFeat) { warn.textContent = "⚠ Vælg en bonus-kampfeat."; return; }
   // Våben-/skole-feat valgt uden valg → bloker.
-  let featPayload = luFeat;
-  if (luFeat && LU_WEAPON_CHOICE_FEATS.includes(luFeat)) {
-    if (!luFeatWeapon) { warn.textContent = "⚠ Vælg et våben til feat'en."; return; }
-    featPayload = {id: luFeat, weapon: luFeatWeapon};
-  } else if (luFeat && LU_SCHOOL_CHOICE_FEATS.includes(luFeat)) {
-    if (!luFeatSchool) { warn.textContent = "⚠ Vælg en troldskole til feat'en."; return; }
-    featPayload = {id: luFeat, school: luFeatSchool};
+  const newFeats = [];
+  if (luFeat) {
+    let featPayload = luFeat;
+    if (LU_WEAPON_CHOICE_FEATS.includes(luFeat)) {
+      if (!luFeatWeapon) { warn.textContent = "⚠ Vælg et våben til feat'en."; return; }
+      featPayload = {id: luFeat, weapon: luFeatWeapon};
+    } else if (LU_SCHOOL_CHOICE_FEATS.includes(luFeat)) {
+      if (!luFeatSchool) { warn.textContent = "⚠ Vælg en troldskole til feat'en."; return; }
+      featPayload = {id: luFeat, school: luFeatSchool};
+    }
+    newFeats.push(featPayload);
+  }
+  if (luBonusFeat) {
+    let bonusPayload = luBonusFeat;
+    if (LU_WEAPON_CHOICE_FEATS.includes(luBonusFeat)) {
+      if (!luBonusFeatWeapon) { warn.textContent = "⚠ Vælg et våben til bonus-feat'en."; return; }
+      bonusPayload = {id: luBonusFeat, weapon: luBonusFeatWeapon};
+    } else if (LU_SCHOOL_CHOICE_FEATS.includes(luBonusFeat)) {
+      if (!luBonusFeatSchool) { warn.textContent = "⚠ Vælg en troldskole til bonus-feat'en."; return; }
+      bonusPayload = {id: luBonusFeat, school: luBonusFeatSchool};
+    }
+    newFeats.push(bonusPayload);
   }
   fetch(BASE + "/api/levelup", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({char: CHAR, hp_roll: luHpRoll,
-      skill_deltas: luSkillDeltas, new_feat: featPayload, ability_boost: luAbBoost})
+      skill_deltas: luSkillDeltas, new_feats: newFeats, ability_boost: luAbBoost})
   })
   .then(r => r.json())
   .then(d => { if (d.ok) window.location.reload(); else warn.textContent = d.error || "Fejl"; });
