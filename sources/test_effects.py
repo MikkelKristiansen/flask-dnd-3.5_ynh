@@ -9,7 +9,8 @@ from character import (AbilityScores, effective_ability_scores,
                        resolve_modifiers, save_total, attack_total, Attack,
                        grapple_total, resolve_ac_bonuses, save_effect_bonus,
                        skill_effect_bonus, conditional_modifiers,
-                       armor_class, initiative_total, con_temp_hp)
+                       armor_class, initiative_total, con_temp_hp,
+                       attack_damage_breakdown, derive_attacks, InventoryItem)
 
 
 def m(target, type, value, **extra):
@@ -185,6 +186,53 @@ def test_attack_extra_damage_skips_fixed():
     r = attack_total(spell, s, bab=2, size="medium", extra_bonus=1, extra_damage=2)
     assert r["damage"] == "1d6+2"                     # uændret
     assert r["to_hit"] == 2 + 2 + 1                   # to-hit får dog extra_bonus
+
+
+# ── Weapon Specialization (skade-siden af Weapon Focus-mønstret) ───────────
+
+def test_weapon_specialization_damage_bonus_applies():
+    # Attack.damage_bonus er ikke Str-skaleret — lægges fladt oveni Str+terning.
+    s = AbilityScores(str=14)  # +2
+    w = Attack(name="Longsword", base_damage="1d8", str_damage_mult=1.0,
+              damage_bonus=2, damage_parts=[{"label": "Weapon Specialization", "value": 2}])
+    r = attack_total(w, s, bab=3, size="medium")
+    assert r["damage"] == "1d8+4"   # +2 Str +2 Weapon Specialization
+
+
+def test_weapon_specialization_breakdown_parts_sum_to_total():
+    s = AbilityScores(str=14)
+    w = Attack(name="Longsword", base_damage="1d8", str_damage_mult=1.0,
+              damage_bonus=2, damage_parts=[{"label": "Weapon Specialization", "value": 2}])
+    bd = attack_damage_breakdown(w, s)
+    assert bd["total"] == "1d8+4"
+    labels = {p["label"]: p for p in bd["parts"]}
+    assert labels["Weapon Specialization"]["value"] == 2
+    part_sum = sum(p["value"] for p in bd["parts"] if "value" in p)
+    assert bd["total"] == f"1d8{part_sum:+d}"
+
+
+def test_derive_attacks_wires_weapon_specialization_and_greater_weapon_focus():
+    # Integrationstest: wielded longsword + Weapon Focus/Weapon Specialization +
+    # Greater Weapon Focus på "Longsword" → til-hit +2 (WF+GrWF), skade +2 (WS).
+    import db
+    inv = [InventoryItem(ref="weapons/longsword", state="wielded")]
+    feats = [{"id": "weapon_focus", "weapon": "Longsword"},
+             {"id": "greater_weapon_focus", "weapon": "Longsword"},
+             {"id": "weapon_specialization", "weapon": "Longsword"}]
+    attacks = derive_attacks(inv, db, feats=feats)
+    assert len(attacks) == 1
+    atk = attacks[0]
+    assert atk.bonus == 2          # Weapon Focus +1 + Greater Weapon Focus +1
+    assert atk.damage_bonus == 2   # Weapon Specialization +2
+
+    s = AbilityScores(str=14)  # +2
+    r = attack_total(atk, s, bab=1, size="medium")
+    assert r["to_hit"] == 1 + 2 + 2       # bab + str + (WF+GrWF)
+    assert r["damage"] == "1d8+4"          # +2 Str +2 Weapon Specialization
+
+    bd = attack_damage_breakdown(atk, s)
+    part_sum = sum(p["value"] for p in bd["parts"] if "value" in p)
+    assert bd["total"] == f"1d8{part_sum:+d}"
 
 
 def test_resolve_ac_natural_and_deflection_stack():

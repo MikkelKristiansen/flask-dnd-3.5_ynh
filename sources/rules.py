@@ -299,7 +299,8 @@ def attack_total(attack: Attack, ability_scores: AbilityScores,
     + extra_bonus (Bless, Magic Fang, Divine Favor, shaken/sickened-straffe).
     Skade: fixed_damage hvis sat (spell/touch — extra_damage tæller ikke, det er
     ikke våbenskade), ellers base_damage + floor(Str-mod · str_damage_mult)
-    + extra_damage. Skade-tillægget skjules når totalbonus er 0.
+    + attack.damage_bonus (Weapon Specialization — ikke Str-skaleret) + extra_damage.
+    Skade-tillægget skjules når totalbonus er 0.
     """
     if attack.kind in ("ranged", "ranged_touch"):
         hit_ability = "dex"
@@ -314,7 +315,7 @@ def attack_total(attack: Attack, ability_scores: AbilityScores,
         damage = attack.fixed_damage
     else:
         str_bonus = math.floor(ability_scores.modifier("str") * attack.str_damage_mult)
-        total_bonus = str_bonus + extra_damage
+        total_bonus = str_bonus + attack.damage_bonus + extra_damage
         if total_bonus == 0:
             damage = attack.base_damage
         else:
@@ -362,8 +363,9 @@ def attack_damage_breakdown(attack: Attack, ability_scores: AbilityScores,
                             extra_damage: int = 0) -> dict:
     """Navngiven opdeling af skaden (til hover). Parallel til til-hit-opdelingen.
 
-    Skade = terning + floor(Str-mod · str_damage_mult) + effekter — ELLER fixed_damage
-    (spell/touch: kilden sætter tallet, Str og effekter tæller ikke).
+    Skade = terning + floor(Str-mod · str_damage_mult) + damage_parts (Weapon
+    Specialization — ikke Str-skaleret) + effekter — ELLER fixed_damage (spell/touch:
+    kilden sætter tallet, Str/feat/effekter tæller ikke).
     Hver del har enten "die" (terning-streng, vises råt) eller "value" (heltal, vises
     med fortegn); "total" er hele skade-strengen, præcis som attack_total bygger den.
     """
@@ -378,10 +380,12 @@ def attack_damage_breakdown(attack: Attack, ability_scores: AbilityScores,
         # spilleren kan se hvorfor Str-bidraget afviger fra sin rå modifier.
         label = "STR" if attack.str_damage_mult == 1.0 else f"STR ×{attack.str_damage_mult:g}"
         parts.append({"label": label, "value": str_bonus})
+    if attack.damage_parts:
+        parts += [dict(p) for p in attack.damage_parts]
     if extra_damage:
         parts.append({"label": "effekter", "value": extra_damage})
 
-    total_bonus = str_bonus + extra_damage
+    total_bonus = str_bonus + attack.damage_bonus + extra_damage
     total = attack.base_damage if total_bonus == 0 else f"{attack.base_damage}{total_bonus:+d}"
     return {"total": total, "parts": parts}
 
@@ -716,6 +720,22 @@ def weapon_focus_parts(feats: list | None, weapon_name: str) -> list[dict]:
     return parts
 
 
+def weapon_specialization_parts(feats: list | None, weapon_name: str) -> list[dict]:
+    """Skade-dele fra Weapon Specialization (+2) på det navngivne våben, som
+    [{label,value}]. Samme navne-match som weapon_focus_parts — ikke Str-skaleret,
+    tælles fuldt pr. angreb (også off-hånd)."""
+    target = (weapon_name or "").strip().lower()
+    if not target:
+        return []
+    parts = []
+    for e in (feats or []):
+        if feat_weapon(e).strip().lower() != target:
+            continue
+        if feat_id(e) == "weapon_specialization":
+            parts.append({"label": "Weapon Specialization", "value": 2})
+    return parts
+
+
 def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
                    weapon_prof: dict | None = None,
                    allowed_weapons: set = frozenset(),
@@ -774,6 +794,9 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
             parts.append({"label": "ikke-proficient", "value": -4})
         if pen:
             parts.append({"label": "TWF", "value": pen})
+        # Skade-side: Weapon Specialization (+2, ikke Str-skaleret) — matches mod
+        # samme våbennavn som til-hit-delene ovenfor.
+        dmg_parts = weapon_specialization_parts(feats, w["name"])
         return Attack(
             name=name,
             kind="ranged" if wclass == "ranged" else "melee",
@@ -781,6 +804,8 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
             str_damage_mult=mult,
             bonus=sum(p["value"] for p in parts),
             bonus_parts=parts,
+            damage_bonus=sum(p["value"] for p in dmg_parts),
+            damage_parts=dmg_parts,
             crit=w["critical"] or "x2",
             type=w["damage_type"] or "",
             range=f"{w['range_ft']} ft." if w["range_ft"] else "",
