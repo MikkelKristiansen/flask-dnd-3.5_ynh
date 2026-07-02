@@ -121,6 +121,31 @@ def _damage_str(dice: str, mod: int) -> str:
     return f"{dice}{mod:+d}" if mod else dice
 
 
+def _rider_roll(ab: dict, dice: str, str_mod: int, mult: float,
+                bab: int | None = None, smod: int = 0, count: int | None = None) -> dict:
+    """Byg én rytter-rulle med skade + hover-opdelinger, som de øvrige angreb.
+
+    mult er Str-multiplikatoren (1,0 for rake/constrict, 1,5 for rend/trample).
+    bab != None ⇒ rytteren rulles med til-hit (kun rake) og får hit_parts. Skade-
+    delene (dmg_parts) har 'die' = grundterningen + evt. STR-linje; total-strengen
+    bygges som resten (terning{+mod}).
+    """
+    mod = math.floor(str_mod * mult)
+    dmg_parts = [{"label": "terning", "die": dice}]
+    if mod:
+        dmg_parts.append({"label": "STR" if mult == 1.0 else f"STR ×{mult:g}", "value": mod})
+    roll = {"name": ab["name"], "damage": _damage_str(dice, mod), "dmg_parts": dmg_parts}
+    if bab is not None:
+        hit_parts = [{"label": "BAB", "value": bab}, {"label": "STR", "value": str_mod}]
+        if smod:
+            hit_parts.append({"label": "størrelse", "value": smod})
+        roll["to_hit"] = bab + smod + str_mod
+        roll["hit_parts"] = hit_parts
+    if count is not None:
+        roll["count"] = count
+    return roll
+
+
 def _attach_riders(gained: list, bab: int, str_mod: int, size: str) -> None:
     """Beregn engangs-angrebsryttere (rake/rend/constrict/trample) for formen.
 
@@ -128,7 +153,7 @@ def _attach_riders(gained: list, bab: int, str_mod: int, size: str) -> None:
     angreb (RAW). Grundterningen hentes fra evnens label ('rake 2d4+4' → 2d4), så
     formens egen Str-bonus erstattes af druidens. Note-ryttere (trip/pounce/improved
     grab/poison) får kun en trigger-tekst. Hver gained-rytter får ab['rider'] =
-    {trigger, rolls:[{name, to_hit?, damage, count?}]}.
+    {trigger, rolls:[{name, to_hit?, damage, count?, hit_parts?, dmg_parts}]}.
     """
     smod = size_mod_attack(size)
     for ab in gained:
@@ -138,16 +163,14 @@ def _attach_riders(gained: list, bab: int, str_mod: int, size: str) -> None:
         m = _DICE_RE.search(ab.get("label") or "")
         dice = m.group(0) if m else None
         rolls = []
-        if rt == "extra_attacks" and dice:                  # rake: ekstra naturlige angreb
-            rolls = [{"name": ab["name"], "to_hit": bab + smod + str_mod,
-                      "damage": _damage_str(dice, str_mod),
-                      "count": int(ab.get("rider_count") or 1)}]
-        elif rt == "two_hit" and dice:                      # rend: skade + 1,5×Str
-            rolls = [{"name": ab["name"], "damage": _damage_str(dice, math.floor(str_mod * 1.5))}]
-        elif rt == "on_grapple" and dice:                   # constrict: auto skade ved grapple
-            rolls = [{"name": ab["name"], "damage": _damage_str(dice, str_mod)}]
-        elif rt == "trample" and dice:                      # trample: skade + 1,5×Str
-            rolls = [{"name": ab["name"], "damage": _damage_str(dice, math.floor(str_mod * 1.5))}]
+        if dice:
+            if rt == "extra_attacks":            # rake: ekstra naturlige angreb (m. til-hit)
+                rolls = [_rider_roll(ab, dice, str_mod, 1.0, bab=bab, smod=smod,
+                                     count=int(ab.get("rider_count") or 1))]
+            elif rt == "on_grapple":             # constrict: auto skade ved grapple (×1 Str)
+                rolls = [_rider_roll(ab, dice, str_mod, 1.0)]
+            elif rt in ("two_hit", "trample"):   # rend/trample: skade + 1,5×Str
+                rolls = [_rider_roll(ab, dice, str_mod, 1.5)]
         ab["rider"] = {"trigger": special_abilities.RIDER_TRIGGERS.get(rt, ""), "rolls": rolls}
 
 

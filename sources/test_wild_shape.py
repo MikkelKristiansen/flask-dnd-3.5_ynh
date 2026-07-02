@@ -36,3 +36,21 @@ def test_shambling_mound_form_matches_srd():
     assert form["size"] == "large" and form["ac"]["ac"] == 20
     slam = form["attacks"][0]
     assert (slam["to_hit"], slam["damage"]) == (13, "2d6+5")
+
+
+def test_rider_breakdowns():
+    """Rytter-angreb bærer hit_parts/dmg_parts der summer til tallene (til hover)."""
+    gained = [
+        {"name": "Rake", "label": "rake 2d4", "rider_type": "extra_attacks", "rider_count": 2},
+        {"name": "Rend", "label": "rend 2d6", "rider_type": "two_hit"},
+    ]
+    W._attach_riders(gained, bab=3, str_mod=4, size="medium")
+    rake = gained[0]["rider"]["rolls"][0]
+    # rake: til-hit = BAB + STR (størrelse 0 for medium), skade = terning + 1×STR
+    assert rake["to_hit"] == 7 and rake["damage"] == "2d4+4" and rake["count"] == 2
+    assert sum(p["value"] for p in rake["hit_parts"]) == rake["to_hit"]
+    assert [p for p in rake["dmg_parts"] if "value" in p][0]["value"] == 4
+    rend = gained[1]["rider"]["rolls"][0]
+    # rend: ingen til-hit, skade = terning + 1,5×STR (floor(4·1.5)=6)
+    assert "to_hit" not in rend and rend["damage"] == "2d6+6"
+    assert rend["dmg_parts"][1]["label"] == "STR ×1.5" and rend["dmg_parts"][1]["value"] == 6
