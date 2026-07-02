@@ -129,6 +129,9 @@ def build_character_view(char, db):
     armor_atk_pen = char_module.armor_attack_penalty(armor_prof, char.inventory, db)
 
     racial_save = int(char_module.race_data(char.race).get("save_bonus", 0))
+    # Base fort/ref/will udledes af klasse+level (gemmes aldrig — se db.base_saves),
+    # så de aldrig bliver forældede ved level-up. Præcis samme mønster som BAB.
+    class_saves = db.base_saves(char.cls, char.level)
     # Saves vises effektivt (eff) men bærer basis-værdien med, så en ▲/▼-markør
     # kan vise hvornår en aktiv effekt ændrede tallet.
     saves = []
@@ -136,8 +139,8 @@ def build_character_view(char, db):
                               ("Reflex", "reflex", "dex"),
                               ("Will", "will", "wis")):
         eff_bonus = char_module.save_effect_bonus(active_modifiers, skey)
-        base_v = char_module.save_total(char.saves.get(skey, 0), getattr(ab, akey), racial_save)
-        eff_v = char_module.save_total(char.saves.get(skey, 0), getattr(eff, akey),
+        base_v = char_module.save_total(class_saves.get(skey, 0), getattr(ab, akey), racial_save)
+        eff_v = char_module.save_total(class_saves.get(skey, 0), getattr(eff, akey),
                                        racial_save, eff_bonus)
         src = effects.stat_sources(effect_sources, {"save_all", char_module.SAVE_TARGETS[skey]}, akey)
         saves.append(effects.delta_row(label, eff_v, base_v, src))

@@ -455,9 +455,8 @@ def build_character_data(f) -> dict:
         "experience_points": 0,
         "hp": {"current": hp, "max": hp},
         "ability_scores": final,
-        "saves": {"fortitude": int(cl1.get("fort", 0)),
-                  "reflex": int(cl1.get("ref", 0)),
-                  "will": int(cl1.get("will", 0))},
+        # Base saves gemmes IKKE — de udledes af klasse+level ved visning
+        # (db.base_saves), så de ikke bliver forældede ved level-up. Se db.base_saves.
         "combat": combat,
         "attacks": [],
         "skills": list(skills_out.values()),

@@ -294,6 +294,16 @@ def base_attack_bonus(class_name: str, level: int) -> int:
     return int((get_class_level((class_name or "").lower(), level) or {}).get("bab", 0))
 
 
+def base_saves(class_name: str, level: int) -> dict:
+    """Base fort/ref/will udledt af klasse + level (single-class). Som BAB gemmer vi
+    dem ikke — de slås altid op i class_levels, så de ikke bliver forældede ved
+    level-up. Nøglerne matcher char.saves (fortitude/reflex/will)."""
+    row = get_class_level((class_name or "").lower(), level) or {}
+    return {"fortitude": int(row.get("fort", 0)),
+            "reflex":    int(row.get("ref", 0)),
+            "will":      int(row.get("will", 0))}
+
+
 def get_class_level(class_name: str, level: int) -> dict | None:
     with _connect() as conn:
         row = conn.execute(
