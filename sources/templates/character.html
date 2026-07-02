@@ -210,7 +210,7 @@
       <div class="stat-row"><span class="stat-label">Touch</span><span class="stat-val">{{ ac.touch }}{{ dmark(ac_delta.touch) }}</span></div>
       <div class="stat-row"><span class="stat-label">FF</span><span class="stat-val">{{ ac.flat_footed }}{{ dmark(ac_delta.flat_footed) }}</span></div>
       <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(initiative.val) }}','Initiativ')" title="Slå initiativ"><span class="stat-label">Init</span><span class="stat-val">{{ "%+d"|format(initiative.val) }}{{ dmark(initiative) }}</span></div>
-      <div class="stat-row"><span class="stat-label">BAB</span><span class="stat-val">{{ "%+d"|format(co.get("bab",0)) }}</span></div>
+      <div class="stat-row"><span class="stat-label">BAB</span><span class="stat-val">{{ "%+d"|format(bab) }}</span></div>
       <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(grapple.val) }}','Grapple')" title="Slå grapple-check"><span class="stat-label">Grapple</span><span class="stat-val">{{ "%+d"|format(grapple.val) }}{{ dmark(grapple) }}</span></div>
       <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ speed.val }} ft{{ dmark(speed) }}</span></div>
     </div>

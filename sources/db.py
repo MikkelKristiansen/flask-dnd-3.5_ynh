@@ -284,6 +284,16 @@ def get_spell_attacks(spell_id: str) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def base_attack_bonus(class_name: str, level: int) -> int:
+    """BAB udledt af klasse + level (single-class). Kilde til sandhed for til-hit.
+
+    Vi gemmer IKKE BAB på karakteren længere — den ville blive forældet ved level-up.
+    I stedet slås den altid op i class_levels-tabellen, så et level-3-druide-ark
+    automatisk viser +2 uden at nogen skal huske at opdatere et felt.
+    """
+    return int((get_class_level((class_name or "").lower(), level) or {}).get("bab", 0))
+
+
 def get_class_level(class_name: str, level: int) -> dict | None:
     with _connect() as conn:
         row = conn.execute(

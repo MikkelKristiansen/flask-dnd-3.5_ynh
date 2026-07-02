@@ -193,7 +193,7 @@ def build_wild_shape_form(char, ws: dict | None, db) -> dict | None:
         str=animal["str"], dex=animal["dex"], con=animal["con"],
         int=d.int, wis=d.wis, cha=d.cha)
     size = animal["size"]
-    bab = int(char.combat.get("bab", 0))
+    bab = db.base_attack_bonus(char.cls, char.level)
     natural = int(animal.get("natural_armor", 0) or 0)
 
     # Natural abilities: hvad kobles på (animal: kun Ex special attacks; elemental:

@@ -322,7 +322,7 @@ def build_character_view(char, db):
 
     # Combat: beregn til-hit/skade pr. angreb + grapple + initiativ (gemmes aldrig i YAML).
     # Angreb = eksplicitte (spells/unarmed) + afledte fra våben i hånden (wielded).
-    bab = int(char.combat.get("bab", 0))
+    bab = db.base_attack_bonus(char.cls, char.level)
     # Betingede spell-angreb (Attack.requires) vises kun når den spell der
     # skaber dem står på "I brug" (varighed kører).
     active_keys = char_module.active_spell_keys(
@@ -754,6 +754,7 @@ def build_character_view(char, db):
         "base_speed": base_speed,
         "attack_rows": attack_rows,
         "attacks_json": attacks_json,
+        "bab": bab,
         "grapple": grapple,
         "initiative": initiative,
         "ac": ac,

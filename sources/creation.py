@@ -436,8 +436,9 @@ def build_character_data(f) -> dict:
             class_features["Combat Style"] = style
 
     gold = {k: int(f.get(f"gold_{k}", "") or 0) for k in ("pp", "gp", "sp", "cp")}
-    combat = {"bab": int(cl1.get("bab", 0)),
-              "speed": rd.get("speed", 30) + char_module.class_speed_bonus(cls)}
+    # BAB gemmes IKKE — den udledes af klasse+level ved visning (db.base_attack_bonus),
+    # så den aldrig kan blive forældet ved level-up. Se db.base_attack_bonus.
+    combat = {"speed": rd.get("speed", 30) + char_module.class_speed_bonus(cls)}
 
     data = {
         "name": name,
