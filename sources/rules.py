@@ -315,6 +315,8 @@ def attack_total(attack: Attack, ability_scores: AbilityScores,
         damage = attack.fixed_damage
     else:
         str_bonus = math.floor(ability_scores.modifier("str") * attack.str_damage_mult)
+        if attack.str_penalty_only:
+            str_bonus = min(str_bonus, 0)   # regular bue: kun straf, aldrig bonus
         total_bonus = str_bonus + attack.damage_bonus + extra_damage
         if total_bonus == 0:
             damage = attack.base_damage
@@ -375,6 +377,8 @@ def attack_damage_breakdown(attack: Attack, ability_scores: AbilityScores,
 
     parts = [{"label": "terning", "die": attack.base_damage}]
     str_bonus = math.floor(ability_scores.modifier("str") * attack.str_damage_mult)
+    if attack.str_penalty_only:
+        str_bonus = min(str_bonus, 0)   # regular bue: kun straf, aldrig bonus
     if str_bonus != 0:
         # Vis multiplikatoren når den ikke er 1 (tohånds ×1.5, off-hånd ×0.5), så
         # spilleren kan se hvorfor Str-bidraget afviger fra sin rå modifier.
@@ -616,6 +620,22 @@ _DEFAULT_STR_MULT = {
     "two-handed": 1.5, "one-handed": 1.0, "light": 1.0, "unarmed": 1.0, "ranged": 0.0,
 }
 
+# Ranged Str-til-skade er ikke ét fladt tal — den afhænger af våbentypen (SRD):
+# composite bue → fuld Str-bonus til skade (rating-cap håndhæves på ære, ikke i koden);
+# regular bue (penalty_only) → kun Str-STRAF tæller, aldrig bonus; kaster-våben (full,
+# fx slynge/dart/javelin) → fuld Str som melee; armbrøst/net (none/ukendt) → ingen Str.
+# Data-drevet via weapons.ranged_str (se data/weapons.yaml).
+_RANGED_STR_MULT = {
+    "composite": (1.0, False),
+    "full": (1.0, False),
+    "penalty_only": (1.0, True),
+}
+
+
+def _ranged_str(w: dict) -> tuple[float, bool]:
+    """(str_damage_mult, str_penalty_only) for et ranged-våben ud fra dets ranged_str-felt."""
+    return _RANGED_STR_MULT.get(w.get("ranged_str"), (0.0, False))
+
 # Default-hænder pr. weapon_class (fallback). Bruges når katalogets `hands` ikke er
 # sat — kun ranged er flertydig (slynge=1, langbue=2), så de har eksplicit `hands`.
 _WEAPON_HANDS = {
@@ -782,7 +802,7 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
 
     _FINESSE_WEAPON_IDS = {"rapier", "whip", "spiked_chain"}
 
-    def make(item, w, name, base_damage, mult, pen, is_off) -> Attack:
+    def make(item, w, name, base_damage, mult, pen, is_off, str_penalty_only=False) -> Attack:
         not_prof = not (item.house_rule
                         or weapon_proficient(w, weapon_prof, allowed_weapons))
         wclass = w["weapon_class"]
@@ -814,6 +834,7 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
             not_proficient=not_prof,
             note=_twf_note(pen, is_off),
             finesse=wclass == "light" or w["id"] in _FINESSE_WEAPON_IDS,
+            str_penalty_only=str_penalty_only,
         )
 
     attacks: list[Attack] = []
@@ -830,13 +851,17 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
             attacks.append(make(item, w, name, dmg(w, 0), pmult, prim_pen, False))
             off_attacks.append(make(item, w, f"{name} (off-hånd)", dmg(w, 1), 0.5, off_pen, True))
         else:
+            penalty_only = False
             if item.str_mult is not None:
                 mult = item.str_mult
             elif item.two_handed and wclass in ("light", "one-handed"):
                 mult = 1.5
+            elif wclass == "ranged":
+                mult, penalty_only = _ranged_str(w)
             else:
                 mult = _DEFAULT_STR_MULT.get(wclass, 1.0)
-            attacks.append(make(item, w, name, dmg(w, 0), mult, prim_pen, False))
+            attacks.append(make(item, w, name, dmg(w, 0), mult, prim_pen, False,
+                                str_penalty_only=penalty_only))
 
     # Ekstra off-hånds-angreb fra Improved (−5) / Greater (−10) — kloner det første off-angreb.
     if off_attacks and twf:

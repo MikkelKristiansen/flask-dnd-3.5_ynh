@@ -168,6 +168,7 @@ CREATE TABLE weapons (
     damage_type  TEXT,                       -- bludgeoning | piercing | slashing | kombinationer
     hands        INTEGER,                    -- hænder våbnet kræver; NULL = udled af weapon_class (kun sat hvor ranged afviger)
     metal        INTEGER,                    -- 0 = ikke-metal (træ/læder): kan ikke laves af cold iron / forsølves; NULL = metal (default)
+    ranged_str   TEXT,                       -- ranged Str-til-skade: composite | penalty_only | full | none | NULL(=none)
     description  TEXT                        -- SRD-beskrivelse (særlige egenskaber); NULL = ingen særtekst
 );
 

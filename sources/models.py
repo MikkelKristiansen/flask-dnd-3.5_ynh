@@ -50,6 +50,7 @@ class Attack:
     not_proficient: bool = False   # våben man ikke er proficient med → −4 allerede lagt i bonus
     note: str = ""                 # kort UI-markør (fx TWF-straf "−2 TWF (off-hånd)") — info, ikke et tal
     finesse: bool = False          # Weapon Finesse kan bruges (light-våben + rapier/whip/spiked_chain)
+    str_penalty_only: bool = False  # ranged: kun Str-STRAF tæller til skade (regular bue) — bonus ignoreres
 
 
 @dataclass
