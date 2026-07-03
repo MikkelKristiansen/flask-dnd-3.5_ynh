@@ -140,6 +140,27 @@ function adjSummonHp(target, creatureIdx, delta) {
   });
 }
 
+// Justér et summons resterende runder (varighed). reset=true → fuld varighed.
+function adjSummonRounds(target, delta, reset) {
+  const s = parseSummonTarget(target);
+  if (!s) return;
+  fetch(BASE + "/api/summon_rounds", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, spell_level: s.spell_level,
+                          spell_index: s.spell_index, delta, reset: !!reset})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) return;
+    const el = document.getElementById(`${target}-rounds`);
+    if (!el) return;
+    const done = data.rounds_left === 0;
+    el.textContent = done ? "udløbet" : `${data.rounds_left}/${data.rounds_max} runder`;
+    el.classList.toggle("expired", done);
+  });
+}
+
 // ── Companion tricks (redigerbar liste) ───────────────────────────────────
 let compTricks = D.compTricks;
 

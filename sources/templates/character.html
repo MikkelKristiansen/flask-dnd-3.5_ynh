@@ -741,6 +741,18 @@
       <span style="color:var(--muted);font-size:.7rem;font-style:italic;text-transform:none">
         {{ sp.size|capitalize }}, {{ sp.total_hd }} HD · SNA {{ ['','I','II','III','IV','V','VI','VII','VIII','IX'][sp.spell_level] }}{% if sp.augment %} · ⚡ Augment Summoning{% endif %}</span>
     </div>
+    {% if sp.rounds_max is not none %}
+    {# Varighed: 1 runde/casterniveau, fast ved kast. − pr. runde, ⟲ nulstiller. #}
+    <div class="stat-row">
+      <span class="stat-label">Varighed</span>
+      <span style="display:flex;align-items:center;gap:.4rem">
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjSummonRounds('{{ st }}',-1)">−</button>
+        <span class="stat-val summon-rounds{{ ' expired' if sp.rounds_left == 0 else '' }}" id="{{ st }}-rounds">{% if sp.rounds_left == 0 %}udløbet{% else %}{{ sp.rounds_left }}/{{ sp.rounds_max }} runder{% endif %}</span>
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjSummonRounds('{{ st }}',+1)">+</button>
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:.9rem" title="Nulstil til fuld varighed" onclick="adjSummonRounds('{{ st }}',0,true)">⟲</button>
+      </span>
+    </div>
+    {% endif %}
     {% if sp.count > 1 %}
     <div class="stat-row"><span class="stat-label">Antal</span><span class="stat-val">{{ sp.count }} ens væsner (fælles statblok)</span></div>
     <div class="section-title" style="margin-top:.5rem">Individer <span style="color:var(--muted);font-size:.7rem;font-style:italic">(egen HP pr. væsen)</span></div>

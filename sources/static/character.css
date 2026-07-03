@@ -250,6 +250,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .summon-indiv.ok{border-left-color:var(--green);}
 .summon-indiv.hurt{border-left-color:var(--yellow);}
 .summon-indiv.down{border-left-color:var(--red);opacity:.6;}
+.summon-rounds.expired{color:var(--red);font-weight:bold;text-transform:uppercase;letter-spacing:.03em;}
 .spell-subtabs{display:flex;gap:.4rem;margin-bottom:.8rem;}
 .spell-subtab{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);
               font-family:Georgia,serif;font-size:.85rem;padding:.4rem .6rem;

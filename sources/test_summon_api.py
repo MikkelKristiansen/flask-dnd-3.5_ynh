@@ -118,6 +118,48 @@ def test_summon_hp_adjust_and_clamp(client):
     assert r.get_json()["hp_current"] == [17]
 
 
+# ── Runde-tracker (varighed = 1 runde/casterniveau, fast ved kast) ──────────
+
+def test_cast_snapshots_duration(client):
+    client.post("/api/summon", json={"char": "druid", "level": 1,
+                "spell_index": 3, "creature": "wolf"})
+    char = _load("druid")
+    s = char.summons[0]
+    assert s["rounds_max"] == char.level      # tjorn er level 3 → 3 runder
+    assert s["rounds_left"] == char.level
+
+
+def test_summon_rounds_countdown_and_clamp(client):
+    client.post("/api/summon", json={"char": "druid", "level": 1,
+                "spell_index": 3, "creature": "wolf"})
+    base = {"char": "druid", "spell_level": 1, "spell_index": 3}
+    last = None
+    for _ in range(5):                        # tæl forbi 0 → klampes
+        last = client.post("/api/summon_rounds", json={**base, "delta": -1}).get_json()
+    assert last["rounds_left"] == 0
+    assert _load("druid").summons[0]["rounds_left"] == 0
+
+
+def test_summon_rounds_reset(client):
+    client.post("/api/summon", json={"char": "druid", "level": 1,
+                "spell_index": 3, "creature": "wolf"})
+    base = {"char": "druid", "spell_level": 1, "spell_index": 3}
+    client.post("/api/summon_rounds", json={**base, "delta": -2})
+    r = client.post("/api/summon_rounds", json={**base, "reset": True})
+    assert r.get_json()["rounds_left"] == _load("druid").level
+
+
+def test_summon_rounds_legacy_without_duration(client):
+    # Gammel summon uden rounds_max (fra før trackeren) → endpoint afviser pænt.
+    char = _load("druid")
+    char_module.save_character(str(app_module.CHARACTERS_DIR / "druid.yaml"), {
+        "summons": [{"creature": "wolf", "spell_level": 1, "spell_index": 3,
+                     "count": 1, "hp_current": [13]}]})
+    r = client.post("/api/summon_rounds", json={"char": "druid",
+                    "spell_level": 1, "spell_index": 3, "delta": -1})
+    assert r.status_code == 400
+
+
 def test_condition_and_buff_on_summon(client):
     client.post("/api/summon", json={"char": "druid", "level": 1,
                 "spell_index": 3, "creature": "wolf"})

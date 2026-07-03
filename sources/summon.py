@@ -278,6 +278,15 @@ def build_summon(ref: dict, db) -> dict | None:
     stat["augment"] = bool(ref.get("augment"))
     stat["spell_level"] = ref.get("spell_level")
     stat["spell_index"] = ref.get("spell_index")
+    # Varighed i runder (1/casterniveau, fast ved kast). None = ikke sporet
+    # (gamle summons fra før runde-trackeren) → templaten viser ingen tracker.
+    rmax = ref.get("rounds_max")
+    stat["rounds_max"] = None if rmax is None else int(rmax)
+    if stat["rounds_max"] is None:
+        stat["rounds_left"] = None
+    else:
+        rleft = ref.get("rounds_left", rmax)
+        stat["rounds_left"] = max(0, min(int(rleft), stat["rounds_max"]))
     stat["name"] = ref.get("name") or animal["name"]
     # Effekter (tracking): tilstande slås op i kataloget; buffs er selvbeskrivende.
     cond_ids = list(ref.get("conditions") or [])

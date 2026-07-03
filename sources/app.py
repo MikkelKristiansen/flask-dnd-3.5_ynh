@@ -525,6 +525,9 @@ def api_summon():
     if not stat:
         return jsonify({"error": "ugyldigt væsen"}), 400
     ref["hp_current"] = [stat["hp_max"]] * count
+    # Varighed: Summon Monster/SNA varer 1 runde pr. casterniveau (fast ved kast).
+    ref["rounds_max"] = char.level
+    ref["rounds_left"] = char.level
 
     # Sæt summon-spellet "I brug" (samme mekanik som cycleSpell → state=active).
     spells_active = {k: list(v) for k, v in char.spells_active.items()}
@@ -581,6 +584,38 @@ def api_summon_hp():
     ref["hp_current"] = hp_list
     char_module.save_character(str(path), {"summons": char.summons})
     return jsonify({"hp_current": hp_list, "hp_max": hp_max, "creature_index": creature})
+
+
+@app.route("/api/summon_rounds", methods=["POST"])
+def api_summon_rounds():
+    """Tæl et summons resterende runder op/ned (varighed = 1 runde/casterniveau).
+
+    delta justerer rounds_left (klampet 0..rounds_max); reset=True sætter tilbage
+    til fuld varighed. Ændrer aldrig HP eller afskediger — det styrer brugeren selv.
+    """
+    data  = request.get_json()
+    slug  = data.get("char")
+    level = int(data.get("spell_level"))
+    index = int(data.get("spell_index"))
+    delta = int(data.get("delta", 0))
+    reset = bool(data.get("reset", False))
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+
+    char = char_module.load_character(str(path))
+    ref = _find_summon(char.summons, level, index)
+    if not ref:
+        return jsonify({"error": "no summon"}), 400
+    rmax = ref.get("rounds_max")
+    if rmax is None:
+        return jsonify({"error": "no duration"}), 400
+    rmax = int(rmax)
+    cur = int(ref.get("rounds_left", rmax))
+    new = rmax if reset else max(0, min(rmax, cur + delta))
+    ref["rounds_left"] = new
+    char_module.save_character(str(path), {"summons": char.summons})
+    return jsonify({"rounds_left": new, "rounds_max": rmax})
 
 
 @app.route("/api/spell_charge", methods=["POST"])

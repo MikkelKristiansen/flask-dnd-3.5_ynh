@@ -409,6 +409,10 @@ def _serialize_summon(s: dict) -> dict:
     hp = s.get("hp_current")
     if hp is not None:
         out["hp_current"] = [int(x) for x in hp]
+    if s.get("rounds_max") is not None:        # varighed (runder) — snapshot af casterniveau ved kast
+        out["rounds_max"] = int(s["rounds_max"])
+    if s.get("rounds_left") is not None:
+        out["rounds_left"] = int(s["rounds_left"])
     if s.get("template"):          # Summon Monster: celestial/fiendish — SNA har ingen
         out["template"] = str(s["template"])
     if s.get("augment"):
