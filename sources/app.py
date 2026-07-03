@@ -728,6 +728,27 @@ def api_buffs():
     return jsonify({"ok": True})
 
 
+@app.route("/api/combat_options", methods=["POST"])
+def api_combat_options():
+    """Slå én kampindstilling til/fra (Point Blank/Dodge/Charge/Fighting Defensively)."""
+    data      = request.get_json()
+    slug      = data.get("char")
+    option_id = data.get("option_id")
+    on        = bool(data.get("on"))
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+
+    char = char_module.load_character(str(path))
+    opts = dict(char.combat_options)
+    if on:
+        opts[option_id] = True
+    else:
+        opts.pop(option_id, None)
+    char_module.save_character(str(path), {"combat_options": opts})
+    return jsonify({"ok": True})
+
+
 @app.route("/api/roll/<path:expression>")
 def api_roll(expression):
     try:

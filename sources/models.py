@@ -121,6 +121,7 @@ class Character:
     domain_spells_used: dict = field(default_factory=dict)      # {level: bool}
     lay_on_hands_used: int = 0   # paladin: HP brugt af dagens lay-on-hands-pulje (nulstilles ved Ny dag)
     smite_used: int = 0          # paladin: smite evil brugt i dag (nulstilles ved Ny dag)
+    combat_options: dict = field(default_factory=dict)  # aktive kamp-toggles: {option_id: True}
 
 
 def validate_character_data(data: object) -> None:

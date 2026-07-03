@@ -186,6 +186,7 @@ def load_character(path: str) -> Character:
         domain_spells_used=domain_spells_used,
         lay_on_hands_used=int(data.get("lay_on_hands_used", 0)),
         smite_used=int(data.get("smite_used", 0)),
+        combat_options={str(k): bool(v) for k, v in (data.get("combat_options") or {}).items()},
     )
 
 
@@ -485,6 +486,9 @@ def save_character(path: str, updates: dict) -> None:
 
     if "buffs" in updates:
         data["buffs"] = list(updates["buffs"])
+
+    if "combat_options" in updates:
+        data["combat_options"] = dict(updates["combat_options"])
 
     if "companion_conditions" in updates:
         comp = data.get("companion")

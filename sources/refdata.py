@@ -602,3 +602,15 @@ _CREATURE_TEMPLATES: dict = _load_yaml("creature_templates")
 def creature_templates() -> dict:
     """Rå skabelon-data ({templates: {...}, scaling: {...}}) — se creature_template.py."""
     return _CREATURE_TEMPLATES
+
+
+# Kampindstillinger ("Kampindstillinger"-panelet, Lag A). Dokument-formet
+# (id → {label, feat?, scope, modifiers, note}), som races/classes — indlæst
+# direkte, ikke via importer.py/SQLite. Selve toggle-mekanikken (feat-gate,
+# view-model) bor i combat_options.py; her er kun kildedataene.
+_COMBAT_OPTIONS: dict = _load_records("combat_options")
+
+
+def combat_options() -> dict:
+    """Rå kamp-toggle-data ({id: {label, feat?, scope, modifiers, note}})."""
+    return _COMBAT_OPTIONS

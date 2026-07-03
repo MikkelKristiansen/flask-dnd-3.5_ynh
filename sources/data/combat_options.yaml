@@ -1,0 +1,45 @@
+# combat_options — situationelle kamp-toggles ("Kampindstillinger"-panelet).
+#
+# Hver blok er én afkrydsning spilleren kan slå til/fra INDEN et slag, så
+# angrebs-tallene allerede afspejler valget. Samme modifier-form som effects.yaml
+# ({target, type, value}), men gated på feat i stedet for spell/tilstand.
+#
+# feat: feat-id der skal være ejet for at optionen overhovedet vises (udelad for
+# generiske kamp-handlinger alle kan bruge, fx Charge).
+# scope: melee | ranged | all — kun til note/klarhed her; de faktiske targets
+# (attack_melee/ranged, damage_melee/ranged) er eksplicitte i modifiers.
+# note: vises som tooltip — "æres-system" betyder appen ikke selv tjekker
+# betingelsen (afstand/antal modstandere), spilleren vinger selv af.
+
+point_blank_shot:
+  label: "Point Blank Shot (≤30 ft)"
+  feat: point_blank_shot
+  scope: ranged
+  modifiers:
+    - {target: attack_ranged, type: untyped, value: 1}
+    - {target: damage_ranged, type: untyped, value: 1}
+  note: "Kun mål under 30 fod (æres-system)"
+
+dodge:
+  label: "Dodge"
+  feat: dodge
+  scope: all
+  modifiers:
+    - {target: ac, type: dodge, value: 1}
+  note: "vs én modstander (æres-system)"
+
+charge:
+  label: "Charge"
+  scope: melee
+  modifiers:
+    - {target: attack, type: untyped, value: 2}
+    - {target: ac, type: untyped, value: -2}
+  note: "én runde"
+
+fighting_defensively:
+  label: "Fighting Defensively"
+  scope: all
+  modifiers:
+    - {target: attack, type: untyped, value: -4}
+    - {target: ac, type: dodge, value: 2}
+  note: "−4 til angreb, +2 dodge-AC"

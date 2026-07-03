@@ -422,6 +422,16 @@ function removeBuff(target, idx) {
   }).then(() => location.reload());
 }
 
+// ── Kampindstillinger: toggles der lægger bonusser oveni FØR man slår ──────
+// (Point Blank Shot, Dodge, Charge, Fighting Defensively). Samme simple
+// reload-mønster som addBuff/removeBuff.
+function toggleCombatOption(id, el) {
+  fetch(BASE + "/api/combat_options", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, option_id: id, on: el.checked})
+  }).then(() => location.reload());
+}
+
 // ── Barbarian Rage: aktiverbar klasse-feature via buff-motoren (spell_id "rage") ─
 // Til/fra-knap. Aktiv rage er bare en buff på karakteren; al mekanik (str/con-kaskade,
 // temp-HP, Will, AC) kommer fra effekt-posten i data/effects.yaml.

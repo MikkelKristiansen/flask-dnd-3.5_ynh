@@ -12,6 +12,7 @@ import re
 
 import character as char_module
 import class_features as class_features_module
+import combat_options as combat_options_module
 import companion as companion_module
 import creature_template
 import effects
@@ -90,6 +91,14 @@ def build_character_view(char, db):
     # Permanente planlægningstal (level-up, encumbrance, racial SLA-DC) bruger
     # bevidst de rå scores — en midlertidig buff må ikke påvirke dem.
     active_modifiers, effect_sources = effects.collect_character_effects(char, db)
+    # Kampindstillinger (Point Blank/Dodge/Charge/Fighting Defensively m.fl.):
+    # samme modifier-form som buffs/tilstande, så de bare lægges oveni FØR net
+    # beregnes nedenfor. char_feat_ids beregnes lokalt her (i stedet for at
+    # flytte hele feat_data-blokken, der først kommer længere nede) — billigt,
+    # og undgår at rode med feat_data's egen opbygning.
+    _feat_ids_early = [char_module.feat_id(e) for e in char.feats]
+    active_modifiers = active_modifiers + combat_options_module.active_modifiers(
+        char, _feat_ids_early)
     eff = char_module.effective_ability_scores(ab, active_modifiers)
     # Direkte (ikke-ability) bonusser: nettobonus pr. target (attack/damage/
     # save_*/skill_*/speed). AC behandles separat (typerne skal holdes adskilt).
@@ -208,7 +217,7 @@ def build_character_view(char, db):
         fid = char_module.feat_id(e)
         row = db.get_feat(fid)
         feat_data.append((fid, row, char_module.feat_label(e, row)))
-    char_feat_ids = [char_module.feat_id(e) for e in char.feats]
+    char_feat_ids = _feat_ids_early  # samme liste som blev beregnet tidligt til kampindstillinger
 
     # Spell-tilstande: selv-varigheds-spells (self_duration) har tre tilstande
     # (Ledig/I brug/Brugt); øvrige har to (Ledig/Brugt). 'used' = slot brugt
@@ -344,15 +353,28 @@ def build_character_view(char, db):
 
         Bull's Strength m.fl. kaskaderer via eff; direkte bonusser (attack/damage)
         lægges på her. Basis er angrebet helt uden aktive effekter.
+
+        Ud over de GLOBALE attack_extra/damage_extra (rammer alle angreb) lægges
+        scope'ede bonusser oveni pr. angreb ud fra atk.kind — fx Point Blank Shot
+        (attack_ranged/damage_ranged) rammer kun ranged-angreb, ikke melee.
         """
-        e = char_module.attack_total(atk, eff, bab, char.size, attack_extra, damage_extra, has_finesse)
+        if atk.kind in ("melee", "melee_touch"):
+            scoped_atk, scoped_dmg = net.get("attack_melee", 0), net.get("damage_melee", 0)
+        elif atk.kind in ("ranged", "ranged_touch"):
+            scoped_atk, scoped_dmg = net.get("attack_ranged", 0), net.get("damage_ranged", 0)
+        else:
+            scoped_atk = scoped_dmg = 0
+        atk_extra = attack_extra + scoped_atk
+        dmg_extra = damage_extra + scoped_dmg
+
+        e = char_module.attack_total(atk, eff, bab, char.size, atk_extra, dmg_extra, has_finesse)
         b = char_module.attack_total(atk, ab, bab, char.size, has_finesse=has_finesse)
         # Opdeling til hover (samme komponenter som e's to_hit): BAB + ability +
         # størrelse + våben + effekter. Genbruger skill-breakdown-tooltippen i JS.
         hit_bd = char_module.attack_to_hit_breakdown(
-            atk, eff, bab, char.size, attack_extra, has_finesse)
+            atk, eff, bab, char.size, atk_extra, has_finesse)
         # Skade-opdeling (terning + Str×mult + effekter) — samme hover som til-hit.
-        dmg_bd = char_module.attack_damage_breakdown(atk, eff, damage_extra)
+        dmg_bd = char_module.attack_damage_breakdown(atk, eff, dmg_extra)
         return {**e,
                 "hit_parts": hit_bd["parts"],
                 "hit_changed": e["to_hit"] != b["to_hit"], "hit_up": e["to_hit"] > b["to_hit"],
@@ -743,6 +765,7 @@ def build_character_view(char, db):
         "skill_breakdowns": skill_breakdowns,
         "feat_data": feat_data,
         "char_feat_ids": char_feat_ids,
+        "combat_options_panel": combat_options_module.panel(char, char_feat_ids),
         "spell_data": spell_data,
         "slots": slots,
         "condition_data": condition_data,

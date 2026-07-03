@@ -284,6 +284,23 @@
     <button class="add-attack-btn" onclick="openAttackModal('add')">+ Tilføj angreb</button>
   </div>
 
+  {# Kampindstillinger: toggles der lægger angrebs-/AC-bonusser oveni FØR man
+     slår — Point Blank Shot, Dodge (feat-gated) + Charge/Fighting Defensively
+     (generiske). Panelet er tomt hvis ingen options er synlige (ingen af de
+     relevante feats ejet). #}
+  {% if combat_options_panel %}
+  <div class="section">
+    <div class="section-title">Kampindstillinger <span style="color:var(--muted);font-size:.7rem;font-style:italic">(vinges af FØR du slår)</span></div>
+    {% for opt in combat_options_panel %}
+    <div class="stat-row" title="{{ opt.note }}">
+      <label class="stat-label" style="cursor:pointer" for="combat-opt-{{ opt.id }}">{{ opt.label }}</label>
+      <input type="checkbox" id="combat-opt-{{ opt.id }}" {% if opt.on %}checked{% endif %}
+             onchange="toggleCombatOption('{{ opt.id }}', this)">
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <!-- Ammunition — client-renderet fra inventaret; vises kun når der er ammo -->
   <div class="section" id="ammo-section" style="display:none">
     <div class="section-title">Ammunition <span style="color:var(--muted);font-size:.7rem;font-style:italic">(antal skud)</span></div>
