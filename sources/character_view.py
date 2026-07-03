@@ -14,6 +14,7 @@ import character as char_module
 import class_features as class_features_module
 import combat_options as combat_options_module
 import companion as companion_module
+import familiar as familiar_module
 import creature_template
 import effects
 import refdata
@@ -103,6 +104,19 @@ def build_character_view(char, db):
     bab = db.base_attack_bonus(char.cls, char.level)
     active_modifiers = active_modifiers + combat_options_module.active_modifiers(
         char, _feat_ids_early, bab)
+    # Familiar (Wizard/Sorcerer): typens mester-bonus (owl +3 Spot, rat +2 Fort …)
+    # lægges ind som en effekt-kilde FØR eff/net, så saves/skills bliver korrekte og
+    # breakdown viser "Familiar". Toads maks-HP-bonus håndteres separat nedenfor.
+    familiar_stat = familiar_module.build_familiar(char, db)
+    familiar_hp_bonus = 0
+    if familiar_stat:
+        _fam_id = (char.companion or {}).get("animal")
+        familiar_hp_bonus = refdata.familiar_hp_bonus(_fam_id)
+        _fam_mods = refdata.familiar_benefit_modifiers(_fam_id)
+        if _fam_mods:
+            active_modifiers = active_modifiers + _fam_mods
+            effect_sources.append({"name": f"Familiar ({familiar_stat['name']})",
+                                   "kind": "buff", "modifiers": _fam_mods, "riders": []})
     eff = char_module.effective_ability_scores(ab, active_modifiers)
     # Direkte (ikke-ability) bonusser: nettobonus pr. target (attack/damage/
     # save_*/skill_*/speed). AC behandles separat (typerne skal holdes adskilt).
@@ -674,7 +688,9 @@ def build_character_view(char, db):
                 }
 
     # Companion/mount: beregn det fulde statblok fra den tynde reference (eller None).
-    companion = companion_module.build_companion(char, db)
+    # Familiar deler companion-fanen; build_companion returnerer None for en
+    # familiar-ref, så familiar_stat (bygget ovenfor) overtager.
+    companion = companion_module.build_companion(char, db) or familiar_stat
     # Hvilken slags ledsager kan klassen tilkalde? Druide L1/ranger L4+ → animal
     # companion (companion_ok-filtreret liste); paladin L5+ → special mount (kun
     # warhorse/warpony). Begge bruger samme "Tilkald"-knap + companion-fane.
@@ -684,6 +700,11 @@ def build_character_view(char, db):
         can_summon_companion = True
         companion_animals = [{"id": a["id"], "name": a["name"]} for a in db.get_all_animals()
                              if a["id"] in ("heavy_warhorse", "warpony")]
+    elif familiar_module.familiar_eligible(char.cls, char.level):
+        companion_noun = "Familiar"
+        can_summon_companion = True
+        companion_animals = [{"id": cid, "name": db.get_animal(cid)["name"]}
+                             for cid in refdata.familiar_ids() if db.get_animal(cid)]
     else:
         companion_noun = "Animal Companion"
         can_summon_companion = companion_module.companion_effective_level(char.cls, char.level) > 0
@@ -769,6 +790,12 @@ def build_character_view(char, db):
         "can_summon_companion": can_summon_companion,
         "companion_animals": companion_animals,
         "companion_noun": companion_noun,
+        # Familiar: type-bonussen (integreret i mesterens tal) + Alertness (betinget,
+        # note). hp_max_eff bruges i HP-visningen så toads +3 slår igennem på loftet.
+        "familiar_note": (refdata.familiar_data((char.companion or {}).get("animal")).get("note")
+                          if familiar_stat else None),
+        "familiar_hp_bonus": familiar_hp_bonus,
+        "hp_max_eff": char.hp_max + familiar_hp_bonus,
         "wild_shape_info": wild_shape_ctx,
         "wild_form": wild_form,
         "summons": summons,

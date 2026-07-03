@@ -104,6 +104,31 @@ def race_bio(race: str) -> dict:
     return race_data(race).get("bio", {})
 
 
+# Familiarer (Wizard/Sorcerer): creature-id → mester-bonus (data/familiars.yaml).
+# Statblokken bor i animals.yaml; her kun det familiar-specifikke (bonus til mesteren).
+_FAMILIARS: dict[str, dict] = _load_records("familiars")
+
+
+def familiar_ids() -> list[str]:
+    """Gyldige familiar-creature-id'er i data-rækkefølge (til vælgeren)."""
+    return list(_FAMILIARS.keys())
+
+
+def familiar_data(creature_id: str) -> dict:
+    """Familiar-bonus-data (note, modifiers, hp_bonus) for et creature-id eller {}."""
+    return _FAMILIARS.get((creature_id or "").lower(), {})
+
+
+def familiar_benefit_modifiers(creature_id: str) -> list[dict]:
+    """Mester-bonussens modifiers (saves/skills) — flyder ind i mesterens effekt-motor."""
+    return list(familiar_data(creature_id).get("modifiers") or [])
+
+
+def familiar_hp_bonus(creature_id: str) -> int:
+    """Fast maks-HP-bonus familiaren giver mesteren (toad +3; ellers 0)."""
+    return int(familiar_data(creature_id).get("hp_bonus") or 0)
+
+
 # Standardsprog i SRD. Druidic er hemmeligt (kun druider) og er IKKE i "any"-puljen
 # — det gives kun gennem klassen.
 STANDARD_LANGUAGES = [

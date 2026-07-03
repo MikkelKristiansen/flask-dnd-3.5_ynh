@@ -12,6 +12,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 import catalog
 import character as char_module
 import companion as companion_module
+import familiar as familiar_module
 import db
 import dice as dice_module
 import effects
@@ -334,10 +335,13 @@ def api_hp():
 
     char = char_module.load_character(str(path))
     # Midlertidigt HP (Virtue m.fl.) hæver loftet, så HP kan holdes over max.
-    ceiling = char.hp_max + effects.temp_hp(char, db)
+    # En toad-familiar giver +3 maks-HP (SRD) → hæver også loftet.
+    comp = char.companion or {}
+    fam_hp = refdata.familiar_hp_bonus(comp.get("animal")) if comp.get("kind") == "familiar" else 0
+    ceiling = char.hp_max + fam_hp + effects.temp_hp(char, db)
     new_hp = max(-20, min(ceiling, char.hp_current + delta))
     char_module.save_character(str(path), {"hp_current": new_hp})
-    return jsonify({"hp_current": new_hp, "hp_max": char.hp_max})
+    return jsonify({"hp_current": new_hp, "hp_max": char.hp_max + fam_hp})
 
 
 @app.route("/api/spells", methods=["POST"])
@@ -1309,8 +1313,9 @@ def api_companion():
         return jsonify({"error": "not found"}), 404
     char = char_module.load_character(str(path))
     is_mount = companion_module.mount_eligible(char.cls, char.level)
+    is_familiar = familiar_module.familiar_eligible(char.cls, char.level)
     eff_level = companion_module.companion_effective_level(char.cls, char.level)
-    if not is_mount and eff_level <= 0:
+    if not is_mount and not is_familiar and eff_level <= 0:
         return jsonify({"error": "Klassen kan ikke have en ledsager."}), 400
 
     if action == "dismiss":
@@ -1320,6 +1325,15 @@ def api_companion():
     if action == "summon":
         animal_id = str(data.get("animal", "")).strip()
         animal = db.get_animal(animal_id)
+        name = str(data.get("name", "")).strip() or (animal["name"] if animal else "")
+        if is_familiar:
+            # Familiar: skal være et gyldigt familiar-dyr; HP = ½ mesterens (SRD).
+            if not animal or animal_id not in refdata.familiar_ids():
+                return jsonify({"error": "Ukendt eller uegnet familiar."}), 400
+            comp = {"name": name, "animal": animal_id, "kind": "familiar",
+                    "hp_current": max(1, char.hp_max // 2)}
+            char_module.save_character(str(path), {"companion": comp})
+            return jsonify({"ok": True})
         if is_mount:
             # Paladin-mount: kun de to standard-mounts, og statblok via mount-tabellen.
             if not animal or animal_id not in ("heavy_warhorse", "warpony"):
@@ -1331,7 +1345,6 @@ def api_companion():
                 return jsonify({"error": "Ukendt eller uegnet dyr."}), 400
             deltas = companion_module.companion_deltas(max(1, eff_level))
             kind = "companion"
-        name   = str(data.get("name", "")).strip() or animal["name"]
         hp_max = companion_module.advance_companion(animal, deltas, db)["hp_max"]
         comp = {"name": name, "animal": animal_id, "hp_current": hp_max, "tricks": []}
         if kind == "mount":

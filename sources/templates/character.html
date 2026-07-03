@@ -77,13 +77,13 @@
   <div class="hp-control">
     <button class="hp-btn" onclick="hpChange(-1)" title="-1 HP">−</button>
     <button class="hp-btn" onclick="hpChange(-5)" title="-5 HP" style="font-size:.8rem">−5</button>
-    <div class="hp-value">❤ <span id="hp-num">{{ char.hp_current }}</span> / {{ char.hp_max }}{% if temp_hp %}<span class="hp-temp" title="Midlertidigt HP fra aktiv effekt — kan holde dig op til {{ char.hp_max + temp_hp }}">🛡 +{{ temp_hp }}</span>{% endif %}<span id="hp-status"></span></div>
+    <div class="hp-value">❤ <span id="hp-num">{{ char.hp_current }}</span> / {{ hp_max_eff }}{% if familiar_hp_bonus %}<span class="hp-temp" title="+{{ familiar_hp_bonus }} maks-HP fra din familiar (toad)">🐸 +{{ familiar_hp_bonus }}</span>{% endif %}{% if temp_hp %}<span class="hp-temp" title="Midlertidigt HP fra aktiv effekt — kan holde dig op til {{ hp_max_eff + temp_hp }}">🛡 +{{ temp_hp }}</span>{% endif %}<span id="hp-status"></span></div>
     <button class="hp-btn" onclick="hpChange(+5)" title="+5 HP" style="font-size:.8rem">+5</button>
     <button class="hp-btn" onclick="hpChange(+1)" title="+1 HP">+</button>
     <div class="bar-group" style="margin-left:.5rem">
       <div class="bar-track">
         <div id="hp-bar" class="bar-fill hp-fill"
-             style="width:{{ [[char.hp_current * 100 // char.hp_max if char.hp_max > 0 else 0, 0]|max, 100]|min }}%"></div>
+             style="width:{{ [[char.hp_current * 100 // hp_max_eff if hp_max_eff > 0 else 0, 0]|max, 100]|min }}%"></div>
       </div>
     </div>
   </div>
@@ -601,6 +601,13 @@
       <span style="color:var(--muted);font-size:.7rem;font-style:italic;text-transform:none">
         {{ cp.size|capitalize }}, {{ cp.total_hd }} HD · {{ cp.level_label }}</span>
     </div>
+    {% if cp.kind == 'familiar' and familiar_note %}
+    <div class="flags-box" style="margin-bottom:.6rem">
+      <span class="flags-lead">✨ Familiar-bonus (indregnet i dine tal)</span>
+      <span class="flags-item buff"><span class="flags-name">{{ familiar_note }}</span></span>
+      <span class="flags-item buff"><span class="flags-name">Alertness:</span> +2 Listen/Spot når familiaren er inden for arm's reach</span>
+    </div>
+    {% endif %}
     <div id="buff-rem-combat-companion" class="buff-reminder" style="display:none"></div>
     <div class="stat-row">
       <span class="stat-label">HP</span>
@@ -700,13 +707,16 @@
   <div class="section">
     <div class="section-title">Evner</div>
     {% if cp.special_refs %}
-    <div class="stat-row"><span class="stat-label">{{ 'Mount' if cp.kind == 'mount' else 'Companion' }}</span><span class="stat-val" style="font-size:.8rem;text-align:right">{% for e in cp.special_refs %}<span {% if e.id %}class="ws-abil" onclick="showDetail('ability','{{ e.id }}')" title="Tryk for forklaring"{% endif %}>{{ e.label }}</span>{{ ", " if not loop.last }}{% endfor %}</span></div>
+    <div class="stat-row"><span class="stat-label">{{ 'Mount' if cp.kind == 'mount' else ('Familiar' if cp.kind == 'familiar' else 'Companion') }}</span><span class="stat-val" style="font-size:.8rem;text-align:right">{% for e in cp.special_refs %}<span {% if e.id %}class="ws-abil" onclick="showDetail('ability','{{ e.id }}')" title="Tryk for forklaring"{% endif %}>{{ e.label }}</span>{{ ", " if not loop.last }}{% endfor %}</span></div>
+    {% endif %}
+    {% if cp.kind == 'familiar' and cp.specials %}
+    <div class="stat-row"><span class="stat-label">Specials</span><span class="stat-val" style="font-size:.8rem;text-align:right">{{ cp.specials|join(", ") }}</span></div>
     {% endif %}
     {% if cp.feat_refs %}
     <div class="stat-row"><span class="stat-label">Feats</span><span class="stat-val" style="font-size:.8rem;text-align:right">{% for e in cp.feat_refs %}<span {% if e.id %}class="ws-abil" onclick="showDetail('feat','{{ e.id }}')" title="Tryk for forklaring"{% endif %}>{{ e.label }}</span>{{ ", " if not loop.last }}{% endfor %}</span></div>
     {% endif %}
-    {# Mounts er intelligente (Int 6+) og bruger ikke trick-systemet. #}
-    {% if cp.kind != 'mount' %}
+    {# Mounts og familiarer er intelligente (Int 6+) og bruger ikke trick-systemet. #}
+    {% if cp.kind != 'mount' and cp.kind != 'familiar' %}
     <div style="margin-top:.6rem;color:var(--muted);font-size:.7rem;font-style:italic;text-transform:uppercase;letter-spacing:.05em">Tricks ({{ cp.bonus_tricks }} bonus)</div>
     <div id="comp-tricks" style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.35rem"></div>
     <div style="display:flex;gap:.4rem;margin-top:.4rem">
@@ -1732,7 +1742,7 @@
 window.DND = {
   scriptRoot: "{{ request.script_root }}",
   name: {{ name|tojson }},
-  hpMax: {{ char.hp_max }},
+  hpMax: {{ hp_max_eff }},
   hpCurrent: {{ char.hp_current }},
   spellsUsed: {{ char.spells_used|tojson }},
   spellsActive: {{ char.spells_active|tojson }},

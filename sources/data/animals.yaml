@@ -3599,3 +3599,157 @@
   skills: '[{"id": "climb", "misc": 6}, {"id": "hide", "misc": -12, "note": "web-spindere +8 ved brug af web"}, {"id": "jump", "misc": 0, "note": "jagende spindere +10"}, {"id": "spot", "misc": 7, "note": "jagende spindere +8"}]'
   feats: '[]'
   companion_ok: false
+
+# ── Standard-familiarer (Wizard/Sorcerer) — kun basis-dyret, ikke companion ──
+
+- id: bat
+  name: Bat
+  size: diminutive
+  base_hd: 1
+  str: 1
+  dex: 15
+  con: 10
+  int: 2
+  wis: 14
+  cha: 4
+  natural_armor: 0
+  speed: "5 ft., fly 40 ft. (good)"
+  attacks: '[]'
+  special_attacks: null
+  special_qualities: "Blindsense 20 ft., low-light vision"
+  skills: '[{"id": "hide", "misc": 12}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 4}, {"id": "spot", "misc": 6}]'
+  feats: '["Alertness"]'
+  companion_ok: false
+
+- id: cat
+  name: Cat
+  size: tiny
+  base_hd: 1
+  str: 3
+  dex: 15
+  con: 10
+  int: 2
+  wis: 12
+  cha: 7
+  natural_armor: 0
+  speed: "30 ft."
+  attacks: '[{"name": "Claw", "damage": "1d2", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d3", "group": "secondary"}]'
+  special_attacks: null
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "balance", "misc": 8}, {"id": "climb", "misc": 10}, {"id": "hide", "misc": 12}, {"id": "jump", "misc": 14}, {"id": "listen", "misc": 2}, {"id": "move_silently", "misc": 4}, {"id": "spot", "misc": 2}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: lizard
+  name: Lizard
+  size: tiny
+  base_hd: 1
+  str: 3
+  dex: 15
+  con: 10
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 0
+  speed: "20 ft., climb 20 ft."
+  attacks: '[{"name": "Bite", "damage": "1d4", "group": "primary"}]'
+  special_attacks: null
+  special_qualities: "Low-light vision"
+  skills: '[{"id": "balance", "misc": 8}, {"id": "climb", "misc": 16}, {"id": "hide", "misc": 8}, {"id": "listen", "misc": 2}, {"id": "spot", "misc": 2}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: rat
+  name: Rat
+  size: tiny
+  base_hd: 1
+  str: 2
+  dex: 15
+  con: 10
+  int: 2
+  wis: 12
+  cha: 2
+  natural_armor: 0
+  speed: "15 ft., climb 15 ft., swim 15 ft."
+  attacks: '[{"name": "Bite", "damage": "1d3", "group": "primary"}]'
+  special_attacks: null
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "balance", "misc": 8}, {"id": "climb", "misc": 16}, {"id": "hide", "misc": 12}, {"id": "move_silently", "misc": 8}, {"id": "swim", "misc": 14}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: raven
+  name: Raven
+  size: tiny
+  base_hd: 1
+  str: 1
+  dex: 15
+  con: 10
+  int: 2
+  wis: 14
+  cha: 6
+  natural_armor: 0
+  speed: "10 ft., fly 40 ft. (average)"
+  attacks: '[{"name": "Claws", "damage": "1d2", "group": "primary"}]'
+  special_attacks: null
+  special_qualities: "Low-light vision"
+  skills: '[{"id": "listen", "misc": 1}, {"id": "spot", "misc": 3}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: viper_tiny
+  name: Snake, Tiny Viper
+  size: tiny
+  base_hd: 1
+  str: 4
+  dex: 17
+  con: 11
+  int: 1
+  wis: 12
+  cha: 2
+  natural_armor: 2
+  speed: "15 ft., climb 15 ft., swim 15 ft."
+  attacks: '[{"name": "Bite", "damage": "1", "group": "primary"}]'
+  special_attacks: "Poison (bid, Fort DC 10, 1d6 Con)"
+  special_qualities: "Scent"
+  skills: '[{"id": "balance", "misc": 8}, {"id": "climb", "misc": 14}, {"id": "hide", "misc": 12}, {"id": "listen", "misc": 5}, {"id": "spot", "misc": 5}, {"id": "swim", "misc": 8}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false
+
+- id: toad
+  name: Toad
+  size: diminutive
+  base_hd: 1
+  str: 1
+  dex: 12
+  con: 11
+  int: 1
+  wis: 14
+  cha: 4
+  natural_armor: 0
+  speed: "5 ft."
+  attacks: '[]'
+  special_attacks: null
+  special_qualities: "Amphibious, low-light vision"
+  skills: '[{"id": "hide", "misc": 20}, {"id": "listen", "misc": 2}, {"id": "spot", "misc": 2}]'
+  feats: '["Alertness"]'
+  companion_ok: false
+
+- id: weasel
+  name: Weasel
+  size: tiny
+  base_hd: 1
+  str: 3
+  dex: 15
+  con: 10
+  int: 2
+  wis: 12
+  cha: 5
+  natural_armor: 0
+  speed: "20 ft., climb 20 ft."
+  attacks: '[{"name": "Bite", "damage": "1d3", "group": "primary"}]'
+  special_attacks: "Attach"
+  special_qualities: "Low-light vision, scent"
+  skills: '[{"id": "balance", "misc": 8}, {"id": "climb", "misc": 14}, {"id": "hide", "misc": 9}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 2}]'
+  feats: '["Weapon Finesse"]'
+  companion_ok: false

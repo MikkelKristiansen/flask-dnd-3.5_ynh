@@ -305,6 +305,8 @@ def build_companion(char, db) -> dict | None:
     niveau. Returnerer None hvis karakteren ingen (gyldig) companion har.
     """
     comp = char.companion or {}
+    if comp.get("kind") == "familiar":
+        return None            # familiar bygges af familiar.build_familiar (egen motor)
     animal_id = comp.get("animal")
     if not animal_id:
         return None

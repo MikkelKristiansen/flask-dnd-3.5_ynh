@@ -1,0 +1,63 @@
+# familiars — gyldige Wizard/Sorcerer-familiarer + hver types MESTER-bonus (SRD).
+#
+# Nøglen er creature-id i data/animals.yaml (statblokken bor der, delt katalog).
+# Denne fil holder KUN det familiar-specifikke: den bonus familiaren giver sin
+# mester. Indlæses dokument-formet af refdata.py (ikke SQLite).
+#
+#   note      — kort dansk beskrivelse af bonussen (vises på arket).
+#   modifiers — liste af effekt-modifiers der lægges ind i MESTERENS effekt-motor
+#               (saves/skills, præcis som en buff). Tom liste hvis bonussen kun er HP.
+#   hp_bonus  — fast bonus til mesterens maks-HP (kun toad i SRD; håndteres i viewet).
+#
+# Alle familiarer giver DESUDEN Alertness til mesteren (+2 Listen/Spot når familiaren
+# er inden for arm's reach) — det er betinget og vises som note, ikke bagt ind i tallene.
+
+bat:
+  note: "Mester +3 på Listen"
+  modifiers:
+    - {target: "skill:listen", value: 3}
+
+cat:
+  note: "Mester +3 på Move Silently"
+  modifiers:
+    - {target: "skill:move_silently", value: 3}
+
+hawk:
+  note: "Mester +3 på Spot i klart lys"
+  modifiers:
+    - {target: "skill:spot", value: 3}
+
+lizard:
+  note: "Mester +2 på Climb"
+  modifiers:
+    - {target: "skill:climb", value: 2}
+
+owl:
+  note: "Mester +3 på Spot i skygge/dæmpet lys"
+  modifiers:
+    - {target: "skill:spot", value: 3}
+
+rat:
+  note: "Mester +2 på Fortitude-redninger"
+  modifiers:
+    - {target: "save_fort", value: 2}
+
+raven:
+  note: "Mester +3 på Appraise"
+  modifiers:
+    - {target: "skill:appraise", value: 3}
+
+viper_tiny:
+  note: "Mester +3 på Bluff"
+  modifiers:
+    - {target: "skill:bluff", value: 3}
+
+toad:
+  note: "Mester +3 HP (maks)"
+  hp_bonus: 3
+  modifiers: []
+
+weasel:
+  note: "Mester +2 på Reflex-redninger"
+  modifiers:
+    - {target: "save_ref", value: 2}
