@@ -231,6 +231,10 @@
         <span class="charge-badge" onclick="spendCharge({{ row.charge_level }},{{ row.charge_index }})"
               title="Brug en — klik for at tælle ned (0 = Brugt)">🪨 {{ row.charges_remaining }}/{{ row.charges_max }}</span>
         {% endif %}
+        {% if row.mode and row.mode.count > 1 %}
+        <span class="mode-toggle" onclick="cycleSpellMode({{ row.charge_level }},{{ row.charge_index }})"
+              title="Skift tilstand — {{ row.mode.options|join(' / ') }}">⇄ skift</span>
+        {% endif %}
         {% if row.alt_note %}<span class="attack-alt">{{ row.alt_note }}</span>{% endif %}
         {% if atk.not_proficient %}<span class="attack-alt" style="color:var(--red)"
               title="Ikke proficient med dette våben — −4 er allerede trukket fra. Hak 'DM tillader' på genstanden for at fjerne straffen.">⚠ −4 uvant</span>{% endif %}

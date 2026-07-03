@@ -444,6 +444,7 @@ def build_character_view(char, db):
             "charges_remaining": d["charges_remaining"],
             "charge_level": d["level"], "charge_index": d["index"],
             "alt_note": d["alt_note"],
+            "mode": d["mode"],
         })
 
     # Rå felter for alle manuelle angreb → redigering i browseren (også de slukkede).

@@ -125,6 +125,7 @@ CREATE TABLE spell_attacks (
     spell_id          TEXT NOT NULL,   -- FK til spells.id
     label             TEXT NOT NULL,   -- visningsnavn på angrebsrækken
     kind              TEXT NOT NULL,   -- melee | ranged | melee_touch | ranged_touch
+    mode_group        TEXT,            -- tilstands-gruppe: rækker m/ samme (spell_id, mode_group) er ét angreb i flere tilstande (Produce Flame: touch)
     base_damage       TEXT NOT NULL,   -- terningen, fx "1d6"
     dmg_per_level     INTEGER,         -- skade-bonus pr. casterniveau (Produce Flame 1)
     dmg_per_level_div INTEGER,         -- del niveauet med dette først (tom=1); Flame Blade 2 = +1 pr. 2 niveauer

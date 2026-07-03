@@ -910,11 +910,36 @@ def spell_attack_damage(row: dict, caster_level: int) -> str:
     return f"{base}{bonus:+d}" if bonus else base
 
 
+def _spell_attack_rows_to_show(rows: list[dict], selected: int) -> list[tuple]:
+    """Reducér en spells katalog-rækker til de rækker der faktisk skal vises.
+
+    Rækker uden mode_group vises hver for sig (mode=None). Rækker der deler et
+    mode_group er gensidigt udelukkende tilstande af ét angreb → kun den valgte
+    (`selected`, klampet) vises, med en mode-dict {options, current, count} så
+    UI'en kan tegne en ⇄-skifteknap. Forudsætter ét mode_group pr. spell (nok til
+    Produce Flame); `selected` gemmes pr. (level,index) i char.spell_modes.
+    """
+    out: list[tuple] = []
+    group: list[dict] = []
+    for r in rows:
+        if r.get("mode_group"):
+            group.append(r)
+        else:
+            out.append((r, None))
+    if group:
+        cur = max(0, min(selected, len(group) - 1))
+        mode = {"options": [g["label"] for g in group],
+                "current": cur, "count": len(group)}
+        out.append((group[cur], mode))
+    return out
+
+
 def derive_spell_attacks(char: "Character", db) -> list[dict]:
     """Lav angreb ud fra spells der står på "I brug" via spell_attacks-kataloget.
 
     Hver post: {attack, level, index, spell_id, charges_max, charges_remaining,
-    alt_note}. charges_max=None betyder ubegrænset (ingen nedtælling).
+    alt_note, mode}. charges_max=None betyder ubegrænset (ingen nedtælling).
+    mode=None for almindelige angreb; ellers {options, current, count} til ⇄-skift.
     """
     out: list[dict] = []
     for lvl, indices in (char.spells_active or {}).items():
@@ -923,7 +948,9 @@ def derive_spell_attacks(char: "Character", db) -> list[dict]:
             if not (0 <= idx < len(prepared)):
                 continue
             sid = prepared[idx]
-            for r in db.get_spell_attacks(sid):
+            key = spell_charge_key(lvl, idx)
+            selected = char.spell_modes.get(key, 0)
+            for r, mode in _spell_attack_rows_to_show(db.get_spell_attacks(sid), selected):
                 atk = Attack(
                     name=r["label"],
                     kind=r["kind"],
@@ -936,13 +963,13 @@ def derive_spell_attacks(char: "Character", db) -> list[dict]:
                     source="spell",
                 )
                 charges_max = r.get("charges")
-                key = spell_charge_key(lvl, idx)
                 remaining = (char.spell_charges.get(key, charges_max)
                              if charges_max else None)
                 out.append({
                     "attack": atk, "level": lvl, "index": idx, "spell_id": sid,
                     "charges_max": charges_max, "charges_remaining": remaining,
                     "alt_note": r.get("alt_note") or "",
+                    "mode": mode,
                 })
     return out
 

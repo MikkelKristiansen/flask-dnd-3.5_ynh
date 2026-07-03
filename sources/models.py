@@ -97,6 +97,7 @@ class Character:
     spells_used: dict = field(default_factory=dict)
     spells_active: dict = field(default_factory=dict)  # spells "I brug" (varighed kører) — {level: [index]}
     spell_charges: dict = field(default_factory=dict)  # ladninger tilbage pr. aktiv spell — {"level-index": antal}
+    spell_modes: dict = field(default_factory=dict)  # valgt tilstand pr. aktiv spell m/ mode_group — {"level-index": indeks i gruppen}
     conditions: list = field(default_factory=list)
     buffs: list = field(default_factory=list)  # aktive positive effekter: {name, note, affects, spell_id?}
     languages: list = field(default_factory=list)  # kendte sprog (automatiske + valgte bonussprog)

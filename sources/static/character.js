@@ -736,6 +736,16 @@ function spendCharge(level, spellIndex) {
   }).then(() => location.reload());
 }
 
+// Skift en spells angrebs-tilstand (Produce Flame: nærkamp ⇄ kastet). Serveren
+// rykker til næste tilstand i gruppen og gemmer valget; siden genindlæses.
+function cycleSpellMode(level, spellIndex) {
+  fetch(BASE + "/api/spell_mode", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, level, spell_index: spellIndex})
+  }).then(() => location.reload());
+}
+
 function updateSpellDisplay(level) {
   document.querySelectorAll(`[id^="spell-${level}-"]`).forEach(row => {
     const idx = parseInt(row.id.replace(`spell-${level}-`, ""));

@@ -127,6 +127,13 @@ def load_character(path: str) -> Character:
         except (ValueError, TypeError):
             pass
 
+    spell_modes: dict[str, int] = {}
+    for k, v in (data.get("spell_modes") or {}).items():
+        try:
+            spell_modes[str(k)] = int(v)
+        except (ValueError, TypeError):
+            pass
+
     conditions = list(data.get("conditions") or [])
     buffs = list(data.get("buffs") or [])
 
@@ -161,6 +168,7 @@ def load_character(path: str) -> Character:
         spells_used=spells_used,
         spells_active=spells_active,
         spell_charges=spell_charges,
+        spell_modes=spell_modes,
         conditions=conditions,
         buffs=buffs,
         languages=[str(x) for x in (data.get("languages") or [])],
@@ -474,6 +482,11 @@ def save_character(path: str, updates: dict) -> None:
     if "spell_charges" in updates:
         data["spell_charges"] = {
             str(k): int(v) for k, v in updates["spell_charges"].items()
+        }
+
+    if "spell_modes" in updates:
+        data["spell_modes"] = {
+            str(k): int(v) for k, v in updates["spell_modes"].items()
         }
 
     if "domain_spells_prepared" in updates:

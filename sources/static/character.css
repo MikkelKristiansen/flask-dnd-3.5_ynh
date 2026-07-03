@@ -175,6 +175,9 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
 .charge-badge{background:var(--yellow);color:#fff;border-radius:10px;font-size:.72rem;
               padding:.1rem .45rem;cursor:pointer;white-space:nowrap;}
 .charge-badge:hover{filter:brightness(1.15);}
+.mode-toggle{background:var(--card);border:1px solid var(--border);color:var(--accent);
+             border-radius:10px;font-size:.72rem;padding:.1rem .45rem;cursor:pointer;white-space:nowrap;}
+.mode-toggle:hover{background:var(--accent);color:#fff;}
 .attack-alt{color:var(--muted);font-size:.7rem;font-style:italic;}
 .lang-list{display:flex;flex-wrap:wrap;gap:.35rem;}
 .lang-chip{background:var(--card);border:1px solid var(--border);color:var(--text);

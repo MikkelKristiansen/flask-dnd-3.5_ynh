@@ -626,6 +626,39 @@ def api_spell_charge():
     })
 
 
+@app.route("/api/spell_mode", methods=["POST"])
+def api_spell_mode():
+    """Skift en aktiv spells angrebs-tilstand (Produce Flame: nærkamp ⇄ kastet).
+
+    Rykker det gemte tilstands-indeks én frem (modulo antal tilstande i spellens
+    mode_group) og gemmer det. Antallet slås op i kataloget ud fra den forberedte
+    spell på (level, spell_index).
+    """
+    data        = request.get_json()
+    slug        = data.get("char")
+    level       = int(data.get("level"))
+    spell_index = int(data.get("spell_index", 0))
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+
+    char = char_module.load_character(str(path))
+    prepared = char.spells_prepared.get(level, [])
+    if not (0 <= spell_index < len(prepared)):
+        return jsonify({"error": "bad index"}), 400
+    sid = prepared[spell_index]
+    count = sum(1 for r in db.get_spell_attacks(sid) if r.get("mode_group"))
+    if count < 2:
+        return jsonify({"error": "no modes"}), 400
+
+    spell_modes = dict(char.spell_modes)
+    key = char_module.spell_charge_key(level, spell_index)
+    spell_modes[key] = (spell_modes.get(key, 0) + 1) % count
+
+    char_module.save_character(str(path), {"spell_modes": spell_modes})
+    return jsonify({"spell_modes": spell_modes})
+
+
 @app.route("/api/conditions", methods=["POST"])
 def api_conditions():
     data         = request.get_json()

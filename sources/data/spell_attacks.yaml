@@ -3,12 +3,17 @@
 #   base_damage + min(floor(niveau*dmg_per_level/dmg_per_level_div), dmg_per_level_max) + dmg_bonus
 # dmg_per_level_div tom = 1 (skalér pr. niveau); 2 = +X pr. 2 niveauer osv.
 # charges (tom = ubegrænset varighed) giver en nedtælling pr. ramt på arket.
+# mode_group (tom = intet): rækker med SAMME spell_id og SAMME mode_group er
+#   gensidigt udelukkende tilstande af ét angreb (fx nærkamp-touch ELLER kastet).
+#   Arket viser kun den valgte + en ⇄-knap til at skifte — ikke to samtidige rækker.
 
 # Produce Flame — flamme i hånden; nærkamps-touch ELLER kastet ranged-touch.
+# Ét angreb med to tilstande (mode_group: touch) — kan skiftes fra runde til runde.
 # 1d6 +1/casterniveau, cappet ved +5 (druid 2 → 1d6+2).
 - spell_id: produce_flame
   label: Produce Flame (nærkamp)
   kind: melee_touch
+  mode_group: touch
   base_damage: 1d6
   dmg_per_level: 1
   dmg_per_level_div:
@@ -23,6 +28,7 @@
 - spell_id: produce_flame
   label: Produce Flame (kastet)
   kind: ranged_touch
+  mode_group: touch
   base_damage: 1d6
   dmg_per_level: 1
   dmg_per_level_div:
