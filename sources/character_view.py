@@ -389,7 +389,10 @@ def build_character_view(char, db):
                 "base_dmg": b["damage"]}
 
     def _row(atk, manual, idx):
-        return {"attack": atk, "manual": manual, "idx": idx, **_atk_fields(atk)}
+        # throw_mode (kastbart våben) bæres videre som "mode" → ⇄-knap i templaten,
+        # samme felt som udledte spell-angreb bruger.
+        return {"attack": atk, "manual": manual, "idx": idx,
+                "mode": getattr(atk, "throw_mode", None), **_atk_fields(atk)}
 
     # Two-weapon fighting: hvilke TWF-niveauer har karakteren (feat ELLER ranger-stil
     # i let/ingen rustning)? Fodres til derive_attacks så off-hånds-straffen regnes.

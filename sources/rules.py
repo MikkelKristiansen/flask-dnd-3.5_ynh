@@ -777,17 +777,19 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
     ALLE wielded angreb. twf (fra twf_context) bestemmer feat-rabatten samt evt.
     ekstra off-hånds-angreb (Improved −5 / Greater −10).
     """
-    wielded: list[tuple[InventoryItem, dict]] = []
-    for item in inventory:
+    # Bevar inventar-indekset (idx) — kaste-tilstand gemmes pr. genstand og skal
+    # kunne slås til/fra via netop det indeks (/api/weapon_throw).
+    wielded: list[tuple[int, InventoryItem, dict]] = []
+    for idx, item in enumerate(inventory):
         if item.state != "wielded" or not item.ref.startswith("weapons/"):
             continue
         w = db.get_weapon(item.ref.split("/", 1)[1])
         if w:
-            wielded.append((item, w))
+            wielded.append((idx, item, w))
 
     # Er der overhovedet et off-hånds-angreb i spil? (eksplicit flag eller dobbeltvåben)
-    off_items = [(it, w) for it, w in wielded if it.off_hand]
-    twf_active = bool(off_items) or any(it.double for it, _ in wielded)
+    off_items = [(it, w) for _idx, it, w in wielded if it.off_hand]
+    twf_active = bool(off_items) or any(it.double for _idx, it, _w in wielded)
     if off_items:
         off_light = off_items[0][1]["weapon_class"] == "light"
     else:
@@ -802,9 +804,13 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
 
     _FINESSE_WEAPON_IDS = {"rapier", "whip", "spiked_chain"}
 
-    def make(item, w, name, base_damage, mult, pen, is_off, str_penalty_only=False) -> Attack:
-        not_prof = not (item.house_rule
-                        or weapon_proficient(w, weapon_prof, allowed_weapons))
+    def make(item, w, name, base_damage, mult, pen, is_off, str_penalty_only=False,
+             kind=None, extra_parts=None, skip_prof=False, show_range=True,
+             throw_mode=None) -> Attack:
+        # kind/show_range/skip_prof/extra_parts tilsidesættes af kaste-tilstanden
+        # (samme våben i nærkamp vs. kastet); default = uændret våbenopførsel.
+        not_prof = False if skip_prof else not (
+            item.house_rule or weapon_proficient(w, weapon_prof, allowed_weapons))
         wclass = w["weapon_class"]
         # Navngiven opdeling af til-hit-bonusen; summen bliver Attack.bonus. Weapon
         # Focus lægges HER på (matches mod våbnets navn) — tidligere gik feat'en tabt.
@@ -814,6 +820,8 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
         parts += weapon_focus_parts(feats, w["name"])
         if not_prof:
             parts.append({"label": "ikke-proficient", "value": -4})
+        if extra_parts:
+            parts += extra_parts
         if pen:
             parts.append({"label": "TWF", "value": pen})
         # Skade-side: Weapon Specialization (+2, ikke Str-skaleret) — matches mod
@@ -821,7 +829,7 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
         dmg_parts = weapon_specialization_parts(feats, w["name"])
         return Attack(
             name=name,
-            kind="ranged" if wclass == "ranged" else "melee",
+            kind=kind or ("ranged" if wclass == "ranged" else "melee"),
             base_damage=base_damage,
             str_damage_mult=mult,
             bonus=sum(p["value"] for p in parts),
@@ -830,19 +838,63 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
             damage_parts=dmg_parts,
             crit=w["critical"] or "x2",
             type=w["damage_type"] or "",
-            range=f"{w['range_ft']} ft." if w["range_ft"] else "",
+            range=f"{w['range_ft']} ft." if (show_range and w["range_ft"]) else "",
             not_proficient=not_prof,
             note=_twf_note(pen, is_off),
             finesse=wclass == "light" or w["id"] in _FINESSE_WEAPON_IDS,
             str_penalty_only=str_penalty_only,
+            throw_mode=throw_mode,
         )
+
+    def make_throwable(inv_index, item, w, name) -> Attack:
+        """Ét angreb for et kastbart våben i den valgte tilstand (nærkamp/kastet).
+
+        item.thrown: True=kastet, False=nærkamp, None=våbnets natur (nærkampsvåben
+        → nærkamp, kastevåben som javelin → kastet). Bærer mode-info til ⇄-knappen.
+        Kastet: Dex til-hit (kind=ranged) + fuld Str til skade (½ i off-hånd).
+        Nærkamp med et rent kastevåben (javelin/dart): improviseret, −4 (SRD).
+        """
+        wclass = w["weapon_class"]
+        is_off = item.off_hand
+        pen = off_pen if is_off else prim_pen
+        natural_thrown = wclass == "ranged"
+        is_thrown = item.thrown if item.thrown is not None else natural_thrown
+        labels = [f"{name} (nærkamp)", f"{name} (kastet)"]
+        mode = {"options": labels, "current": 1 if is_thrown else 0,
+                "count": 2, "weapon_index": inv_index}
+        disp = labels[mode["current"]]
+        if is_thrown:
+            mult = 0.5 if is_off else (item.str_mult if item.str_mult is not None else 1.0)
+            return make(item, w, disp, dmg(w, 0), mult, pen, is_off,
+                        kind="ranged", show_range=True, throw_mode=mode)
+        if wclass == "ranged":   # kastevåben brugt i nærkamp → improviseret −4
+            mult = 0.5 if is_off else 1.0
+            return make(item, w, disp, dmg(w, 0), mult, pen, is_off,
+                        kind="melee", show_range=False, skip_prof=True,
+                        extra_parts=[{"label": "ikke egnet til nærkamp", "value": -4}],
+                        throw_mode=mode)
+        # nærkampsvåben i nærkamp: normal Str-mult-udledning
+        if is_off:
+            mult = item.str_mult if item.str_mult is not None else 0.5
+        elif item.str_mult is not None:
+            mult = item.str_mult
+        elif item.two_handed and wclass in ("light", "one-handed"):
+            mult = 1.5
+        else:
+            mult = _DEFAULT_STR_MULT.get(wclass, 1.0)
+        return make(item, w, disp, dmg(w, 0), mult, pen, is_off,
+                    kind="melee", show_range=False, throw_mode=mode)
 
     attacks: list[Attack] = []
     off_attacks: list[Attack] = []
-    for item, w in wielded:
+    for inv_index, item, w in wielded:
         wclass = w["weapon_class"]
         name = item.name or w["name"]
-        if item.off_hand:
+        # Kastbart våben (thrown=1 i kataloget): ét angreb m/ ⇄-skift nærkamp/kastet.
+        if w.get("thrown") and not item.double:
+            (off_attacks if item.off_hand else attacks).append(
+                make_throwable(inv_index, item, w, name))
+        elif item.off_hand:
             mult = item.str_mult if item.str_mult is not None else 0.5
             off_attacks.append(make(item, w, name, dmg(w), mult, off_pen, True))
         elif item.double:

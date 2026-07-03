@@ -51,6 +51,7 @@ class Attack:
     note: str = ""                 # kort UI-markør (fx TWF-straf "−2 TWF (off-hånd)") — info, ikke et tal
     finesse: bool = False          # Weapon Finesse kan bruges (light-våben + rapier/whip/spiked_chain)
     str_penalty_only: bool = False  # ranged: kun Str-STRAF tæller til skade (regular bue) — bonus ignoreres
+    throw_mode: dict | None = None  # kastbart våben: {options, current, count, weapon_index} → ⇄-skift nærkamp/kastet; None = ingen skift
 
 
 @dataclass
@@ -65,6 +66,7 @@ class InventoryItem:
     str_mult: float | None = None  # override af Str-til-skade (None = default fra våbentype)
     two_handed: bool = False    # enhåndsvåben brugt tohånds → ×1,5 Str (hvis str_mult ikke sat)
     off_hand: bool = False      # våben holdt i off-hånd (two-weapon fighting) → ½ Str + TWF-straf
+    thrown: bool | None = None  # kastbart våben: True=kaste-tilstand, False=nærkamp, None=våbnets natur (nærkampsvåben→nærkamp, kastevåben→kast)
     double: bool = False        # dobbeltvåben (fx quarterstaff) brugt som to våben → primær + off-hånds-ende (light)
     masterwork: bool = False    # rustning/skjold: mesterværk → ACP forbedres med +1 (mod 0)
     enhancement: int = 0        # rustning/skjold: magisk +N til AC (≥1 medfører masterwork)

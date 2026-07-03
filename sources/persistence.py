@@ -77,6 +77,7 @@ def load_character(path: str) -> Character:
                 str_mult=(None if item.get("str_mult") is None else float(item["str_mult"])),
                 two_handed=bool(item.get("two_handed", False)),
                 off_hand=bool(item.get("off_hand", False)),
+                thrown=(None if item.get("thrown") is None else bool(item["thrown"])),
                 double=bool(item.get("double", False)),
                 masterwork=bool(item.get("masterwork", False)),
                 enhancement=int(item.get("enhancement", 0) or 0),
@@ -348,6 +349,8 @@ def _serialize_inventory_item(item: InventoryItem) -> dict:
         out["two_handed"] = item.two_handed
     if item.off_hand:
         out["off_hand"] = item.off_hand
+    if item.thrown is not None:
+        out["thrown"] = item.thrown
     if item.double:
         out["double"] = item.double
     if item.masterwork:

@@ -170,6 +170,7 @@ CREATE TABLE weapons (
     hands        INTEGER,                    -- hænder våbnet kræver; NULL = udled af weapon_class (kun sat hvor ranged afviger)
     metal        INTEGER,                    -- 0 = ikke-metal (træ/læder): kan ikke laves af cold iron / forsølves; NULL = metal (default)
     ranged_str   TEXT,                       -- ranged Str-til-skade: composite | penalty_only | full | none | NULL(=none)
+    thrown       INTEGER,                    -- 1 = kastbart håndvåben (kan bruges i BÅDE nærkamp og kast) → ⇄-skift på arket; NULL = nej
     description  TEXT                        -- SRD-beskrivelse (særlige egenskaber); NULL = ingen særtekst
 );
 

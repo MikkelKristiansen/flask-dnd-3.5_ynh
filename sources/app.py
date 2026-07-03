@@ -659,6 +659,37 @@ def api_spell_mode():
     return jsonify({"spell_modes": spell_modes})
 
 
+@app.route("/api/weapon_throw", methods=["POST"])
+def api_weapon_throw():
+    """Skift et kastbart våbens tilstand mellem nærkamp og kastet.
+
+    Sætter item.thrown eksplicit til det MODSATTE af den nuværende effektive
+    tilstand (None = våbnets natur: nærkampsvåben→nærkamp, kastevåben→kastet).
+    """
+    data      = request.get_json()
+    slug      = data.get("char")
+    inv_index = int(data.get("inv_index", -1))
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+
+    char = char_module.load_character(str(path))
+    if not (0 <= inv_index < len(char.inventory)):
+        return jsonify({"error": "bad index"}), 400
+    item = char.inventory[inv_index]
+    if not item.ref.startswith("weapons/"):
+        return jsonify({"error": "not a weapon"}), 400
+    w = db.get_weapon(item.ref.split("/", 1)[1])
+    if not (w and w.get("thrown")):
+        return jsonify({"error": "not throwable"}), 400
+
+    effective = item.thrown if item.thrown is not None else (w["weapon_class"] == "ranged")
+    item.thrown = not effective
+
+    char_module.save_character(str(path), {"inventory": char.inventory})
+    return jsonify({"inv_index": inv_index, "thrown": item.thrown})
+
+
 @app.route("/api/conditions", methods=["POST"])
 def api_conditions():
     data         = request.get_json()

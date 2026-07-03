@@ -232,7 +232,8 @@
               title="Brug en — klik for at tælle ned (0 = Brugt)">🪨 {{ row.charges_remaining }}/{{ row.charges_max }}</span>
         {% endif %}
         {% if row.mode and row.mode.count > 1 %}
-        <span class="mode-toggle" onclick="cycleSpellMode({{ row.charge_level }},{{ row.charge_index }})"
+        <span class="mode-toggle"
+              onclick="{% if row.mode.weapon_index is defined %}cycleWeaponThrow({{ row.mode.weapon_index }}){% else %}cycleSpellMode({{ row.charge_level }},{{ row.charge_index }}){% endif %}"
               title="Skift tilstand — {{ row.mode.options|join(' / ') }}">⇄ skift</span>
         {% endif %}
         {% if row.alt_note %}<span class="attack-alt">{{ row.alt_note }}</span>{% endif %}

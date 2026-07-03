@@ -746,6 +746,15 @@ function cycleSpellMode(level, spellIndex) {
   }).then(() => location.reload());
 }
 
+// Skift et kastbart våbens tilstand (nærkamp ⇄ kastet) via dets inventar-indeks.
+function cycleWeaponThrow(invIndex) {
+  fetch(BASE + "/api/weapon_throw", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, inv_index: invIndex})
+  }).then(() => location.reload());
+}
+
 function updateSpellDisplay(level) {
   document.querySelectorAll(`[id^="spell-${level}-"]`).forEach(row => {
     const idx = parseInt(row.id.replace(`spell-${level}-`, ""));
