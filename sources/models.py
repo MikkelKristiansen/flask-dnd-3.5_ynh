@@ -110,6 +110,7 @@ class Character:
     armor: str = ""             # equipped rustnings-id (slås op i armor-tabellen)
     shield: str = ""            # equipped skjold-id
     companion: dict = field(default_factory=dict)
+    familiar_lost: dict = field(default_factory=dict)  # familiar død: {"cooldown": dage tilbage} — giver midlertidig straf til mesteren indtil en ny tilkaldes
     wild_shape: dict = field(default_factory=dict)  # {animal_used, elemental_used, current_form}
     summons: list = field(default_factory=list)  # aktive Summon Nature's Ally-væsner (tynde refs); ryddes når SNA-spellet sættes "Brugt"
     class_features: dict = field(default_factory=dict)

@@ -1330,9 +1330,14 @@ def api_companion():
             # Familiar: skal være et gyldigt familiar-dyr; HP = ½ mesterens (SRD).
             if not animal or animal_id not in refdata.familiar_ids():
                 return jsonify({"error": "Ukendt eller uegnet familiar."}), 400
+            # Er en tidligere familiar død, skal ventetiden være udløbet først.
+            cooldown = int((char.familiar_lost or {}).get("cooldown", 0))
+            if char.familiar_lost and cooldown > 0:
+                return jsonify({"error": f"Ventetid: {cooldown} dag(e) tilbage før ny familiar."}), 400
             comp = {"name": name, "animal": animal_id, "kind": "familiar",
                     "hp_current": max(1, char.hp_max // 2)}
-            char_module.save_character(str(path), {"companion": comp})
+            # Ny familiar rydder tabs-straffen.
+            char_module.save_character(str(path), {"companion": comp, "familiar_lost": {}})
             return jsonify({"ok": True})
         if is_mount:
             # Paladin-mount: kun de to standard-mounts, og statblok via mount-tabellen.
@@ -1351,6 +1356,41 @@ def api_companion():
             comp["kind"] = "mount"
         char_module.save_character(str(path), {"companion": comp})
         return jsonify({"ok": True})
+
+    return jsonify({"error": "ukendt action"}), 400
+
+
+@app.route("/api/familiar", methods=["POST"])
+def api_familiar():
+    """Familiar-tab-tracker: familiaren dør (died) eller tæl ventetiden ned (cooldown).
+
+    died: rydder familiaren og starter en ventetid (dage) + midlertidig straf på
+    mesteren (−1 angreb/saves), indtil en ny tilkaldes. cooldown: justér dage tilbage
+    (klampet ≥ 0). Gen-tilkald sker via /api/companion (summon) når ventetiden er 0.
+    """
+    data   = request.get_json()
+    slug   = data.get("char")
+    action = str(data.get("action", "")).lower()
+    path   = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char = char_module.load_character(str(path))
+    if not familiar_module.familiar_eligible(char.cls, char.level):
+        return jsonify({"error": "Klassen kan ikke have en familiar."}), 400
+
+    if action == "died":
+        # Familiaren fjernes; ventetid + straf starter.
+        char_module.save_character(str(path), {
+            "companion": {},
+            "familiar_lost": {"cooldown": familiar_module.DEFAULT_FAMILIAR_COOLDOWN}})
+        return jsonify({"ok": True, "cooldown": familiar_module.DEFAULT_FAMILIAR_COOLDOWN})
+
+    if action == "cooldown":
+        delta = int(data.get("delta", 0))
+        cur = int((char.familiar_lost or {}).get("cooldown", 0))
+        new = max(0, cur + delta)
+        char_module.save_character(str(path), {"familiar_lost": {"cooldown": new}})
+        return jsonify({"ok": True, "cooldown": new})
 
     return jsonify({"error": "ukendt action"}), 400
 

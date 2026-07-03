@@ -73,3 +73,28 @@ def test_familiar_uses_companion_tab_without_tricks():
     st = fam.build_familiar(ch, db)
     assert st["kind"] == "familiar" and st["tricks"] == []
     assert "Speak with Master" in st["specials"]           # mester-level 5
+
+
+# ── Død / gen-tilkald (house-rule-tracker) ──────────────────────────────────
+
+def test_loss_penalty_hits_master_saves():
+    # Uden familiar + familiar_lost sat → −1 på saves (og angreb).
+    base = _fort(_wizard())
+    lost = _wizard()
+    lost.familiar_lost = {"cooldown": 3}
+    assert _fort(lost) == base - 1
+
+
+def test_loss_penalty_absent_while_familiar_alive():
+    # Har man en levende familiar, gælder tabs-straffen ikke (familiar_lost ignoreres).
+    ch = _wizard(familiar_id="rat")
+    ch.familiar_lost = {"cooldown": 3}
+    v = cv.build_character_view(ch, db)
+    assert v["familiar_lost"] is None                       # ikke aktiv når familiar findes
+    assert next(s for s in v["saves"] if s["name"] == "Fortitude")["val"] == _fort(_wizard()) + 2
+
+
+def test_loss_modifiers_shape():
+    mods = fam.familiar_loss_modifiers()
+    targets = {(m["target"], m["value"]) for m in mods}
+    assert ("attack", -1) in targets and ("save_all", -1) in targets

@@ -238,6 +238,29 @@ function dismissCompanion(name) {
   .then(d => { if (d.ok) window.location.reload(); else alert(d.error || "Fejl"); });
 }
 
+// Familiaren døde: fjern den + start ventetid og midlertidig straf på mesteren.
+function familiarDied(name) {
+  if (!confirm(`${name} døde.\n\nDen fjernes, en ventetid begynder, og du bærer en midlertidig straf (−1 angreb/saves) indtil en ny familiar er tilkaldt.`)) return;
+  fetch(BASE + "/api/familiar", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "died"})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) window.location.reload(); else alert(d.error || "Fejl"); });
+}
+
+// Tæl ventetiden (dage til gen-tilkald) op/ned; ved 0 kan en ny familiar tilkaldes.
+function adjFamiliarCooldown(delta) {
+  fetch(BASE + "/api/familiar", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "cooldown", delta})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) window.location.reload(); else alert(d.error || "Fejl"); });
+}
+
 // ── Wild Shape: skift form / skift tilbage ────────────────────────────────
 function shapeWildShape() {
   const form = document.getElementById("ws-form-pick").value;

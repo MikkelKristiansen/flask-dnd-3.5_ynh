@@ -536,8 +536,29 @@
   {% if can_summon_companion and not companion %}
   <div class="section">
     <div class="section-title">{{ companion_noun }}</div>
+    {% if familiar_lost %}
+    <div class="flags-box" style="margin-bottom:.6rem">
+      <span class="flags-lead">💀 Familiaren døde</span>
+      <span class="flags-item negative">Midlertidig straf: −1 på angreb og alle saves — indtil en ny familiar er tilkaldt.</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Ventetid</span>
+      <span style="display:flex;align-items:center;gap:.4rem">
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjFamiliarCooldown(-1)">−</button>
+        <span class="stat-val" id="fam-cooldown">{{ familiar_lost.cooldown }} dag(e)</span>
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjFamiliarCooldown(+1)">+</button>
+      </span>
+    </div>
+    {% if familiar_can_resummon %}
+    <button class="add-btn" style="margin-top:.4rem" onclick="openSummonCompanion()">🐾 Tilkald ny {{ companion_noun }}</button>
+    {% else %}
+    <button class="add-btn" style="margin-top:.4rem;opacity:.5;cursor:not-allowed" disabled
+            title="Ventetiden er ikke udløbet endnu">🐾 Tilkald (vent {{ familiar_lost.cooldown }} dag(e))</button>
+    {% endif %}
+    {% else %}
     <div style="color:var(--muted);font-size:.85rem;margin-bottom:.5rem">Ingen ledsager lige nu.</div>
     <button class="add-btn" onclick="openSummonCompanion()">🐾 Tilkald {{ companion_noun }}</button>
+    {% endif %}
   </div>
   {% endif %}
 
@@ -734,6 +755,13 @@
     </div>
     <button class="add-btn" style="border-color:var(--red);color:var(--red)"
             onclick="dismissCompanion('{{ cp.name }}')">🐾 Sig farvel til {{ cp.name }}</button>
+    {% if cp.kind == 'familiar' %}
+    <div style="color:var(--muted);font-size:.82rem;margin:.7rem 0 .5rem">
+      Døde {{ cp.name }} i kamp? Så starter en ventetid før en ny kan tilkaldes, og du bærer en midlertidig straf indtil da.
+    </div>
+    <button class="add-btn" style="border-color:var(--red);color:var(--red)"
+            onclick="familiarDied('{{ cp.name }}')">💀 {{ cp.name }} døde</button>
+    {% endif %}
   </div>
 
 </div>

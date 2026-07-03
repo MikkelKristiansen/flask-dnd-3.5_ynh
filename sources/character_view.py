@@ -117,6 +117,12 @@ def build_character_view(char, db):
             active_modifiers = active_modifiers + _fam_mods
             effect_sources.append({"name": f"Familiar ({familiar_stat['name']})",
                                    "kind": "buff", "modifiers": _fam_mods, "riders": []})
+    elif char.familiar_lost:
+        # Familiaren er død og ikke erstattet endnu → midlertidig straf på mesteren.
+        _loss = familiar_module.familiar_loss_modifiers()
+        active_modifiers = active_modifiers + _loss
+        effect_sources.append({"name": "Mistet familiar", "kind": "condition",
+                               "modifiers": _loss, "riders": []})
     eff = char_module.effective_ability_scores(ab, active_modifiers)
     # Direkte (ikke-ability) bonusser: nettobonus pr. target (attack/damage/
     # save_*/skill_*/speed). AC behandles separat (typerne skal holdes adskilt).
@@ -796,6 +802,9 @@ def build_character_view(char, db):
                           if familiar_stat else None),
         "familiar_hp_bonus": familiar_hp_bonus,
         "hp_max_eff": char.hp_max + familiar_hp_bonus,
+        # Død familiar-tracker: cooldown (dage til gen-tilkald) + om det er tilladt endnu.
+        "familiar_lost": (dict(char.familiar_lost) if char.familiar_lost and not familiar_stat else None),
+        "familiar_can_resummon": (int((char.familiar_lost or {}).get("cooldown", 0)) <= 0),
         "wild_shape_info": wild_shape_ctx,
         "wild_form": wild_form,
         "summons": summons,

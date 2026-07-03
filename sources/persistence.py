@@ -180,6 +180,7 @@ def load_character(path: str) -> Character:
         armor=str(data.get("combat", {}).get("armor") or ""),
         shield=str(data.get("combat", {}).get("shield") or ""),
         companion=dict(data.get("companion") or {}),
+        familiar_lost=dict(data.get("familiar_lost") or {}),
         wild_shape=dict(data.get("wild_shape") or {}),
         summons=list(data.get("summons") or []),
         class_features=dict(data.get("class_features") or {}),
@@ -555,6 +556,13 @@ def save_character(path: str, updates: dict) -> None:
 
     # Hele companion-referencen sættes (tilkald) eller ryddes (afsked). Tom dict
     # fjerner feltet helt → build_companion giver None, og fanen forsvinder.
+    if "familiar_lost" in updates:
+        fl = updates["familiar_lost"] or {}
+        if fl:
+            data["familiar_lost"] = {"cooldown": int(fl.get("cooldown", 0))}
+        else:
+            data.pop("familiar_lost", None)
+
     if "companion" in updates:
         comp = updates["companion"] or {}
         if comp:

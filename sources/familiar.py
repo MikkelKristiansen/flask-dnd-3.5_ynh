@@ -16,6 +16,16 @@ from effects import collect_active_effects, collect_riders
 # Klasser der får en familiar via Summon Familiar (Sp). Begge fra level 1.
 FAMILIAR_CLASSES = {"wizard", "sorcerer"}
 
+# Mister man sin familiar, går der en ventetid (dage) før en ny kan tilkaldes, og
+# mesteren bærer en midlertidig straf indtil da. House-rule (SRD's XP-tab er fravalgt).
+DEFAULT_FAMILIAR_COOLDOWN = 7
+
+
+def familiar_loss_modifiers() -> list[dict]:
+    """Midlertidig straf mens mesteren er uden familiar (−1 på angreb og alle saves)."""
+    return [{"target": "attack", "type": "penalty", "value": -1},
+            {"target": "save_all", "type": "penalty", "value": -1}]
+
 
 def familiar_eligible(cls: str, level: int) -> bool:
     """Kan klassen tilkalde en familiar? (Wizard/Sorcerer fra level 1.)"""
