@@ -2,16 +2,16 @@
 name: Tjørn Birkerod
 race: Gnome
 class: Druid
-level: 2
+level: 3
 alignment: Neutral Good
 deity: Silvanus
 size: small
 
-experience_points: 2410
+experience_points: 3850
 
 hp:
-  current: 14
-  max: 17
+  current: 24
+  max: 24
 
 ability_scores:
   str: 9
@@ -41,13 +41,13 @@ attacks: []
 
 skills:
 - id: concentration
-  ranks: 3.0
+  ranks: 5.0
   misc: 0
 - id: handle_animal
   ranks: 5.0
   misc: 0
 - id: heal
-  ranks: 4.0
+  ranks: 5.0
   misc: 0
 - id: knowledge_nature
   ranks: 5.0
@@ -57,7 +57,7 @@ skills:
   ranks: 2.0
   misc: 0
 - id: listen
-  ranks: 0.0
+  ranks: 1.0
   misc: 2
   misc_note: Gnome
 - id: profession_herbalist
@@ -73,8 +73,8 @@ skills:
 feats:
 - id: spell_focus
   school: Conjuration
+- augment_summoning
 conditions: []
-# Gnome (Common, Gnome) + druidens hemmelige Druidic. Int 11 (mod 0) = ingen bonussprog.
 languages:
 - Common
 - Gnome
@@ -82,74 +82,92 @@ languages:
 spells_prepared:
   0:
   - cure_minor_wounds
-  - light
   - guidance
-  - virtue
+  - guidance
+  - resistance
   1:
   - produce_flame
   - cure_light_wounds
   - magic_stone
-spells_used: {}
+  2:
+  - flaming_sphere
+  - barkskin
+spells_used:
+  0:
+  - 1
+  - 2
+  - 0
+  2:
+  - 0
+  - 1
+  1:
+  - 1
 inventory:
 - ref: weapons/quarterstaff
-  state: wielded
-  str_mult: 1
+  state: stored
+  str_mult: 1.0
 - ref: weapons/sling
   state: wielded
-  str_mult: 1
+  str_mult: 1.0
 - ref: armor/studded_leather
   state: worn
   masterwork: true
-  house_rule: true   # DM tillader studded leather trods druidens metal-forbud
+  house_rule: true
 - ref: items/sling_bullets_10
   qty: 10
 - ref: items/healer_s_kit
   notes: 7 brug tilbage, +2 Heal
-- ref: items/holly_and_mistletoe
-  notes: spellcasting focus
 - ref: items/backpack_empty
 - ref: items/rations_trail_per_day
   qty: 4
-  notes: 4 dage
 - ref: items/waterskin
+  state: stored
   notes: fuld
 - ref: items/tanglefoot_bag
-  notes: |+
-    Tanglefoot Bag
-    When you throw a tanglefoot bag at a creature (as a ranged touch attack with a range increment of 10 feet), the bag comes apart and the goo bursts out, entangling the target and then becoming tough and resilient upon exposure to air. An entangled creature takes a –2 penalty on attack rolls and a –4 penalty to Dexterity and must make a DC 15 Reflex save or be glued to the floor, unable to move. Even on a successful save, it can move only at half speed. Huge or larger creatures are unaffected by a tanglefoot bag. A flying creature is not stuck to the floor, but it must make a DC 15 Reflex save or be unable to fly (assuming it uses its wings to fly) and fall to the ground. A tanglefoot bag does not function underwater.
-
-    A creature that is glued to the floor (or unable to fly) can break free by making a DC 17 Strength check or by dealing 15 points of damage to the goo with a slashing weapon. A creature trying to scrape goo off itself, or another creature assisting, does not need to make an attack roll; hitting the goo is automatic, after which the creature that hit makes a damage roll to see how much of the goo was scraped off. Once free, the creature can move (including flying) at half speed. A character capable of spellcasting who is bound by the goo must make a DC 15 Concentration check to cast a spell. The goo becomes brittle and fragile after 2d4 rounds, cracking apart and losing its effectiveness. An application of universal solvent to a stuck creature dissolves the alchemical goo immediately.
-
+  state: stored
+  notes: "Tanglefoot Bag\nWhen you throw a tanglefoot bag at a creature (as a ranged
+    touch attack with a range increment of 10 feet), the bag comes apart and the goo
+    bursts out, entangling the target and then becoming tough and resilient upon exposure
+    to air. An entangled creature takes a –2 penalty on attack rolls and a –4 penalty
+    to Dexterity and must make a DC 15 Reflex save or be glued to the floor, unable
+    to move. Even on a successful save, it can move only at half speed. Huge or larger
+    creatures are unaffected by a tanglefoot bag. A flying creature is not stuck to
+    the floor, but it must make a DC 15 Reflex save or be unable to fly (assuming
+    it uses its wings to fly) and fall to the ground. A tanglefoot bag does not function
+    underwater.\n\nA creature that is glued to the floor (or unable to fly) can break
+    free by making a DC 17 Strength check or by dealing 15 points of damage to the
+    goo with a slashing weapon. A creature trying to scrape goo off itself, or another
+    creature assisting, does not need to make an attack roll; hitting the goo is automatic,
+    after which the creature that hit makes a damage roll to see how much of the goo
+    was scraped off. Once free, the creature can move (including flying) at half speed.
+    A character capable of spellcasting who is bound by the goo must make a DC 15
+    Concentration check to cast a spell. The goo becomes brittle and fragile after
+    2d4 rounds, cracking apart and losing its effectiveness. An application of universal
+    solvent to a stuck creature dissolves the alchemical goo immediately.\n\n"
 - name: Drageskæl
   weight: 0.1
   qty: 5
   notes: 'Drageskæl revet af en blå drage.  '
+- ref: items/holly_and_mistletoe
+- ref: items/blanket_winter
+  state: stored
+- ref: items/flint_and_steel
+- ref: items/traveler_s_outfit
+- ref: weapons/spear
+  name: Masterwork Spear
+  bonus: 1
+  masterwork: true
 gold:
   pp: 0
   gp: 45
   sp: 12
   cp: 3
-
-# Tynd reference — basis-dyret ligger i animals-kataloget; alt (HP/AC/angreb/
-# saves/skills) beregnes i companion.py ud fra druideniveau. Kun hp_current og
-# de valgte tricks er rå data.
-companion:
-  name: Varg
-  animal: riding_dog
-  hp_current: 12
-  tricks:
-  - Attack
-  - Come
-  - Seek
-  - Stay
-  - Down
-  - Guard
-  - Heel
 class_features:
   nature_sense: +2 Knowledge (Nature) og Survival
   wild_empathy: 1d20 + 2 (level) + 0 (CHA) — Diplomacy mod dyr
   woodland_stride: Bevæger sig normalt igennem naturligt svært terræn
-  spontaneous_casting: Kan ofre forberedt spell → Summon Nature's Ally (1 fuld runde)
+  spontaneous_casting: Kan ofre forberedt spell → Summon Nature's Ally (1 fuld 
+    runde)
   animal_companion: Varg (Riding Dog)
 
 racial_traits:
@@ -180,3 +198,15 @@ notes: |
   Level 3 plan: +1 Survival, +2 Concentration, +1 Spot. Feat: Augment Summoning.
 
   Husk 120 touch produce flame.
+spells_active: {}
+spell_charges: {}
+buffs: []
+companion:
+  name: Varg
+  animal: wolf
+  hp_current: 26
+  tricks:
+  - Attack
+summons: []
+domain_spells_prepared: {}
+domain_spells_used: {}
