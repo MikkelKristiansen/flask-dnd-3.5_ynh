@@ -11,7 +11,7 @@
 #
 # Status (Fase B, Sonnet, 1. jul): SM I-III komplet og SRD-verificeret mod
 # rules/srd-v3.5-md/spells/spells-s.md (Summon Monster-tabellen, linje ~1887).
-# SM IV-IX udestår (samme mønster: udfyld + tilføj manglende statblokke).
+# SM IV-V tilføjet 3. jul (samme kilde). SM VI-IX udestår.
 #
 # Note: Aquatic-væsner (porpoise, octopus, squid, shark) kan kun summones i
 # vand/vådt miljø (SRD-fodnote 1 på tabellen). Håndhæves ikke mekanisk — samme
@@ -72,8 +72,52 @@
   - {base: viper_large, template: fiendish}
   - {base: wolverine, template: fiendish}
 
-# 4:   # udestår
-# 5:   # udestår
+4:
+  - {base: lantern_archon}
+  - {base: owl_giant, template: celestial}
+  - {base: eagle_giant, template: celestial}
+  - {base: lion, template: celestial}
+  - {base: mephit_air}
+  - {base: mephit_dust}
+  - {base: mephit_earth}
+  - {base: mephit_fire}
+  - {base: mephit_ice}
+  - {base: mephit_magma}
+  - {base: mephit_ooze}
+  - {base: mephit_salt}
+  - {base: mephit_steam}
+  - {base: mephit_water}
+  - {base: dire_wolf, template: fiendish}
+  - {base: giant_wasp, template: fiendish}
+  - {base: giant_praying_mantis, template: fiendish}
+  - {base: shark_large, template: fiendish}   # aquatic
+  - {base: yeth_hound}
+  - {base: monstrous_spider_large, template: fiendish}
+  - {base: viper_huge, template: fiendish}
+  - {base: howler}
+
+5:
+  - {base: hound_archon}
+  - {base: brown_bear, template: celestial}
+  - {base: giant_stag_beetle, template: celestial}
+  - {base: sea_cat, template: celestial}   # aquatic
+  - {base: griffon, template: celestial}
+  - {base: elemental_air_medium}
+  - {base: elemental_earth_medium}
+  - {base: elemental_fire_medium}
+  - {base: elemental_water_medium}
+  - {base: achaierai}
+  - {base: devil_bearded}
+  - {base: deinonychus, template: fiendish}
+  - {base: dire_ape, template: fiendish}
+  - {base: dire_boar, template: fiendish}
+  - {base: shark_huge, template: fiendish}   # aquatic
+  - {base: monstrous_scorpion_large, template: fiendish}
+  - {base: shadow_mastiff}
+  - {base: dire_wolverine, template: fiendish}
+  - {base: crocodile_giant, template: fiendish}
+  - {base: tiger, template: fiendish}
+
 # 6:   # udestår
 # 7:   # udestår
 # 8:   # udestår

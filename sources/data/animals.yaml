@@ -2645,3 +2645,467 @@
   skills: '[{"id": "hide", "misc": 9}, {"id": "listen", "misc": 5}, {"id": "move_silently", "misc": 5}, {"id": "spot", "misc": 5}, {"id": "search", "misc": 5}, {"id": "survival", "misc": 0, "note": "+2 ved at følge spor"}]'
   feats: '["Multiattack"]'
   companion_ok: false
+
+# ── Summon Monster IV-V — nye statblokke (Sonnet, 3. jul) ────────────────────
+
+- id: lantern_archon
+  name: Lantern Archon
+  size: small
+  type: outsider
+  base_hd: 1
+  good_saves: '["fort","ref","will"]'
+  str: 1
+  dex: 11
+  con: 10
+  int: 6
+  wis: 11
+  cha: 10
+  natural_armor: 4
+  speed: "fly 60 ft. (perfect)"
+  attacks: '[]'
+  special_attacks: "Light ray 1d6 (ranged touch, x2), spell-like abilities (at will: aid, detect evil, continual flame), aura of menace (Will DC 12 negates)"
+  special_qualities: "Damage reduction 10/evil and magic, darkvision 60 ft., immunity to electricity and petrification, magic circle against evil, teleport, tongues"
+  skills: '[{"id": "concentration", "misc": 4}, {"id": "diplomacy", "misc": 4}, {"id": "knowledge_planes", "misc": 4}, {"id": "listen", "misc": 4}, {"id": "sense_motive", "misc": 4}, {"id": "spot", "misc": 4}]'
+  feats: '["Improved Initiative"]'
+  companion_ok: false
+
+- id: hound_archon
+  name: Hound Archon
+  size: medium
+  type: outsider
+  base_hd: 6
+  good_saves: '["fort","ref","will"]'
+  str: 15
+  dex: 10
+  con: 13
+  int: 10
+  wis: 13
+  cha: 12
+  natural_armor: 9
+  speed: "40 ft."
+  attacks: '[{"name": "Bite", "damage": "1d8", "group": "primary"}, {"name": "Slam", "damage": "1d4", "group": "secondary"}]'
+  special_attacks: "Spell-like abilities (at will: aid, continual flame, detect evil, message), aura of menace (Will DC 16 negates)"
+  special_qualities: "Change shape (kan antage hundeform, small-large), damage reduction 10/evil, darkvision 60 ft., immunity to electricity and petrification, magic circle against evil, scent, spell resistance 16, teleport, tongues"
+  skills: '[{"id": "concentration", "misc": 9}, {"id": "diplomacy", "misc": 2}, {"id": "hide", "misc": 9, "note": "+4 i hundeform"}, {"id": "jump", "misc": 13}, {"id": "listen", "misc": 9}, {"id": "move_silently", "misc": 9}, {"id": "sense_motive", "misc": 9}, {"id": "spot", "misc": 9}, {"id": "survival", "misc": 9, "note": "+2 ved at følge spor, +4 i hundeform"}]'
+  feats: '["Improved Initiative", "Power Attack", "Track"]'
+  companion_ok: false
+
+- id: achaierai
+  name: Achaierai
+  size: large
+  type: outsider
+  base_hd: 6
+  good_saves: '["fort","ref","will"]'
+  str: 19
+  dex: 13
+  con: 14
+  int: 11
+  wis: 14
+  cha: 16
+  natural_armor: 10
+  speed: "50 ft."
+  attacks: '[{"name": "Claw", "damage": "2d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "4d6", "group": "secondary"}]'
+  special_attacks: "Black cloud (3/dag, 10 ft. radius, 2d6 skade + Fort DC 15 eller insanity i 3 timer)"
+  special_qualities: "Darkvision 60 ft., spell resistance 19"
+  skills: '[{"id": "balance", "misc": 9}, {"id": "climb", "misc": 9}, {"id": "diplomacy", "misc": 2}, {"id": "hide", "misc": 5}, {"id": "jump", "misc": 17}, {"id": "listen", "misc": 9}, {"id": "move_silently", "misc": 9}, {"id": "sense_motive", "misc": 9}, {"id": "spot", "misc": 9}]'
+  feats: '["Dodge", "Mobility", "Spring Attack"]'
+  companion_ok: false
+
+- id: devil_bearded
+  name: Devil, Bearded (Barbazu)
+  size: medium
+  type: outsider
+  base_hd: 6
+  good_saves: '["fort","ref","will"]'
+  str: 15
+  dex: 15
+  con: 17
+  int: 6
+  wis: 10
+  cha: 10
+  natural_armor: 7
+  speed: "40 ft."
+  attacks: '[{"name": "Claw", "damage": "1d6", "group": "primary", "count": 2}]'
+  special_attacks: "Infernal wound (glaive-angreb påfører 2 ekstra hp/runde indtil helbredt), beard (1d8+2 skade + Fort DC 16 mod devil chills-sygdom, hvis begge kløer rammer), battle frenzy (2/dag, 6 runder: +4 Str, +4 Con, +2 moralbonus på Will, -2 AC), summon devil (spell-like), spell-like abilities (at will: greater teleport, kun sig selv + 50 lbs.)"
+  special_qualities: "Damage reduction 5/silver or good, darkvision 60 ft., immunity to fire and poison, resistance to acid 10 and cold 10, see in darkness, spell resistance 17, telepathy 100 ft."
+  skills: '[{"id": "climb", "misc": 9}, {"id": "diplomacy", "misc": 2}, {"id": "hide", "misc": 9}, {"id": "listen", "misc": 9}, {"id": "move_silently", "misc": 7}, {"id": "sense_motive", "misc": 9}, {"id": "spot", "misc": 9}]'
+  feats: '["Improved Initiative", "Power Attack", "Weapon Focus (Glaive)"]'
+  companion_ok: false
+
+- id: yeth_hound
+  name: Yeth Hound
+  size: medium
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 17
+  dex: 15
+  con: 15
+  int: 6
+  wis: 14
+  cha: 10
+  natural_armor: 8
+  speed: "40 ft., fly 60 ft. (good)"
+  attacks: '[{"name": "Bite", "damage": "1d8", "group": "primary"}]'
+  special_attacks: "Bay (Su, DC 11 Will eller panicked 2d4 runder, sonic mind-affecting fear), trip (Ex, +3 check-modifikator ved bid, ingen touch attack nødvendig)"
+  special_qualities: "Damage reduction 10/silver, darkvision 60 ft., flight (kan stoppe/genoptage flugt som fri handling), scent"
+  skills: '[{"id": "listen", "misc": 9}, {"id": "spot", "misc": 9}, {"id": "search", "misc": 9}, {"id": "survival", "misc": 9, "note": "+2 ved sporing via duft"}]'
+  feats: '["Improved Initiative", "Track"]'
+  companion_ok: false
+
+- id: shadow_mastiff
+  name: Shadow Mastiff
+  size: medium
+  type: outsider
+  base_hd: 4
+  good_saves: '["fort","ref","will"]'
+  str: 17
+  dex: 13
+  con: 17
+  int: 4
+  wis: 12
+  cha: 13
+  natural_armor: 3
+  speed: "50 ft."
+  attacks: '[{"name": "Bite", "damage": "1d6", "group": "primary"}]'
+  special_attacks: "Bay (Su, DC 13 Will eller panicked 2d4 runder, sonic mind-affecting fear), trip (Ex, +3 check-modifikator ved bid)"
+  special_qualities: "Darkvision 60 ft., shadow blend (total concealment i skygge/mørke, negeres kun af daylight), scent"
+  skills: '[{"id": "hide", "misc": 7}, {"id": "listen", "misc": 7}, {"id": "move_silently", "misc": 7}, {"id": "spot", "misc": 7}, {"id": "survival", "misc": 7, "note": "+4 ved sporing via duft"}]'
+  feats: '["Dodge", "Improved Initiative", "Track"]'
+  companion_ok: false
+
+- id: howler
+  name: Howler
+  size: large
+  type: outsider
+  base_hd: 6
+  good_saves: '["fort","ref","will"]'
+  str: 21
+  dex: 17
+  con: 15
+  int: 6
+  wis: 14
+  cha: 8
+  natural_armor: 5
+  speed: "60 ft."
+  attacks: '[{"name": "Bite", "damage": "2d8", "group": "primary"}]'
+  special_attacks: "Quills (Ex, 1d4 pigge følger med bid; ramt mål: DC 16 Reflex eller pig sidder fast, -1 på angreb/redn./checks pr. fastsiddende pig), howl (Ex, DC 12 Will eller 1 point Visdomsskade pr. times eksponering, sonic mind-affecting)"
+  special_qualities: "Darkvision 60 ft."
+  skills: '[{"id": "climb", "misc": 9}, {"id": "hide", "misc": 5}, {"id": "listen", "misc": 11}, {"id": "move_silently", "misc": 9}, {"id": "search", "misc": 9}, {"id": "spot", "misc": 11}, {"id": "survival", "misc": 0, "note": "+2 ved at følge spor"}]'
+  feats: '["Alertness", "Combat Reflexes", "Improved Initiative"]'
+  companion_ok: false
+
+- id: giant_stag_beetle
+  name: Giant Stag Beetle
+  size: large
+  type: vermin
+  base_hd: 7
+  good_saves: '["fort"]'
+  str: 23
+  dex: 10
+  con: 17
+  int: 0
+  wis: 10
+  cha: 9
+  natural_armor: 10
+  speed: "20 ft."
+  attacks: '[{"name": "Bite", "damage": "4d6", "group": "primary"}]'
+  special_attacks: "Trample 2d8 (Reflex DC 19 halv)"
+  special_qualities: "Darkvision 60 ft., vermin traits"
+  skills: '[]'
+  feats: '[]'
+  companion_ok: false
+
+- id: giant_wasp
+  name: Giant Wasp
+  size: large
+  type: vermin
+  base_hd: 5
+  good_saves: '["fort"]'
+  str: 18
+  dex: 12
+  con: 14
+  int: 0
+  wis: 13
+  cha: 11
+  natural_armor: 4
+  speed: "20 ft., fly 60 ft. (good)"
+  attacks: '[{"name": "Sting", "damage": "1d3", "group": "primary"}]'
+  special_attacks: "Poison (brod, Fort DC 14, 1d6 Dex initial og sekundær skade)"
+  special_qualities: "Darkvision 60 ft., vermin traits"
+  skills: '[{"id": "spot", "misc": 8}, {"id": "survival", "misc": 0, "note": "+4 til at orientere sig"}]'
+  feats: '[]'
+  companion_ok: false
+
+- id: giant_praying_mantis
+  name: Giant Praying Mantis
+  size: large
+  type: vermin
+  base_hd: 4
+  good_saves: '["fort"]'
+  str: 19
+  dex: 8
+  con: 15
+  int: 0
+  wis: 14
+  cha: 11
+  natural_armor: 6
+  speed: "20 ft., fly 40 ft. (poor)"
+  attacks: '[{"name": "Claws", "damage": "1d8", "group": "primary"}, {"name": "Bite", "damage": "1d6", "group": "secondary"}]'
+  special_attacks: "Improved grab (via kløer; ved vundet greb kan den bide med fuldt angrebsbonus)"
+  special_qualities: "Darkvision 60 ft., vermin traits"
+  skills: '[{"id": "hide", "misc": 0, "note": "+12 når omgivet af løv (camouflage)"}, {"id": "spot", "misc": 4}]'
+  feats: '[]'
+  companion_ok: false
+
+- id: monstrous_spider_large
+  name: Monstrous Spider, Large
+  size: large
+  type: vermin
+  base_hd: 4
+  good_saves: '["fort"]'
+  str: 15
+  dex: 17
+  con: 12
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 2
+  speed: "30 ft., climb 20 ft."
+  attacks: '[{"name": "Bite", "damage": "1d8", "group": "primary"}]'
+  special_attacks: "Poison (bid, Fort DC 13, 1d6 Str initial og sekundær), web"
+  special_qualities: "Darkvision 60 ft., tremorsense 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 9}, {"id": "hide", "misc": 0, "note": "web-spindere +8 ved brug af web"}, {"id": "jump", "misc": 0, "note": "jagende spindere +10"}, {"id": "spot", "misc": 4, "note": "jagende spindere +8"}]'
+  feats: '[]'
+  companion_ok: false
+
+- id: monstrous_scorpion_large
+  name: Monstrous Scorpion, Large
+  size: large
+  type: vermin
+  base_hd: 5
+  good_saves: '["fort"]'
+  str: 19
+  dex: 10
+  con: 14
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 7
+  speed: "50 ft."
+  attacks: '[{"name": "Claw", "damage": "1d6", "group": "primary", "count": 2}, {"name": "Sting", "damage": "1d6", "group": "secondary"}]'
+  special_attacks: "Constrict (automatisk kløskade ved vundet greb), improved grab (via klo), poison (brod, Fort DC 14, 1d4 Con initial og sekundær)"
+  special_qualities: "Darkvision 60 ft., tremorsense 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 4}, {"id": "hide", "misc": 0}, {"id": "spot", "misc": 4}]'
+  feats: '[]'
+  companion_ok: false
+
+- id: mephit_air
+  name: Air Mephit
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 10
+  dex: 17
+  con: 10
+  int: 6
+  wis: 11
+  cha: 15
+  natural_armor: 3
+  speed: "30 ft., fly 60 ft. (perfect)"
+  attacks: '[{"name": "Claw", "damage": "1d3", "group": "primary", "count": 2}]'
+  special_attacks: "Breath weapon (15-ft. kegle støv/grus, 1d8 skade, Ref DC 12 halv, hvert 1d4 runde), spell-like abilities (1/time: blur; 1/dag: gust of wind DC 14), summon mephit (1/dag, 25% chance for endnu en air mephit)"
+  special_qualities: "Damage reduction 5/magic, darkvision 60 ft., fast healing 2 (kun ved bevægende luft/vind)"
+  skills: '[{"id": "bluff", "misc": 6}, {"id": "escape_artist", "misc": 6}, {"id": "hide", "misc": 10}, {"id": "diplomacy", "misc": 2}, {"id": "disguise", "misc": 0, "note": "+4 ved acting i stedet for +2"}, {"id": "intimidate", "misc": 2}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "use_rope", "misc": 0, "note": "+2 med bindings"}]'
+  feats: '["Dodge", "Improved Initiative"]'
+  companion_ok: false
+
+- id: mephit_dust
+  name: Dust Mephit
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 10
+  dex: 17
+  con: 10
+  int: 6
+  wis: 11
+  cha: 15
+  natural_armor: 3
+  speed: "30 ft., fly 50 ft. (perfect)"
+  attacks: '[{"name": "Claw", "damage": "1d3", "group": "primary", "count": 2}]'
+  special_attacks: "Breath weapon (10-ft. kegle irriterende partikler, 1d4 skade, Ref DC 12 halv, hvert 1d4 runde; ved fejlet redning -4 AC/-2 angreb i 3 runder), spell-like abilities (1/time: blur; 1/dag: wind wall DC 15), summon mephit (1/dag, 25% chance for endnu en dust mephit)"
+  special_qualities: "Damage reduction 5/magic, darkvision 60 ft., fast healing 2 (kun i tørt, støvet miljø)"
+  skills: '[{"id": "bluff", "misc": 6}, {"id": "escape_artist", "misc": 6}, {"id": "hide", "misc": 10}, {"id": "diplomacy", "misc": 2}, {"id": "disguise", "misc": 0, "note": "+4 ved acting i stedet for +2"}, {"id": "intimidate", "misc": 2}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "use_rope", "misc": 0, "note": "+2 med bindings"}]'
+  feats: '["Dodge", "Improved Initiative"]'
+  companion_ok: false
+
+- id: mephit_earth
+  name: Earth Mephit
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 17
+  dex: 8
+  con: 13
+  int: 6
+  wis: 11
+  cha: 15
+  natural_armor: 6
+  speed: "30 ft., fly 40 ft. (average)"
+  attacks: '[{"name": "Claw", "damage": "1d3", "group": "primary", "count": 2}]'
+  special_attacks: "Breath weapon (15-ft. kegle stenskår/sten, 1d8 skade, Ref DC 13 halv, hvert 1d4 runde), spell-like abilities (1/dag: soften earth and stone), change size (Sp, 1/time, som enlarge person kun på sig selv, svarer til 2.-niveau spell), summon mephit (1/dag, 25% chance for endnu en earth mephit)"
+  special_qualities: "Damage reduction 5/magic, darkvision 60 ft., fast healing 2 (kun under jorden eller nedgravet til livet i jord)"
+  skills: '[{"id": "bluff", "misc": 6}, {"id": "escape_artist", "misc": 6}, {"id": "hide", "misc": 10}, {"id": "diplomacy", "misc": 2}, {"id": "disguise", "misc": 0, "note": "+4 ved acting i stedet for +2"}, {"id": "intimidate", "misc": 2}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "use_rope", "misc": 0, "note": "+1 med bindings"}]'
+  feats: '["Power Attack", "Toughness"]'
+  companion_ok: false
+
+- id: mephit_fire
+  name: Fire Mephit
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 10
+  dex: 13
+  con: 10
+  int: 6
+  wis: 11
+  cha: 15
+  natural_armor: 4
+  speed: "30 ft., fly 50 ft. (average)"
+  attacks: '[{"name": "Claw", "damage": "1d3", "group": "primary", "count": 2}]'
+  special_attacks: "Claw tilføjer 1d4 fire skade, breath weapon (15-ft. kegle, 1d8 fire skade, Ref DC 12 halv, hvert 1d4 runde), spell-like abilities (1/time: scorching ray DC 14 som 3.-level sorcerer; 1/dag: heat metal DC 14), summon mephit (1/dag, 25% chance for endnu en fire mephit)"
+  special_qualities: "Damage reduction 5/magic, darkvision 60 ft., immunity to fire, fast healing 2 (kun i kontakt med flamme mindst på størrelse med en fakkel), vulnerability to cold"
+  skills: '[{"id": "bluff", "misc": 6}, {"id": "escape_artist", "misc": 6}, {"id": "hide", "misc": 10}, {"id": "diplomacy", "misc": 2}, {"id": "disguise", "misc": 0, "note": "+4 ved acting i stedet for +2"}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "use_rope", "misc": 0, "note": "+2 med bindings"}]'
+  feats: '["Dodge", "Improved Initiative"]'
+  companion_ok: false
+
+- id: mephit_ice
+  name: Ice Mephit
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 10
+  dex: 17
+  con: 10
+  int: 6
+  wis: 11
+  cha: 15
+  natural_armor: 4
+  speed: "30 ft., fly 50 ft. (perfect)"
+  attacks: '[{"name": "Claw", "damage": "1d3", "group": "primary", "count": 2}]'
+  special_attacks: "Claw tilføjer 1d4 cold skade, breath weapon (10-ft. kegle isskår, 1d4 cold skade, Ref DC 12 halv, hvert 1d4 runde; ved fejlet redning -4 AC/-2 angreb i 3 runder medmindre immun mod kulde), spell-like abilities (1/time: magic missile; 1/dag: chill metal DC 14), summon mephit (1/dag, 25% chance for endnu en ice mephit)"
+  special_qualities: "Damage reduction 5/magic, darkvision 60 ft., fast healing 2 (kun i kontakt med is eller ved 0°C/32°F eller koldere), immunity to cold, vulnerability to fire"
+  skills: '[{"id": "bluff", "misc": 6}, {"id": "escape_artist", "misc": 6}, {"id": "hide", "misc": 10}, {"id": "diplomacy", "misc": 2}, {"id": "disguise", "misc": 0, "note": "+4 ved acting i stedet for +2"}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "use_rope", "misc": 0, "note": "+2 med bindings"}]'
+  feats: '["Dodge", "Improved Initiative"]'
+  companion_ok: false
+
+- id: mephit_magma
+  name: Magma Mephit
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 10
+  dex: 13
+  con: 10
+  int: 6
+  wis: 11
+  cha: 15
+  natural_armor: 4
+  speed: "30 ft., fly 50 ft. (average)"
+  attacks: '[{"name": "Claw", "damage": "1d3", "group": "primary", "count": 2}]'
+  special_attacks: "Claw tilføjer 1d4 fire skade, breath weapon (10-ft. kegle magma, 1d4 fire skade, Ref DC 12 halv, hvert 1d4 runde; ved fejlet redning -4 AC/-2 angreb i 3 runder medmindre immun mod ild), spell-like abilities (1/time: shapechange til lavapøl, DR 20/magic i den form, kan ikke angribe men bevæge sig 10 ft.; 1/dag: pyrotechnics DC 14), summon mephit (1/dag, 25% chance for endnu en magma mephit)"
+  special_qualities: "Damage reduction 5/magic, darkvision 60 ft., immunity to fire, fast healing 2 (kun i kontakt med magma/lava eller flamme mindst på størrelse med en fakkel), vulnerability to cold"
+  skills: '[{"id": "bluff", "misc": 6}, {"id": "escape_artist", "misc": 6}, {"id": "hide", "misc": 10}, {"id": "diplomacy", "misc": 2}, {"id": "disguise", "misc": 0, "note": "+4 ved acting i stedet for +2"}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "use_rope", "misc": 0, "note": "+2 med bindings"}]'
+  feats: '["Dodge", "Improved Initiative"]'
+  companion_ok: false
+
+- id: mephit_ooze
+  name: Ooze Mephit
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 14
+  dex: 10
+  con: 13
+  int: 6
+  wis: 11
+  cha: 15
+  natural_armor: 5
+  speed: "30 ft., fly 40 ft. (average), swim 30 ft."
+  attacks: '[{"name": "Claw", "damage": "1d3", "group": "primary", "count": 2}]'
+  special_attacks: "Breath weapon (10-ft. kegle ætsende væske, 1d4 acid skade, Ref DC 13 halv, hvert 1d4 runde; ved fejlet redning -4 AC/-2 angreb i 3 runder medmindre immun mod syre), spell-like abilities (1/time: acid arrow; 1/dag: stinking cloud DC 15), summon mephit (1/dag, 25% chance for endnu en ooze mephit)"
+  special_qualities: "Damage reduction 5/magic, darkvision 60 ft., fast healing 2 (kun i vådt eller mudret miljø)"
+  skills: '[{"id": "bluff", "misc": 6}, {"id": "escape_artist", "misc": 6}, {"id": "hide", "misc": 10}, {"id": "diplomacy", "misc": 2}, {"id": "disguise", "misc": 0, "note": "+4 ved acting i stedet for +2"}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "swim", "misc": 8}, {"id": "use_rope", "misc": 0, "note": "+2 med bindings"}]'
+  feats: '["Power Attack", "Toughness"]'
+  companion_ok: false
+
+- id: mephit_salt
+  name: Salt Mephit
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 17
+  dex: 8
+  con: 13
+  int: 6
+  wis: 11
+  cha: 15
+  natural_armor: 6
+  speed: "30 ft., fly 40 ft. (average)"
+  attacks: '[{"name": "Claw", "damage": "1d3", "group": "primary", "count": 2}]'
+  special_attacks: "Breath weapon (10-ft. kegle saltkrystaller, 1d4 skade, Ref DC 13 halv, hvert 1d4 runde; ved fejlet redning -4 AC/-2 angreb i 3 runder), spell-like abilities (1/time: glitterdust DC 14; 1/dag: dræn fugt i 20-ft. radius, 2d8 skade Fort DC 14 halv, planter/aquatiske væsner -2 på redning), summon mephit (1/dag, 25% chance for endnu en salt mephit)"
+  special_qualities: "Damage reduction 5/magic, darkvision 60 ft., fast healing 2 (kun i tørt miljø)"
+  skills: '[{"id": "bluff", "misc": 6}, {"id": "escape_artist", "misc": 6}, {"id": "hide", "misc": 10}, {"id": "diplomacy", "misc": 2}, {"id": "disguise", "misc": 0, "note": "+4 ved acting i stedet for +2"}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "use_rope", "misc": 0, "note": "+1 med bindings"}]'
+  feats: '["Power Attack", "Toughness"]'
+  companion_ok: false
+
+- id: mephit_steam
+  name: Steam Mephit
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 10
+  dex: 13
+  con: 10
+  int: 6
+  wis: 11
+  cha: 15
+  natural_armor: 4
+  speed: "30 ft., fly 50 ft. (average)"
+  attacks: '[{"name": "Claw", "damage": "1d3", "group": "primary", "count": 2}]'
+  special_attacks: "Claw tilføjer 1d4 fire skade, breath weapon (10-ft. kegle damp, 1d4 fire skade, Ref DC 12 halv, hvert 1d4 runde; ved fejlet redning -4 AC/-2 angreb i 3 runder medmindre immun mod ild), spell-like abilities (1/time: blur; 1/dag: kogende regnstorm 20-ft. kvadrat, 2d6 fire skade Ref DC 14 halv), summon mephit (1/dag, 25% chance for endnu en steam mephit)"
+  special_qualities: "Damage reduction 5/magic, darkvision 60 ft., fast healing 2 (kun ved kontakt med kogende vand eller i varmt, fugtigt område), immunity to fire, vulnerability to cold"
+  skills: '[{"id": "bluff", "misc": 6}, {"id": "escape_artist", "misc": 6}, {"id": "hide", "misc": 10}, {"id": "diplomacy", "misc": 2}, {"id": "disguise", "misc": 0, "note": "+4 ved acting i stedet for +2"}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "use_rope", "misc": 0, "note": "+2 med bindings"}]'
+  feats: '["Dodge", "Improved Initiative"]'
+  companion_ok: false
+
+- id: mephit_water
+  name: Water Mephit
+  size: small
+  type: outsider
+  base_hd: 3
+  good_saves: '["fort","ref","will"]'
+  str: 14
+  dex: 10
+  con: 13
+  int: 6
+  wis: 11
+  cha: 15
+  natural_armor: 5
+  speed: "30 ft., fly 40 ft. (average), swim 30 ft."
+  attacks: '[{"name": "Claw", "damage": "1d3", "group": "primary", "count": 2}]'
+  special_attacks: "Breath weapon (15-ft. kegle ætsende væske, 1d8 acid skade, Ref DC 13 halv, hvert 1d4 runde), spell-like abilities (1/time: acid arrow; 1/dag: stinking cloud DC 15), summon mephit (1/dag, 25% chance for endnu en water mephit)"
+  special_qualities: "Damage reduction 5/magic, darkvision 60 ft., fast healing 2 (kun ved regn eller nedsænket til livet i vand)"
+  skills: '[{"id": "bluff", "misc": 6}, {"id": "escape_artist", "misc": 6}, {"id": "hide", "misc": 10}, {"id": "diplomacy", "misc": 2}, {"id": "disguise", "misc": 0, "note": "+4 ved acting i stedet for +2"}, {"id": "listen", "misc": 6}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 6}, {"id": "swim", "misc": 8}, {"id": "use_rope", "misc": 0, "note": "+2 med bindings"}]'
+  feats: '["Power Attack", "Toughness"]'
+  companion_ok: false
