@@ -74,3 +74,27 @@ combat_expertise:
     - {target: attack_melee, type: untyped, per: -1}
     - {target: ac, type: dodge, per: 1}
   note: "−N til-hit / +N dodge-AC. N ≤ 5. Melee."
+
+# ── Lag C: options der injicerer en EKSTRA angrebsrække (ikke bare et tal) ──
+# extra_attack.source: altid "ranged_primary" p.t. — klon karakterens bedste
+# wielded ranged-angreb (character_view.extra_attacks vælger den med højeste
+# .bonus). extra_attack.to_hit (valgfri) er en ekstra til-hit-straf bagt ind i
+# klonens bonus/bonus_parts (Manyshots −4). Rapid Shots −2 på ALLE ranged
+# rammer klonen automatisk via den almindelige scope-modifier ovenfor — ingen
+# grund til at gentage den her.
+
+rapid_shot:
+  label: "Rapid Shot"
+  feat: rapid_shot
+  scope: ranged
+  modifiers: [{target: attack_ranged, type: untyped, value: -2}]
+  extra_attack: {source: ranged_primary, label: "Rapid Shot (ekstra)"}
+  note: "Ekstra ranged-angreb ved højeste BAB · −2 på alle ranged · kan ikke bruges samme runde som Manyshot · kræver bue i hånden"
+
+manyshot:
+  label: "Manyshot"
+  feat: manyshot
+  scope: ranged
+  extra_attack: {source: ranged_primary, label: "Manyshot (2 pile)", to_hit: -4,
+                 note: "2 pile mod ét mål — rul skaden to gange"}
+  note: "Standard-handling · 2 pile som ét angreb −4 · kan ikke bruges samme runde som Rapid Shot · kræver bue i hånden"

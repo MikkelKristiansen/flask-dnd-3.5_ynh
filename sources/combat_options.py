@@ -13,8 +13,16 @@ Lag B tilføjer "editable" options (Power Attack, Combat Expertise): i stedet
 for en bool gemmer char.combat_options[option_id] et HELTAL N (valgt værdi).
 Tilknyttede under-toggles (fx Power Attacks "tohånds") gemmes under en
 namespacet nøgle "<option_id>.<toggle_navn>" som en almindelig bool.
+
+Lag C tilføjer options der injicerer en HEL ekstra angrebs-RÆKKE i stedet for
+bare et tal (Rapid Shot, Manyshot) — se extra_attacks() nedenfor. Samme
+feat-gating som active_modifiers/panel; klonen bygges med dataclasses.replace,
+samme mønster som TWF-klonen i rules.derive_attacks.
 """
+import dataclasses
+
 import refdata
+from models import Attack
 
 
 def _editable_modifiers(char, option_id: str, opt: dict, bab: int) -> list[dict]:
@@ -81,6 +89,44 @@ def active_modifiers(char, char_feat_ids: list, bab: int = 0) -> list[dict]:
             if value:
                 mods.extend(opt.get("modifiers") or [])
     return mods
+
+
+def extra_attacks(char, char_feat_ids: list, ranged_templates: list) -> list[Attack]:
+    """Klonede Attack-objekter fra aktive options med en extra_attack-spec.
+
+    ranged_templates = de wielded ranged-Attack-objekter (fra derive_attacks,
+    fanget af character_view før attack_rows bygges). 'Primær' = den med
+    højeste .bonus (stabilt: første ved lige, jf. max()'s dokumenterede
+    adfærd). Feat-gated ligesom active_modifiers. Ingen ranged-våben i spil
+    → returnér [] (option'en injicerer bare intet — noten på selve
+    checkbox'en fortæller at der kræves en bue).
+    """
+    if not ranged_templates:
+        return []
+    primary = max(ranged_templates, key=lambda a: a.bonus)
+
+    clones: list[Attack] = []
+    for option_id, opt in refdata.combat_options().items():
+        spec = opt.get("extra_attack")
+        if not spec:
+            continue
+        feat = opt.get("feat")
+        if feat and feat not in char_feat_ids:
+            continue
+        if not (char.combat_options or {}).get(option_id):
+            continue
+        to_hit = spec.get("to_hit", 0)
+        bonus_parts = primary.bonus_parts
+        if to_hit:
+            bonus_parts = bonus_parts + [{"label": spec["label"], "value": to_hit}]
+        clones.append(dataclasses.replace(
+            primary,
+            name=spec["label"],
+            bonus=primary.bonus + to_hit,
+            bonus_parts=bonus_parts,
+            note=spec.get("note", ""),
+        ))
+    return clones
 
 
 def panel(char, char_feat_ids: list, bab: int = 0) -> list[dict]:

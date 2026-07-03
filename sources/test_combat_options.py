@@ -276,3 +276,57 @@ def test_panel_namespaced_toggle_key_is_not_its_own_row():
     rows = combat_options.panel(char, ["power_attack"], bab=5)
     ids = {r["id"] for r in rows}
     assert "power_attack.two_handed" not in ids
+
+
+# ── Lag C: extra_attacks (Rapid Shot/Manyshot injicerer en ekstra angrebsrække) ──
+
+def _bow(name="Longbow", bonus=5):
+    return Attack(name=name, kind="ranged", base_damage="1d8", str_damage_mult=0,
+                  bonus=bonus, bonus_parts=[{"label": "masterwork/magi", "value": bonus}])
+
+
+def test_rapid_shot_injects_one_ranged_clone():
+    char = _char(rapid_shot=True)
+    clones = combat_options.extra_attacks(char, ["rapid_shot"], [_bow()])
+    assert len(clones) == 1
+    assert clones[0].kind == "ranged"
+    assert clones[0].name == "Rapid Shot (ekstra)"
+
+
+def test_manyshot_clone_has_minus_four_to_hit_and_note():
+    primary = _bow(bonus=5)
+    char = _char(manyshot=True)
+    clones = combat_options.extra_attacks(char, ["manyshot"], [primary])
+    assert len(clones) == 1
+    clone = clones[0]
+    assert clone.bonus == primary.bonus - 4
+    assert clone.note
+    assert {"label": "Manyshot (2 pile)", "value": -4} in clone.bonus_parts
+
+
+def test_extra_attacks_empty_without_ranged_templates():
+    # Selv med feat + toggle on: intet ranged-våben i spil → ingen injektion.
+    char = _char(rapid_shot=True, manyshot=True)
+    assert combat_options.extra_attacks(char, ["rapid_shot", "manyshot"], []) == []
+
+
+def test_extra_attacks_feat_gated():
+    # Toggle on men feat mangler → ingen klon.
+    char = _char(rapid_shot=True)
+    assert combat_options.extra_attacks(char, [], [_bow()]) == []
+
+
+def test_extra_attacks_off_gives_nothing():
+    char = _char(rapid_shot=False)
+    assert combat_options.extra_attacks(char, ["rapid_shot"], [_bow()]) == []
+
+
+def test_rapid_shot_picks_highest_bonus_template_as_primary():
+    weak = _bow(name="Shortbow", bonus=2)
+    strong = _bow(name="Longbow +1", bonus=6)
+    char = _char(rapid_shot=True)
+    clones = combat_options.extra_attacks(char, ["rapid_shot"], [weak, strong])
+    assert len(clones) == 1
+    # Klonen arver primærens felter (bonus/base_damage) — kloner Longbow +1, ikke Shortbow.
+    assert clones[0].bonus == strong.bonus
+    assert clones[0].base_damage == strong.base_damage

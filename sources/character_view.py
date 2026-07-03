@@ -400,13 +400,23 @@ def build_character_view(char, db):
 
     # Våben-angreb (udledt af inventaret) først, så manuelle angreb fra YAML.
     # Kun manuelle angreb kan redigeres her (idx = position i char.attacks).
-    attack_rows = [_row(a, False, None)
-                   for a in char_module.derive_attacks(char.inventory, db, char.size,
-                                                        weapon_prof, allowed_weapons, twf_ctx,
-                                                        char.feats)
+    # derived fanges i en variabel (fremfor at forbruges direkte i comprehension'en)
+    # så vi kan filtrere ranged-skabelonerne ud til Kampindstillinger Lag C
+    # (Rapid Shot/Manyshot skal klone karakterens bedste wielded ranged-angreb).
+    derived = char_module.derive_attacks(char.inventory, db, char.size,
+                                         weapon_prof, allowed_weapons, twf_ctx,
+                                         char.feats)
+    ranged_templates = [a for a in derived if a.kind in ("ranged", "ranged_touch")]
+    attack_rows = [_row(a, False, None) for a in derived
                    if char_module.attack_visible(a, active_keys)]
     attack_rows += [_row(a, True, i) for i, a in enumerate(char.attacks)
                     if char_module.attack_visible(a, active_keys)]
+
+    # Kampindstillinger Lag C: options der injicerer en ekstra angrebsrække
+    # (Rapid Shot/Manyshot). Klonen køres gennem _row, så scope-effekter (Rapid
+    # Shots −2 på alle ranged) rammer den gratis via _atk_fields.
+    for a in combat_options_module.extra_attacks(char, char_feat_ids, ranged_templates):
+        attack_rows.append(_row(a, False, None))
 
     # Monk unarmed strike + Flurry of Blows: automatiske angreb baseret på level/size.
     # Kræver unarmored (ingen rustning), intet skjold og let last for flurry.
