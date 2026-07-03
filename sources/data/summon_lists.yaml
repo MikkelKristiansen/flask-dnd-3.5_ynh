@@ -6,9 +6,11 @@
 #
 # Dokument-formet data (ikke SQLite) — indlæses af refdata.py.
 #
-# Status: SNA I-III komplet (Fase 0). SNA IV-V påbegyndt (Fase 6, batch 1):
-# elementaler tilføjet og SRD-verificeret. De øvrige IV-V-væsner (dyr, outsidere,
-# magical beasts) følger i senere batches; listerne udvides efterhånden.
+# Status: SNA I-IX KOMPLET og SRD-verificeret mod rules/srd-v3.5-md/spells/spells-s.md
+# (Summon Nature's Ally-tabellen, ~linje 2009), audit 3. jul. Alle niveauers entries
+# matcher SRD-tabellen (elementaler ekspanderet til air/earth/fire/water pr. størrelse),
+# og alle bygger via summon.build_summon. Bemærk: SNA VIII har SRD-mæssigt kun 4 væsner
+# (dire shark, roc, noble salamander, elder tojanida) — det er korrekt, ikke ufuldstændigt.
 #
 # Note: Aquatic-væsner (octopus, porpoise, shark, squid) kan kun summones i
 # vand/vådt miljø (SRD-fodnote 1). Det håndhæves ikke mekanisk — det er en
