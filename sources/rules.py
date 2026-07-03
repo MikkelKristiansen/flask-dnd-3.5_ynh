@@ -411,7 +411,9 @@ def armor_class(ability_scores: AbilityScores, size: str, *,
                 armor: dict | None = None, shield: dict | None = None,
                 enc_max_dex: int | None = None,
                 natural: int = 0, deflection: int = 0,
-                dodge: int = 0, misc: int = 0, lose_dex: bool = False) -> dict:
+                dodge: int = 0, misc: int = 0,
+                armor_effect: int = 0, shield_effect: int = 0,
+                lose_dex: bool = False) -> dict:
     """Beregn AC, touch-AC og flat-footed-AC (3.5 SRD).
 
     armor/shield er rækker fra armor-tabellen (dict) eller None. Dex-bonus til AC
@@ -419,12 +421,20 @@ def armor_class(ability_scores: AbilityScores, size: str, *,
     (en Dex-straf rammer altid fuldt). Touch ignorerer rustning/skjold/naturlig
     armor; flat-footed mister Dex-bonus og dodge (men beholder en Dex-straf).
 
+    armor_effect/shield_effect: armor-/skjold-bonus fra en spell (Mage Armor +4,
+    Shield +4). En armor-bonus stacker IKKE med båret rustning (SRD: kun den
+    højeste tæller); ligeså skjold. De to SLAGS stacker dog indbyrdes. Som al
+    rustnings-/skjold-bonus tæller de i full + flat, men IKKE i touch.
+
     lose_dex (blinded/cowering/stunned/flat-footed-tilstand): den normale AC og
     touch mister også Dex-bonus og dodge — som flat-footed — men beholder en
     Dex-STRAF. Flat-footed-tallet er uændret.
     """
-    armor_bonus = (armor["armor_bonus"] if armor else 0) \
-        + (shield["armor_bonus"] if shield else 0)
+    worn_armor = armor["armor_bonus"] if armor else 0
+    worn_shield = shield["armor_bonus"] if shield else 0
+    body_bonus = max(worn_armor, armor_effect)       # magi vs. båret rustning: højeste
+    shield_bonus = max(worn_shield, shield_effect)
+    armor_bonus = body_bonus + shield_bonus
     size_mod = size_mod_attack(size)
     dex = ability_scores.modifier("dex")
 
@@ -446,12 +456,15 @@ def armor_class(ability_scores: AbilityScores, size: str, *,
     flat = 10 + armor_bonus + size_mod + natural + deflection + misc + dex_penalty
 
     # Opdeling af hoved-AC (til hover). base vises altid; øvrige dele kun når ≠ 0.
-    # Summen af parts er lig full. Rustning og skjold vises hver for sig.
+    # Summen af parts er lig full. Rustning og skjold vises hver for sig; en spell
+    # der slår det bårne (Mage Armor > ingen/let rustning) mærkes "magisk".
     parts = [{"label": "base", "value": 10}]
-    if armor and armor["armor_bonus"]:
-        parts.append({"label": "rustning", "value": armor["armor_bonus"]})
-    if shield and shield["armor_bonus"]:
-        parts.append({"label": "skjold", "value": shield["armor_bonus"]})
+    if body_bonus:
+        parts.append({"label": "magisk rustning" if armor_effect > worn_armor else "rustning",
+                      "value": body_bonus})
+    if shield_bonus:
+        parts.append({"label": "magisk skjold" if shield_effect > worn_shield else "skjold",
+                      "value": shield_bonus})
     for label, value in (("Dex", ac_dex), ("størrelse", size_mod), ("natural", natural),
                          ("deflection", deflection), ("dodge", ac_dodge), ("misc", misc)):
         if value:

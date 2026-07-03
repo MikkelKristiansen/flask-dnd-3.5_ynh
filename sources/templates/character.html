@@ -25,9 +25,19 @@
   </select>
   <button onclick="addCondition('{{ target }}')">+ Tilføj tilstand</button>
   <div class="pick-label">Buff (positiv)</div>
+  {# Buffs grupperes pr. category i optgroups (wizard-spells i egen 'Arcane'-gruppe).
+     option-value = det ORIGINALE indeks i buff_catalog (JS slår op i concat-listen),
+     så det ydre loop bevares og category filtreres med et indre if — ikke i for-if,
+     som ville nulstille loop.index0. #}
+  {% set buff_cats = buff_catalog|map(attribute='category')|select|unique|list %}
   <select id="buff-select-{{ target }}" onchange="onBuffPick('{{ target }}')">
     <option value="">— vælg buff —</option>
-    {% for b in buff_catalog %}<option value="{{ loop.index0 }}">{{ b.name }} — {{ b.note }}</option>{% endfor %}
+    {% for b in buff_catalog %}{% if not b.category %}<option value="{{ loop.index0 }}">{{ b.name }} — {{ b.note }}</option>{% endif %}{% endfor %}
+    {% for cat in buff_cats %}
+    <optgroup label="{{ 'Arcane (wizard)' if cat == 'arcane' else cat|capitalize }}">
+    {% for b in buff_catalog %}{% if b.category == cat %}<option value="{{ loop.index0 }}">{{ b.name }} — {{ b.note }}</option>{% endif %}{% endfor %}
+    </optgroup>
+    {% endfor %}
     <optgroup label="Ability-skade (kaskaderer)">
     {% for b in damage_catalog %}<option value="{{ buff_catalog|length + loop.index0 }}">{{ b.name }}</option>{% endfor %}
     </optgroup>

@@ -315,6 +315,47 @@ def test_lose_dex_also_drops_dodge():
     assert armor_class(ab, "medium", dodge=1, lose_dex=True)["ac"] == 10
 
 
+# ── Mage Armor / Shield: armor-/skjold-typede effekt-bonusser ───────────────
+
+def test_armor_type_effect_routes_out_of_misc():
+    # En 'armor'-typet AC-modifier skal IKKE havne i misc (som rammer touch).
+    b = resolve_ac_bonuses({}, [{"target": "ac", "type": "armor", "value": 4}])
+    assert b["armor_effect"] == 4
+    assert b["misc"] == 0
+    assert b["shield_effect"] == 0
+
+
+def test_mage_armor_hits_full_and_flat_not_touch():
+    ab = AbilityScores(dex=10)
+    r = armor_class(ab, "medium", armor_effect=4)
+    assert r["ac"] == 14 and r["flat_footed"] == 14
+    assert r["touch"] == 10          # armor-bonus tæller ALDRIG i touch
+
+
+def test_mage_armor_does_not_stack_with_worn_armor():
+    ab = AbilityScores(dex=10)
+    leather = {"armor_bonus": 2, "max_dex": 6}
+    chain = {"armor_bonus": 5, "max_dex": 2}
+    assert armor_class(ab, "medium", armor=leather, armor_effect=4)["ac"] == 14  # max(2,4)
+    assert armor_class(ab, "medium", armor=chain, armor_effect=4)["ac"] == 15    # max(5,4)
+
+
+def test_mage_armor_stacks_with_shield():
+    ab = AbilityScores(dex=10)
+    shield = {"armor_bonus": 2, "max_dex": None}
+    r = armor_class(ab, "medium", shield=shield, armor_effect=4)
+    assert r["ac"] == 16             # 4 armor + 2 shield
+    labels = {p["label"] for p in r["parts"]}
+    assert "magisk rustning" in labels and "skjold" in labels
+
+
+def test_shield_effect_slot_separate_from_armor():
+    ab = AbilityScores(dex=10)
+    worn = {"armor_bonus": 2, "max_dex": None}   # båret skjold
+    # Shield-spell (+4 shield) slår et båret skjold(+2), stacker ikke.
+    assert armor_class(ab, "medium", shield=worn, shield_effect=4)["ac"] == 14
+
+
 def test_initiative_effect_bonus():
     ab = AbilityScores(dex=14)  # +2
     assert initiative_total(ab, [], 0) == 2

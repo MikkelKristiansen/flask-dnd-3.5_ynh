@@ -5,7 +5,7 @@ name = "D&D 3.5 Character Sheet"
 description.en = "Tablet-first web app for managing D&D 3.5 character sheets"
 description.da = "Tablet-first webapp til håndtering af D&D 3.5 karakterark"
 
-version = "1.64~ynh1"
+version = "1.65~ynh1"
 
 maintainers = ["MikkelKristiansen"]
 

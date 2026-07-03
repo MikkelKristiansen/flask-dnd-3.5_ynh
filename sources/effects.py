@@ -97,6 +97,11 @@ def resolve_ac_bonuses(combat_ac: dict, ac_modifiers: list[dict]) -> dict[str, i
     combat_ac: {'natural', 'deflection', 'dodge', 'misc'} fra char.combat.
     ac_modifiers: modifiers med target == 'ac' (typede). only_vs udelades.
     Ukendte AC-typer (luck/insight/sacred …) lægges i misc (de stacker indbyrdes).
+
+    'armor'/'shield'-typer (Mage Armor, Shield-spell) returneres SEPARÉT som
+    armor_effect/shield_effect — de hører til rustnings-/skjold-pladsen i
+    armor_class (tæller IKKE i touch-AC, stacker IKKE med båret rustning/skjold),
+    så de må ikke ende i misc (som rammer touch).
     """
     by_type: dict[str, list[int]] = {}
     seed = (("natural", combat_ac.get("natural", 0)),
@@ -121,6 +126,8 @@ def resolve_ac_bonuses(combat_ac: dict, ac_modifiers: list[dict]) -> dict[str, i
         "natural": net.pop("natural", 0),
         "deflection": net.pop("deflection", 0),
         "dodge": net.pop("dodge", 0),
+        "armor_effect": net.pop("armor", 0),
+        "shield_effect": net.pop("shield", 0),
         "misc": sum(net.values()),   # untyped + alle øvrige typer
     }
 
@@ -367,7 +374,8 @@ def picker_catalogs():
     for e in db.get_all_effects():
         picker = e.get("picker")
         entry = {"name": e["name"], "spell_id": e["id"],
-                 "affects": e.get("affects") or [], "note": e.get("note") or ""}
+                 "affects": e.get("affects") or [], "note": e.get("note") or "",
+                 "category": e.get("category") or ""}
         if picker == "buff":
             buffs.append(entry)
         elif picker == "damage":

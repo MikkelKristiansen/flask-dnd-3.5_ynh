@@ -85,6 +85,17 @@
   picker: buff
   note: +2 naturlig rustning til AC (mere ved højere niveau)
   affects: '["ac"]'
+# Wizard/arcane-buffs — vises i deres egen 'Arcane'-gruppe i buff-vælgeren (category).
+- id: mage_armor
+  name: Mage Armor
+  kind: buff
+  source_spell_id: mage_armor
+  modifiers: '[{"target": "ac", "type": "armor", "value": 4}]'
+
+  picker: buff
+  category: arcane
+  note: +4 armor-bonus til AC (force; ikke i touch, stacker ikke med båret rustning)
+  affects: '["ac"]'
 - id: magic_fang
   name: Magic Fang
   kind: buff

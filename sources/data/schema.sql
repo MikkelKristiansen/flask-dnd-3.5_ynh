@@ -234,6 +234,7 @@ CREATE TABLE effects (
     riders          TEXT NOT NULL DEFAULT '[]', -- JSON: liste af ikke-numeriske ryttere
     -- Picker-metadata: hvor/hvordan effekten tilbydes i effekt-vælgeren.
     picker          TEXT,                       -- buff | damage | NULL (NULL = vises ikke i picker)
+    category        TEXT,                       -- buff-gruppe i vælgeren (fx 'arcane' = wizard); NULL = generel/guddommelig
     note            TEXT,                       -- kort virkningstekst i vælgeren
     affects         TEXT NOT NULL DEFAULT '[]', -- JSON: hvilke sektioner buffen markerer (attack/save/...)
     editable        INTEGER NOT NULL DEFAULT 0, -- 1 = spørg om en værdi ved tilføjelse (ability-skade)
