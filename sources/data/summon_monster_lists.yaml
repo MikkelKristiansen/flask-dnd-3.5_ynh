@@ -11,7 +11,7 @@
 #
 # Status (Fase B, Sonnet, 1. jul): SM I-III komplet og SRD-verificeret mod
 # rules/srd-v3.5-md/spells/spells-s.md (Summon Monster-tabellen, linje ~1887).
-# SM IV-V tilføjet 3. jul (samme kilde). SM VI-IX udestår.
+# SM IV-VII tilføjet 3. jul (samme kilde). SM VIII-IX udestår.
 #
 # Note: Aquatic-væsner (porpoise, octopus, squid, shark) kan kun summones i
 # vand/vådt miljø (SRD-fodnote 1 på tabellen). Håndhæves ikke mekanisk — samme
@@ -118,7 +118,41 @@
   - {base: crocodile_giant, template: fiendish}
   - {base: tiger, template: fiendish}
 
-# 6:   # udestår
-# 7:   # udestår
+6:
+  - {base: polar_bear, template: celestial}
+  - {base: whale_orca, template: celestial}   # aquatic
+  - {base: bralani}
+  - {base: dire_lion, template: celestial}
+  - {base: elemental_air_large}
+  - {base: elemental_earth_large}
+  - {base: elemental_fire_large}
+  - {base: elemental_water_large}
+  - {base: janni}
+  - {base: chaos_beast}
+  - {base: devil_chain}
+  - {base: xill}
+  - {base: monstrous_centipede_gargantuan, template: fiendish}
+  - {base: rhinoceros, template: fiendish}
+  - {base: elasmosaurus, template: fiendish}   # aquatic
+  - {base: monstrous_spider_huge, template: fiendish}
+  - {base: snake_constrictor_giant, template: fiendish}
+
+7:
+  - {base: elephant, template: celestial}
+  - {base: avoral}
+  - {base: whale_baleen, template: celestial}   # aquatic
+  - {base: djinni}
+  - {base: elemental_air_huge}
+  - {base: elemental_earth_huge}
+  - {base: elemental_fire_huge}
+  - {base: elemental_water_huge}
+  - {base: invisible_stalker}
+  - {base: devil_bone}
+  - {base: megaraptor, template: fiendish}
+  - {base: monstrous_scorpion_huge, template: fiendish}
+  - {base: babau}
+  - {base: octopus_giant, template: fiendish}   # aquatic
+  - {base: girallon, template: fiendish}
+
 # 8:   # udestår
 # 9:   # udestår
