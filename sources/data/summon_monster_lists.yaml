@@ -9,9 +9,14 @@
 #
 # Dokument-formet — indlæses af refdata.py (summon_entries("sm", niveau)).
 #
-# Status (Fase B, Sonnet, 1. jul): SM I-III komplet og SRD-verificeret mod
-# rules/srd-v3.5-md/spells/spells-s.md (Summon Monster-tabellen, linje ~1887).
-# SM IV-VII tilføjet 3. jul (samme kilde). SM VIII-IX udestår.
+# Status: SM I-IX KOMPLET og SRD-verificeret mod rules/srd-v3.5-md/spells/spells-s.md
+# (Summon Monster-tabellen, ~linje 1887). I-III (1. jul), IV-IX (3. jul, Sonnet i
+# batches IV+V / VI+VII / VIII+IX, hver spot-tjekket mod SRD af Opus). Alle entries
+# bygger via summon.build_summon. "Any"-poster ekspanderet: elementaler pr. størrelse,
+# mephit → alle 10 typer. Bemærk kendte SRD-kilde-afvigelser (ikke datafejl): night hag
+# Fort −2 (heartstone-item ikke modelleret); Colossal centipede AC −1 (SRD-typo: Dex-
+# linje 13 vs AC-linje +2 — ability-kolonnen brugt); secondary-angreb med Multiattack
+# får motorens flade −5 (ikke −2) — præeksisterende motor-begrænsning.
 #
 # Note: Aquatic-væsner (porpoise, octopus, squid, shark) kan kun summones i
 # vand/vådt miljø (SRD-fodnote 1 på tabellen). Håndhæves ikke mekanisk — samme
@@ -154,5 +159,35 @@
   - {base: octopus_giant, template: fiendish}   # aquatic
   - {base: girallon, template: fiendish}
 
-# 8:   # udestår
-# 9:   # udestår
+8:
+  - {base: dire_bear, template: celestial}
+  - {base: whale_cachalot, template: celestial}   # aquatic
+  - {base: triceratops, template: celestial}
+  - {base: lillend}
+  - {base: elemental_air_greater}
+  - {base: elemental_earth_greater}
+  - {base: elemental_fire_greater}
+  - {base: elemental_water_greater}
+  - {base: squid_giant, template: fiendish}   # aquatic
+  - {base: hellcat}
+  - {base: monstrous_centipede_colossal, template: fiendish}
+  - {base: dire_tiger, template: fiendish}
+  - {base: monstrous_spider_gargantuan, template: fiendish}
+  - {base: tyrannosaurus, template: fiendish}
+  - {base: vrock}
+
+9:
+  - {base: couatl}
+  - {base: leonal}
+  - {base: roc, template: celestial}
+  - {base: elemental_air_elder}
+  - {base: elemental_earth_elder}
+  - {base: elemental_fire_elder}
+  - {base: elemental_water_elder}
+  - {base: devil_barbed}
+  - {base: dire_shark, template: fiendish}   # aquatic
+  - {base: monstrous_scorpion_gargantuan, template: fiendish}
+  - {base: night_hag}
+  - {base: bebilith}
+  - {base: monstrous_spider_colossal, template: fiendish}
+  - {base: hezrou}

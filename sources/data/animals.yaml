@@ -3321,3 +3321,281 @@
   skills: '[{"id": "climb", "misc": 10}, {"id": "disable_device", "misc": 10}, {"id": "disguise", "misc": 10}, {"id": "escape_artist", "misc": 10}, {"id": "hide", "misc": 18, "note": "+8 racial"}, {"id": "listen", "misc": 18, "note": "+8 racial"}, {"id": "move_silently", "misc": 18, "note": "+8 racial"}, {"id": "open_lock", "misc": 10}, {"id": "search", "misc": 18, "note": "+8 racial"}, {"id": "sleight_of_hand", "misc": 10}, {"id": "survival", "misc": 0, "note": "+2 ved at følge spor"}, {"id": "use_rope", "misc": 0, "note": "+2 med bindings"}]'
   feats: '["Cleave", "Multiattack", "Power Attack"]'
   companion_ok: false
+
+# ── Summon Monster VIII-IX: nye basis-væsner ──────────────────────────────
+# Tilføjet for at udfylde SRD's SM VIII-IX-tabeller (data/summon_monster_lists.yaml).
+# Skabelon-væsner (fiendish) er BASIS-statblokke — skabelonen lægges på af
+# creature_template.py ved kast, IKKE her. Ægte outsidere har ingen skabelon.
+
+- id: lillend
+  name: Lillend
+  size: large
+  type: outsider
+  base_hd: 7
+  good_saves: '["fort","ref","will"]'
+  str: 20
+  dex: 17
+  con: 15
+  int: 14
+  wis: 16
+  cha: 18
+  natural_armor: 5
+  speed: "20 ft., fly 70 ft. (average)"
+  attacks: '[{"name": "Short sword", "damage": "1d8", "group": "primary"}, {"name": "Tail slap", "damage": "2d6", "group": "secondary"}]'
+  special_attacks: "Constrict 2d6+5, improved grab (via halesnert), spells (arkane, som 6.-level barde), spell-like abilities (3/dag: darkness, hallucinatory terrain DC 18, knock, light; 1/dag: charm person DC 15, speak with animals, speak with plants), bardic music (som 6.-level barde)"
+  special_qualities: "Darkvision 60 ft., immunity to poison, resistance to fire 10"
+  skills: '[{"id": "appraise", "misc": 10}, {"id": "concentration", "misc": 10}, {"id": "diplomacy", "misc": 12}, {"id": "knowledge_arcana", "misc": 10}, {"id": "listen", "misc": 10}, {"id": "perform", "misc": 10}, {"id": "sense_motive", "misc": 10}, {"id": "spellcraft", "misc": 12}, {"id": "spot", "misc": 10}, {"id": "survival", "misc": 14, "note": "+4 racial"}]'
+  feats: '["Combat Casting", "Extend Spell", "Lightning Reflexes"]'
+  companion_ok: false
+
+- id: hellcat
+  name: Hellcat (Bezekira)
+  size: large
+  type: outsider
+  base_hd: 8
+  good_saves: '["fort","ref","will"]'
+  str: 23
+  dex: 21
+  con: 17
+  int: 10
+  wis: 14
+  cha: 10
+  natural_armor: 7
+  speed: "40 ft."
+  attacks: '[{"name": "Claw", "damage": "1d8", "group": "primary", "count": 2}, {"name": "Bite", "damage": "2d8", "group": "secondary"}]'
+  special_attacks: "Improved grab (via bid), pounce, rake 1d8+3"
+  special_qualities: "Damage reduction 5/good, darkvision 60 ft., invisible in light (usynlig i belyste områder, svagt lysende omrids i mørke), resistance to fire 10, scent, spell resistance 19, telepathy 100 ft."
+  skills: '[{"id": "balance", "misc": 11}, {"id": "climb", "misc": 11}, {"id": "hide", "misc": 8}, {"id": "jump", "misc": 15}, {"id": "listen", "misc": 15}, {"id": "move_silently", "misc": 15}, {"id": "spot", "misc": 11}, {"id": "swim", "misc": 11}]'
+  feats: '["Dodge", "Improved Initiative", "Track"]'
+  companion_ok: false
+
+- id: vrock
+  name: Vrock (Demon)
+  size: large
+  type: outsider
+  base_hd: 10
+  good_saves: '["fort","ref","will"]'
+  str: 23
+  dex: 15
+  con: 25
+  int: 14
+  wis: 16
+  cha: 16
+  natural_armor: 11
+  speed: "30 ft., fly 50 ft. (average)"
+  attacks: '[{"name": "Claw", "damage": "2d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d8", "group": "secondary"}, {"name": "Talon", "damage": "1d6", "group": "secondary", "count": 2}]'
+  special_attacks: "Dance of ruin (Su, kræver mindst 3 vrocks, 20d6 skade i 100-ft radius efter 3 runders dans, Reflex DC 18 halv), spell-like abilities (at will: mirror image, telekinesis DC 18, greater teleport; 1/dag: heroism), spores (Ex, 1d8 initial + 1d4/runde i 10 runder), stunning screech (Su, 1/time, 30-ft radius, Fort DC 22 eller stunned 1 runde), summon demon (1/dag, 2d10 dretches eller anden vrock, 35% chance)"
+  special_qualities: "Damage reduction 10/good, darkvision 60 ft., immunity to electricity and poison, resistance to acid 10, cold 10, and fire 10, spell resistance 17, telepathy 100 ft."
+  skills: '[{"id": "concentration", "misc": 13}, {"id": "diplomacy", "misc": 2}, {"id": "hide", "misc": 9}, {"id": "intimidate", "misc": 13}, {"id": "listen", "misc": 21}, {"id": "move_silently", "misc": 13}, {"id": "search", "misc": 13}, {"id": "sense_motive", "misc": 13}, {"id": "spellcraft", "misc": 13}, {"id": "spot", "misc": 21}, {"id": "survival", "misc": 0, "note": "+2 ved at følge spor"}]'
+  feats: '["Cleave", "Combat Reflexes", "Multiattack", "Power Attack"]'
+  companion_ok: false
+
+- id: couatl
+  name: Couatl
+  size: large
+  type: outsider
+  base_hd: 9
+  good_saves: '["fort","ref","will"]'
+  str: 18
+  dex: 16
+  con: 14
+  int: 17
+  wis: 19
+  cha: 17
+  natural_armor: 9
+  speed: "20 ft., fly 60 ft. (good)"
+  attacks: '[{"name": "Bite", "damage": "1d3", "group": "primary"}]'
+  special_attacks: "Constrict 2d8+6, improved grab (via bid), poison (bid, Fort DC 16, 2d4 Str initial, 4d4 Str sekundær), psionics (spell-like, at will: detect chaos/evil/good/law, detect thoughts DC 15, invisibility, plane shift DC 20, polymorph selv), spells (kaster som 9.-level sorcerer)"
+  special_qualities: "Darkvision 60 ft., ethereal jaunt, telepathy 90 ft."
+  skills: '[{"id": "concentration", "misc": 12}, {"id": "diplomacy", "misc": 14}, {"id": "jump", "misc": -4}, {"id": "listen", "misc": 12}, {"id": "search", "misc": 12}, {"id": "sense_motive", "misc": 12}, {"id": "spellcraft", "misc": 12, "note": "+2 med scrolls"}, {"id": "spot", "misc": 12}, {"id": "survival", "misc": 0, "note": "+2 ved at følge spor"}, {"id": "tumble", "misc": 12}, {"id": "use_magic_device", "misc": 12, "note": "+2 med scrolls"}]'
+  feats: '["Dodge", "Empower Spell", "Eschew Materials", "Hover", "Improved Initiative"]'
+  companion_ok: false
+
+- id: leonal
+  name: Leonal (Guardinal)
+  size: medium
+  type: outsider
+  base_hd: 12
+  good_saves: '["fort","ref","will"]'
+  str: 27
+  dex: 17
+  con: 20
+  int: 14
+  wis: 14
+  cha: 15
+  natural_armor: 14
+  speed: "60 ft."
+  attacks: '[{"name": "Claw", "damage": "1d6", "group": "primary", "count": 2}, {"name": "Bite", "damage": "1d8", "group": "secondary"}]'
+  special_attacks: "Roar (Su, 3/dag, 60-ft kegle som holy word + 2d6 sonic skade, Fort DC 20 negerer), pounce, improved grab (via bid), rake 1d6+8, spell-like abilities (at will: detect thoughts, fireball DC 15, hold monster DC 17, polymorph, wall of force; 3/dag: cure critical wounds DC 16, neutralize poison, remove disease; 1/dag: heal DC 18)"
+  special_qualities: "Damage reduction 10/evil and silver, darkvision 60 ft., immunity to electricity and petrification, lay on hands, low-light vision, protective aura, resistance to cold 10 and sonic 10, speak with animals, spell resistance 28"
+  skills: '[{"id": "balance", "misc": 19}, {"id": "concentration", "misc": 7}, {"id": "diplomacy", "misc": 2}, {"id": "hide", "misc": 19}, {"id": "intimidate", "misc": 8}, {"id": "jump", "misc": 27}, {"id": "listen", "misc": 15}, {"id": "move_silently", "misc": 19}, {"id": "sense_motive", "misc": 15}, {"id": "spot", "misc": 15}, {"id": "survival", "misc": 15}]'
+  feats: '["Ability Focus (Roar)", "Dodge", "Mobility", "Spring Attack", "Track"]'
+  companion_ok: false
+
+- id: devil_barbed
+  name: Devil, Barbed (Hamatula)
+  size: medium
+  type: outsider
+  base_hd: 12
+  good_saves: '["fort","ref","will"]'
+  str: 23
+  dex: 23
+  con: 23
+  int: 12
+  wis: 14
+  cha: 18
+  natural_armor: 13
+  speed: "30 ft."
+  attacks: '[{"name": "Claw", "damage": "2d8", "group": "primary", "count": 2}]'
+  special_attacks: "Fear (Su, kløer: Fort DC 20 negerer eller fear-effekt), improved grab (via klo), impale 3d8+9 (ved vundet greb), summon devil (1/dag, 1d6 bearded devils eller endnu en barbed devil, 35% chance), spell-like abilities (at will: greater teleport, hold person DC 16, major image DC 17, scorching ray [2 stråler]; 1/dag: order's wrath DC 18, unholy blight DC 18)"
+  special_qualities: "Barbed defense (Su, angribere med håndvåben/naturlige våben tager 1d8+6 stik-/hugskade), damage reduction 10/good, darkvision 60 ft., immunity to fire and poison, resistance to acid 10 and cold 10, see in darkness, spell resistance 23, telepathy 100 ft."
+  skills: '[{"id": "concentration", "misc": 15}, {"id": "diplomacy", "misc": 2}, {"id": "hide", "misc": 15}, {"id": "intimidate", "misc": 15}, {"id": "listen", "misc": 17}, {"id": "move_silently", "misc": 15}, {"id": "search", "misc": 15}, {"id": "sense_motive", "misc": 15}, {"id": "spot", "misc": 17}, {"id": "survival", "misc": 0, "note": "+2 ved at følge spor"}]'
+  feats: '["Alertness", "Cleave", "Improved Grapple", "Iron Will", "Power Attack"]'
+  companion_ok: false
+
+- id: night_hag
+  name: Night Hag
+  size: medium
+  type: outsider
+  base_hd: 8
+  good_saves: '["fort","ref","will"]'
+  str: 19
+  dex: 12
+  con: 18
+  int: 11
+  wis: 15
+  cha: 12
+  natural_armor: 11
+  speed: "20 ft."
+  attacks: '[{"name": "Bite", "damage": "2d6", "group": "primary"}]'
+  special_attacks: "Disease (Ex, bid: demon fever, Fort DC 18, inkubation 1 dag, 1d6 Con/dag + risiko for Con-drain), dream haunting (Su, via heartstone: rider offerets ryg om natten, 1 Con-drain ved opvågning), spell-like abilities (at will: detect chaos/evil/good/law, detect magic, magic missile, polymorph selv, ray of enfeeblement DC 12, sleep DC 12; etherealness at will så længe hun har sin heartstone)"
+  special_qualities: "Damage reduction 10/cold iron and magic, immunity to fire, cold, charm, sleep, and fear, spell resistance 25"
+  skills: '[{"id": "bluff", "misc": 11}, {"id": "concentration", "misc": 11}, {"id": "diplomacy", "misc": 4}, {"id": "disguise", "misc": 0, "note": "+2 ved acting"}, {"id": "intimidate", "misc": 13}, {"id": "listen", "misc": 13}, {"id": "ride", "misc": 11}, {"id": "sense_motive", "misc": 11}, {"id": "spellcraft", "misc": 11}, {"id": "spot", "misc": 13}]'
+  feats: '["Alertness", "Combat Casting", "Mounted Combat"]'
+  companion_ok: false
+
+- id: bebilith
+  name: Bebilith (Demon)
+  size: huge
+  type: outsider
+  base_hd: 12
+  good_saves: '["fort","ref","will"]'
+  str: 28
+  dex: 12
+  con: 26
+  int: 11
+  wis: 13
+  cha: 13
+  natural_armor: 13
+  speed: "40 ft., climb 20 ft."
+  attacks: '[{"name": "Bite", "damage": "2d6", "group": "primary"}, {"name": "Claw", "damage": "2d4", "group": "secondary", "count": 2}]'
+  special_attacks: "Poison (bid, Fort DC 24, 1d6 Con initial, 2d6 Con sekundær), rend armor (Ex, ved begge kløer: 4d6+18 skade på rustning), web (Ex, 4/dag, som net op til Gargantuan, 30-ft rækkevidde, Escape Artist/Styrke DC 24), plane shift (Su, kun sig selv)"
+  special_qualities: "Damage reduction 10/good, darkvision 60 ft., scent, telepathy 100 ft."
+  skills: '[{"id": "climb", "misc": 15}, {"id": "diplomacy", "misc": 2}, {"id": "hide", "misc": 15, "note": "+8 racial (mønstret kamuflage)"}, {"id": "jump", "misc": 19}, {"id": "listen", "misc": 15}, {"id": "move_silently", "misc": 15}, {"id": "search", "misc": 15}, {"id": "sense_motive", "misc": 15}, {"id": "spot", "misc": 15}, {"id": "survival", "misc": 0, "note": "+2 ved at følge spor"}]'
+  feats: '["Cleave", "Improved Initiative", "Improved Grapple", "Power Attack", "Track"]'
+  companion_ok: false
+
+- id: hezrou
+  name: Hezrou (Demon)
+  size: large
+  type: outsider
+  base_hd: 10
+  good_saves: '["fort","ref","will"]'
+  str: 21
+  dex: 10
+  con: 29
+  int: 14
+  wis: 14
+  cha: 18
+  natural_armor: 14
+  speed: "30 ft."
+  attacks: '[{"name": "Bite", "damage": "4d4", "group": "primary"}, {"name": "Claw", "damage": "1d8", "group": "secondary", "count": 2}]'
+  special_attacks: "Spell-like abilities (at will: chaos hammer DC 18, greater teleport, unholy blight DC 18; 3/dag: blasphemy DC 21, gaseous form), stench (Ex, 10-ft radius, Fort DC 24 eller nauseated), improved grab (via begge kløer), summon demon (1/dag, 4d10 dretches eller anden hezrou, 35% chance)"
+  special_qualities: "Damage reduction 10/good, darkvision 60 ft., immunity to electricity and poison, resistance to acid 10, cold 10, and fire 10, spell resistance 19, telepathy 100 ft."
+  skills: '[{"id": "climb", "misc": 13}, {"id": "concentration", "misc": 13}, {"id": "hide", "misc": 13}, {"id": "escape_artist", "misc": 13}, {"id": "intimidate", "misc": 13}, {"id": "listen", "misc": 21}, {"id": "move_silently", "misc": 13}, {"id": "search", "misc": 13}, {"id": "spellcraft", "misc": 13}, {"id": "spot", "misc": 21}, {"id": "survival", "misc": 0, "note": "+2 ved at følge spor"}, {"id": "use_rope", "misc": 0, "note": "+2 med bindings"}]'
+  feats: '["Blind-Fight", "Cleave", "Power Attack", "Toughness"]'
+  companion_ok: false
+
+- id: monstrous_centipede_colossal
+  name: Monstrous Centipede, Colossal
+  size: colossal
+  type: vermin
+  base_hd: 24
+  good_saves: '["fort"]'
+  str: 27
+  dex: 13
+  con: 12
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 16
+  speed: "40 ft., climb 40 ft."
+  attacks: '[{"name": "Bite", "damage": "4d6", "group": "primary"}]'
+  special_attacks: "Poison (bid, Fort DC 23, 2d6 Dex initial og sekundær)"
+  special_qualities: "Darkvision 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 8}, {"id": "hide", "misc": -8}, {"id": "spot", "misc": 4}]'
+  feats: '[]'
+  companion_ok: false
+
+- id: monstrous_spider_gargantuan
+  name: Monstrous Spider, Gargantuan
+  size: gargantuan
+  type: vermin
+  base_hd: 16
+  good_saves: '["fort"]'
+  str: 25
+  dex: 17
+  con: 14
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 10
+  speed: "30 ft., climb 20 ft."
+  attacks: '[{"name": "Bite", "damage": "2d8", "group": "primary"}]'
+  special_attacks: "Poison (bid, Fort DC 20, 2d6 Str initial og sekundær), web"
+  special_qualities: "Darkvision 60 ft., tremorsense 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 7}, {"id": "hide", "misc": -8, "note": "web-spindere +8 ved brug af web"}, {"id": "jump", "misc": 0, "note": "jagende spindere +10"}, {"id": "spot", "misc": 4, "note": "jagende spindere +8"}]'
+  feats: '[]'
+  companion_ok: false
+
+- id: monstrous_scorpion_gargantuan
+  name: Monstrous Scorpion, Gargantuan
+  size: gargantuan
+  type: vermin
+  base_hd: 20
+  good_saves: '["fort"]'
+  str: 31
+  dex: 10
+  con: 16
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 18
+  speed: "50 ft."
+  attacks: '[{"name": "Claw", "damage": "2d6", "group": "primary", "count": 2}, {"name": "Sting", "damage": "2d6", "group": "secondary"}]'
+  special_attacks: "Constrict 2d6+10, improved grab (via klo), poison (brod, Fort DC 23, 1d8 Con initial og sekundær)"
+  special_qualities: "Darkvision 60 ft., tremorsense 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 4}, {"id": "hide", "misc": -8}, {"id": "spot", "misc": 4}]'
+  feats: '[]'
+  companion_ok: false
+
+- id: monstrous_spider_colossal
+  name: Monstrous Spider, Colossal
+  size: colossal
+  type: vermin
+  base_hd: 32
+  good_saves: '["fort"]'
+  str: 31
+  dex: 15
+  con: 14
+  int: 0
+  wis: 10
+  cha: 2
+  natural_armor: 18
+  speed: "30 ft., climb 20 ft."
+  attacks: '[{"name": "Bite", "damage": "4d6", "group": "primary"}]'
+  special_attacks: "Poison (bid, Fort DC 28, 2d8 Str initial og sekundær), web"
+  special_qualities: "Darkvision 60 ft., tremorsense 60 ft., vermin traits"
+  skills: '[{"id": "climb", "misc": 6}, {"id": "hide", "misc": -12, "note": "web-spindere +8 ved brug af web"}, {"id": "jump", "misc": 0, "note": "jagende spindere +10"}, {"id": "spot", "misc": 7, "note": "jagende spindere +8"}]'
+  feats: '[]'
+  companion_ok: false
