@@ -56,6 +56,7 @@ def _inv_row(item, r: dict) -> dict:
         "name": name, "weight": r["unit_weight"], "qty": item.qty,
         "notes": item.notes, "state": item.state, "is_ref": bool(item.ref),
         "ref": item.ref, "bonus": item.bonus, "str_mult": item.str_mult,
+        "mighty": item.mighty,
         "masterwork": item.masterwork, "enhancement": item.enhancement,
         "house_rule": item.house_rule,
         "off_hand": item.off_hand, "double": item.double,

@@ -73,3 +73,53 @@ def test_breakdown_composite_bow_shows_str_bonus():
     labels = {p["label"]: p for p in bd["parts"]}
     assert labels["STR"]["value"] == 1
     assert bd["total"] == "1d6+1"
+
+
+# ── Model B: mighty +N-rating på composite-buer (str_cap) ────────────────────
+
+def test_mighty_caps_str_bonus():
+    inv = [InventoryItem(ref="weapons/shortbow_composite", state="wielded", mighty=2)]
+    atk = derive_attacks(inv, db)[0]
+    assert atk.str_cap == 2
+    r = attack_total(atk, AbilityScores(str=18), bab=1, size="medium")  # +4, cappet
+    assert r["damage"] == "1d6+2"
+
+
+def test_mighty_below_rating_uses_full_str():
+    inv = [InventoryItem(ref="weapons/shortbow_composite", state="wielded", mighty=2)]
+    atk = derive_attacks(inv, db)[0]
+    r = attack_total(atk, AbilityScores(str=12), bab=1, size="medium")  # +1 < cap
+    assert r["damage"] == "1d6+1"
+
+
+def test_mighty_none_is_uncapped():
+    inv = [InventoryItem(ref="weapons/shortbow_composite", state="wielded")]  # mighty=None
+    atk = derive_attacks(inv, db)[0]
+    assert atk.str_cap is None
+    r = attack_total(atk, AbilityScores(str=18), bab=1, size="medium")  # fuld +4
+    assert r["damage"] == "1d6+4"
+
+
+def test_mighty_does_not_lift_str_penalty():
+    inv = [InventoryItem(ref="weapons/shortbow_composite", state="wielded", mighty=2)]
+    atk = derive_attacks(inv, db)[0]
+    r = attack_total(atk, AbilityScores(str=6), bab=1, size="medium")  # -2, cap rører ikke straf
+    assert r["damage"] == "1d6-2"
+
+
+def test_mighty_ignored_on_regular_bow():
+    # Regular bue er penalty_only → mighty må ikke give en bonus.
+    inv = [InventoryItem(ref="weapons/shortbow", state="wielded", mighty=3)]
+    atk = derive_attacks(inv, db)[0]
+    assert atk.str_cap is None
+    r = attack_total(atk, AbilityScores(str=18), bab=1, size="medium")
+    assert r["damage"] == "1d6"
+
+
+def test_mighty_breakdown_labels_the_cap():
+    inv = [InventoryItem(ref="weapons/shortbow_composite", state="wielded", mighty=2)]
+    atk = derive_attacks(inv, db)[0]
+    bd = attack_damage_breakdown(atk, AbilityScores(str=18))  # +4 → cappet til +2
+    label = next(p["label"] for p in bd["parts"] if p["label"].startswith("STR"))
+    assert "mighty +2" in label
+    assert bd["total"] == "1d6+2"

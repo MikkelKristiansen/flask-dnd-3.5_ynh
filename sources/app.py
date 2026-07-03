@@ -1068,6 +1068,9 @@ def api_inventory():
             if "str_mult" in data:
                 sm = data.get("str_mult")
                 old.str_mult = None if sm in (None, "") else float(sm)
+            if "mighty" in data:
+                mg = data.get("mighty")
+                old.mighty = None if mg in (None, "") else int(mg)
             if "masterwork" in data:
                 old.masterwork = bool(data.get("masterwork"))
             if "enhancement" in data:

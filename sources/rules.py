@@ -317,6 +317,8 @@ def attack_total(attack: Attack, ability_scores: AbilityScores,
         str_bonus = math.floor(ability_scores.modifier("str") * attack.str_damage_mult)
         if attack.str_penalty_only:
             str_bonus = min(str_bonus, 0)   # regular bue: kun straf, aldrig bonus
+        if attack.str_cap is not None:
+            str_bonus = min(str_bonus, attack.str_cap)   # composite mighty +N: loft på bonus (straf < cap → uændret)
         total_bonus = str_bonus + attack.damage_bonus + extra_damage
         if total_bonus == 0:
             damage = attack.base_damage
@@ -379,10 +381,15 @@ def attack_damage_breakdown(attack: Attack, ability_scores: AbilityScores,
     str_bonus = math.floor(ability_scores.modifier("str") * attack.str_damage_mult)
     if attack.str_penalty_only:
         str_bonus = min(str_bonus, 0)   # regular bue: kun straf, aldrig bonus
+    capped = attack.str_cap is not None and str_bonus > attack.str_cap
+    if capped:
+        str_bonus = attack.str_cap      # composite mighty +N: loft på Str-bonus
     if str_bonus != 0:
         # Vis multiplikatoren når den ikke er 1 (tohånds ×1.5, off-hånd ×0.5), så
         # spilleren kan se hvorfor Str-bidraget afviger fra sin rå modifier.
         label = "STR" if attack.str_damage_mult == 1.0 else f"STR ×{attack.str_damage_mult:g}"
+        if capped:
+            label += f" (mighty +{attack.str_cap})"
         parts.append({"label": label, "value": str_bonus})
     if attack.damage_parts:
         parts += [dict(p) for p in attack.damage_parts]
@@ -840,6 +847,10 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
         # Skade-side: Weapon Specialization (+2, ikke Str-skaleret) — matches mod
         # samme våbennavn som til-hit-delene ovenfor.
         dmg_parts = weapon_specialization_parts(feats, w["name"])
+        # Composite bue med mighty +N-rating: loft på Str-bonussen til skade (SRD).
+        # Kun composite-buer har et loft; øvrige våben ignorerer item.mighty.
+        str_cap = item.mighty if (w.get("ranged_str") == "composite"
+                                  and item.mighty is not None) else None
         return Attack(
             name=name,
             kind=kind or ("ranged" if wclass == "ranged" else "melee"),
@@ -856,6 +867,7 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
             note=_twf_note(pen, is_off),
             finesse=wclass == "light" or w["id"] in _FINESSE_WEAPON_IDS,
             str_penalty_only=str_penalty_only,
+            str_cap=str_cap,
             throw_mode=throw_mode,
         )
 

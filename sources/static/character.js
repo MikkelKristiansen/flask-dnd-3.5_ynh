@@ -1739,6 +1739,8 @@ function openItemDetail(idx) {
     document.getElementById("item-modal-bonus").value   = item.bonus || 0;
     document.getElementById("item-modal-strmult").value =
       (item.str_mult === null || item.str_mult === undefined) ? "" : item.str_mult;
+    document.getElementById("item-modal-mighty").value =
+      (item.mighty === null || item.mighty === undefined) ? "" : item.mighty;
   }
   // Two-weapon-felter (off-hånd/dobbeltvåben) kun for våben i kataloget
   document.getElementById("item-modal-twf").style.display = isWeapon ? "flex" : "none";
@@ -1774,6 +1776,8 @@ function saveItemDetail() {
     payload.bonus = parseInt(document.getElementById("item-modal-bonus").value) || 0;
     const sm = document.getElementById("item-modal-strmult").value.trim();
     payload.str_mult = sm === "" ? "" : parseFloat(sm);
+    const mg = document.getElementById("item-modal-mighty").value.trim();
+    payload.mighty = mg === "" ? "" : parseInt(mg);
     payload.off_hand = document.getElementById("item-modal-offhand").checked;
     payload.double   = document.getElementById("item-modal-double").checked;
   }
