@@ -432,6 +432,16 @@ function toggleCombatOption(id, el) {
   }).then(() => location.reload());
 }
 
+// Editable kampindstillinger (Lag B: Power Attack/Combat Expertise) — talfelt
+// i stedet for afkrydsning. 0/tomt slukker optionen (og rydder dens evt.
+// under-toggles server-side, se api_combat_options).
+function setCombatOption(id, el) {
+  fetch(BASE + "/api/combat_options", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, option_id: id, value: parseInt(el.value) || 0})
+  }).then(() => location.reload());
+}
+
 // ── Barbarian Rage: aktiverbar klasse-feature via buff-motoren (spell_id "rage") ─
 // Til/fra-knap. Aktiv rage er bare en buff på karakteren; al mekanik (str/con-kaskade,
 // temp-HP, Will, AC) kommer fra effekt-posten i data/effects.yaml.

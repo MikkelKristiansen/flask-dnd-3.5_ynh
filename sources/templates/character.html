@@ -286,17 +286,35 @@
 
   {# Kampindstillinger: toggles der lægger angrebs-/AC-bonusser oveni FØR man
      slår — Point Blank Shot, Dodge (feat-gated) + Charge/Fighting Defensively
-     (generiske). Panelet er tomt hvis ingen options er synlige (ingen af de
-     relevante feats ejet). #}
+     (generiske) er simple afkrydsninger. Power Attack/Combat Expertise (Lag B)
+     er "editable" — et talfelt (N) + evt. tilknyttede under-toggles (tohånds).
+     Panelet er tomt hvis ingen options er synlige (ingen af de relevante feats
+     ejet). #}
   {% if combat_options_panel %}
   <div class="section">
     <div class="section-title">Kampindstillinger <span style="color:var(--muted);font-size:.7rem;font-style:italic">(vinges af FØR du slår)</span></div>
     {% for opt in combat_options_panel %}
+    {% if opt.editable %}
+    <div class="stat-row" title="{{ opt.note }}">
+      <label class="stat-label" for="combat-opt-{{ opt.id }}">{{ opt.label }}</label>
+      <input type="number" id="combat-opt-{{ opt.id }}" class="form-input" style="width:3.5rem;text-align:right"
+             min="0" max="{{ opt.cap }}" value="{{ opt.value }}" title="{{ opt.prompt }}"
+             onchange="setCombatOption('{{ opt.id }}', this)">
+    </div>
+    {% for tg in opt.toggles %}
+    <div class="stat-row" title="{{ opt.note }}">
+      <label class="stat-label" style="cursor:pointer;padding-left:1rem" for="combat-opt-{{ opt.id }}-{{ tg.name }}">↳ {{ tg.label }}</label>
+      <input type="checkbox" id="combat-opt-{{ opt.id }}-{{ tg.name }}" {% if tg.on %}checked{% endif %}
+             onchange="toggleCombatOption('{{ opt.id }}.{{ tg.name }}', this)">
+    </div>
+    {% endfor %}
+    {% else %}
     <div class="stat-row" title="{{ opt.note }}">
       <label class="stat-label" style="cursor:pointer" for="combat-opt-{{ opt.id }}">{{ opt.label }}</label>
       <input type="checkbox" id="combat-opt-{{ opt.id }}" {% if opt.on %}checked{% endif %}
              onchange="toggleCombatOption('{{ opt.id }}', this)">
     </div>
+    {% endif %}
     {% endfor %}
   </div>
   {% endif %}

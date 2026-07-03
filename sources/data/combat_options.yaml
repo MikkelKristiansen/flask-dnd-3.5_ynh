@@ -43,3 +43,34 @@ fighting_defensively:
     - {target: attack, type: untyped, value: -4}
     - {target: ac, type: dodge, value: 2}
   note: "−4 til angreb, +2 dodge-AC"
+
+# ── Lag B: redigerbare ("editable") options — talinput i stedet for afkrydsning ──
+# editable.cap: heltal ELLER sentinel-strengen "bab" (opløses til karakterens
+# faktiske BAB ved render/beregning). paired emitteres × valgt N. toggles er
+# tilknyttede afkrydsninger der (kun når de selv er slået til) lægger EKSTRA
+# modifiers oveni × samme N — gemmes under den namespacede nøgle
+# "<option_id>.<toggle_navn>" i char.combat_options.
+
+power_attack:
+  label: "Power Attack"
+  feat: power_attack
+  scope: melee
+  editable: {cap: bab, min: 1, prompt: "Power Attack (≤ BAB)"}
+  paired:
+    - {target: attack_melee, type: untyped, per: -1}
+    - {target: damage_melee, type: untyped, per: 1}
+  toggles:
+    two_handed:
+      label: "tohånds (×2 skade)"
+      extra: [{target: damage_melee, type: untyped, per: 1}]
+  note: "−N til-hit / +N skade (tohånds: +2N). N ≤ BAB. Melee."
+
+combat_expertise:
+  label: "Combat Expertise"
+  feat: combat_expertise
+  scope: melee
+  editable: {cap: 5, min: 1, prompt: "Combat Expertise (≤5)"}
+  paired:
+    - {target: attack_melee, type: untyped, per: -1}
+    - {target: ac, type: dodge, per: 1}
+  note: "−N til-hit / +N dodge-AC. N ≤ 5. Melee."

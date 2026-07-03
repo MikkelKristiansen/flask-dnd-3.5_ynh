@@ -91,14 +91,18 @@ def build_character_view(char, db):
     # Permanente planlægningstal (level-up, encumbrance, racial SLA-DC) bruger
     # bevidst de rå scores — en midlertidig buff må ikke påvirke dem.
     active_modifiers, effect_sources = effects.collect_character_effects(char, db)
-    # Kampindstillinger (Point Blank/Dodge/Charge/Fighting Defensively m.fl.):
-    # samme modifier-form som buffs/tilstande, så de bare lægges oveni FØR net
-    # beregnes nedenfor. char_feat_ids beregnes lokalt her (i stedet for at
-    # flytte hele feat_data-blokken, der først kommer længere nede) — billigt,
-    # og undgår at rode med feat_data's egen opbygning.
+    # Kampindstillinger (Point Blank/Dodge/Charge/Fighting Defensively/Power
+    # Attack/Combat Expertise m.fl.): samme modifier-form som buffs/tilstande,
+    # så de bare lægges oveni FØR net beregnes nedenfor. char_feat_ids beregnes
+    # lokalt her (i stedet for at flytte hele feat_data-blokken, der først
+    # kommer længere nede) — billigt, og undgår at rode med feat_data's egen
+    # opbygning. bab flyttet herop (var tidligere beregnet længere nede, ved
+    # angrebs-blokken) fordi Power Attacks "N ≤ BAB"-cap skal kendes allerede
+    # her, før net beregnes.
     _feat_ids_early = [char_module.feat_id(e) for e in char.feats]
+    bab = db.base_attack_bonus(char.cls, char.level)
     active_modifiers = active_modifiers + combat_options_module.active_modifiers(
-        char, _feat_ids_early)
+        char, _feat_ids_early, bab)
     eff = char_module.effective_ability_scores(ab, active_modifiers)
     # Direkte (ikke-ability) bonusser: nettobonus pr. target (attack/damage/
     # save_*/skill_*/speed). AC behandles separat (typerne skal holdes adskilt).
@@ -334,7 +338,7 @@ def build_character_view(char, db):
 
     # Combat: beregn til-hit/skade pr. angreb + grapple + initiativ (gemmes aldrig i YAML).
     # Angreb = eksplicitte (spells/unarmed) + afledte fra våben i hånden (wielded).
-    bab = db.base_attack_bonus(char.cls, char.level)
+    # (bab beregnes nu tidligere, se kommentar ved combat_options_module.active_modifiers ovenfor)
     # Betingede spell-angreb (Attack.requires) vises kun når den spell der
     # skaber dem står på "I brug" (varighed kører).
     active_keys = char_module.active_spell_keys(
@@ -765,7 +769,7 @@ def build_character_view(char, db):
         "skill_breakdowns": skill_breakdowns,
         "feat_data": feat_data,
         "char_feat_ids": char_feat_ids,
-        "combat_options_panel": combat_options_module.panel(char, char_feat_ids),
+        "combat_options_panel": combat_options_module.panel(char, char_feat_ids, bab),
         "spell_data": spell_data,
         "slots": slots,
         "condition_data": condition_data,

@@ -186,7 +186,12 @@ def load_character(path: str) -> Character:
         domain_spells_used=domain_spells_used,
         lay_on_hands_used=int(data.get("lay_on_hands_used", 0)),
         smite_used=int(data.get("smite_used", 0)),
-        combat_options={str(k): bool(v) for k, v in (data.get("combat_options") or {}).items()},
+        # Værdier er enten bool (simple toggles/under-toggles, Lag A) eller
+        # heltal N (editable options som Power Attack/Combat Expertise, Lag B)
+        # — bevar typen som den er; kun uventede typer (fx en tekststreng fra
+        # en håndredigeret YAML) tvinges til bool som sikkerhedsnet.
+        combat_options={str(k): (v if isinstance(v, (bool, int)) else bool(v))
+                         for k, v in (data.get("combat_options") or {}).items()},
     )
 
 

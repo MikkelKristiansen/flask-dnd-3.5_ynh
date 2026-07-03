@@ -730,21 +730,42 @@ def api_buffs():
 
 @app.route("/api/combat_options", methods=["POST"])
 def api_combat_options():
-    """Slå én kampindstilling til/fra (Point Blank/Dodge/Charge/Fighting Defensively)."""
+    """Slå én kampindstilling til/fra (Point Blank/Dodge/Charge/Fighting
+    Defensively — simple bools) ELLER sæt en talværdi (Power Attack/Combat
+    Expertise — "editable" options, Lag B).
+
+    Body sender enten "on" (bool, simpel toggle — også brugt til namespacede
+    under-toggle-nøgler som "power_attack.two_handed") eller "value" (heltal,
+    editable option). Slukkes en editable option (value < 1), ryddes dens
+    under-toggle-nøgler også, så fx en slukket Power Attack ikke efterlader
+    en forældreløs "power_attack.two_handed"-flag.
+    """
     data      = request.get_json()
     slug      = data.get("char")
     option_id = data.get("option_id")
-    on        = bool(data.get("on"))
     path = _char_path(slug)
     if not path.exists():
         return jsonify({"error": "not found"}), 404
 
     char = char_module.load_character(str(path))
     opts = dict(char.combat_options)
-    if on:
-        opts[option_id] = True
+    if "value" in data:
+        try:
+            value = int(data.get("value"))
+        except (TypeError, ValueError):
+            value = 0
+        if value >= 1:
+            opts[option_id] = value
+        else:
+            opts.pop(option_id, None)
+            for key in [k for k in opts if k.startswith(f"{option_id}.")]:
+                opts.pop(key, None)
     else:
-        opts.pop(option_id, None)
+        on = bool(data.get("on"))
+        if on:
+            opts[option_id] = True
+        else:
+            opts.pop(option_id, None)
     char_module.save_character(str(path), {"combat_options": opts})
     return jsonify({"ok": True})
 
