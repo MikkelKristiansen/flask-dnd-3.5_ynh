@@ -10,6 +10,7 @@ Den gyldne regel: Python ejer reglerne. Dette modul REGNER ingen 3.5-regler selv
 """
 
 import rules
+from items import carry_limits, cost_for_size, material_modifiers, weight_for_size, weight_kind
 
 
 def format_cost(cost_cp) -> str:
@@ -41,7 +42,7 @@ def _row_weight(record: dict, table: str, size: str) -> float:
         bundle = record.get("bundle") or 1
         if bundle > 1:
             base = base / bundle
-    return rules.weight_for_size(base, rules.weight_kind(table, record), size)
+    return weight_for_size(base, weight_kind(table, record), size)
 
 
 def _row_cost(record: dict, table: str, size: str) -> int:
@@ -50,7 +51,7 @@ def _row_cost(record: dict, table: str, size: str) -> int:
     Samme skaleringsklasse som vægten (weight_kind): kun våben/rustning ændrer pris
     med størrelse, og kun ved Large (×2). Gear er uændret.
     """
-    return rules.cost_for_size(record.get("cost_cp"), rules.weight_kind(table, record), size)
+    return cost_for_size(record.get("cost_cp"), weight_kind(table, record), size)
 
 
 def _weapon_entry(w: dict, *, weapon_prof, allowed_weapons, recommended, size) -> dict:
@@ -67,7 +68,7 @@ def _weapon_entry(w: dict, *, weapon_prof, allowed_weapons, recommended, size) -
         "proficient": rules.weapon_proficient(w, weapon_prof, allowed_weapons),
         "recommended": w["id"] in recommended,
         "description": w.get("description"),
-        "modifiers": rules.material_modifiers(w, "weapons", size),
+        "modifiers": material_modifiers(w, "weapons", size),
         "detail": {
             "dmg": dmg,
             "crit": w.get("critical"),
@@ -92,7 +93,7 @@ def _armor_entry(a: dict, *, armor_prof, allowed_armor, recommended, size) -> di
         "proficient": rules.armor_proficient(a, armor_prof, allowed_armor),
         "recommended": a["id"] in recommended,
         "description": a.get("description"),
-        "modifiers": rules.material_modifiers(a, "armor", size),
+        "modifiers": material_modifiers(a, "armor", size),
         "detail": {
             "ac": a.get("armor_bonus"),
             "max_dex": a.get("max_dex"),
@@ -146,7 +147,7 @@ def build_catalog(db, *, weapon_prof=None, armor_prof=None,
     for it in db.get_all_items():
         items.append(_item_entry(it, recommended=recommended_ids, size=size))
 
-    return {"items": items, "enc_limits": rules.carry_limits(str_score, size)}
+    return {"items": items, "enc_limits": carry_limits(str_score, size)}
 
 
 def apply_material_overlay(record: dict, table: str, mods) -> dict:
@@ -160,9 +161,9 @@ def apply_material_overlay(record: dict, table: str, mods) -> dict:
 
     Returnerer et overlay af InventoryItem-felter (masterwork/bonus/name/notes).
     Ukendte eller for varen ugyldige mod-nøgler ignoreres (valideres mod
-    rules.material_modifiers).
+    material_modifiers).
     """
-    valid = {m["key"] for m in rules.material_modifiers(record, table)}
+    valid = {m["key"] for m in material_modifiers(record, table)}
     chosen = [m for m in (mods or []) if m in valid]
     if not chosen:
         return {}
