@@ -7,7 +7,7 @@ Skaden skalerer ANTAL terninger pr. casterniveau (1d6/niveau, cappet), modsat
 kategori B's flade +bonus. Rene save-effekter (Sleep/Web) har ingen skade.
 """
 import db
-from rules import spell_area_damage
+from spells import spell_area_damage
 from character import load_character, derive_spell_effects, derive_spell_attacks
 
 

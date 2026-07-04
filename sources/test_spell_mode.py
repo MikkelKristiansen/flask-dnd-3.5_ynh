@@ -8,7 +8,7 @@ viser kun den valgte + en ⇄-knap, ikke to samtidige rækker (som fejlagtigt li
 en two-weapon-straf). Valget gemmes pr. (level,index) i char.spell_modes.
 """
 import db
-from rules import _spell_attack_rows_to_show
+from spells import _spell_attack_rows_to_show
 from character import load_character, derive_spell_attacks
 
 

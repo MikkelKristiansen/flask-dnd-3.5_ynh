@@ -49,11 +49,14 @@ from rules import (  # noqa: F401
     attack_to_hit_breakdown, attack_damage_breakdown,
     grapple_total, initiative_total, armor_class, xp_to_next_level, xp_progress,
     carry_limits, encumbrance_level, total_weight, weight_for_size, resolve_item,
-    carried_weight, derive_attacks, spell_charge_key, spell_attack_damage,
-    derive_spell_attacks, derive_spell_effects, spell_max_charges, active_buff_keys, active_spell_keys,
-    attack_visible, equipped_armor, encumbrance_consequences, wis_bonus_spells,
-    spell_slots_total, spell_save_dc, hand_usage, twf_context, two_weapon_penalty,
+    carried_weight, derive_attacks, active_buff_keys,
+    attack_visible, equipped_armor, encumbrance_consequences,
+    hand_usage, twf_context, two_weapon_penalty,
     monk_unarmed_attacks)
+from spells import (  # noqa: F401
+    spell_charge_key, spell_attack_damage, spell_area_damage,
+    derive_spell_attacks, derive_spell_effects, spell_max_charges, active_spell_keys,
+    wis_bonus_spells, spell_slots_total, spell_save_dc)
 from persistence import (  # noqa: E402,F401
     SNAPSHOT_KEEP, load_character, save_character, write_character_file,
     restore_snapshot, snapshot_dir, list_snapshots, delete_character)
