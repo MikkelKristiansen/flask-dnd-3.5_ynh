@@ -414,3 +414,17 @@ def test_rage_not_in_buff_picker():
     from effects import picker_catalogs
     buffs, _ = picker_catalogs()
     assert all(b["spell_id"] != "rage" for b in buffs)
+
+
+def test_damage_dice_scoping():
+    """Flame Arrow (+1d6 ild på ranged) rammer kun ranged-angreb, ikke nærkamp."""
+    from effects import damage_dice
+    mods = [{"target": "damage_die_ranged", "die": "1d6", "damage_type": "Ild"}]
+    assert damage_dice(mods, "ranged") == [{"die": "1d6", "type": "Ild"}]
+    assert damage_dice(mods, "ranged_touch") == [{"die": "1d6", "type": "Ild"}]
+    assert damage_dice(mods, "melee") == []          # scope: kun ranged
+    # 'damage_die' (uden scope) rammer alle; only_vs udelades
+    allw = [{"target": "damage_die", "die": "1d8", "damage_type": "Syre"}]
+    assert damage_dice(allw, "melee") == [{"die": "1d8", "type": "Syre"}]
+    cond = [{"target": "damage_die_ranged", "die": "1d6", "only_vs": "udøde"}]
+    assert damage_dice(cond, "ranged") == []

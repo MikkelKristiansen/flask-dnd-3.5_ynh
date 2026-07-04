@@ -407,7 +407,10 @@ def build_character_view(char, db):
                 "dmg_parts": dmg_bd["parts"],
                 "dmg_changed": e["damage"] != b["damage"],
                 "dmg_up": effects.damage_bonus(e["damage"]) > effects.damage_bonus(b["damage"]),
-                "base_dmg": b["damage"]}
+                "base_dmg": b["damage"],
+                # ekstra skade-terninger fra buffs (Flame Arrow +1d6 ild) — vises som
+                # separat rul-badge, ikke smeltet ind (dice.py kan kun ét terning-led)
+                "bonus_dice": effects.damage_dice(active_modifiers, atk.kind)}
 
     def _row(atk, manual, idx):
         # throw_mode (kastbart våben) bæres videre som "mode" → ⇄-knap i templaten,

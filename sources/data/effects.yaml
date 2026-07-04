@@ -421,3 +421,13 @@
   modifiers: '[{"target": "str", "type": "untyped", "value": 4}, {"target": "con", "type": "untyped", "value": 4}, {"target": "ac", "type": "untyped", "value": -2}]'
   note: '+4 Str, +4 Con, −2 AC — dyrets bersærkergang (kan ikke afsluttes frivilligt)'
   affects: '["str", "con", "ac"]'
+
+# ── Buff-på-våben (Fase 3, kategori D): terning-skade på våbenangreb ──
+- id: flame_arrow
+  name: Flame Arrow
+  kind: buff
+  source_spell_id: flame_arrow
+  modifiers: '[{"target": "damage_die_ranged", "die": "1d6", "damage_type": "Ild"}]'
+  picker: buff
+  note: '+1d6 ild pr. skud på ranged-angreb (varer 50 skud — tæl selv)'
+  affects: '[]'

@@ -86,6 +86,30 @@ def resolve_modifiers(mods: list[dict]) -> dict[str, int]:
     return net
 
 
+def damage_dice(mods: list[dict], kind: str) -> list[dict]:
+    """Ekstra skade-TERNINGER en buff lægger på et våbenangreb (Flame Arrow: +1d6 ild).
+
+    Modsat resolve_modifiers (flade heltal) bærer disse en terning i `die` frem for
+    `value`, så de ikke ryger i heltals-nettet. Scope'es som de flade damage-targets:
+      damage_die         → alle våbenangreb
+      damage_die_ranged  → kun ranged (Flame Arrow rammer ammunition)
+      damage_die_melee   → kun nærkamp
+    Returnerer [{die, type}] i den rækkefølge de står. only_vs udelades (betinget).
+    """
+    if kind in ("melee", "melee_touch"):
+        ok = {"damage_die", "damage_die_melee"}
+    elif kind in ("ranged", "ranged_touch"):
+        ok = {"damage_die", "damage_die_ranged"}
+    else:
+        ok = {"damage_die"}
+    out = []
+    for m in mods or []:
+        if m.get("only_vs") or m.get("target") not in ok or not m.get("die"):
+            continue
+        out.append({"die": str(m["die"]), "type": m.get("damage_type") or ""})
+    return out
+
+
 def resolve_ac_bonuses(combat_ac: dict, ac_modifiers: list[dict]) -> dict[str, int]:
     """Saml AC-bonusser pr. type (karakterens combat-felter + aktive effekter).
 

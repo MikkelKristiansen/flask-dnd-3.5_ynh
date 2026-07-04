@@ -264,7 +264,7 @@
       <span class="attack-dmg roll-tap"
             onclick="quickRoll('{{ row.damage }}','{{ atk.name }} skade', 1)"
             onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
-            data-bd='{{ {"name": atk.name ~ " skade", "total": row.damage, "parts": row.dmg_parts}|tojson }}'>{{ row.damage }}{% if row.dmg_changed %}<span class="eff-delta {{ 'up' if row.dmg_up else 'down' }}">{{ '▲' if row.dmg_up else '▼' }}</span>{% endif %}</span>
+            data-bd='{{ {"name": atk.name ~ " skade", "total": row.damage, "parts": row.dmg_parts}|tojson }}'>{{ row.damage }}{% if row.dmg_changed %}<span class="eff-delta {{ 'up' if row.dmg_up else 'down' }}">{{ '▲' if row.dmg_up else '▼' }}</span>{% endif %}{% for bd in row.bonus_dice %}<span class="attack-alt roll-tap" onclick="event.stopPropagation();quickRoll('{{ bd.die }}','{{ atk.name }} {{ bd.type }} skade', 1)" title="Ekstra skade fra buff — rul separat">+{{ bd.die }}{% if bd.type %} {{ bd.type|lower }}{% endif %}</span>{% endfor %}</span>
       <span class="attack-type">{{ atk.type }}{% if atk.range %} · {{ atk.range }}{% endif %}</span>
     </div>
   {% endmacro %}
