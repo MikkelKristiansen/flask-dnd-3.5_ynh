@@ -38,7 +38,7 @@ from refdata import (  # noqa: F401
     feat_id, feat_weapon, feat_school, feat_label, owned_feat_tokens,
     spell_focus_bonus, class_cast_type, class_needs_domains,
     base_skill_points, class_can_turn_undead, class_has_wild_shape, class_wild_shape,
-    feat_prereq_unmet, spell_like_dc)
+    feat_prereq_unmet)
 from rules import (  # noqa: F401
     POINT_BUY_COST, POINT_BUY_BUDGET, point_buy_cost, point_buy_total,
     XP_THRESHOLDS, SKILL_SYNERGIES, SYNERGY_THRESHOLD, SIZE_MOD_ATTACK,
@@ -56,7 +56,7 @@ from rules import (  # noqa: F401
 from spells import (  # noqa: F401
     spell_charge_key, spell_attack_damage, spell_area_damage,
     derive_spell_attacks, derive_spell_effects, spell_max_charges, active_spell_keys,
-    wis_bonus_spells, spell_slots_total, spell_save_dc)
+    wis_bonus_spells, spell_slots_total, spell_save_dc, spell_like_dc)
 from persistence import (  # noqa: E402,F401
     SNAPSHOT_KEEP, load_character, save_character, write_character_file,
     restore_snapshot, snapshot_dir, list_snapshots, delete_character)

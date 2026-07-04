@@ -524,15 +524,6 @@ def feat_prereq_unmet(prereq_text: str, owned_feat_ids, scores: dict,
     return unmet
 
 
-def spell_like_dc(spell_level: int, cha_modifier: int, extra: int = 0) -> int:
-    """Save-DC for en spell-like ability: 10 + spell level + Cha-modifier.
-
-    Gnomens SLA'er er Cha-baserede (SRD). `extra` rummer fx gnomens +1 til
-    DC for illusionsskoler.
-    """
-    return 10 + spell_level + cha_modifier + extra
-
-
 # Summon-tabeller (dokument-formet: spellniveau → væsner, derfor her og ikke i
 # SQLite). To FAMILIER deler samme motor og adskilles kun af et spell-præfiks og
 # deres væsen-liste:

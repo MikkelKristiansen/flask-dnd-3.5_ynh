@@ -235,3 +235,14 @@ def spell_save_dc(spell_level: int, cast_modifier: int, focus_bonus: int = 0) ->
     """Save-DC en modstander skal slå for at modstå et spell: 10 + spell-niveau +
     caster-evne-modifier (+ evt. Spell Focus-bonus for spellets skole)."""
     return 10 + spell_level + cast_modifier + focus_bonus
+
+
+def spell_like_dc(spell_level: int, cha_modifier: int, extra: int = 0) -> int:
+    """Save-DC for en spell-like ability: 10 + spell level + Cha-modifier.
+
+    Gnomens SLA'er er Cha-baserede (SRD). `extra` rummer fx gnomens +1 til
+    DC for illusionsskoler. (Flyttet fra refdata.py — ren spell-regel; se
+    briefs/BRIEF-rules-split-spells.md. spell_focus_bonus blev i refdata pga.
+    feat-koblingen.)
+    """
+    return 10 + spell_level + cha_modifier + extra
