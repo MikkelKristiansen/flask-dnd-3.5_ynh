@@ -672,6 +672,14 @@ def build_character_view(char, db):
                 rows.append({"id": sid, "spell": spell, "dc": dc})
             known_data[lvl] = rows
 
+    # Kategori E (område/save-spells på "I brug"): skade-formel + save-DC til bordet.
+    # Save-DC = 10 + spell-niveau + caster-evne-mod + Spell Focus (skole-afhængigt).
+    spell_effects = []
+    for eff in char_module.derive_spell_effects(char, db):
+        focus = char_module.spell_focus_bonus(char.feats, eff["school"])
+        eff["dc"] = char_module.spell_save_dc(eff["level"], cast_mod, focus)
+        spell_effects.append(eff)
+
     # Domain spells — a cleric with chosen domains gets one domain slot per
     # spell level he can cast (SRD). The slot may only hold a domain spell.
     domain_slots: dict[int, int] = {}
@@ -870,4 +878,5 @@ def build_character_view(char, db):
         "cast_ability": cast_ability,
         "cast_mod": cast_mod,
         "known_data": known_data,
+        "spell_effects": spell_effects,
     }

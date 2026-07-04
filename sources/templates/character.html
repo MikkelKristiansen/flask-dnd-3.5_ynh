@@ -295,6 +295,30 @@
       {{ attack_row(row, "spell-attack") }}
     {% endfor %}
     {% endif %}
+    {# Kategori E: område/save-spells på "I brug". Ingen til-hit — vis save-DC hvor
+       angrebsbonus plejer at stå, og gør skade-formlen klikbar (rul-skade). #}
+    {% if spell_effects %}
+    {% set save_names = {"reflex":"Refleks","fortitude":"Fysik","will":"Vilje"} %}
+    {% set save_fx = {"half":"halv","negates":"negerer","partial":"delvis"} %}
+    <div class="spell-attacks-label">Spell-effekter <span style="font-style:italic;text-transform:none;letter-spacing:0">(område/save — koster en slot)</span></div>
+    {% for e in spell_effects %}
+      <div class="attack-row spell-attack">
+        <span class="attack-name-cell">
+          <span class="attack-name-edit" style="cursor:default">{{ e.label }}</span>
+          {% if e.range or e.area or e.duration %}<span class="attack-alt">{{ e.range }}{% if e.area %} · {{ e.area }}{% endif %}{% if e.duration %} · {{ e.duration }}{% endif %}</span>{% endif %}
+        </span>
+        <span class="attack-bonus" title="Save-DC modstanderen skal slå">
+          {% if e.save_type %}{{ save_names.get(e.save_type, e.save_type|capitalize) }} DC {{ e.dc }}{% if e.save_effect %} ({{ save_fx.get(e.save_effect, e.save_effect) }}){% endif %}{% endif %}
+        </span>
+        {% if e.damage %}
+        <span class="attack-dmg roll-tap" onclick="quickRoll('{{ e.damage }}','{{ e.label }} skade', 1)" title="Rul skade">{{ e.damage }}</span>
+        {% else %}
+        <span class="attack-dmg" style="color:var(--muted)">—</span>
+        {% endif %}
+        <span class="attack-type">{{ e.dmg_type }}</span>
+      </div>
+    {% endfor %}
+    {% endif %}
     <button class="add-attack-btn" onclick="openWeaponSwitch()">⇄ Skift våben</button>
     <button class="add-attack-btn" onclick="openAttackModal('add')">+ Tilføj angreb</button>
   </div>

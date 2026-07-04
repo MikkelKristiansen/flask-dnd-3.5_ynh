@@ -50,7 +50,7 @@ from rules import (  # noqa: F401
     grapple_total, initiative_total, armor_class, xp_to_next_level, xp_progress,
     carry_limits, encumbrance_level, total_weight, weight_for_size, resolve_item,
     carried_weight, derive_attacks, spell_charge_key, spell_attack_damage,
-    derive_spell_attacks, spell_max_charges, active_buff_keys, active_spell_keys,
+    derive_spell_attacks, derive_spell_effects, spell_max_charges, active_buff_keys, active_spell_keys,
     attack_visible, equipped_armor, encumbrance_consequences, wis_bonus_spells,
     spell_slots_total, spell_save_dc, hand_usage, twf_context, two_weapon_penalty,
     monk_unarmed_attacks)

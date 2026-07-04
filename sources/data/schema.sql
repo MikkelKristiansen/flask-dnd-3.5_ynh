@@ -124,10 +124,10 @@ DROP TABLE IF EXISTS spell_attacks;
 CREATE TABLE spell_attacks (
     spell_id          TEXT NOT NULL,   -- FK til spells.id
     label             TEXT NOT NULL,   -- visningsnavn på angrebsrækken
-    kind              TEXT NOT NULL,   -- melee | ranged | melee_touch | ranged_touch
+    kind              TEXT NOT NULL,   -- melee | ranged | melee_touch | ranged_touch | save (kategori E: område/save, intet til-hit)
     mode_group        TEXT,            -- tilstands-gruppe: rækker m/ samme (spell_id, mode_group) er ét angreb i flere tilstande (Produce Flame: touch)
-    base_damage       TEXT NOT NULL,   -- terningen, fx "1d6"
-    dmg_per_level     INTEGER,         -- skade-bonus pr. casterniveau (Produce Flame 1)
+    base_damage       TEXT,            -- terningen, fx "1d6" (tom = ren save-effekt uden skade, fx Sleep/Web)
+    dmg_per_level     INTEGER,         -- FLAD skade-bonus pr. casterniveau (Produce Flame 1)
     dmg_per_level_div INTEGER,         -- del niveauet med dette først (tom=1); Flame Blade 2 = +1 pr. 2 niveauer
     dmg_per_level_max INTEGER,         -- cap på niveau-bonus (Produce Flame 5)
     dmg_bonus         INTEGER,         -- flad skade-bonus (Magic Stone +1)
@@ -136,7 +136,12 @@ CREATE TABLE spell_attacks (
     dmg_type          TEXT,            -- skadetype
     range_ft          INTEGER,         -- rækkevidde for kastet/ranged
     charges           INTEGER,         -- antal ladninger (Magic Stone 3); tom = ubegrænset
-    alt_note          TEXT             -- fx "2d6+2 mod udøde"
+    alt_note          TEXT,            -- fx "2d6+2 mod udøde"
+    -- kategori E (område/save-effekt):
+    dice_per_level    INTEGER,         -- ANTAL skade-terninger pr. casterniveau (Fireball 1 = 1d6/niveau)
+    dice_per_level_max INTEGER,        -- cap på antal terninger (Fireball 10, Cone of Cold 15)
+    save_type         TEXT,            -- reflex | fortitude | will
+    save_effect       TEXT             -- half | negates | partial
 );
 
 DROP TABLE IF EXISTS armor;

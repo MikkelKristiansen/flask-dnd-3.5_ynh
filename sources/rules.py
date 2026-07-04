@@ -12,6 +12,7 @@ derive_attacks / save_total m.fl. virker uændret.
 """
 import dataclasses
 import math
+import re
 
 from models import AbilityScores, Skill, Attack, InventoryItem, Character
 from refdata import feat_id, feat_weapon
@@ -987,6 +988,34 @@ def spell_attack_damage(row: dict, caster_level: int) -> str:
     return f"{base}{bonus:+d}" if bonus else base
 
 
+def spell_area_damage(row: dict, caster_level: int) -> str:
+    """Skade-streng for et kategori-E (område/save) spell — TERNING-skalering.
+
+    Modsat spell_attack_damage (flad +bonus pr. niveau) skalerer blast-spells
+    ANTALLET af terninger: Fireball 1d6 pr. casterniveau, cappet ved 10 terninger.
+      Fireball (1d6, 1/niveau, cap 10) ved CL 5  → "5d6";  ved CL 12 → "10d6".
+      Cone of Cold (1d6, 1/niveau, cap 15) ved CL 9 → "9d6".
+    Rene save-effekter uden skade (Sleep/Web) har tom base_damage → "".
+    Uden dice_per_level falder vi tilbage til den flade motor (fast eller +bonus).
+    """
+    base = row.get("base_damage")
+    if not base:
+        return ""
+    per = int(row.get("dice_per_level") or 0)
+    if not per:
+        return spell_attack_damage(row, caster_level)
+    m = re.match(r"(\d+)d(\d+)", str(base))
+    mult, faces = (int(m.group(1)), int(m.group(2))) if m else (1, 6)
+    dice = caster_level * per
+    cap = row.get("dice_per_level_max")
+    if cap is not None:
+        dice = min(dice, int(cap))
+    dice = max(dice, 1) * mult
+    bonus = int(row.get("dmg_bonus") or 0)
+    expr = f"{dice}d{faces}"
+    return f"{expr}{bonus:+d}" if bonus else expr
+
+
 def _spell_attack_rows_to_show(rows: list[dict], selected: int) -> list[tuple]:
     """Reducér en spells katalog-rækker til de rækker der faktisk skal vises.
 
@@ -1027,7 +1056,9 @@ def derive_spell_attacks(char: "Character", db) -> list[dict]:
             sid = prepared[idx]
             key = spell_charge_key(lvl, idx)
             selected = char.spell_modes.get(key, 0)
-            for r, mode in _spell_attack_rows_to_show(db.get_spell_attacks(sid), selected):
+            # kind=save = kategori E (område/save) → håndteres af derive_spell_effects, ikke her
+            attack_rows = [r for r in db.get_spell_attacks(sid) if r.get("kind") != "save"]
+            for r, mode in _spell_attack_rows_to_show(attack_rows, selected):
                 atk = Attack(
                     name=r["label"],
                     kind=r["kind"],
@@ -1047,6 +1078,43 @@ def derive_spell_attacks(char: "Character", db) -> list[dict]:
                     "charges_max": charges_max, "charges_remaining": remaining,
                     "alt_note": r.get("alt_note") or "",
                     "mode": mode,
+                })
+    return out
+
+
+def derive_spell_effects(char: "Character", db) -> list[dict]:
+    """Kategori E (område/save): spells på "I brug" der rammer FJENDER med en
+    save-DC frem for et til-hit-rul (Fireball, Lightning Bolt, Sleep, Web).
+
+    Arket er ikke en kampsimulator — vi modellerer ikke fjenden. Vi viser bare de
+    tal man skal bruge ved bordet: skade-formel (skaleret), skadetype, save-type +
+    effekt, rækkevidde, area og varighed. Save-DC lægges på i view-laget (kræver
+    caster-evne-modifier + Spell Focus). Rene save-effekter uden skade → damage "".
+    """
+    out: list[dict] = []
+    for lvl, indices in (char.spells_active or {}).items():
+        prepared = char.spells_prepared.get(lvl, [])
+        for idx in indices:
+            if not (0 <= idx < len(prepared)):
+                continue
+            sid = prepared[idx]
+            spell = db.get_spell(sid) or {}
+            for r in db.get_spell_attacks(sid):
+                if r.get("kind") != "save":
+                    continue
+                out.append({
+                    "label":       r["label"],
+                    "spell_id":    sid,
+                    "level":       lvl,
+                    "index":       idx,
+                    "damage":      spell_area_damage(r, char.level),
+                    "dmg_type":    r.get("dmg_type") or "",
+                    "save_type":   r.get("save_type") or "",
+                    "save_effect": r.get("save_effect") or "",
+                    "school":      spell.get("school") or "",
+                    "range":       spell.get("range") or "",
+                    "area":        spell.get("target") or "",
+                    "duration":    spell.get("duration") or "",
                 })
     return out
 

@@ -75,3 +75,59 @@
   range_ft:
   charges:
   alt_note:
+
+# ── Kategori E (område/save) ────────────────────────────────────────────────
+# kind: save = intet til-hit; fjenden slår en redningskast mod en DC.
+# TERNING-skalering: dice_per_level = antal skade-terninger pr. casterniveau,
+# dice_per_level_max = cap på antal terninger. base_damage = terningtypen.
+# Rene save-effekter uden skade (Sleep/Web) har tom base_damage.
+# Rækkevidde/area/varighed hentes fra spells-tabellen — gentages ikke her.
+
+# Fireball — 1d6 ild pr. casterniveau, cap 10d6 (wizard 5 → 5d6). Refleks halv.
+- spell_id: fireball
+  label: Fireball
+  kind: save
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_max: 10
+  dmg_type: Ild
+  save_type: reflex
+  save_effect: half
+
+# Lightning Bolt — 1d6 elektricitet pr. niveau, cap 10d6. Refleks halv.
+- spell_id: lightning_bolt
+  label: Lightning Bolt
+  kind: save
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_max: 10
+  dmg_type: Elektricitet
+  save_type: reflex
+  save_effect: half
+
+# Cone of Cold — 1d6 kulde pr. niveau, cap 15d6. Refleks halv.
+- spell_id: cone_of_cold
+  label: Cone of Cold
+  kind: save
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_max: 15
+  dmg_type: Kulde
+  save_type: reflex
+  save_effect: half
+
+# Sleep — ingen skade; Vilje negerer (rammer 4 HD væsner). Ren save-effekt.
+- spell_id: sleep
+  label: Sleep
+  kind: save
+  base_damage:
+  save_type: will
+  save_effect: negates
+
+# Web — ingen skade; Refleks negerer (fastholder i klæbrigt spind).
+- spell_id: web
+  label: Web
+  kind: save
+  base_damage:
+  save_type: reflex
+  save_effect: negates
