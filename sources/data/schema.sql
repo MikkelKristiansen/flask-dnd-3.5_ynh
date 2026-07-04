@@ -139,6 +139,7 @@ CREATE TABLE spell_attacks (
     alt_note          TEXT,            -- fx "2d6+2 mod udøde"
     -- kategori E (område/save-effekt):
     dice_per_level    INTEGER,         -- ANTAL skade-terninger pr. casterniveau (Fireball 1 = 1d6/niveau)
+    dice_per_level_div INTEGER,        -- del niveauet med dette først (tom=1); Vampiric Touch 2 = 1 terning pr. 2 niveauer
     dice_per_level_max INTEGER,        -- cap på antal terninger (Fireball 10, Cone of Cold 15)
     save_type         TEXT,            -- reflex | fortitude | will
     save_effect       TEXT,            -- half | negates | partial

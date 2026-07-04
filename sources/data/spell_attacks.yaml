@@ -752,3 +752,119 @@
   crit: x2
   dmg_type: Ild
   range_ft: 25
+
+# ── Fase 4: touch/ray-angreb kategori B (debuff-stråler + HP-skade) — Sonnet, SRD-verificeret ──
+# Poison — melee touch, ingen HP-skade: Con-skade (Fort pr. instans).
+- spell_id: poison
+  label: Poison
+  kind: melee_touch
+  base_damage:
+  alt_note: 1d10 Con-skade straks + 1d10 Con-skade 1 minut senere (hver instans Fort negerer separat)
+# Chill Touch — melee touch, 1d6 negativ energi + Str-straf/frygt.
+- spell_id: chill_touch
+  label: Chill Touch
+  kind: melee_touch
+  base_damage: 1d6
+  crit: x2
+  dmg_type: Negativ energi
+  alt_note: -1 Str medmindre Fort lykkes; mod udød ingen skade men Vilje ellers flygter; op til 1 brug pr. casterniveau
+# Disrupt Undead — ranged touch, 1d6, KUN mod udøde.
+- spell_id: disrupt_undead
+  label: Disrupt Undead
+  kind: ranged_touch
+  base_damage: 1d6
+  crit: x2
+  dmg_type: Positiv energi
+  range_ft: 25
+  alt_note: Skader kun udøde væsner; ingen effekt mod andre mål
+# Ray of Enfeeblement — ranged touch, ingen HP-skade: Str-straf.
+- spell_id: ray_of_enfeeblement
+  label: Ray of Enfeeblement
+  kind: ranged_touch
+  base_damage:
+  range_ft: 25
+  alt_note: Str-straf 1d6+1 pr. 2 casterniveauer (max 1d6+5); ingen redning; Str kan ikke gå under 1
+# Touch of Fatigue — melee touch, ingen HP-skade: fatigued.
+- spell_id: touch_of_fatigue
+  label: Touch of Fatigue
+  kind: melee_touch
+  base_damage:
+  alt_note: Fatigued i varigheden (Fort negerer); ingen effekt hvis allerede fatigued
+# Acid Arrow — ranged touch, 2d4 syre + gentager over runder.
+- spell_id: acid_arrow
+  label: Acid Arrow
+  kind: ranged_touch
+  base_damage: 2d4
+  crit: x2
+  dmg_type: Syre
+  range_ft: 400
+  alt_note: Fortsætter 2d4 syre/runde i yderligere (niveau÷3, max 6) runder medmindre neutraliseret
+# Dimensional Anchor — ranged touch, ingen HP-skade: blokerer teleport.
+- spell_id: dimensional_anchor
+  label: Dimensional Anchor
+  kind: ranged_touch
+  base_damage:
+  range_ft: 100
+  alt_note: Blokerer al ekstradimensional bevægelse/teleport i varigheden (ingen redning)
+# Disintegrate — ranged touch, 2d6/niveau (base 1d6 ×2), cap 40d6. Fort partial = 5d6.
+- spell_id: disintegrate
+  label: Disintegrate
+  kind: ranged_touch
+  base_damage: 1d6
+  dice_per_level: 2
+  dice_per_level_max: 40
+  crit: x2
+  range_ft: 100
+  alt_note: Bestået Fortitude giver kun 5d6 skade; 0 HP → målet opløses helt; kun ét mål pr. kast
+# Enervation — ranged touch, ingen HP-skade: negative niveauer.
+- spell_id: enervation
+  label: Enervation
+  kind: ranged_touch
+  base_damage:
+  range_ft: 25
+  alt_note: 1d4 negative niveauer (ingen redning); dør hvis niveauer ≥ HD; gendannes efter timer
+# Ghoul Touch — melee touch, ingen HP-skade: lammelse + stank.
+- spell_id: ghoul_touch
+  label: Ghoul Touch
+  kind: melee_touch
+  base_damage:
+  alt_note: Lammer målet (Fort negerer); stank sygeliggør levende i 10 fod (separat Fort negerer)
+# Polar Ray — ranged touch, 1d6 kulde/niveau, cap 25d6.
+- spell_id: polar_ray
+  label: Polar Ray
+  kind: ranged_touch
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_max: 25
+  crit: x2
+  dmg_type: Kulde
+  range_ft: 25
+# Ray of Exhaustion — ranged touch, ingen HP-skade: exhausted (Fort partial).
+- spell_id: ray_of_exhaustion
+  label: Ray of Exhaustion
+  kind: ranged_touch
+  base_damage:
+  range_ft: 25
+  alt_note: Exhausted i varigheden; Fort lykkes = kun fatigued; allerede fatigued → exhausted
+# Temporal Stasis — melee touch, ingen HP-skade: permanent stasis.
+- spell_id: temporal_stasis
+  label: Temporal Stasis
+  kind: melee_touch
+  base_damage:
+  alt_note: Fastfryser målet i permanent stasis (Fort negerer) indtil dispel magic eller freedom
+# Touch of Idiocy — melee touch, ingen HP-skade: mentale straffe.
+- spell_id: touch_of_idiocy
+  label: Touch of Idiocy
+  kind: melee_touch
+  base_damage:
+  alt_note: -1d6 til Int, Wis og Cha (ingen redning); ingen af scorerne kan gå under 1
+# Vampiric Touch — melee touch, 1d6 pr. 2 casterniveauer, cap 10d6.
+- spell_id: vampiric_touch
+  label: Vampiric Touch
+  kind: melee_touch
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_div: 2
+  dice_per_level_max: 10
+  crit: x2
+  alt_note: Kasteren får midlertidige HP = skaden (max målets HP +10); forsvinder efter 1 time

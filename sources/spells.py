@@ -59,7 +59,8 @@ def spell_area_damage(row: dict, caster_level: int) -> str:
         return spell_attack_damage(row, caster_level)
     m = re.match(r"(\d+)d(\d+)", str(base))
     mult, faces = (int(m.group(1)), int(m.group(2))) if m else (1, 6)
-    dice = caster_level * per
+    div = int(row.get("dice_per_level_div") or 1)
+    dice = (caster_level * per) // div          # div=2 → 1 terning pr. 2 niveauer (Vampiric Touch)
     cap = row.get("dice_per_level_max")
     if cap is not None:
         dice = min(dice, int(cap))
@@ -118,8 +119,9 @@ def derive_spell_attacks(char: "Character", db) -> list[dict]:
                     str_damage_mult=0,
                     # spell_area_damage håndterer BÅDE flad +bonus (Produce Flame) OG
                     # terning-skalering (Shocking Grasp 1d6/niveau); falder tilbage til
-                    # spell_attack_damage når der ikke er dice_per_level.
-                    fixed_damage=spell_area_damage(r, char.level),
+                    # spell_attack_damage når der ikke er dice_per_level. Tom skade
+                    # (debuff-stråler: Ray of Enfeeblement) → "—" (effekten står i alt_note).
+                    fixed_damage=spell_area_damage(r, char.level) or "—",
                     bonus=int(r.get("to_hit") or 0),
                     crit=r.get("crit") or "x2",
                     type=r.get("dmg_type") or "",
