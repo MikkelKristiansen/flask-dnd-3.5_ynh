@@ -268,10 +268,19 @@ def build_character_view(char, db):
             # 🐾 Kast-knap. Ellers ville angrebs-rækken aldrig kunne udløses.
             cast = (None if (self_dur or is_summon)
                     else char_module.spell_cast_info(sid, char.level, db))
+            # Tre-tilstand ("I brug"-bar): self_duration ELLER en kategori-F utility med
+            # en varighed at vise (Fly, Tongues …). Additivt — self_duration er sat
+            # inkonsekvent på F-spells, så uden dette kunne de aldrig aktiveres/vises.
+            three_state = self_dur
+            if not three_state and not is_summon and char_module.spell_is_utility(sid, db):
+                dur = char_module.spell_duration(spell or {}, char.level)
+                if dur and not dur["instantaneous"]:
+                    three_state = True
             rows.append({
                 "id": sid, "index": i, "spell": spell,
                 "used": state != "free", "state": state,
                 "self_duration": self_dur,
+                "three_state": three_state,
                 "is_summon": is_summon,
                 "cast": cast,
             })
@@ -693,6 +702,10 @@ def build_character_view(char, db):
         eff["dc"] = char_module.spell_save_dc(eff["level"], cast_mod, focus)
         spell_effects.append(eff)
 
+    # Kategori F (ren utility på "I brug"): ingen tal — bare navn + beregnet varighed.
+    # Ingen DC/cast_mod nødvendig; ren visning fra spell_duration.
+    spell_utilities = char_module.derive_active_utility(char, db)
+
     # ⚡ Kast-knap: anden pass over spell_data (rækkerne blev bygget tidligt, før
     # cast_mod var kendt). To ting sker her:
     #  1) Kategori E (Fireball, Sleep m.fl.): som kategori B, men uden til-hit —
@@ -941,4 +954,5 @@ def build_character_view(char, db):
         "cast_mod": cast_mod,
         "known_data": known_data,
         "spell_effects": spell_effects,
+        "spell_utilities": spell_utilities,
     }

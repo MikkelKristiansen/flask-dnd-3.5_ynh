@@ -269,6 +269,162 @@ def spell_save_cast_info(spell_id: str, caster_level: int, db) -> dict | None:
     }
 
 
+# ── Kategori F: ren utility/varighed (Fly, Invisibility, Detect …) ──────────
+# En F-spell har ingen tal at beregne — arket skal bare kunne resolve den ved bordet:
+# er den aktiv, hvor længe endnu, og hvad gør den. Varigheds-teksten står som prosa i
+# spells.yaml ("10 min./level (D)"); spell_duration parser den til et tal der skalerer
+# med casterniveau. Uparsbart → rå tekst som note (gætter ALDRIG et tal).
+
+# Enheds-labels til den beregnede varigheds-streng (ental, flertal).
+_DUR_UNIT_LABEL = {
+    "round": ("runde", "runder"),
+    "min":   ("min", "min"),
+    "hour":  ("time", "timer"),
+    "day":   ("dag", "dage"),
+}
+
+
+def _dur_norm_unit(token: str) -> str:
+    """SRD-enheds-token → intern enhed (min./minute → min, o.l.)."""
+    t = token.lower().rstrip(".")
+    if t in ("min", "minute", "minutes"):
+        return "min"
+    if t in ("hour", "hours"):
+        return "hour"
+    if t in ("day", "days"):
+        return "day"
+    return "round"
+
+
+def _dur_computed(value: int, unit: str) -> str:
+    """Beregnet varigheds-streng på dansk: (5, "min") → "5 min"; (1, "hour") → "1 time"."""
+    sing, plur = _DUR_UNIT_LABEL[unit]
+    return f"{value} {sing if value == 1 else plur}"
+
+
+def _dur_result(text: str, **over) -> dict:
+    """Basis-varighedsdict med defaults; over-skriver de felter der er sat."""
+    base = {
+        "text": text, "computed": None, "value": None, "unit": None,
+        "per_level": False, "dismissible": "(d)" in text.lower(),
+        "instantaneous": False, "permanent": False, "concentration": False,
+        "special": False,
+    }
+    base.update(over)
+    return base
+
+
+def spell_duration(spell: dict, caster_level: int) -> dict | None:
+    """Parser spellets `duration`-felt → struktureret varighed, skaleret med niveau.
+
+    Returnerer None hvis feltet er tomt. Ellers en dict med altid: text (rå), computed
+    (beregnet dansk streng el. None), dismissible ((D)), + flag/tal. Gætter ALDRIG på
+    uparsbar tekst — så falder computed tilbage til None og text vises som note.
+
+      "10 min./level" @ CL5 → value=50, unit=min, computed="50 min", per_level=True
+      "24 hours"            → value=24, unit=hour, computed="24 timer", per_level=False
+      "1 round/level (D)" @ CL2 → computed="2 runder", dismissible=True
+      "Concentration, up to 1 min./level (D)" @ CL4 → concentration+dismissible, "4 min"
+      "Instantaneous" → instantaneous=True, computed=None
+      "Permanent" / "See text" → permanent/special, computed=None
+    """
+    raw = (spell.get("duration") or "").strip()
+    if not raw:
+        return None
+    low = raw.lower()
+    # SRD skriver konsekvent "One day/level" med ord — normalisér til tal (ikke et gæt,
+    # "one" er entydigt) så det rammer /level-parseren nedenfor som "1 day/level".
+    if low.startswith("one "):
+        low = "1 " + low[4:]
+
+    if low.startswith("instantaneous"):
+        return _dur_result(raw, instantaneous=True)
+    if low.startswith("permanent"):
+        return _dur_result(raw, permanent=True)
+
+    # Concentration, up to N unit/level → koncentration MEN med et loft vi kan skalere.
+    m = re.match(r"concentration,?\s*up to\s*(\d+)\s*([a-z]+)\.?\s*/\s*level", low)
+    if m:
+        unit = _dur_norm_unit(m.group(2))
+        value = int(m.group(1)) * caster_level
+        return _dur_result(raw, concentration=True, per_level=True,
+                           value=value, unit=unit, computed=_dur_computed(value, unit))
+    if low.startswith("concentration"):
+        return _dur_result(raw, concentration=True)
+
+    # N unit/level (skalerer med niveau) — den store TRACKER-kandidat-gruppe.
+    m = re.match(r"(\d+)\s*([a-z]+)\.?\s*/\s*level", low)
+    if m:
+        unit = _dur_norm_unit(m.group(2))
+        value = int(m.group(1)) * caster_level
+        return _dur_result(raw, per_level=True, value=value, unit=unit,
+                           computed=_dur_computed(value, unit))
+
+    # Fast varighed: N unit (uden /level) — "24 hours", "7 rounds", "1 minute".
+    m = re.match(r"(\d+)\s*([a-z]+)", low)
+    if m and "/level" not in low and _dur_norm_unit(m.group(2)) in _DUR_UNIT_LABEL:
+        unit = _dur_norm_unit(m.group(2))
+        value = int(m.group(1))
+        return _dur_result(raw, value=value, unit=unit,
+                           computed=_dur_computed(value, unit))
+
+    # "See text" og alt andet uparsbart → vis rå tekst som note, intet gættet tal.
+    return _dur_result(raw, special=True)
+
+
+def spell_is_utility(spell_id: str, db) -> bool:
+    """Er spellet kategori F (ren utility) i RUNTIME-forstand — dvs. producerer det
+    ingen tal andre steder på arket? F = residual: intet spell-angreb/-effekt
+    (`spell_attacks`, kategori B/E), ingen buff-post (`effects`, kategori A), og ingen
+    summon (kategori C). Så er der kun status + varighed + note tilbage at vise.
+    """
+    if db.get_spell_attacks(spell_id):          # B (angreb) eller E (save)
+        return False
+    if db.get_effect(spell_id):                 # A (passiv buff m/ tal)
+        return False
+    import refdata
+    if refdata.summon_family(spell_id) is not None:   # C (summon)
+        return False
+    return True
+
+
+def derive_active_utility(char: "Character", db) -> list[dict]:
+    """Kategori F på "I brug": utility-spells uden tal → status + beregnet varighed.
+
+    Parallel til derive_spell_effects/-attacks, men F har intet at beregne. Vi viser
+    navn + skaleret varighed (fra spell_duration) + evt. (D)-mærkat. Øjeblikkelige
+    F-spells (Knock, de fleste Detect) filtreres fra — de har ingen varighed at vise.
+    """
+    out: list[dict] = []
+    for lvl, indices in (char.spells_active or {}).items():
+        prepared = char.spells_prepared.get(lvl, [])
+        for idx in indices:
+            if not (0 <= idx < len(prepared)):
+                continue
+            sid = prepared[idx]
+            if not spell_is_utility(sid, db):
+                continue
+            spell = db.get_spell(sid) or {}
+            dur = spell_duration(spell, char.level)
+            if dur is None or dur["instantaneous"]:
+                continue                        # intet varigt at vise
+            out.append({
+                "label":       spell.get("name") or sid,
+                "spell_id":    sid,
+                "level":       lvl,
+                "index":       idx,
+                "computed":    dur["computed"],
+                "duration_text": dur["text"],
+                "dismissible": dur["dismissible"],
+                "concentration": dur["concentration"],
+                "permanent":   dur["permanent"],
+                "school":      spell.get("school") or "",
+                "range":       spell.get("range") or "",
+                "area":        spell.get("target") or "",
+            })
+    return out
+
+
 def spell_max_charges(spell_id: str, db) -> int | None:
     """Største ladnings-tal blandt en spells katalog-angreb (None hvis ingen)."""
     vals = [r["charges"] for r in db.get_spell_attacks(spell_id) if r.get("charges")]

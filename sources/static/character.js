@@ -601,9 +601,10 @@ function renderBuffReminders() {
 renderBuffReminders();
 
 // ── Spells ────────────────────────────────────────────────────────────────
-// To-tilstands-spells cykler Ledig→Brugt→Ledig. Self-duration-spells har en
-// ekstra "I brug"-tilstand: Ledig→I brug→Brugt→Ledig. Når en self-duration-spell
-// skifter tilstand, reloader vi — så Oversigtens angreb (server-renderet) opdateres.
+// To-tilstands-spells cykler Ledig→Brugt→Ledig. Tre-tilstands-spells (data-three-
+// state: self_duration-buffs OG kategori-F utility m/ varighed) har en ekstra "I
+// brug"-tilstand: Ledig→I brug→Brugt→Ledig. Når en tre-tilstands-spell skifter,
+// reloader vi — så Oversigtens angreb/varighed (server-renderet) opdateres.
 const STATE_LABEL = {free: "Ledig", active: "I brug", used: "Brugt"};
 
 function slotUsedCount(level) {
@@ -619,10 +620,12 @@ function spellState(level, idx) {
 
 function cycleSpell(level, idx) {
   const row = document.getElementById(`spell-${level}-${idx}`);
-  const selfDur = row && row.dataset.selfDuration === "1";
+  // Tre-tilstand (self_duration ELLER kategori-F utility m/ varighed): Ledig→I brug→
+  // Brugt. To-tilstand (øjeblikkelige angreb, healing …): Ledig↔Brugt.
+  const threeState = row && row.dataset.threeState === "1";
   const cur = spellState(level, idx);
   let next;
-  if (selfDur) {
+  if (threeState) {
     next = cur === "free" ? "active" : (cur === "active" ? "used" : "free");
   } else {
     next = cur === "used" ? "free" : "used";
@@ -645,8 +648,9 @@ function cycleSpell(level, idx) {
     spellsUsed = Object.fromEntries(Object.entries(data.spells_used).map(([k,v]) => [parseInt(k), v]));
     spellsActive = Object.fromEntries(Object.entries(data.spells_active).map(([k,v]) => [parseInt(k), v]));
     // Et SNA-spell skifter summon-fane + Kast-knap (server-renderet) → reload.
-    // Self-duration kan tænde/slukke et spell-angreb i Oversigten → reload.
-    if (data.is_summon || selfDur) { location.reload(); return; }
+    // Tre-tilstands-spells kan tænde/slukke et spell-angreb ELLER en utility-varighed
+    // i Oversigten (server-renderet) → reload.
+    if (data.is_summon || threeState) { location.reload(); return; }
     updateSpellDisplay(level);
   });
 }

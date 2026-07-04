@@ -328,6 +328,28 @@
     <button class="add-attack-btn" onclick="openAttackModal('add')">+ Tilføj angreb</button>
   </div>
 
+  {# Kategori F: aktive utility-spells (Fly, Invisibility, Tongues …). Ingen tal —
+     kun navn + beregnet varighed + evt. (D)/koncentrations-mærkat. Sæt spellet
+     "I brug" under Forberedte for at få det her. #}
+  {% if spell_utilities %}
+  <div class="section">
+    <div class="section-title">Aktive effekter <span style="color:var(--muted);font-size:.7rem;font-style:italic">(utility på "I brug" — varighed)</span></div>
+    {% for u in spell_utilities %}
+    <div class="attack-row spell-attack">
+      <span class="attack-name-cell">
+        <span class="attack-name-edit" style="cursor:pointer" onclick="showDetail('spell','{{ u.spell_id }}')">{{ u.label }}</span>
+        {% if u.range or u.area %}<span class="attack-alt">{{ u.range }}{% if u.area %} · {{ u.area }}{% endif %}</span>{% endif %}
+      </span>
+      <span class="attack-bonus" title="Varighed ved dit casterniveau ({{ u.duration_text }})" style="white-space:nowrap">
+        {% if u.computed %}⏱ {{ u.computed }}{% elif u.concentration %}⊙ Koncentration{% elif u.permanent %}∞ Permanent{% else %}{{ u.duration_text }}{% endif %}
+      </span>
+      <span class="attack-dmg" style="color:var(--muted)">{% if u.dismissible %}(kan afsluttes){% endif %}</span>
+      <span class="attack-type">{{ u.school }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {# Kampindstillinger: toggles der lægger angrebs-/AC-bonusser oveni FØR man
      slår — Point Blank Shot, Dodge (feat-gated) + Charge/Fighting Defensively
      (generiske) er simple afkrydsninger. Power Attack/Combat Expertise (Lag B)
@@ -1170,7 +1192,7 @@
     <div class="spell-row {% if entry.state != 'free' %}{{ entry.state }}{% endif %}"
          id="spell-{{ lvl }}-{{ entry.index }}"
          data-spell-id="{{ entry.id }}"
-         data-self-duration="{{ '1' if entry.self_duration else '0' }}"
+         data-three-state="{{ '1' if entry.three_state else '0' }}"
          onclick="showDetail('spell','{{ entry.id }}')">
       <span>
         <span class="spell-name">{{ entry.spell.name if entry.spell else entry.id }}</span>
