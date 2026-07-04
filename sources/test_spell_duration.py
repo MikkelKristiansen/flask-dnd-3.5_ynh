@@ -165,3 +165,20 @@ def test_derive_falls_back_to_fresh_snapshot_when_no_saved():
     c.spell_durations = {}
     row = derive_active_utility(c, db)[0]
     assert row["tracker"] == {"left": c.level, "max": c.level, "unit": "min"}
+
+
+# ── Fase 3: "hvad gør den"-noter ────────────────────────────────────────────
+
+def test_spell_note_known_and_unknown():
+    import refdata
+    assert refdata.spell_note("fly").startswith("Du kan flyve")
+    assert refdata.spell_note("does_not_exist") == ""
+
+
+def test_derive_includes_note():
+    from character import load_character
+    c = load_character("defaults/tjorn.yaml")
+    c.spells_prepared = {3: ["fly"]}
+    c.spells_active = {3: [0]}
+    c.spells_used = {}
+    assert derive_active_utility(c, db)[0]["note"].startswith("Du kan flyve")

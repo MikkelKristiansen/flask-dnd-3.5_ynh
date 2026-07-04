@@ -436,11 +436,13 @@ def derive_active_utility(char: "Character", db) -> list[dict]:
             key = spell_charge_key(lvl, idx)
             tracker = (char.spell_durations or {}).get(key) \
                 or spell_duration_snapshot(spell, char.level)
+            import refdata
             out.append({
                 "label":       spell.get("name") or sid,
                 "spell_id":    sid,
                 "level":       lvl,
                 "index":       idx,
+                "note":        refdata.spell_note(sid),
                 "computed":    dur["computed"],
                 "duration_text": dur["text"],
                 "dismissible": dur["dismissible"],

@@ -338,6 +338,7 @@
     <div class="attack-row spell-attack">
       <span class="attack-name-cell">
         <span class="attack-name-edit" style="cursor:pointer" onclick="showDetail('spell','{{ u.spell_id }}')">{{ u.label }}</span>
+        {% if u.note %}<span class="attack-alt" style="display:block;font-style:italic">{{ u.note }}</span>{% endif %}
         {% if u.range or u.area %}<span class="attack-alt">{{ u.range }}{% if u.area %} · {{ u.area }}{% endif %}</span>{% endif %}
       </span>
       <span class="attack-bonus" title="Varighed ved dit casterniveau ({{ u.duration_text }})" style="white-space:nowrap">

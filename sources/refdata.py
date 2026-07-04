@@ -25,6 +25,21 @@ def _load_yaml(name: str):
     return yaml.load(_DATA_DIR / f"{name}.yaml") or {}
 
 
+# ── Utility-noter (kategori F): kort "hvad gør den"-linje pr. spell ──────────
+# Display-metadata (data/spell_notes.yaml), dokument-formet → direkte indlæst her
+# som race-/klassedata, ikke via importer/SQLite. Fladt opslag {spell_id: note}.
+_SPELL_NOTES = None
+
+
+def spell_note(spell_id: str) -> str:
+    """Kort dansk note om hvad en utility-spell gør (tom streng hvis ingen/fil mangler)."""
+    global _SPELL_NOTES
+    if _SPELL_NOTES is None:
+        path = _DATA_DIR / "spell_notes.yaml"
+        _SPELL_NOTES = (_load_yaml("spell_notes") or {}) if path.exists() else {}
+    return str(_SPELL_NOTES.get(spell_id) or "").strip()
+
+
 def _load_records(name: str, required: tuple = ()) -> dict:
     """Indlæs data/<name>.yaml som mapping ``id → felt-dict``, valideret.
 

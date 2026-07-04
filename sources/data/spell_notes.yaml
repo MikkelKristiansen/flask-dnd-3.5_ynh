@@ -1,0 +1,9 @@
+# Korte "hvad gør den"-noter til utility-spells (kategori F). Én dansk linje pr. spell.
+# Kilde: spells.yaml's description, komprimeret. Ren display — påvirker ingen tal.
+# Se briefs/BRIEF-category-f-notes.md. Udfyldes som review-bar batch (Sonnet).
+
+fly: "Du kan flyve med 18 m fart (god manøvre); daler blødt hvis effekten slutter i luften."
+invisibility: "Usynlig indtil du angriber/kaster mod fjende; +2 angreb, mål mister Dex mod dig."
+comprehend_languages: "Forstår alt talt og skrevet sprog du hører eller rører — ikke kodet/magisk."
+spider_climb: "Kravl på vægge og lofter med 6 m fart, hænder fri; kan ikke bruge hænderne til andet."
+water_breathing: "Berørte kan ånde frit under vand (fordelt varighed mellem flere mål)."
