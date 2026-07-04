@@ -372,6 +372,28 @@ def spell_duration(spell: dict, caster_level: int) -> dict | None:
     return _dur_result(raw, special=True)
 
 
+def dur_unit_label(unit: str) -> str:
+    """Kort dansk enheds-label til nedtælleren (flertalsform): min → "min",
+    hour → "timer", round → "runder", day → "dage"."""
+    return _DUR_UNIT_LABEL.get(unit, (unit, unit))[1]
+
+
+def spell_duration_snapshot(spell: dict, caster_level: int) -> dict | None:
+    """Snapshot til live-nedtælleren ved aktivering: {left, max, unit} for en
+    TIDSBESTEMT varighed (skaleret med niveau). None hvis der ikke er et fast tal at
+    tælle ned (øjeblikkelig, permanent, ren koncentration uden loft, uparsbar) — de
+    vises stadig statisk, men uden −/+-knapper. Varigheden fryses ved kast (D&D-regel:
+    caster-niveau på kaste-tidspunktet), så vi gemmer max separat fra left.
+    """
+    dur = spell_duration(spell, caster_level)
+    if not dur or dur["value"] is None or dur["unit"] is None:
+        return None
+    if dur["permanent"] or dur["instantaneous"]:
+        return None
+    v = int(dur["value"])
+    return {"left": v, "max": v, "unit": dur["unit"]}
+
+
 def spell_is_utility(spell_id: str, db) -> bool:
     """Er spellet kategori F (ren utility) i RUNTIME-forstand — dvs. producerer det
     ingen tal andre steder på arket? F = residual: intet spell-angreb/-effekt
@@ -408,6 +430,12 @@ def derive_active_utility(char: "Character", db) -> list[dict]:
             dur = spell_duration(spell, char.level)
             if dur is None or dur["instantaneous"]:
                 continue                        # intet varigt at vise
+            # Live-nedtæller: brug det gemte snapshot (nedtalt af brugeren) hvis det
+            # findes; ellers et friskt snapshot til visning (persisteres først ved
+            # første klik). None for koncentration/permanent/uparsbar → statisk visning.
+            key = spell_charge_key(lvl, idx)
+            tracker = (char.spell_durations or {}).get(key) \
+                or spell_duration_snapshot(spell, char.level)
             out.append({
                 "label":       spell.get("name") or sid,
                 "spell_id":    sid,
@@ -418,6 +446,8 @@ def derive_active_utility(char: "Character", db) -> list[dict]:
                 "dismissible": dur["dismissible"],
                 "concentration": dur["concentration"],
                 "permanent":   dur["permanent"],
+                "tracker":     tracker,
+                "unit_label":  dur_unit_label(tracker["unit"]) if tracker else "",
                 "school":      spell.get("school") or "",
                 "range":       spell.get("range") or "",
                 "area":        spell.get("target") or "",

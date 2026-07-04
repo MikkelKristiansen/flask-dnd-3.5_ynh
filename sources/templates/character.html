@@ -341,7 +341,12 @@
         {% if u.range or u.area %}<span class="attack-alt">{{ u.range }}{% if u.area %} · {{ u.area }}{% endif %}</span>{% endif %}
       </span>
       <span class="attack-bonus" title="Varighed ved dit casterniveau ({{ u.duration_text }})" style="white-space:nowrap">
-        {% if u.computed %}⏱ {{ u.computed }}{% elif u.concentration %}⊙ Koncentration{% elif u.permanent %}∞ Permanent{% else %}{{ u.duration_text }}{% endif %}
+        {% if u.tracker %}
+        <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.95rem" title="−1 {{ u.unit_label }}" onclick="adjUtilDuration({{ u.level }},{{ u.index }},-1)">−</button>
+        <span class="summon-rounds{{ ' expired' if u.tracker.left == 0 else '' }}" id="util-{{ u.level }}-{{ u.index }}-dur">{% if u.tracker.left == 0 %}udløbet{% else %}{{ u.tracker.left }}/{{ u.tracker.max }} {{ u.unit_label }}{% endif %}</span>
+        <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.95rem" title="+1 {{ u.unit_label }}" onclick="adjUtilDuration({{ u.level }},{{ u.index }},1)">+</button>
+        <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.85rem" title="Nulstil til fuld varighed" onclick="adjUtilDuration({{ u.level }},{{ u.index }},0,true)">⟲</button>
+        {% elif u.concentration %}⊙ Koncentration{% elif u.permanent %}∞ Permanent{% else %}{{ u.duration_text }}{% endif %}
       </span>
       <span class="attack-dmg" style="color:var(--muted)">{% if u.dismissible %}(kan afsluttes){% endif %}</span>
       <span class="attack-type">{{ u.school }}</span>

@@ -359,6 +359,7 @@ def api_spells():
     spells_used = {k: list(v) for k, v in char.spells_used.items()}
     spells_active = {k: list(v) for k, v in char.spells_active.items()}
     spell_charges = dict(char.spell_charges)
+    spell_durations = dict(char.spell_durations)
 
     # Et slot der forlader "I brug" og bærer et væsen (direkte summon-kast ELLER et
     # ofret spell) rydder det. is_summon_spell styrer desuden reload (Kast-knappen).
@@ -376,19 +377,25 @@ def api_spells():
                 d[level].remove(spell_index)
         key = char_module.spell_charge_key(level, spell_index)
         spell_charges.pop(key, None)
+        spell_durations.pop(key, None)
         if state == "active":
             spells_active.setdefault(level, []).append(spell_index)
-            # Init ladninger fra kataloget (fx Magic Stone: 3 sten).
             sid = char.spells_prepared.get(level, [])
             if 0 <= spell_index < len(sid):
+                # Init ladninger fra kataloget (fx Magic Stone: 3 sten).
                 maxc = char_module.spell_max_charges(sid[spell_index], db)
                 if maxc:
                     spell_charges[key] = maxc
+                # Snapshot varigheds-nedtælleren for en tidsbestemt utility (kategori F).
+                snap = char_module.spell_duration_snapshot(
+                    db.get_spell(sid[spell_index]) or {}, char.level)
+                if snap:
+                    spell_durations[key] = snap
         elif state == "used":
             spells_used.setdefault(level, []).append(spell_index)
         # state == "free": fjernet fra begge ovenfor
         updates = {"spells_used": spells_used, "spells_active": spells_active,
-                   "spell_charges": spell_charges}
+                   "spell_charges": spell_charges, "spell_durations": spell_durations}
         # Slot forlader "I brug" → fjern det bundne væsen (fanen forsvinder).
         if bound_summon and state != "active":
             summons = [s for s in char.summons
@@ -620,6 +627,46 @@ def api_summon_rounds():
     ref["rounds_left"] = new
     char_module.save_character(str(path), {"summons": char.summons})
     return jsonify({"rounds_left": new, "rounds_max": rmax})
+
+
+@app.route("/api/spell_duration", methods=["POST"])
+def api_spell_duration():
+    """Tæl en aktiv utility-spells (kategori F) resterende varighed op/ned.
+
+    delta justerer left (klampet 0..max); reset=True sætter tilbage til fuld varighed.
+    Findes der intet snapshot endnu (spell aktiveret før feature'en), synthesizes det
+    fra spellets parsede varighed ved første klik. Ændrer intet andet end nedtælleren.
+    """
+    data  = request.get_json()
+    slug  = data.get("char")
+    level = int(data.get("level"))
+    index = int(data.get("spell_index"))
+    delta = int(data.get("delta", 0))
+    reset = bool(data.get("reset", False))
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+
+    char = char_module.load_character(str(path))
+    key = char_module.spell_charge_key(level, index)
+    spell_durations = dict(char.spell_durations)
+    snap = spell_durations.get(key)
+    if snap is None:
+        prepared = char.spells_prepared.get(level, [])
+        if not (0 <= index < len(prepared)):
+            return jsonify({"error": "no spell"}), 400
+        snap = char_module.spell_duration_snapshot(
+            db.get_spell(prepared[index]) or {}, char.level)
+        if snap is None:
+            return jsonify({"error": "no duration"}), 400
+
+    rmax = int(snap["max"])
+    cur = int(snap["left"])
+    new = rmax if reset else max(0, min(rmax, cur + delta))
+    spell_durations[key] = {"left": new, "max": rmax, "unit": snap["unit"]}
+    char_module.save_character(str(path), {"spell_durations": spell_durations})
+    return jsonify({"left": new, "max": rmax,
+                    "unit_label": char_module.dur_unit_label(snap["unit"])})
 
 
 @app.route("/api/spell_charge", methods=["POST"])

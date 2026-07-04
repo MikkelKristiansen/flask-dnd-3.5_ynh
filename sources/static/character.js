@@ -161,6 +161,25 @@ function adjSummonRounds(target, delta, reset) {
   });
 }
 
+// Justér en aktiv utility-spells (kategori F) resterende varighed. reset=true →
+// fuld varighed. Native enhed (min/timer/runder/dage) — serveren returnerer labelen.
+function adjUtilDuration(level, idx, delta, reset) {
+  fetch(BASE + "/api/spell_duration", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, level, spell_index: idx, delta, reset: !!reset})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) return;
+    const el = document.getElementById(`util-${level}-${idx}-dur`);
+    if (!el) return;
+    const done = data.left === 0;
+    el.textContent = done ? "udløbet" : `${data.left}/${data.max} ${data.unit_label}`;
+    el.classList.toggle("expired", done);
+  });
+}
+
 // ── Companion tricks (redigerbar liste) ───────────────────────────────────
 let compTricks = D.compTricks;
 

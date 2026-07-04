@@ -7,7 +7,8 @@ casterniveau. Den gætter ALDRIG: uparsbar tekst → computed=None, rå tekst so
 spell_is_utility identificerer kategori F som residual (intet angreb/effekt/summon).
 """
 import db
-from spells import spell_duration, spell_is_utility, derive_active_utility
+from spells import (spell_duration, spell_is_utility, derive_active_utility,
+                    spell_duration_snapshot, dur_unit_label)
 
 
 def _dur(text, cl=5):
@@ -120,3 +121,47 @@ def test_derive_skips_instantaneous_utility():
     c.spells_active = {1: [0]}
     c.spells_used = {}
     assert derive_active_utility(c, db) == []
+
+
+# ── Fase 2: live nedtæller (snapshot + tracker) ─────────────────────────────
+
+def test_snapshot_scales_and_freezes_max():
+    snap = spell_duration_snapshot({"duration": "10 min./level"}, 5)
+    assert snap == {"left": 50, "max": 50, "unit": "min"}
+
+
+def test_snapshot_none_for_permanent_and_instant():
+    assert spell_duration_snapshot({"duration": "Permanent"}, 5) is None
+    assert spell_duration_snapshot({"duration": "Instantaneous"}, 5) is None
+    assert spell_duration_snapshot({"duration": "Concentration"}, 5) is None
+
+
+def test_unit_label_danish_plural():
+    assert dur_unit_label("min") == "min"
+    assert dur_unit_label("hour") == "timer"
+    assert dur_unit_label("round") == "runder"
+    assert dur_unit_label("day") == "dage"
+
+
+def test_derive_uses_saved_tracker_over_fresh_snapshot():
+    from character import load_character
+    c = load_character("defaults/tjorn.yaml")
+    c.spells_prepared = {3: ["fly"]}
+    c.spells_active = {3: [0]}
+    c.spells_used = {}
+    # Bruger har talt fly ned til 2 tilbage — derive skal vise det gemte, ikke fuldt.
+    c.spell_durations = {"3-0": {"left": 2, "max": c.level, "unit": "min"}}
+    row = derive_active_utility(c, db)[0]
+    assert row["tracker"] == {"left": 2, "max": c.level, "unit": "min"}
+    assert row["unit_label"] == "min"
+
+
+def test_derive_falls_back_to_fresh_snapshot_when_no_saved():
+    from character import load_character
+    c = load_character("defaults/tjorn.yaml")
+    c.spells_prepared = {3: ["fly"]}
+    c.spells_active = {3: [0]}
+    c.spells_used = {}
+    c.spell_durations = {}
+    row = derive_active_utility(c, db)[0]
+    assert row["tracker"] == {"left": c.level, "max": c.level, "unit": "min"}
