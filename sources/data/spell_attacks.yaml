@@ -696,3 +696,31 @@
   base_damage: 6d6
   save_type: reflex
   save_effect: partial
+
+# ── Fase 1: simple touch/ray-angreb (kategori B) — SRD-verificeret ──
+# Acid Splash — ranged touch, 1d3 syre, ingen skalering.
+- spell_id: acid_splash
+  label: Acid Splash
+  kind: ranged_touch
+  base_damage: 1d3
+  crit: x2
+  dmg_type: Syre
+  range_ft: 30
+# Ray of Frost — ranged touch, 1d3 kulde.
+- spell_id: ray_of_frost
+  label: Ray of Frost
+  kind: ranged_touch
+  base_damage: 1d3
+  crit: x2
+  dmg_type: Kulde
+  range_ft: 25
+# Shocking Grasp — melee touch, 1d6 elektricitet pr. casterniveau (max 5d6).
+- spell_id: shocking_grasp
+  label: Shocking Grasp
+  kind: melee_touch
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_max: 5
+  crit: x2
+  dmg_type: Elektricitet
+  alt_note: +3 til-hit mod metal-rustning

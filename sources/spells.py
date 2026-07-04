@@ -116,7 +116,10 @@ def derive_spell_attacks(char: "Character", db) -> list[dict]:
                     name=r["label"],
                     kind=r["kind"],
                     str_damage_mult=0,
-                    fixed_damage=spell_attack_damage(r, char.level),
+                    # spell_area_damage håndterer BÅDE flad +bonus (Produce Flame) OG
+                    # terning-skalering (Shocking Grasp 1d6/niveau); falder tilbage til
+                    # spell_attack_damage når der ikke er dice_per_level.
+                    fixed_damage=spell_area_damage(r, char.level),
                     bonus=int(r.get("to_hit") or 0),
                     crit=r.get("crit") or "x2",
                     type=r.get("dmg_type") or "",
