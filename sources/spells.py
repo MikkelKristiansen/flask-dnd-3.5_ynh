@@ -198,6 +198,52 @@ def spell_shots(row: dict, caster_level: int) -> int:
     return min(total, int(cap)) if cap is not None else total
 
 
+def multiply_damage(expr: str, n: int) -> str:
+    """Gang et skade-udtryk op med antal skud: "1d4+1" ×3 → "3d4+3".
+
+    Bruges når et angrebsspell affyrer flere missiler/stråler der hver ruller
+    basis-skaden (Magic Missile, Scorching Ray). Ganger både terning-antal og
+    fladt bonus. Uden match (tomt/uparseligt) → uændret.
+    """
+    if n <= 1:
+        return expr
+    m = re.match(r"(\d+)d(\d+)([+-]\d+)?$", (expr or "").strip())
+    if not m:
+        return expr
+    dice = int(m.group(1)) * n
+    bonus = int(m.group(3) or 0) * n
+    return f"{dice}d{m.group(2)}" + (f"{bonus:+d}" if bonus else "")
+
+
+def spell_cast_info(spell_id: str, caster_level: int, db) -> dict | None:
+    """Info til ⚡ Kast-knappen for et ØJEBLIKKELIGT angrebsspell (kategori B).
+
+    Modsat self_duration-spells (Produce Flame), der holdes "I brug" og vises som
+    en varig angrebsrække, kastes et instantaneous angreb her-og-nu: rul skaden,
+    brug slotten. Returnerer det knappen behøver, eller None hvis spellet ikke er
+    et kategori-B-angreb (så ingen Kast-knap — save/område-spells håndteres ikke her).
+
+      Magic Missile CL1 → {damage: "1d4+1", shots: 1, roll_expr: "1d4+1", auto_hit: True}
+      Magic Missile CL3 → {..., shots: 2, roll_expr: "2d4+2"}
+      Scorching Ray CL7 → {damage: "4d6", shots: 2, roll_expr: "8d6", auto_hit: False}
+    """
+    atk_rows = [r for r in db.get_spell_attacks(spell_id) if r.get("kind") != "save"]
+    if not atk_rows:
+        return None
+    r = atk_rows[0]
+    per_shot = spell_area_damage(r, caster_level)  # håndterer flad + terning-skalering
+    if not per_shot:
+        return None
+    shots = spell_shots(r, caster_level)
+    return {
+        "damage": per_shot,
+        "shots": shots,
+        "roll_expr": multiply_damage(per_shot, shots),
+        "auto_hit": bool(r.get("auto_hit")),
+        "dmg_type": r.get("dmg_type") or "",
+    }
+
+
 def spell_max_charges(spell_id: str, db) -> int | None:
     """Største ladnings-tal blandt en spells katalog-angreb (None hvis ingen)."""
     vals = [r["charges"] for r in db.get_spell_attacks(spell_id) if r.get("charges")]

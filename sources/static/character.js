@@ -770,6 +770,30 @@ function castSpontaneousCure() {
   });
 }
 
+// ── Kast et øjeblikkeligt angrebsspell (Magic Missile o.l.) ────────────────
+// Instantaneous angreb har ingen "I brug"-tilstand (self_duration) — de kastes
+// her-og-nu: læg skade-udtrykket i terningefeltet (spilleren trykker Rul) og
+// markér slotten Brugt. Vi reloader IKKE (det ville nulstille terningefeltet);
+// updateSpellDisplay skjuler Kast-knappen når rækken ikke længere er ledig.
+function castAttackSpell(level, idx, rollExpr, label) {
+  if (slotUsedCount(level) >= (slotTotals[level] || 0)) {
+    alert("Ingen slots tilbage på level " + level + "!");
+    return;
+  }
+  if (rollExpr) quickRoll(rollExpr, label, 1);
+  fetch(BASE + "/api/spells", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, level, spell_index: idx, state: "used"})
+  })
+  .then(r => r.json())
+  .then(data => {
+    spellsUsed = Object.fromEntries(Object.entries(data.spells_used).map(([k, v]) => [parseInt(k), v]));
+    spellsActive = Object.fromEntries(Object.entries(data.spells_active).map(([k, v]) => [parseInt(k), v]));
+    updateSpellDisplay(level);
+  });
+}
+
 // Brug en ladning (fx en Magic Stone-sten). Rammer den 0 → spell bliver "Brugt".
 // Angreb er server-renderet, så vi reloader bagefter.
 function spendCharge(level, spellIndex) {
@@ -812,6 +836,9 @@ function updateSpellDisplay(level) {
       statusEl.className = "spell-status " + st;
       statusEl.onclick = (e) => { e.stopPropagation(); cycleSpell(level, idx); };
     }
+    // ⚡ Kast-knappen giver kun mening på en ledig slot (kan ikke kaste en brugt spell).
+    const castBtn = row.querySelector(".spell-cast-btn");
+    if (castBtn) castBtn.style.display = (st === "free") ? "" : "none";
   });
   updatePips(level);
   const total = slotTotals[level] || 0;

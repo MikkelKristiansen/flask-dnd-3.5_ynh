@@ -260,11 +260,20 @@ def build_character_view(char, db):
                 state = "used"
             else:
                 state = "free"
+            self_dur = bool(spell and spell.get("self_duration"))
+            is_summon = refdata.summon_family(sid) is not None
+            # ⚡ Kast-knap: øjeblikkelige angrebsspells (Magic Missile o.l.) har ingen
+            # "I brug"-tilstand (self_duration), så de kastes direkte — rul skade +
+            # brug slot. Self_duration-spells beholder deres toggle; summons har egen
+            # 🐾 Kast-knap. Ellers ville angrebs-rækken aldrig kunne udløses.
+            cast = (None if (self_dur or is_summon)
+                    else char_module.spell_cast_info(sid, char.level, db))
             rows.append({
                 "id": sid, "index": i, "spell": spell,
                 "used": state != "free", "state": state,
-                "self_duration": bool(spell and spell.get("self_duration")),
-                "is_summon": refdata.summon_family(sid) is not None,
+                "self_duration": self_dur,
+                "is_summon": is_summon,
+                "cast": cast,
             })
         spell_data[lvl] = rows
 
