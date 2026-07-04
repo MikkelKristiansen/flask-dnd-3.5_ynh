@@ -1,0 +1,100 @@
+# Menneske-verificerede mekanik-kategorier (override af triage_spells.py's auto-gæt).
+# Format: <spell_id>: <bogstav>  (A-G, se briefs/STRATEGY-spells.md)
+# Ryddes ALDRIG automatisk — det er den permanente menneske-sandhed.
+#
+# To sektioner med FORSKELLIG proveniens (vises som forskellig 'konf' i triagen):
+#   corrected          = auto-gæt var FORKERT, aktivt rettet af mennesket
+#   confirmed_from_low  = auto-gæt var 'lav' sikkerhed men GODKENDT ved review.
+#                         Bevidst markeret, så mistanker fra spiltest kan spores hertil.
+
+# --- Rettelser (review runde 1, 4. jul 2026) ---
+corrected:
+  air_walk: F              # utility — fanget forkert som B pga. skade-omtale
+  dimension_door: F        # teleport-utility
+  ethereal_jaunt: F        # utility
+  fly: F                   # utility
+  geas_quest: F            # tvang/utility, ingen angrebsrul
+  mages_faithful_hound: C  # tilkalder en vagthund → summon
+  meld_into_stone: F       # utility
+  quench: F                # utility (slukker ild)
+  repel_vermin: F          # beskyttelses-utility
+  snare: E                 # magisk fælde m/ effekt mod mål
+  solid_fog: F             # battlefield-utility, ingen angrebsrul
+  teleport: F              # utility
+  transmute_rock_to_mud: F # terræn-utility
+  weird: E                 # phantasmal killer-variant, save mod mål
+
+# --- Godkendte auto-gæt der var 'lav' (review runde 1) ---
+# Verificér disse EKSTRA ved spiltest — de var scriptets mest usikre.
+confirmed_from_low:
+  # A — passiv buff
+  bless: A
+  heroes_feast: A
+  heroism_greater: A
+  rage: A
+  # B — spell-angreb (no-save-skade / hånd- & væg-spells)
+  acid_fog: B
+  black_tentacles: B
+  clenched_fist: B
+  crushing_hand: B
+  delayed_blast_fireball: B
+  explosive_runes: B
+  fire_shield: B
+  flame_blade: B
+  ice_storm: B
+  inflict_moderate_wounds_mass: B
+  magic_missile: B
+  meteor_swarm: B
+  prismatic_spray: B
+  prismatic_wall: B
+  symbol_of_weakness: B
+  sympathetic_vibration: B
+  wall_of_fire: B
+  wall_of_iron: B
+  # D — buff-på-våben
+  mages_sword: D
+  shillelagh: D
+  # F — utility/varighed (mest divination)
+  analyze_dweomer: F
+  arcane_eye: F
+  arcane_sight: F
+  arcane_sight_greater: F
+  clairaudience_clairvoyance: F
+  commune_nature: F
+  comprehend_languages: F
+  contact_other_plane: F
+  detect_animals_plants: F
+  detect_chaos: F
+  detect_evil: F
+  detect_good: F
+  detect_law: F
+  detect_magic: F
+  detect_poison: F
+  detect_scrying: F
+  detect_secret_doors: F
+  detect_snares_pits: F
+  detect_thoughts: F
+  detect_undead: F
+  discern_location: F
+  find_the_path: F
+  foresight: F
+  guidance: F
+  identify: F
+  know_direction: F
+  legend_lore: F
+  locate_creature: F
+  locate_object: F
+  moment_of_prescience: F
+  prying_eyes: F
+  prying_eyes_greater: F
+  read_magic: F
+  scrying: F
+  scrying_greater: F
+  see_invisibility: F
+  speak_with_animals: F
+  speak_with_plants: F
+  telepathic_bond: F
+  tongues: F
+  true_seeing: F
+  true_strike: F
+  vision: F
