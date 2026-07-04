@@ -41,16 +41,16 @@ from refdata import (  # noqa: F401
     feat_prereq_unmet)
 from rules import (  # noqa: F401
     POINT_BUY_COST, POINT_BUY_BUDGET, point_buy_cost, point_buy_total,
-    XP_THRESHOLDS, SKILL_SYNERGIES, SYNERGY_THRESHOLD, SIZE_MOD_ATTACK,
-    SIZE_MOD_GRAPPLE, INVENTORY_STATES,
+    XP_THRESHOLDS, SKILL_SYNERGIES, SYNERGY_THRESHOLD, INVENTORY_STATES,
     compute_synergy_bonuses, synergy_sources, armor_check_penalty, druid_armor_violations,
+    skill_total, save_total, armor_class, xp_to_next_level, xp_progress,
+    active_buff_keys, attack_visible)
+from attacks import (  # noqa: F401
+    SIZE_MOD_ATTACK, SIZE_MOD_GRAPPLE, size_mod_attack, size_mod_grapple,
     weapon_proficient, armor_proficient, proficiency_violations, armor_attack_penalty,
-    skill_total, save_total, size_mod_attack, size_mod_grapple, attack_total,
-    attack_to_hit_breakdown, attack_damage_breakdown,
-    grapple_total, initiative_total, armor_class, xp_to_next_level, xp_progress,
-    derive_attacks, active_buff_keys, attack_visible,
-    hand_usage, twf_context, two_weapon_penalty,
-    monk_unarmed_attacks)
+    attack_total, attack_to_hit_breakdown, attack_damage_breakdown,
+    grapple_total, initiative_total, derive_attacks,
+    hand_usage, twf_context, two_weapon_penalty, monk_unarmed_attacks)
 from items import (  # noqa: F401
     CARRIED_STATES,
     carry_limits, encumbrance_level, total_weight, weight_for_size, resolve_item,

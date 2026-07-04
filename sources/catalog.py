@@ -10,6 +10,7 @@ Den gyldne regel: Python ejer reglerne. Dette modul REGNER ingen 3.5-regler selv
 """
 
 import rules
+from attacks import weapon_proficient, armor_proficient
 from items import carry_limits, cost_for_size, material_modifiers, weight_for_size, weight_kind
 
 
@@ -65,7 +66,7 @@ def _weapon_entry(w: dict, *, weapon_prof, allowed_weapons, recommended, size) -
         "cost_cp": cost,
         "cost_str": format_cost(cost),
         "weight": _row_weight(w, "weapons", size),
-        "proficient": rules.weapon_proficient(w, weapon_prof, allowed_weapons),
+        "proficient": weapon_proficient(w, weapon_prof, allowed_weapons),
         "recommended": w["id"] in recommended,
         "description": w.get("description"),
         "modifiers": material_modifiers(w, "weapons", size),
@@ -90,7 +91,7 @@ def _armor_entry(a: dict, *, armor_prof, allowed_armor, recommended, size) -> di
         "cost_cp": cost,
         "cost_str": format_cost(cost),
         "weight": _row_weight(a, "armor", size),
-        "proficient": rules.armor_proficient(a, armor_prof, allowed_armor),
+        "proficient": armor_proficient(a, armor_prof, allowed_armor),
         "recommended": a["id"] in recommended,
         "description": a.get("description"),
         "modifiers": material_modifiers(a, "armor", size),

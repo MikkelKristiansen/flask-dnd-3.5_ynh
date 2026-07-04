@@ -9,7 +9,7 @@ import pytest
 from ruamel.yaml import YAML
 
 import refdata
-import rules as rules_module
+import attacks
 import app as app_module
 
 YAML_RW = YAML()
@@ -127,7 +127,7 @@ def test_evasion(level, expected):
 
 def test_unarmed_attacks_no_flurry():
     """Uden flurry: kun ét primært angreb."""
-    atks = rules_module.monk_unarmed_attacks(
+    atks = attacks.monk_unarmed_attacks(
         level=5, size="medium", flurry_penalty=-1,
         greater_flurry=False, flurry_active=False, base_damage="1d8"
     )
@@ -141,7 +141,7 @@ def test_unarmed_attacks_no_flurry():
 
 def test_unarmed_attacks_with_flurry():
     """Med flurry: primær + 1 ekstra (level 5, straf −1)."""
-    atks = rules_module.monk_unarmed_attacks(
+    atks = attacks.monk_unarmed_attacks(
         level=5, size="medium", flurry_penalty=-1,
         greater_flurry=False, flurry_active=True, base_damage="1d8"
     )
@@ -154,7 +154,7 @@ def test_unarmed_attacks_with_flurry():
 
 def test_unarmed_attacks_greater_flurry():
     """Greater Flurry (level 11+): primær + 2 ekstra angreb."""
-    atks = rules_module.monk_unarmed_attacks(
+    atks = attacks.monk_unarmed_attacks(
         level=11, size="medium", flurry_penalty=0,
         greater_flurry=True, flurry_active=True, base_damage="1d10"
     )
