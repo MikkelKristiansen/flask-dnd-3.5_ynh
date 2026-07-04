@@ -24,6 +24,46 @@ corrected:
   transmute_rock_to_mud: F # terræn-utility
   weird: E                 # phantasmal killer-variant, save mod mål
 
+  # --- runde 2: kontrol-E falske-E → A/F (fanget af gen_control_e_rows.py) ---
+  # Auto-klassificeret E pga. en rigtig save, men mekanisk buff/utility. Får ingen
+  # save-række i spell_attacks.yaml; her rettes triage-kategorien tilsvarende.
+  animal_growth: A         # størrelses-/evne-buff på egne dyr
+  enlarge_person: A        # størrelses-buff
+  reduce_person: A         # størrelses-buff
+  sanctuary: A             # defensiv buff (beskytter den ramte)
+  awaken: F                # gør egen dyr/træ sansende — utility
+  bless_water: F           # laver vievand — object-save
+  chill_metal: F           # metal-effekt — object-save (ingen ren save-for-skade)
+  curse_water: F           # laver vanvand — object-save
+  gentle_repose: F         # bevarer lig — object-save
+  ghost_sound: F           # illusion (disbelief)
+  hallucinatory_terrain: F # illusion (disbelief)
+  heat_metal: F            # metal-effekt — object-save (ingen ren save-for-skade)
+  illusory_wall: F         # illusion (disbelief)
+  mages_disjunction: F     # dispel — object-save
+  magic_mouth: F           # object-save
+  obscure_object: F        # object-save
+  open_close: F            # object-save
+  polymorph_any_object: F  # object-save
+  project_image: F         # illusion (disbelief)
+  purify_food_drink: F     # object-save
+  sculpt_sound: F          # object-save
+  seeming: F               # illusions-forklædning — utility
+  shadow_conjuration: F    # illusion (disbelief)
+  shadow_evocation: F      # illusion (disbelief)
+  shadow_walk: F           # transport — utility
+  shrink_item: F           # object-save
+  silence: F               # object-save
+  silent_image: F          # illusion (disbelief)
+  stone_to_flesh: F        # object-save
+  telekinetic_sphere: F    # object-save
+  teleport_object: F       # object-save
+  undetectable_alignment: F # object-save
+  veil: F                  # illusions-forklædning — utility
+  ventriloquism: F         # illusion (disbelief)
+  warp_wood: F             # object-save
+  wood_shape: F            # object-save
+
 # --- Godkendte auto-gæt der var 'lav' (review runde 1) ---
 # Verificér disse EKSTRA ved spiltest — de var scriptets mest usikre.
 confirmed_from_low:
