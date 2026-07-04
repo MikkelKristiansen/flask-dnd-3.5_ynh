@@ -1191,8 +1191,8 @@
         {% endif %}
         {% if entry.cast %}
         <button class="summon-cast-btn spell-cast-btn"{% if entry.state != 'free' %} style="display:none"{% endif %}
-                onclick="event.stopPropagation();castAttackSpell({{ lvl }},{{ entry.index }},'{{ entry.cast.roll_expr }}','{{ entry.spell.name if entry.spell else entry.id }} skade')"
-                title="Kast {{ entry.spell.name if entry.spell else entry.id }} — {% if entry.cast.auto_hit %}rammer automatisk, {% endif %}rul {{ entry.cast.damage }}{% if entry.cast.shots > 1 %} ×{{ entry.cast.shots }} ({{ entry.cast.roll_expr }}){% endif %} skade og brug slotten">⚡ Kast{% if entry.cast.shots > 1 %} ×{{ entry.cast.shots }}{% endif %}</button>
+                onclick='event.stopPropagation();castSpell({{ lvl }},{{ entry.index }},{{ entry.cast.roll_expr|tojson }},{{ entry.cast.roll_label|tojson }})'
+                title="{{ entry.cast.title }}">{{ entry.cast.button_label }}</button>
         {% endif %}
         <span class="spell-status {{ entry.state }}"
               onclick="event.stopPropagation();cycleSpell({{ lvl }},{{ entry.index }})">

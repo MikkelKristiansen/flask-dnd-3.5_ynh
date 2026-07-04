@@ -693,6 +693,55 @@ def build_character_view(char, db):
         eff["dc"] = char_module.spell_save_dc(eff["level"], cast_mod, focus)
         spell_effects.append(eff)
 
+    # ⚡ Kast-knap: anden pass over spell_data (rækkerne blev bygget tidligt, før
+    # cast_mod var kendt). To ting sker her:
+    #  1) Kategori E (Fireball, Sleep m.fl.): som kategori B, men uden til-hit —
+    #     modstanderen slår en save mod en DC. DC'en kræver cast_mod + Spell Focus,
+    #     som først kendes nu. Kun frie spells uden allerede-tildelt attack-cast.
+    #  2) Dekorér HVER cast (B og E) med knap-tekst, terning-feltets label og title.
+    #     Al tekst bygges her i Python (ikke i templaten) — så spell-navne med '
+    #     (Evard's, Otiluke's) ikke bryder en onclick-streng.
+    _SAVE_NAMES = {"reflex": "Refleks", "fortitude": "Fysik", "will": "Vilje"}
+    _SAVE_FX = {"half": "halv", "negates": "negerer", "partial": "delvis"}
+    for lvl, entries in spell_data.items():
+        for entry in entries:
+            c = entry["cast"]
+            if c is None and not entry["self_duration"] and not entry["is_summon"]:
+                c = char_module.spell_save_cast_info(entry["id"], char.level, db)
+                if c:
+                    school = (entry["spell"] or {}).get("school", "")
+                    focus = char_module.spell_focus_bonus(char.feats, school)
+                    c["dc"] = char_module.spell_save_dc(lvl, cast_mod, focus)
+                    c["save_name"] = _SAVE_NAMES.get(
+                        c["save_type"], c["save_type"].capitalize())
+                    c["save_fx_label"] = _SAVE_FX.get(c["save_effect"], c["save_effect"])
+                    entry["cast"] = c
+            if not c:
+                continue
+            name = (entry["spell"] or {}).get("name") or entry["id"]
+            if c["kind"] == "save":
+                dc_txt = f'{c["save_name"]} DC {c["dc"]}'
+                if c["save_fx_label"]:
+                    dc_txt += f' ({c["save_fx_label"]})'
+                c["roll_expr"] = c["damage"]        # E-skade rulles samlet, ikke pr. skud
+                c["button_label"] = f"⚡ Kast · {dc_txt}"
+                if c["damage"]:
+                    c["roll_label"] = f"{name} skade · {dc_txt}"
+                    c["title"] = (f"Kast {name} — {dc_txt} · rul {c['damage']} skade "
+                                  f"og brug slotten")
+                else:
+                    c["roll_label"] = f"{name} · {dc_txt}"
+                    c["title"] = (f"Kast {name} — {dc_txt}; ingen skade at rulle. "
+                                  f"Bruger slotten.")
+            else:                                    # kategori B (angreb)
+                shots = f" ×{c['shots']}" if c["shots"] > 1 else ""
+                scaled = f" ×{c['shots']} ({c['roll_expr']})" if c["shots"] > 1 else ""
+                hit = "rammer automatisk, " if c["auto_hit"] else ""
+                c["button_label"] = f"⚡ Kast{shots}"
+                c["roll_label"] = f"{name} skade"
+                c["title"] = (f"Kast {name} — {hit}rul {c['damage']}{scaled} skade "
+                              f"og brug slotten")
+
     # Domain spells — a cleric with chosen domains gets one domain slot per
     # spell level he can cast (SRD). The slot may only hold a domain spell.
     domain_slots: dict[int, int] = {}

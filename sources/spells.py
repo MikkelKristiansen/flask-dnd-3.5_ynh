@@ -236,11 +236,36 @@ def spell_cast_info(spell_id: str, caster_level: int, db) -> dict | None:
         return None
     shots = spell_shots(r, caster_level)
     return {
+        "kind": "attack",
         "damage": per_shot,
         "shots": shots,
         "roll_expr": multiply_damage(per_shot, shots),
         "auto_hit": bool(r.get("auto_hit")),
         "dmg_type": r.get("dmg_type") or "",
+    }
+
+
+def spell_save_cast_info(spell_id: str, caster_level: int, db) -> dict | None:
+    """Kast-info til et ØJEBLIKKELIGT kategori-E-spell (område/save: Fireball, Sleep).
+
+    Modsat kategori B (spell_cast_info) er der intet til-hit — modstanderen slår en
+    save mod en DC. Vi giver skade-strengen (skaleret; tom for rene save-effekter som
+    Sleep) + save-type/-effekt. Selve DC'en lægges på i VIEW-laget (kræver caster-mod
+    + Spell Focus, som ikke kendes her). None hvis spellet ikke har en save-række.
+
+      Fireball CL5 → {damage: "5d6", save_type: "reflex", save_effect: "half", ...}
+      Sleep        → {damage: "",   save_type: "will",   save_effect: "negates", ...}
+    """
+    save_rows = [r for r in db.get_spell_attacks(spell_id) if r.get("kind") == "save"]
+    if not save_rows:
+        return None
+    r = save_rows[0]
+    return {
+        "kind": "save",
+        "damage": spell_area_damage(r, caster_level),
+        "dmg_type": r.get("dmg_type") or "",
+        "save_type": r.get("save_type") or "",
+        "save_effect": r.get("save_effect") or "",
     }
 
 

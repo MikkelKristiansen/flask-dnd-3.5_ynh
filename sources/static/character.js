@@ -770,17 +770,26 @@ function castSpontaneousCure() {
   });
 }
 
-// ── Kast et øjeblikkeligt angrebsspell (Magic Missile o.l.) ────────────────
-// Instantaneous angreb har ingen "I brug"-tilstand (self_duration) — de kastes
-// her-og-nu: læg skade-udtrykket i terningefeltet (spilleren trykker Rul) og
-// markér slotten Brugt. Vi reloader IKKE (det ville nulstille terningefeltet);
+// ── Kast et øjeblikkeligt spell (Magic Missile, Fireball, Sleep …) ─────────
+// Instantaneous angrebs- og område/save-spells har ingen "I brug"-tilstand
+// (self_duration) — de kastes her-og-nu: læg skade-udtrykket i terningefeltet
+// (spilleren trykker Rul) og markér slotten Brugt. label bærer også save-DC'en for
+// kategori-E-spells. Save-spells uden skade (Sleep) har tomt rollExpr → vi viser
+// blot DC-linjen i terning-området. Vi reloader IKKE (det ville nulstille feltet);
 // updateSpellDisplay skjuler Kast-knappen når rækken ikke længere er ledig.
-function castAttackSpell(level, idx, rollExpr, label) {
+function castSpell(level, idx, rollExpr, label) {
   if (slotUsedCount(level) >= (slotTotals[level] || 0)) {
     alert("Ingen slots tilbage på level " + level + "!");
     return;
   }
-  if (rollExpr) quickRoll(rollExpr, label, 1);
+  if (rollExpr) {
+    quickRoll(rollExpr, label, 1);
+  } else {
+    // Ingen skade at rulle — vis save-DC-linjen i terning-området.
+    document.getElementById("dice-expr").value = "";
+    document.getElementById("dice-result").innerHTML =
+      `<span style="color:var(--muted);font-size:.72rem">${escHtml(label)}</span>`;
+  }
   fetch(BASE + "/api/spells", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
