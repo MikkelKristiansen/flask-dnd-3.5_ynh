@@ -25,6 +25,17 @@ import triage_spells as t
 
 DONE = {"fireball", "lightning_bolt", "cone_of_cold", "sleep", "web"}
 SAVE_EFFECTS = ("half", "negates", "partial")
+
+# Kurateret: spells SRD giver en rigtig save, men som mekanisk er utility/buff — ikke
+# fjende-kontrol. De deterministiske signaler kan ikke fange dem (saven er reel), så
+# de er en menneske-vurdering. Får ingen save-række; hører til F.
+CURATED_UTILITY = {
+    "sanctuary": "defensiv buff — beskytter den ramte mod at blive angrebet",
+    "awaken": "gør egen dyr/træ sansende — utility, ikke fjende-kontrol",
+    "shadow_walk": "transport gennem Skyggeplanet — utility",
+    "seeming": "illusions-forklædning af gruppe — utility",
+    "veil": "illusions-forklædning — utility",
+}
 SRD_DIR = HERE.parent / "rules" / "srd-v3.5-md" / "spells"
 
 
@@ -86,7 +97,9 @@ def collect():
             desc, re.I)
 
         reason = None
-        if _norm(sp["name"]) in harmless:
+        if sp["id"] in CURATED_UTILITY:
+            reason = f"utility/buff (manuel vurdering): {CURATED_UTILITY[sp['id']]}"
+        elif _norm(sp["name"]) in harmless:
             reason = "SRD-save er '(harmless)' → gavnlig buff (A/F), ikke fjende-kontrol"
         elif buff_bonus:
             reason = f"giver målet en gavnlig evne-/størrelses-bonus → buff (A): '{buff_bonus.group(0)}'"

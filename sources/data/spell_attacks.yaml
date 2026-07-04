@@ -131,3 +131,568 @@
   base_damage:
   save_type: reflex
   save_effect: negates
+
+# ── Kontrol-E (område/save, ingen skade) — auto-genereret 4. jul (gen_control_e_rows.py) ──
+- spell_id: animal_trance
+  label: Animal Trance
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: antipathy
+  label: Antipathy
+  kind: save
+  save_type: will
+  save_effect: partial
+- spell_id: baleful_polymorph
+  label: Baleful Polymorph
+  kind: save
+  save_type: fortitude
+  save_effect: negates
+- spell_id: bane
+  label: Bane
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: banishment
+  label: Banishment
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: bestow_curse
+  label: Bestow Curse
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: binding
+  label: Binding
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: blindness_deafness
+  label: Blindness/Deafness
+  kind: save
+  save_type: fortitude
+  save_effect: negates
+- spell_id: calm_animals
+  label: Calm Animals
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: calm_emotions
+  label: Calm Emotions
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: cause_fear
+  label: Cause Fear
+  kind: save
+  save_type: will
+  save_effect: partial
+- spell_id: charm_animal
+  label: Charm Animal
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: charm_person
+  label: Charm Person
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: circle_of_death
+  label: Circle of Death
+  kind: save
+  save_type: fortitude
+  save_effect: negates
+- spell_id: color_spray
+  label: Color Spray
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: command
+  label: Command
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: command_plants
+  label: Command Plants
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: command_undead
+  label: Command Undead
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: confusion
+  label: Confusion
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: contagion
+  label: Contagion
+  kind: save
+  save_type: fortitude
+  save_effect: negates
+- spell_id: control_undead
+  label: Control Undead
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: control_winds
+  label: Control Winds
+  kind: save
+  save_type: fortitude
+  save_effect: negates
+- spell_id: crushing_despair
+  label: Crushing Despair
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: daze
+  label: Daze
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: demand
+  label: Demand
+  kind: save
+  save_type: will
+  save_effect: partial
+- spell_id: dismissal
+  label: Dismissal
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: dominate_animal
+  label: Dominate Animal
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: dominate_person
+  label: Dominate Person
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: doom
+  label: Doom
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: energy_drain
+  label: Energy Drain
+  kind: save
+  save_type: fortitude
+  save_effect: partial
+- spell_id: entangle
+  label: Entangle
+  kind: save
+  save_type: reflex
+  save_effect: partial
+- spell_id: enthrall
+  label: Enthrall
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: eyebite
+  label: Eyebite
+  kind: save
+  save_type: fortitude
+  save_effect: negates
+- spell_id: fear
+  label: Fear
+  kind: save
+  save_type: will
+  save_effect: partial
+- spell_id: feeblemind
+  label: Feeblemind
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: flare
+  label: Flare
+  kind: save
+  save_type: fortitude
+  save_effect: negates
+- spell_id: flesh_to_stone
+  label: Flesh to Stone
+  kind: save
+  save_type: fortitude
+  save_effect: negates
+- spell_id: geas_lesser
+  label: Geas, Lesser
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: glitterdust
+  label: Glitterdust
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: halt_undead
+  label: Halt Undead
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: hideous_laughter
+  label: Hideous Laughter
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: hold_animal
+  label: Hold Animal
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: hold_person
+  label: Hold Person
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: hypnotic_pattern
+  label: Hypnotic Pattern
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: hypnotism
+  label: Hypnotism
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: illusory_script
+  label: Illusory Script
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: imprisonment
+  label: Imprisonment
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: inflict_minor_wounds
+  label: Inflict Minor Wounds
+  kind: save
+  save_type: will
+  save_effect: half
+- spell_id: insanity
+  label: Insanity
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: lesser_confusion
+  label: Lesser Confusion
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: lullaby
+  label: Lullaby
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: magic_jar
+  label: Magic Jar
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: mind_fog
+  label: Mind Fog
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: modify_memory
+  label: Modify Memory
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: plane_shift
+  label: Plane Shift
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: pyrotechnics
+  label: Pyrotechnics
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: rainbow_pattern
+  label: Rainbow Pattern
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: repulsion
+  label: Repulsion
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: resilient_sphere
+  label: Resilient Sphere
+  kind: save
+  save_type: reflex
+  save_effect: negates
+- spell_id: scare
+  label: Scare
+  kind: save
+  save_type: will
+  save_effect: partial
+- spell_id: slow
+  label: Slow
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: song_of_discord
+  label: Song of Discord
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: soul_bind
+  label: Soul Bind
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: stinking_cloud
+  label: Stinking Cloud
+  kind: save
+  save_type: fortitude
+  save_effect: negates
+- spell_id: suggestion
+  label: Suggestion
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: symbol_of_death
+  label: Symbol of Death
+  kind: save
+  save_type: fortitude
+  save_effect: negates
+- spell_id: symbol_of_fear
+  label: Symbol of Fear
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: symbol_of_insanity
+  label: Symbol of Insanity
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: symbol_of_persuasion
+  label: Symbol of Persuasion
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: symbol_of_sleep
+  label: Symbol of Sleep
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: symbol_of_stunning
+  label: Symbol of Stunning
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: sympathy
+  label: Sympathy
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: undeath_to_death
+  label: Undeath to Death
+  kind: save
+  save_type: will
+  save_effect: negates
+- spell_id: wail_of_the_banshee
+  label: Wail of the Banshee
+  kind: save
+  save_type: fortitude
+  save_effect: negates
+
+# ── Skade-E (område/save + terning) — SRD-verificeret af Sonnet, 4. jul ──
+# Inflict-serien: Xd8 +1 skade/niveau (flad-bonus-skalering), negativ energi, Vilje halv.
+- spell_id: inflict_light_wounds
+  label: Inflict Light Wounds
+  kind: save
+  base_damage: 1d8
+  dmg_per_level: 1
+  dmg_per_level_max: 5
+  dmg_type: Negativ energi
+  save_type: will
+  save_effect: half
+- spell_id: inflict_moderate_wounds
+  label: Inflict Moderate Wounds
+  kind: save
+  base_damage: 2d8
+  dmg_per_level: 1
+  dmg_per_level_max: 10
+  dmg_type: Negativ energi
+  save_type: will
+  save_effect: half
+- spell_id: inflict_serious_wounds
+  label: Inflict Serious Wounds
+  kind: save
+  base_damage: 3d8
+  dmg_per_level: 1
+  dmg_per_level_max: 15
+  dmg_type: Negativ energi
+  save_type: will
+  save_effect: half
+- spell_id: inflict_critical_wounds
+  label: Inflict Critical Wounds
+  kind: save
+  base_damage: 4d8
+  dmg_per_level: 1
+  dmg_per_level_max: 20
+  dmg_type: Negativ energi
+  save_type: will
+  save_effect: half
+- spell_id: inflict_light_wounds_mass
+  label: Inflict Light Wounds, Mass
+  kind: save
+  base_damage: 1d8
+  dmg_per_level: 1
+  dmg_per_level_max: 25
+  dmg_type: Negativ energi
+  save_type: will
+  save_effect: half
+# Fire Trap — 1d4 ild +1/niveau (max +20), 5-fods radius når genstanden åbnes.
+- spell_id: fire_trap
+  label: Fire Trap
+  kind: save
+  base_damage: 1d4
+  dmg_per_level: 1
+  dmg_per_level_max: 20
+  dmg_type: Ild
+  save_type: reflex
+  save_effect: half
+# Flame Strike — 1d6/niveau, cap 15d6 (halvdelen guddommelig, ignorerer ildresistens — ej i skema).
+- spell_id: flame_strike
+  label: Flame Strike
+  kind: save
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_max: 15
+  dmg_type: Ild
+  save_type: reflex
+  save_effect: half
+# Flaming Sphere — fast 2d6, ingen skalering, Refleks negerer.
+- spell_id: flaming_sphere
+  label: Flaming Sphere
+  kind: save
+  base_damage: 2d6
+  dmg_type: Ild
+  save_type: reflex
+  save_effect: negates
+# Blight — nekromantisk (ikke element-typet), 1d6/niveau, cap 15d6, mod plantevæsen.
+- spell_id: blight
+  label: Blight
+  kind: save
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_max: 15
+  save_type: fortitude
+  save_effect: half
+# Burning Hands — 1d4/niveau, cap 5d4.
+- spell_id: burning_hands
+  label: Burning Hands
+  kind: save
+  base_damage: 1d4
+  dice_per_level: 1
+  dice_per_level_max: 5
+  dmg_type: Ild
+  save_type: reflex
+  save_effect: half
+# Chain Lightning — 1d6/niveau, cap 20d6 (primær-mål; sekundære tager halv — ej egen række).
+- spell_id: chain_lightning
+  label: Chain Lightning
+  kind: save
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_max: 20
+  dmg_type: Elektricitet
+  save_type: reflex
+  save_effect: half
+# Finger of Death — bestået save: 3d6 +1/niveau (max +25); fejlet: dør. Fortitude partial.
+- spell_id: finger_of_death
+  label: Finger of Death
+  kind: save
+  base_damage: 3d6
+  dmg_per_level: 1
+  dmg_per_level_max: 25
+  save_type: fortitude
+  save_effect: partial
+# Freezing Sphere — 1d6/niveau, cap 15d6 (vand-elementar tager d8 — ej egen række).
+- spell_id: freezing_sphere
+  label: Freezing Sphere
+  kind: save
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_max: 15
+  dmg_type: Kulde
+  save_type: reflex
+  save_effect: half
+# Horrid Wilting — nekromantisk udtørring, 1d6/niveau, cap 20d6 (vand/plante tager d8 — ej egen række).
+- spell_id: horrid_wilting
+  label: Horrid Wilting
+  kind: save
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_max: 20
+  save_type: fortitude
+  save_effect: half
+# Incendiary Cloud — fast 4d6 ild PR. RUNDE i skyen, Refleks halv hver runde.
+- spell_id: incendiary_cloud
+  label: Incendiary Cloud
+  kind: save
+  base_damage: 4d6
+  dmg_type: Ild
+  save_type: reflex
+  save_effect: half
+# Nightmare — fast 1d10 (mental/fantasm), Vilje negerer.
+- spell_id: nightmare
+  label: Nightmare
+  kind: save
+  base_damage: 1d10
+  save_type: will
+  save_effect: negates
+# Phantasmal Killer — Fortitude partial: fejlet=dør, bestået=3d6 fast (indl. Vilje-gennemskue ej i skema).
+- spell_id: phantasmal_killer
+  label: Phantasmal Killer
+  kind: save
+  base_damage: 3d6
+  save_type: fortitude
+  save_effect: partial
+# Weird — som Phantasmal Killer, flere mål (lammelse + Str-skade ved bestået ej i skema).
+- spell_id: weird
+  label: Weird
+  kind: save
+  base_damage: 3d6
+  save_type: fortitude
+  save_effect: partial
+# Shout — fast 5d6 lyd, Fortitude partial (bestået=halv, ingen døvhed).
+- spell_id: shout
+  label: Shout
+  kind: save
+  base_damage: 5d6
+  dmg_type: Lyd
+  save_type: fortitude
+  save_effect: partial
+# Shout, Greater — fast 10d6 lyd (krystallinsk-variant skalerer — ej egen række).
+- spell_id: shout_greater
+  label: Shout, Greater
+  kind: save
+  base_damage: 10d6
+  dmg_type: Lyd
+  save_type: fortitude
+  save_effect: partial
+# Sound Burst — fast 1d8 lyd (skade uanset save; save afgør lammelse). Fortitude partial.
+- spell_id: sound_burst
+  label: Sound Burst
+  kind: save
+  base_damage: 1d8
+  dmg_type: Lyd
+  save_type: fortitude
+  save_effect: partial
+# Sunburst — fast 6d6 (lys) mod almindelige væsner (udød/svamp-variant skalerer — ej egen række). Refleks partial.
+- spell_id: sunburst
+  label: Sunburst
+  kind: save
+  base_damage: 6d6
+  save_type: reflex
+  save_effect: partial
