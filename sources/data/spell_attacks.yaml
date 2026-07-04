@@ -724,3 +724,31 @@
   crit: x2
   dmg_type: Elektricitet
   alt_note: +3 til-hit mod metal-rustning
+
+# ── Fase 2: auto-hit + antal-skud (kategori B) — SRD-verificeret ──
+# Magic Missile — auto-hit, 1d4+1 kraft pr. missil; 1 missil +1 pr. 2 niveauer over 1., max 5.
+- spell_id: magic_missile
+  label: Magic Missile
+  kind: ranged
+  auto_hit: 1
+  base_damage: 1d4
+  dmg_bonus: 1
+  shots: 1
+  shots_from: 1
+  shots_div: 2
+  shots_max: 5
+  crit: x2
+  dmg_type: Kraft
+  range_ft: 100
+# Scorching Ray — ranged touch pr. stråle, 4d6 ild; 1 stråle +1 pr. 4 niveauer over 3., max 3.
+- spell_id: scorching_ray
+  label: Scorching Ray
+  kind: ranged_touch
+  base_damage: 4d6
+  shots: 1
+  shots_from: 3
+  shots_div: 4
+  shots_max: 3
+  crit: x2
+  dmg_type: Ild
+  range_ft: 25

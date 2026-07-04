@@ -7,7 +7,7 @@ Skaden skalerer ANTAL terninger pr. casterniveau (1d6/niveau, cappet), modsat
 kategori B's flade +bonus. Rene save-effekter (Sleep/Web) har ingen skade.
 """
 import db
-from spells import spell_area_damage
+from spells import spell_area_damage, spell_shots
 from character import load_character, derive_spell_effects, derive_spell_attacks
 
 
@@ -69,6 +69,28 @@ def test_save_only_spell_has_no_damage():
                                    spells_active={1: [0]}), db)
     assert out[0]["damage"] == ""
     assert out[0]["save_type"] == "reflex"
+
+
+def test_spell_shots_scaling():
+    # Magic Missile: 1 + 1 pr. 2 niveauer over 1., max 5
+    mm = {"shots": 1, "shots_from": 1, "shots_div": 2, "shots_max": 5}
+    assert [spell_shots(mm, c) for c in (1, 3, 5, 9, 11)] == [1, 2, 3, 5, 5]
+    # Scorching Ray: 1 + 1 pr. 4 niveauer over 3., max 3
+    sr = {"shots": 1, "shots_from": 3, "shots_div": 4, "shots_max": 3}
+    assert [spell_shots(sr, c) for c in (3, 7, 11, 20)] == [1, 2, 3, 3]
+    # uden shots-felter → enkelt angreb
+    assert spell_shots({"base_damage": "1d6"}, 10) == 1
+
+
+def test_magic_missile_auto_hit_and_shots():
+    c = load_character("defaults/tjorn.yaml")  # level 3
+    c.spells_prepared = {1: ["magic_missile"]}
+    c.spells_active = {1: [0]}
+    out = derive_spell_attacks(c, db)
+    assert len(out) == 1
+    assert out[0]["auto_hit"] is True
+    assert out[0]["shots"] == 2                 # CL3 → 2 missiler
+    assert out[0]["attack"].fixed_damage == "1d4+1"
 
 
 def test_e_rows_excluded_from_attacks():

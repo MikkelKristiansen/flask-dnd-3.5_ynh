@@ -247,15 +247,20 @@
               title="Skift tilstand — {{ row.mode.options|join(' / ') }}">⇄ skift</span>
         {% endif %}
         {% if row.alt_note %}<span class="attack-alt">{{ row.alt_note }}</span>{% endif %}
+        {% if row.shots and row.shots > 1 %}<span class="attack-alt" title="Antal missiler/stråler ved dit casterniveau">×{{ row.shots }}</span>{% endif %}
         {% if atk.not_proficient %}<span class="attack-alt" style="color:var(--red)"
               title="Ikke proficient med dette våben — −4 er allerede trukket fra. Hak 'DM tillader' på genstanden for at fjerne straffen.">⚠ −4 uvant</span>{% endif %}
         {% if atk.note %}<span class="attack-alt" style="color:var(--accent)"
               title="Two-weapon fighting: straffen er allerede trukket fra. Off-hånd giver kun ½ Str til skade.">{{ atk.note }}</span>{% endif %}
       </span>
+      {% if row.auto_hit %}
+      <span class="attack-bonus" title="Rammer automatisk — intet til-hit-rul (Magic Missile)">auto</span>
+      {% else %}
       <span class="attack-bonus roll-tap"
             onclick="guidedRoll('1d20{{ "%+d"|format(row.to_hit) }}','{{ atk.name }} angreb')"
             onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
             data-bd='{{ {"name": atk.name ~ " til-hit", "total": row.to_hit, "parts": row.hit_parts}|tojson }}'>{{ "%+d"|format(row.to_hit) }}{% if row.hit_changed %}<span class="eff-delta {{ 'up' if row.hit_up else 'down' }}">{{ '▲' if row.hit_up else '▼' }}</span>{% endif %}</span>
+      {% endif %}
       <span class="attack-dmg roll-tap"
             onclick="quickRoll('{{ row.damage }}','{{ atk.name }} skade', 1)"
             onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"

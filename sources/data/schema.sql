@@ -141,7 +141,13 @@ CREATE TABLE spell_attacks (
     dice_per_level    INTEGER,         -- ANTAL skade-terninger pr. casterniveau (Fireball 1 = 1d6/niveau)
     dice_per_level_max INTEGER,        -- cap på antal terninger (Fireball 10, Cone of Cold 15)
     save_type         TEXT,            -- reflex | fortitude | will
-    save_effect       TEXT             -- half | negates | partial
+    save_effect       TEXT,            -- half | negates | partial
+    -- kategori B, auto-hit + antal-skud (Magic Missile, Scorching Ray):
+    auto_hit          INTEGER,         -- 1 = rammer automatisk (skjul til-hit; Magic Missile)
+    shots             INTEGER,         -- basis-antal missiler/stråler (tom = 1)
+    shots_from        INTEGER,         -- casterniveau hvorfra ekstra skud tælles (MM 1, SR 3)
+    shots_div         INTEGER,         -- niveauer pr. ekstra skud (MM 2, SR 4)
+    shots_max         INTEGER          -- cap på antal skud (MM 5, SR 3)
 );
 
 DROP TABLE IF EXISTS armor;

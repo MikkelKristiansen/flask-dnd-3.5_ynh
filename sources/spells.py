@@ -134,6 +134,8 @@ def derive_spell_attacks(char: "Character", db) -> list[dict]:
                     "charges_max": charges_max, "charges_remaining": remaining,
                     "alt_note": r.get("alt_note") or "",
                     "mode": mode,
+                    "shots": spell_shots(r, char.level),
+                    "auto_hit": bool(r.get("auto_hit")),
                 })
     return out
 
@@ -173,6 +175,25 @@ def derive_spell_effects(char: "Character", db) -> list[dict]:
                     "duration":    spell.get("duration") or "",
                 })
     return out
+
+
+def spell_shots(row: dict, caster_level: int) -> int:
+    """Antal missiler/stråler et spell-angreb affyrer ved et givet casterniveau.
+
+    shots (basis, tom=1) + ét ekstra pr. shots_div niveauer fra og med shots_from,
+    cappet ved shots_max.
+      Magic Missile (1, from 1, div 2, max 5): CL1→1, CL3→2, CL9→5, CL11→5.
+      Scorching Ray (1, from 3, div 4, max 3): CL5→1, CL7→2, CL11→3.
+    Uden shots-felter → 1 (almindeligt enkelt-angreb).
+    """
+    base = int(row.get("shots") or 1)
+    frm = row.get("shots_from")
+    if frm is None:
+        return base
+    div = int(row.get("shots_div") or 1)
+    total = base + max(0, caster_level - int(frm)) // div
+    cap = row.get("shots_max")
+    return min(total, int(cap)) if cap is not None else total
 
 
 def spell_max_charges(spell_id: str, db) -> int | None:
