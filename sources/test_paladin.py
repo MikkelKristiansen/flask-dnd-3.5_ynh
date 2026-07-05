@@ -12,6 +12,7 @@ from ruamel.yaml import YAML
 
 import app as app_module
 import character as char_module
+import character_view
 
 YAML_RW = YAML()
 DEFAULTS = pathlib.Path(__file__).parent / "defaults"
@@ -53,7 +54,7 @@ class _Lvl:
     (20, 5, 100, 5), (3, 0, 0, 1), (2, -1, 0, 1),
 ])
 def test_paladin_caps(level, cha_mod, lay, smite):
-    assert app_module._paladin_caps(_Lvl(level), cha_mod) == (lay, smite)
+    assert character_view._paladin_caps(_Lvl(level), cha_mod) == (lay, smite)
 
 
 # ── Smite Evil ──────────────────────────────────────────────────────────────
