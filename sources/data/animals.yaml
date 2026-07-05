@@ -3753,3 +3753,66 @@
   skills: '[{"id": "balance", "misc": 8}, {"id": "climb", "misc": 14}, {"id": "hide", "misc": 9}, {"id": "move_silently", "misc": 6}, {"id": "spot", "misc": 2}]'
   feats: '["Weapon Finesse"]'
   companion_ok: false
+
+# ── Summon Swarm (BRIEF-summon-swarm.md, 5. jul) — ét spell, 3 valg, ingen ──
+# niveau-liste. attacks: [] — swarms har INGEN til-hit-rul (SRD swarm-subtype:
+# skade rammer automatisk alt i feltet); område-skade + distraction lægges i
+# special_attacks som ren tekst i stedet. companion_ok: false (kun summonbar).
+- id: bat_swarm
+  name: Bat Swarm
+  size: diminutive
+  base_hd: 3
+  str: 3
+  dex: 15
+  con: 10
+  int: 2
+  wis: 14
+  cha: 4
+  natural_armor: 0
+  speed: "5 ft. (1 square), fly 40 ft. (good)"
+  attacks: '[]'
+  special_attacks: "Sværm-skade 1d6 (automatisk, ingen til-hit), distraction (Fort DC 11 eller nauseated 1 runde), wounding (1 hp/runde vedvarende blødning — stoppes af DC 10 Heal eller cure-spell)"
+  special_qualities: "Blindsense 20 ft., halv skade fra hug-/stikvåben, low-light vision, sværm-egenskaber (immun mod normal våbenskade)"
+  skills: '[{"id": "listen", "misc": 7}, {"id": "spot", "misc": 7}]'
+  feats: '["Alertness", "Lightning Reflexes"]'
+  companion_ok: false
+
+- id: rat_swarm
+  name: Rat Swarm
+  size: tiny
+  base_hd: 4
+  str: 2
+  dex: 15
+  con: 10
+  int: 2
+  wis: 12
+  cha: 2
+  natural_armor: 0
+  speed: "15 ft. (3 squares), climb 15 ft."
+  attacks: '[]'
+  special_attacks: "Sværm-skade 1d6 (automatisk, ingen til-hit) plus sygdom (filth fever: Fort DC 12, inkubation 1d3 dage, 1d3 Dex og 1d3 Con), distraction (Fort DC 12 eller nauseated 1 runde)"
+  special_qualities: "Halv skade fra hug-/stikvåben, low-light vision, scent, sværm-egenskaber (immun mod normal våbenskade)"
+  skills: '[{"id": "hide", "misc": 10}, {"id": "listen", "misc": 4}, {"id": "spot", "misc": 5}]'
+  feats: '["Alertness", "Weapon Finesse"]'
+  companion_ok: false
+
+- id: spider_swarm
+  name: Spider Swarm
+  type: vermin
+  good_saves: '["fort"]'
+  size: diminutive
+  base_hd: 2
+  str: 1
+  dex: 17
+  con: 10
+  int: 1
+  wis: 10
+  cha: 2
+  natural_armor: 0
+  speed: "20 ft. (4 squares), climb 20 ft."
+  attacks: '[]'
+  special_attacks: "Sværm-skade 1d6 (automatisk, ingen til-hit) plus gift (Fort DC 11, initial og sekundær 1d3 Str), distraction (Fort DC 11 eller nauseated 1 runde)"
+  special_qualities: "Darkvision 60 ft., tremorsense 30 ft., sværm-/gennemsnits-egenskaber (immun mod normal våbenskade)"
+  skills: '[{"id": "climb", "misc": 11}, {"id": "listen", "misc": 4}, {"id": "spot", "misc": 4}]'
+  feats: '[]'
+  companion_ok: false

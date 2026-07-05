@@ -549,10 +549,19 @@ def feat_prereq_unmet(prereq_text: str, owned_feat_ids, scores: dict,
 _SUMMON_LISTS: dict = _load_yaml("summon_lists")
 _SUMMON_MONSTER_LISTS: dict = _load_yaml("summon_monster_lists")
 
+# Summon Swarm (BRIEF-summon-swarm.md): ét fast spell (niveau 2, alle klasser),
+# valg mellem PRÆCIS 3 væsner — ingen niveau-skaleret liste, ingen 1d3/1d4+1-spor
+# (kun offset 0 findes, så summon_tiers giver naturligt bare ét spor med count "1").
+# Lille nok til at ligge direkte her frem for en separat YAML-fil.
+_SUMMON_SWARM_LIST: dict = {
+    2: ["bat_swarm", "rat_swarm", "spider_swarm"],
+}
+
 # familie → (spell-id-præfiks, niveau-tabel). Ny familie tilføjes her alene.
 _SUMMON_FAMILIES: dict = {
     "sna": ("summon_natures_ally_", _SUMMON_LISTS),
     "sm":  ("summon_monster_",      _SUMMON_MONSTER_LISTS),
+    "swarm": ("summon_swarm",       _SUMMON_SWARM_LIST),
 }
 
 

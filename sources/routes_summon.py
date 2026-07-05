@@ -83,8 +83,15 @@ def api_summon():
         return jsonify({"error": "ugyldigt væsen"}), 400
     ref["hp_current"] = [stat["hp_max"]] * count
     # Varighed: Summon Monster/SNA varer 1 runde pr. casterniveau (fast ved kast).
-    ref["rounds_max"] = char.level
-    ref["rounds_left"] = char.level
+    # Summon Swarm er en undtagelse (SRD: "Concentration + 2 rounds", ikke
+    # niveau-skaleret) — modelleret som en simpel manuel 2-runders tæller på
+    # samme -/+/⟲-mekanik: spilleren holder selv tallet oppe mens vedkommende
+    # koncentrerer sig (⟲ nulstiller til 2) og lader det tælle ned når
+    # koncentrationen brydes. Mindre SRD-tro end en dedikeret koncentrations-
+    # toggle, men genbruger 100% af den eksisterende tracker uden ny UI-tilstand.
+    rounds = 2 if cast_family == "swarm" else char.level
+    ref["rounds_max"] = rounds
+    ref["rounds_left"] = rounds
 
     # Sæt summon-spellet "I brug" (samme mekanik som cycleSpell → state=active).
     spells_active = {k: list(v) for k, v in char.spells_active.items()}
