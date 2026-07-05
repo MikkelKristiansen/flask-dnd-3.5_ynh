@@ -15,6 +15,14 @@ CHARACTERS_DIR = Path(os.environ.get("DND_CHARACTERS_DIR",
 PORTRAITS_DIR = CHARACTERS_DIR.parent / "portraits"
 PORTRAIT_EXTS = ("jpg", "jpeg", "png", "webp")
 
+# DM-modul. Eventyr er semi-statisk indhold (committes med koden, som srd35.db)
+# → ligger i install-mappen. Sessioner er ren mutabel tilstand (som karakter-
+# filerne) → data-mappen ved siden af characters/.
+ADVENTURES_DIR = Path(os.environ.get("DND_ADVENTURES_DIR",
+                                     str(Path(__file__).parent / "adventures")))
+SESSIONS_DIR = Path(os.environ.get("DND_SESSIONS_DIR",
+                                   str(CHARACTERS_DIR.parent / "sessions")))
+
 
 def _safe_slug(text: str) -> str:
     """Saniter til et filsikkert slug: kun a-z, 0-9, bindestreg og underscore."""
