@@ -551,6 +551,67 @@
   dmg_type: Negativ energi
   save_type: will
   save_effect: half
+- spell_id: inflict_moderate_wounds_mass
+  label: Inflict Moderate Wounds, Mass
+  kind: save
+  base_damage: 2d8
+  dmg_per_level: 1
+  dmg_per_level_max: 30
+  dmg_type: Negativ energi
+  save_type: will
+  save_effect: half
+
+# ── Kategori Heal (BRIEF-heal-cast.md) — cure-serien, positiv energi ────────
+# Rulbar via grøn ⚡ Kast · helbred-knap (kind: heal); Instantaneous → engangs-kast,
+# markerer slotten Brugt som ved angreb. SRD-verificeret mod spells-c.md, 5. jul.
+- spell_id: cure_minor_wounds
+  label: Cure Minor Wounds
+  kind: heal
+  base_damage: "1"
+  dmg_type: Positiv energi
+- spell_id: cure_light_wounds
+  label: Cure Light Wounds
+  kind: heal
+  base_damage: 1d8
+  dmg_per_level: 1
+  dmg_per_level_max: 5
+  dmg_type: Positiv energi
+- spell_id: cure_moderate_wounds
+  label: Cure Moderate Wounds
+  kind: heal
+  base_damage: 2d8
+  dmg_per_level: 1
+  dmg_per_level_max: 10
+  dmg_type: Positiv energi
+- spell_id: cure_serious_wounds
+  label: Cure Serious Wounds
+  kind: heal
+  base_damage: 3d8
+  dmg_per_level: 1
+  dmg_per_level_max: 15
+  dmg_type: Positiv energi
+- spell_id: cure_critical_wounds
+  label: Cure Critical Wounds
+  kind: heal
+  base_damage: 4d8
+  dmg_per_level: 1
+  dmg_per_level_max: 20
+  dmg_type: Positiv energi
+- spell_id: cure_light_wounds_mass
+  label: Cure Light Wounds, Mass
+  kind: heal
+  base_damage: 1d8
+  dmg_per_level: 1
+  dmg_per_level_max: 25
+  dmg_type: Positiv energi
+- spell_id: cure_moderate_wounds_mass
+  label: Cure Moderate Wounds, Mass
+  kind: heal
+  base_damage: 2d8
+  dmg_per_level: 1
+  dmg_per_level_max: 30
+  dmg_type: Positiv energi
+
 # Fire Trap — 1d4 ild +1/niveau (max +20), 5-fods radius når genstanden åbnes.
 - spell_id: fire_trap
   label: Fire Trap

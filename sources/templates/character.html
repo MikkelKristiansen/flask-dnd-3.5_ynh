@@ -311,6 +311,14 @@
         <span class="attack-name-cell">
           <span class="attack-name-edit" style="cursor:default">{{ e.label }}</span>
           {% if e.range or e.area or e.duration %}<span class="attack-alt">{{ e.range }}{% if e.area %} · {{ e.area }}{% endif %}{% if e.duration %} · {{ e.duration }}{% endif %}</span>{% endif %}
+          {% if e.tracker %}
+          <span class="attack-alt" style="display:flex;align-items:center;gap:.3rem">
+            <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.95rem" title="−1 {{ e.unit_label }}" onclick="adjUtilDuration({{ e.level }},{{ e.index }},-1,false,'effect')">−</button>
+            <span class="summon-rounds{{ ' expired' if e.tracker.left == 0 else '' }}" id="effect-{{ e.level }}-{{ e.index }}-dur">{% if e.tracker.left == 0 %}udløbet{% else %}{{ e.tracker.left }}/{{ e.tracker.max }} {{ e.unit_label }}{% endif %}</span>
+            <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.95rem" title="+1 {{ e.unit_label }}" onclick="adjUtilDuration({{ e.level }},{{ e.index }},1,false,'effect')">+</button>
+            <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.85rem" title="Nulstil til fuld varighed" onclick="adjUtilDuration({{ e.level }},{{ e.index }},0,true,'effect')">⟲</button>
+          </span>
+          {% endif %}
         </span>
         <span class="attack-bonus" title="Save-DC modstanderen skal slå">
           {% if e.save_type %}{{ save_names.get(e.save_type, e.save_type|capitalize) }} DC {{ e.dc }}{% if e.save_effect %} ({{ save_fx.get(e.save_effect, e.save_effect) }}){% endif %}{% endif %}
@@ -1218,7 +1226,7 @@
                 title="Ofre denne plads til en {{ cure_direction }}-spell af niveau {{ lvl }} eller lavere">✚ Ofre→{{ cure_direction|capitalize }}</button>
         {% endif %}
         {% if entry.cast %}
-        <button class="summon-cast-btn spell-cast-btn"{% if entry.state != 'free' %} style="display:none"{% endif %}
+        <button class="summon-cast-btn spell-cast-btn{% if entry.cast.kind == 'heal' %} heal-cast-btn{% endif %}"{% if entry.state != 'free' %} style="display:none"{% endif %}
                 onclick='event.stopPropagation();castSpell({{ lvl }},{{ entry.index }},{{ entry.cast.roll_expr|tojson }},{{ entry.cast.roll_label|tojson }})'
                 title="{{ entry.cast.title }}">{{ entry.cast.button_label }}</button>
         {% endif %}

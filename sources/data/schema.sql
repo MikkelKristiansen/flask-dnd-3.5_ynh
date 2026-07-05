@@ -124,7 +124,7 @@ DROP TABLE IF EXISTS spell_attacks;
 CREATE TABLE spell_attacks (
     spell_id          TEXT NOT NULL,   -- FK til spells.id
     label             TEXT NOT NULL,   -- visningsnavn på angrebsrækken
-    kind              TEXT NOT NULL,   -- melee | ranged | melee_touch | ranged_touch | save (kategori E: område/save, intet til-hit)
+    kind              TEXT NOT NULL,   -- melee | ranged | melee_touch | ranged_touch | save (kategori E: område/save, intet til-hit) | heal (rulbar healing, intet til-hit)
     mode_group        TEXT,            -- tilstands-gruppe: rækker m/ samme (spell_id, mode_group) er ét angreb i flere tilstande (Produce Flame: touch)
     base_damage       TEXT,            -- terningen, fx "1d6" (tom = ren save-effekt uden skade, fx Sleep/Web)
     dmg_per_level     INTEGER,         -- FLAD skade-bonus pr. casterniveau (Produce Flame 1)

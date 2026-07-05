@@ -8,7 +8,8 @@ skade-udtrykket (skaleret med antal missiler) knappen sætter i terningefeltet.
 Save/område-spells og self_duration/summon-spells får INGEN Kast-knap (None).
 """
 import db
-from spells import multiply_damage, spell_cast_info, spell_save_cast_info
+from spells import (multiply_damage, spell_cast_info, spell_save_cast_info,
+                    spell_heal_cast_info)
 
 
 def test_multiply_damage_scales_dice_and_bonus():
@@ -73,3 +74,34 @@ def test_sleep_is_save_only_no_damage():
 def test_attack_spell_has_no_save_cast():
     # Magic Missile er kategori B, ikke E.
     assert spell_save_cast_info("magic_missile", 1, db) is None
+
+
+# ── Kategori Heal: rulbar healing (Cure-serien, BRIEF-heal-cast.md) ─────────
+
+def test_cure_light_wounds_scales_with_caster_level():
+    info = spell_heal_cast_info("cure_light_wounds", 3, db)
+    assert info["kind"] == "heal"
+    assert info["damage"] == "1d8+3"
+    assert info["roll_expr"] == "1d8+3"
+    # Ingen til-hit/auto_hit-semantik — rent helbreds-udtryk.
+    assert "shots" not in info and "auto_hit" not in info
+
+
+def test_cure_light_wounds_caps_at_plus_five():
+    assert spell_heal_cast_info("cure_light_wounds", 20, db)["damage"] == "1d8+5"
+
+
+def test_cure_minor_wounds_is_flat_no_scaling():
+    info = spell_heal_cast_info("cure_minor_wounds", 5, db)
+    assert info["damage"] == "1"
+    assert info["roll_expr"] == "1"
+
+
+def test_heal_spell_has_no_attack_or_save_cast():
+    # cure_light_wounds er kategori "heal" — ikke B (angreb) eller E (save).
+    assert spell_cast_info("cure_light_wounds", 3, db) is None
+    assert spell_save_cast_info("cure_light_wounds", 3, db) is None
+
+
+def test_attack_spell_has_no_heal_cast():
+    assert spell_heal_cast_info("magic_missile", 1, db) is None

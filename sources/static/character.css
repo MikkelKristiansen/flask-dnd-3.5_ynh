@@ -243,6 +243,7 @@ body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
                  font-size:.75rem;padding:.15rem .55rem;border-radius:10px;cursor:pointer;white-space:nowrap;}
 .summon-sac-btn{background:var(--card);border:1px solid var(--accent);color:var(--accent);}
 .cure-cast-btn{background:var(--card);border:1px solid var(--red);color:var(--red);}
+.heal-cast-btn{background:var(--green);}
 .summon-indiv-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem;}
 .summon-indiv{display:flex;flex-direction:column;gap:.3rem;align-items:center;padding:.45rem .6rem;
               border:1px solid var(--border);border-left-width:4px;border-radius:6px;background:var(--card);}

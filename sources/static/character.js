@@ -161,9 +161,12 @@ function adjSummonRounds(target, delta, reset) {
   });
 }
 
-// Justér en aktiv utility-spells (kategori F) resterende varighed. reset=true →
-// fuld varighed. Native enhed (min/timer/runder/dage) — serveren returnerer labelen.
-function adjUtilDuration(level, idx, delta, reset) {
+// Justér en aktiv spells (kategori F-utility ELLER vedvarende kategori-E som
+// Flaming Sphere) resterende varighed. reset=true → fuld varighed. Native enhed
+// (min/timer/runder/dage) — serveren returnerer labelen. prefix vælger hvilket
+// DOM-element der opdateres ("util" = Aktive effekter, "effect" = Spell-effekter).
+function adjUtilDuration(level, idx, delta, reset, prefix) {
+  prefix = prefix || "util";
   fetch(BASE + "/api/spell_duration", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
@@ -172,7 +175,7 @@ function adjUtilDuration(level, idx, delta, reset) {
   .then(r => r.json())
   .then(data => {
     if (data.error) return;
-    const el = document.getElementById(`util-${level}-${idx}-dur`);
+    const el = document.getElementById(`${prefix}-${level}-${idx}-dur`);
     if (!el) return;
     const done = data.left === 0;
     el.textContent = done ? "udløbet" : `${data.left}/${data.max} ${data.unit_label}`;
