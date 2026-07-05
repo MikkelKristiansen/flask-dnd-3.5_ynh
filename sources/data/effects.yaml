@@ -106,6 +106,41 @@
   picker: buff
   note: +1 angreb og skade på ÉT naturligt våben (godt til companion)
   affects: '["attack"]'
+- id: magic_fang_greater
+  name: Magic Fang, Greater
+  kind: buff
+  source_spell_id: magic_fang_greater
+  # SRD: +1 pr. 4 casterniveauer (maks +5). Samme kendte forenkling som Divine
+  # Favor herunder — fladt +1 (korrekt CL 1-4); fuld niveauskalering hører til
+  # en senere polish-fase af buff-motoren (ingen buff-modifier er niveau-følsom endnu).
+  modifiers: '[{"target": "attack", "type": "enhancement", "value": 1}, {"target":
+    "damage", "type": "enhancement", "value": 1}]'
+
+  picker: buff
+  note: +1 angreb og skade på ÉT (eller alle) naturlige våben (+1 pr. 4 casterniveauer, maks +5)
+  affects: '["attack"]'
+- id: magic_weapon
+  name: Magic Weapon
+  kind: buff
+  source_spell_id: magic_weapon
+  modifiers: '[{"target": "attack", "type": "enhancement", "value": 1}, {"target":
+    "damage", "type": "enhancement", "value": 1}]'
+
+  picker: buff
+  note: +1 angreb og skade på ÉT våben (stacker ikke med mesterværk)
+  affects: '["attack"]'
+- id: magic_weapon_greater
+  name: Magic Weapon, Greater
+  kind: buff
+  source_spell_id: magic_weapon_greater
+  # SRD: +1 pr. 4 casterniveauer (maks +5) — samme kendte fladt-+1-forenkling som
+  # Divine Favor/Magic Fang Greater herover.
+  modifiers: '[{"target": "attack", "type": "enhancement", "value": 1}, {"target":
+    "damage", "type": "enhancement", "value": 1}]'
+
+  picker: buff
+  note: +1 angreb og skade på ÉT våben (+1 pr. 4 casterniveauer, maks +5)
+  affects: '["attack"]'
 - id: longstrider
   name: Longstrider
   kind: buff

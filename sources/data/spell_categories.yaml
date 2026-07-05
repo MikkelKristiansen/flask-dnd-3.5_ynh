@@ -79,6 +79,13 @@ corrected:
                            # ved gennembrud, IKKE knyttet til det nævnte Reflex-save
                            # (som kun forhindrer selve væggens dannelse).
 
+  # --- runde 4: kategori D-gennemgang, 5. jul (BRIEF-weapon-buff-spells.md) ---
+  mages_sword: C           # RETTELSE fra "D": Bigby's-sværdet er et selvstændigt,
+                           # angribende kraftfelt (som Clenched Fist/Crushing Hand,
+                           # se BRIEF-spell-gaps-category-b.md) — ikke en buff på et
+                           # eksisterende våben. Hverken C- eller D-motoren dækker
+                           # det endnu; kategorien er nu bare korrekt.
+
 # --- Godkendte auto-gæt der var 'lav' (review runde 1) ---
 # Verificér disse EKSTRA ved spiltest — de var scriptets mest usikre.
 confirmed_from_low:
@@ -107,7 +114,6 @@ confirmed_from_low:
   wall_of_fire: B
   wall_of_iron: B
   # D — buff-på-våben
-  mages_sword: D
   shillelagh: D
   # F — utility/varighed (mest divination)
   analyze_dweomer: F
