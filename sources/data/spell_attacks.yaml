@@ -132,6 +132,42 @@
   save_type: reflex
   save_effect: negates
 
+# ── Kategori-E-huller lukket 5. jul (BRIEF-spell-gaps-category-e.md) ────────
+
+# Gust of Wind — ingen pålidelig enkelt skade-formel (kun Tiny+ flyvende væsner
+# tager terning-skade, resten blæses/fældes uden skade) — ren kontrol-E.
+- spell_id: gust_of_wind
+  label: Gust of Wind
+  kind: save
+  base_damage:
+  save_type: fortitude
+  save_effect: negates
+
+# Cloudkill — tiered efter mål-HD (≤3 dør automatisk, intet save; 4-6 dør
+# medmindre Fort-save, så kun 1d4 Con/runde; 6+ tager altid 1d4 Con/runde,
+# Fort halverer). Rullbart tal = det fælles 1d4 Con/runde; resten er alt_note.
+- spell_id: cloudkill
+  label: Cloudkill
+  kind: save
+  base_damage: 1d4
+  dmg_type: Con-skade (giftgas)
+  save_type: fortitude
+  save_effect: partial
+  alt_note: HD≤3 dør automatisk (intet save); HD4-6 dør medmindre Fort-save (så kun 1d4 Con/runde); HD6+ tager altid 1d4 Con/runde, Fort halverer. Gentages hver runde i skyen (1 min./niveau, bevæger sig 10 ft/runde).
+
+# Shatter — primært utility (smadrer skrøbelige genstande/ét solidt objekt,
+# ingen skade på skabninger). Skade findes KUN mod krystallinske væsner.
+- spell_id: shatter
+  label: Shatter
+  kind: save
+  base_damage: 1d6
+  dice_per_level: 1
+  dice_per_level_max: 10
+  dmg_type: Lyd
+  save_type: fortitude
+  save_effect: half
+  alt_note: Kun skade mod krystallinske væsner — ellers ren genstands-utility (smadrer skrøbelige objekter, ingen redningskast for skaden).
+
 # ── Kontrol-E (område/save, ingen skade) — auto-genereret 4. jul (gen_control_e_rows.py) ──
 - spell_id: animal_trance
   label: Animal Trance
