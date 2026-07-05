@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ char.name }}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='character.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='equipment_picker.css') }}">
+<link rel="stylesheet" href="{{ static_url('character.css') }}">
+<link rel="stylesheet" href="{{ static_url('equipment_picker.css') }}">
 </head>
 <body>
 
@@ -204,14 +204,14 @@ window.DND = {
   spellsKnown: {{ char.spells_known|tojson }},
 };
 </script>
-<script src="{{ url_for('static', filename='equipment_picker.js') }}"></script>
+<script src="{{ static_url('equipment_picker.js') }}"></script>
 {# character-core.js FØRST — de øvrige refererer dens delte data/hjælpere (D, charBuffs,
    escHtml, quickRoll m.fl.). Indbyrdes rækkefølge blandt resten er uden betydning. #}
-<script src="{{ url_for('static', filename='character-core.js') }}"></script>
-<script src="{{ url_for('static', filename='character-combat.js') }}"></script>
-<script src="{{ url_for('static', filename='character-spells.js') }}"></script>
-<script src="{{ url_for('static', filename='character-companion.js') }}"></script>
-<script src="{{ url_for('static', filename='character-progression.js') }}"></script>
-<script src="{{ url_for('static', filename='character-inventory.js') }}"></script>
+<script src="{{ static_url('character-core.js') }}"></script>
+<script src="{{ static_url('character-combat.js') }}"></script>
+<script src="{{ static_url('character-spells.js') }}"></script>
+<script src="{{ static_url('character-companion.js') }}"></script>
+<script src="{{ static_url('character-progression.js') }}"></script>
+<script src="{{ static_url('character-inventory.js') }}"></script>
 </body>
 </html>

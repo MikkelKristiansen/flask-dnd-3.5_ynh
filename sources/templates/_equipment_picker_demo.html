@@ -7,8 +7,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Equipment Picker — dev</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='character.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='equipment_picker.css') }}">
+  <link rel="stylesheet" href="{{ static_url('character.css') }}">
+  <link rel="stylesheet" href="{{ static_url('equipment_picker.css') }}">
   <style>
     body{padding:1rem;max-width:60rem;margin:0 auto;}
     .demo-controls{display:flex;flex-wrap:wrap;gap:.8rem;align-items:end;
@@ -41,7 +41,7 @@
 
   {% include "_equipment_picker.html" %}
 
-  <script src="{{ url_for('static', filename='equipment_picker.js') }}"></script>
+  <script src="{{ static_url('equipment_picker.js') }}"></script>
   <script>
     const ctx = () => ({
       cls:  document.getElementById('d-cls').value,

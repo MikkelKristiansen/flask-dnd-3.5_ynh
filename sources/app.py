@@ -29,6 +29,24 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
 app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024
 
 
+@app.context_processor
+def _inject_static_url():
+    """Cache-busting for statiske assets: static_url('x.js') → /static/x.js?v=<mtime>.
+
+    JS/CSS-filerne har ingen versions-query, så browseren cacher dem aggressivt og
+    viser gammel kode efter et deploy indtil man hard-refresher. Ved at hænge filens
+    ændringstidspunkt på som ?v= skifter URL'en automatisk når filen ændres, og
+    browseren henter den nye. Falder tilbage til ren URL hvis filen ikke findes.
+    """
+    def static_url(filename):
+        try:
+            ver = int(os.path.getmtime(os.path.join(app.static_folder, filename)))
+        except OSError:
+            return url_for("static", filename=filename)
+        return f"{url_for('static', filename=filename)}?v={ver}"
+    return {"static_url": static_url}
+
+
 def _char_path(slug: str) -> Path:
     return CHARACTERS_DIR / f"{slug}.yaml"
 

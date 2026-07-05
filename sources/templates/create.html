@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>D&D 3.5 — Ny karakter</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='equipment_picker.css') }}">
+<link rel="stylesheet" href="{{ static_url('equipment_picker.css') }}">
 <style>
 :root {
   --bg:#403932; --surface:#4a4139; --card:#554c43; --accent:#DAC597;
@@ -332,7 +332,7 @@ input[type=file]{width:100%;color:var(--text);font-size:.8rem;}
   </div>
 </form>
 
-<script src="{{ url_for('static', filename='equipment_picker.js') }}"></script>
+<script src="{{ static_url('equipment_picker.js') }}"></script>
 <script>
 // Live thumbnail af det valgte portræt (vises kun lokalt før upload).
 function previewPortrait(input){
