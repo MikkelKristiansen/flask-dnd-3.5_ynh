@@ -8,7 +8,8 @@ spell_is_utility identificerer kategori F som residual (intet angreb/effekt/summ
 """
 import db
 from spells import (spell_duration, spell_is_utility, derive_active_utility,
-                    spell_duration_snapshot, dur_unit_label)
+                    spell_duration_snapshot, dur_unit_label,
+                    spell_is_sustained_combat, derive_spell_effects)
 
 
 def _dur(text, cl=5):
@@ -182,3 +183,56 @@ def test_derive_includes_note():
     c.spells_active = {3: [0]}
     c.spells_used = {}
     assert derive_active_utility(c, db)[0]["note"].startswith("Du kan flyve")
+
+
+# ── Vedvarende save/angreb (BRIEF-sustained-save-duration.md) ──────────────
+# Flaming Sphere ("1 round/level") skal kunne rulles flere gange mens den er "I
+# brug" — den bliver tre-tilstand og bærer en runde-tæller i Spell-effekter.
+
+def test_flaming_sphere_is_sustained_combat():
+    assert spell_is_sustained_combat("flaming_sphere", 3, db) is True
+
+
+def test_instantaneous_attack_and_save_spells_are_not_sustained():
+    assert spell_is_sustained_combat("magic_missile", 1, db) is False   # kategori B
+    assert spell_is_sustained_combat("fireball", 5, db) is False        # kategori E
+
+
+def test_heal_only_spell_is_not_sustained_combat():
+    # Cure Light Wounds har en heal-række, men er Instantaneous og ikke kamp.
+    assert spell_is_sustained_combat("cure_light_wounds", 3, db) is False
+
+
+def test_derive_spell_effects_carries_fresh_tracker_for_active_flaming_sphere():
+    from character import load_character
+    c = load_character("defaults/tjorn.yaml")
+    c.spells_prepared = {2: ["flaming_sphere"]}
+    c.spells_active = {2: [0]}
+    c.spells_used = {}
+    c.spell_durations = {}
+    row = derive_spell_effects(c, db)[0]
+    assert row["tracker"] == {"left": c.level, "max": c.level, "unit": "round"}
+    assert row["unit_label"] == "runder"
+
+
+def test_derive_spell_effects_uses_saved_tracker_over_fresh_snapshot():
+    from character import load_character
+    c = load_character("defaults/tjorn.yaml")
+    c.spells_prepared = {2: ["flaming_sphere"]}
+    c.spells_active = {2: [0]}
+    c.spells_used = {}
+    c.spell_durations = {"2-0": {"left": 1, "max": c.level, "unit": "round"}}
+    row = derive_spell_effects(c, db)[0]
+    assert row["tracker"] == {"left": 1, "max": c.level, "unit": "round"}
+
+
+def test_derive_spell_effects_no_tracker_for_instantaneous_fireball():
+    from character import load_character
+    c = load_character("defaults/tjorn.yaml")
+    c.spells_prepared = {3: ["fireball"]}
+    c.spells_active = {3: [0]}
+    c.spells_used = {}
+    c.spell_durations = {}
+    row = derive_spell_effects(c, db)[0]
+    assert row["tracker"] is None
+    assert row["unit_label"] == ""

@@ -6,6 +6,10 @@ import random
 def roll(expression: str) -> dict:
     """Parse and roll a dice expression like '1d20+4', '3d6', 'd%'.
 
+    Også en ren tal-sum uden terning ('1', '0+150') — nogle healing-formler (Cure
+    Minor Wounds: fast 1; Heal: 10/niveau, intet terning-led) er deterministiske,
+    ikke tilfældige. Returneres med rolls=[] så UI'en ved der ikke var noget at rulle.
+
     Returns:
         {"rolls": list[int], "modifier": int, "total": int}
     """
@@ -13,6 +17,12 @@ def roll(expression: str) -> dict:
 
     # Handle d% as d100
     expr = expr.replace("d%", "d100")
+
+    if "d" not in expr:
+        if not re.fullmatch(r"[+-]?\d+([+-]\d+)*", expr):
+            raise ValueError(f"Invalid dice expression: {expression!r}")
+        total = sum(int(t) for t in re.findall(r"[+-]?\d+", expr))
+        return {"rolls": [], "modifier": total, "total": total}
 
     # Pattern: optional count, 'd', sides, optional modifier
     match = re.fullmatch(r"(\d*)d(\d+)([+-]\d+)?", expr)

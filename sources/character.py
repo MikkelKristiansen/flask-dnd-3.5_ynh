@@ -58,8 +58,8 @@ from items import (  # noqa: F401
 from spells import (  # noqa: F401
     spell_charge_key, spell_attack_damage, spell_area_damage,
     derive_spell_attacks, derive_spell_effects, spell_max_charges, active_spell_keys,
-    spell_cast_info, spell_save_cast_info,
-    spell_duration, spell_is_utility, derive_active_utility,
+    spell_cast_info, spell_save_cast_info, spell_heal_cast_info,
+    spell_duration, spell_is_utility, spell_is_sustained_combat, derive_active_utility,
     spell_duration_snapshot, dur_unit_label,
     wis_bonus_spells, spell_slots_total, spell_save_dc, spell_like_dc)
 from persistence import (  # noqa: E402,F401

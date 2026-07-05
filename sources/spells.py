@@ -110,8 +110,9 @@ def derive_spell_attacks(char: "Character", db) -> list[dict]:
             sid = prepared[idx]
             key = spell_charge_key(lvl, idx)
             selected = char.spell_modes.get(key, 0)
-            # kind=save = kategori E (område/save) → håndteres af derive_spell_effects, ikke her
-            attack_rows = [r for r in db.get_spell_attacks(sid) if r.get("kind") != "save"]
+            # kind=save (E) og kind=heal (helbred) håndteres andetsteds, ikke her.
+            attack_rows = [r for r in db.get_spell_attacks(sid)
+                          if r.get("kind") not in ("save", "heal")]
             for r, mode in _spell_attack_rows_to_show(attack_rows, selected):
                 atk = Attack(
                     name=r["label"],
@@ -150,6 +151,11 @@ def derive_spell_effects(char: "Character", db) -> list[dict]:
     tal man skal bruge ved bordet: skade-formel (skaleret), skadetype, save-type +
     effekt, rækkevidde, area og varighed. Save-DC lægges på i view-laget (kræver
     caster-evne-modifier + Spell Focus). Rene save-effekter uden skade → damage "".
+
+    Vedvarende (runde-/tids-baserede) rækker som Flaming Sphere gør skade HVER
+    runde mens spellet er "I brug" — de bærer samme live-nedtæller (tracker) som
+    kategori F (se derive_active_utility), så man kan tælle runder ned mens man
+    gentager rulningen. Øjeblikkelige E-spells (Fireball) har intet snapshot → None.
     """
     out: list[dict] = []
     for lvl, indices in (char.spells_active or {}).items():
@@ -159,6 +165,9 @@ def derive_spell_effects(char: "Character", db) -> list[dict]:
                 continue
             sid = prepared[idx]
             spell = db.get_spell(sid) or {}
+            key = spell_charge_key(lvl, idx)
+            tracker = (char.spell_durations or {}).get(key) \
+                or spell_duration_snapshot(spell, char.level)
             for r in db.get_spell_attacks(sid):
                 if r.get("kind") != "save":
                     continue
@@ -175,6 +184,8 @@ def derive_spell_effects(char: "Character", db) -> list[dict]:
                     "range":       spell.get("range") or "",
                     "area":        spell.get("target") or "",
                     "duration":    spell.get("duration") or "",
+                    "tracker":     tracker,
+                    "unit_label":  dur_unit_label(tracker["unit"]) if tracker else "",
                 })
     return out
 
@@ -227,7 +238,8 @@ def spell_cast_info(spell_id: str, caster_level: int, db) -> dict | None:
       Magic Missile CL3 → {..., shots: 2, roll_expr: "2d4+2"}
       Scorching Ray CL7 → {damage: "4d6", shots: 2, roll_expr: "8d6", auto_hit: False}
     """
-    atk_rows = [r for r in db.get_spell_attacks(spell_id) if r.get("kind") != "save"]
+    atk_rows = [r for r in db.get_spell_attacks(spell_id)
+               if r.get("kind") not in ("save", "heal")]
     if not atk_rows:
         return None
     r = atk_rows[0]
@@ -241,6 +253,30 @@ def spell_cast_info(spell_id: str, caster_level: int, db) -> dict | None:
         "shots": shots,
         "roll_expr": multiply_damage(per_shot, shots),
         "auto_hit": bool(r.get("auto_hit")),
+        "dmg_type": r.get("dmg_type") or "",
+    }
+
+
+def spell_heal_cast_info(spell_id: str, caster_level: int, db) -> dict | None:
+    """Kast-info til et rulbart HEALING-spell (kategori "heal": Cure Light Wounds m.fl.).
+
+    Tredje gren ved siden af spell_cast_info (angreb) og spell_save_cast_info (save):
+    ingen til-hit, intet auto_hit/shots — bare et helbreds-udtryk der skaleres som et
+    almindeligt kategori-B-angreb (spell_attack_damage: base + bonus pr. niveau,
+    cappet). None hvis spellet ikke har en heal-række.
+
+      Cure Light Wounds CL3 → {damage: "1d8+3", roll_expr: "1d8+3"}
+      Cure Minor Wounds      → {damage: "1", roll_expr: "1"}           (ingen skalering)
+    """
+    heal_rows = [r for r in db.get_spell_attacks(spell_id) if r.get("kind") == "heal"]
+    if not heal_rows:
+        return None
+    r = heal_rows[0]
+    dmg = spell_attack_damage(r, caster_level)
+    return {
+        "kind": "heal",
+        "damage": dmg,
+        "roll_expr": dmg,
         "dmg_type": r.get("dmg_type") or "",
     }
 
@@ -408,6 +444,24 @@ def spell_is_utility(spell_id: str, db) -> bool:
     if refdata.summon_family(spell_id) is not None:   # C (summon)
         return False
     return True
+
+
+def spell_is_sustained_combat(spell_id: str, caster_level: int, db) -> bool:
+    """Er spellet et VEDVARENDE angrebs-/save-spell (Flaming Sphere, Call Lightning,
+    Spiritual Weapon) — dvs. har det en kategori-B/E-række OG en ikke-øjeblikkelig,
+    runde-/tids-varighed, så det skal kunne rulles flere gange mens det er "I brug"?
+
+    Kun heal-rækker tæller ikke som kamp (de er altid Instantaneous alligevel).
+    Bruges til at gøre sådan et spell tre-tilstands-bart (Ledig/I brug/Brugt) og til
+    at gate engangs-⚡-Kast væk (et vedvarende spell bruger toggle + Spell-effekter-
+    rækken i stedet, ikke begge samtidig).
+    """
+    rows = [r for r in db.get_spell_attacks(spell_id) if r.get("kind") != "heal"]
+    if not rows:
+        return False
+    spell = db.get_spell(spell_id) or {}
+    dur = spell_duration(spell, caster_level)
+    return bool(dur and not dur["instantaneous"])
 
 
 def derive_active_utility(char: "Character", db) -> list[dict]:
