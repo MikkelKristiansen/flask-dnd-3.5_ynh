@@ -396,8 +396,10 @@ from routes_combat import combat_bp
 from routes_companion import companion_bp
 from routes_progression import progression_bp
 from routes_inventory import inventory_bp
+from dm import dm_bp
 
-for bp in (spells_bp, summon_bp, combat_bp, companion_bp, progression_bp, inventory_bp):
+for bp in (spells_bp, summon_bp, combat_bp, companion_bp, progression_bp,
+           inventory_bp, dm_bp):
     app.register_blueprint(bp)
 
 

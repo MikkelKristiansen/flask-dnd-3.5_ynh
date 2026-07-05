@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ adventure.title }} — DM</title>
+<style>
+:root{--bg:#403932;--surface:#4a4139;--card:#554c43;--accent:#DAC597;
+--text:#ede7d5;--muted:#a5a195;--border:#6b5f53;--read:#322c25;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;min-height:100vh;}
+a{color:var(--accent);}
+.bar{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1.2rem;
+ background:var(--surface);border-bottom:1px solid var(--border);}
+.bar h1{color:var(--accent);font-size:1.2rem;}
+.bar .sub{color:var(--muted);font-size:.8rem;}
+.bar .back{font-size:.85rem;color:var(--muted);text-decoration:none;}
+.bar .back:hover{color:var(--accent);}
+.layout{display:flex;gap:1rem;padding:1rem;max-width:1100px;margin:0 auto;align-items:flex-start;}
+.nav{flex:0 0 200px;background:var(--surface);border:1px solid var(--border);border-radius:8px;
+ padding:.6rem;position:sticky;top:1rem;}
+.nav a{display:block;padding:.4rem .55rem;border-radius:5px;text-decoration:none;
+ color:var(--text);font-size:.85rem;margin-bottom:.15rem;}
+.nav a:hover{background:var(--card);}
+.nav a.active{background:var(--accent);color:#000;font-weight:bold;}
+.main{flex:1;min-width:0;}
+.scene-title{color:var(--accent);font-size:1.5rem;margin-bottom:.8rem;}
+.read{background:var(--read);border-left:4px solid var(--accent);border-radius:4px;
+ padding:.8rem 1rem;margin:.8rem 0;font-style:italic;white-space:pre-line;line-height:1.5;}
+.read .cap{display:block;font-style:normal;color:var(--accent);font-size:.78rem;
+ font-weight:bold;letter-spacing:.5px;margin-bottom:.35rem;text-transform:uppercase;}
+.prose{margin:.7rem 0;line-height:1.55;}
+.roster{background:var(--card);border:1px solid var(--border);border-radius:6px;
+ padding:.5rem .8rem;margin:.7rem 0;font-size:.9rem;}
+.roster b{color:var(--accent);}
+.embed{color:var(--muted);font-size:.85rem;margin:.5rem 0;}
+.subhead{color:var(--accent);font-size:1.1rem;margin:1.1rem 0 .3rem;
+ border-bottom:1px solid var(--border);padding-bottom:.2rem;}
+.room{border:1px solid var(--border);border-radius:8px;padding:.7rem 1rem;margin:.8rem 0;
+ background:var(--surface);}
+.room h3{color:var(--accent);font-size:1.05rem;margin-bottom:.3rem;}
+.ent{color:var(--accent);border-bottom:1px dotted var(--accent);}
+.side{flex:0 0 170px;background:var(--surface);border:1px solid var(--border);
+ border-radius:8px;padding:.7rem;position:sticky;top:1rem;}
+.side h3{color:var(--accent);font-size:.9rem;margin-bottom:.5rem;letter-spacing:.5px;}
+.pc{font-size:.88rem;padding:.35rem 0;border-bottom:1px solid var(--border);}
+.pc:last-child{border-bottom:none;}
+.note{color:var(--muted);font-size:.72rem;font-style:italic;margin-top:.7rem;}
+@media(max-width:800px){.layout{flex-direction:column;}.nav,.side{position:static;width:100%;flex-basis:auto;}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div>
+    <h1>{{ adventure.title }}</h1>
+    <div class="sub">{{ session.name }}</div>
+  </div>
+  <a class="back" href="{{ url_for('dm.index') }}">← Kampagner</a>
+</div>
+
+<div class="layout">
+  <nav class="nav">
+    {% for sc in adventure.scenes %}
+    <a href="{{ url_for('dm.play', slug=session.slug, scene=sc.id) }}"
+       class="{{ 'active' if active and sc.id == active.id else '' }}">{{ sc.title }}</a>
+    {% endfor %}
+  </nav>
+
+  <div class="main">
+    {% if active %}
+    <div class="scene-title">{{ active.title }}</div>
+    {% for b in active.blocks %}{% include "dm/_block.html" %}{% endfor %}
+    {% else %}
+    <p class="note">Ingen scener i dette eventyr.</p>
+    {% endif %}
+  </div>
+
+  <aside class="side">
+    <h3>Party</h3>
+    {% for pc in session.party %}
+    <div class="pc">{{ pc }}</div>
+    {% else %}
+    <div class="note">Intet party valgt.</div>
+    {% endfor %}
+    <div class="note">Statblokke + billeder kommer i næste opdatering.</div>
+  </aside>
+</div>
+</body>
+</html>

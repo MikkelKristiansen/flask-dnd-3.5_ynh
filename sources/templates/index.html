@@ -89,6 +89,10 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
   background:var(--accent);color:#000;text-decoration:none;font-weight:bold;
   padding:.7rem;border-radius:8px;letter-spacing:.5px;}
 .new-char:hover{filter:brightness(1.08);}
+.dm-link{width:100%;max-width:520px;margin-bottom:1.2rem;display:block;text-align:center;
+  background:var(--surface);color:var(--accent);text-decoration:none;
+  border:1px solid var(--border);padding:.55rem;border-radius:8px;font-size:.9rem;}
+.dm-link:hover{border-color:var(--accent);}
 </style>
 </head>
 <body>
@@ -98,6 +102,7 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
 {% if import_error %}<div class="banner banner-err">⚠ {{ import_error }}</div>{% endif %}
 
 <a class="new-char" href="{{ url_for('create_form') }}">➕ Ny karakter</a>
+<a class="dm-link" href="{{ url_for('dm.index') }}">🗺 DM-modul — kampagner</a>
 
 <div class="char-list">
   {% for c in chars %}

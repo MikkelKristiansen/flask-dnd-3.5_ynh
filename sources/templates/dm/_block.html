@@ -1,0 +1,19 @@
+{# Renderer én scene-blok (variabel `b`). Rekursiv for rum. #}
+{% if b.kind == 'readaloud' %}
+  <div class="read">{% if b.caption %}<span class="cap">{{ b.caption }}</span>{% endif %}{{ b.text | entities }}</div>
+{% elif b.kind == 'prose' %}
+  <p class="prose">{% if b.label %}<b>{{ b.label }}:</b> {% endif %}{{ b.text | entities }}</p>
+{% elif b.kind == 'roster' %}
+  <div class="roster"><b>⚔ {{ b.label or 'Monstre' }}:</b>
+    {% for e in b.entries %}{{ e.count }}× {{ e.id }}{{ ', ' if not loop.last }}{% endfor %}</div>
+{% elif b.kind == 'embed' %}
+  <div class="embed">🗺 {{ b.entity.type }}: {{ b.entity.id }}</div>
+{% elif b.kind == 'image' %}
+  <div class="embed">🖼 {{ b.src }}</div>
+{% elif b.kind == 'subheading' %}
+  <div class="subhead">{{ b.text }}</div>
+{% elif b.kind == 'room' %}
+  {% set _blocks = b.blocks %}
+  <div class="room"><h3>🚪 {{ b.title }}</h3>
+    {% for b in _blocks %}{% include "dm/_block.html" %}{% endfor %}</div>
+{% endif %}

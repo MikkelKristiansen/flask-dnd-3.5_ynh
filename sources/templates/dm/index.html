@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DM — Kampagner</title>
+<style>
+:root{--bg:#403932;--surface:#4a4139;--card:#554c43;--accent:#DAC597;
+--text:#ede7d5;--muted:#a5a195;--border:#6b5f53;--red:#b5432c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;min-height:100vh;
+ padding:2rem 1rem;display:flex;flex-direction:column;align-items:center;}
+a{color:var(--accent);}
+.wrap{width:100%;max-width:640px;}
+.top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.2rem;}
+h1{color:var(--accent);font-size:1.6rem;letter-spacing:1px;}
+h2{color:var(--accent);font-size:1rem;margin:1.6rem 0 .7rem;letter-spacing:.5px;}
+.back{font-size:.85rem;text-decoration:none;color:var(--muted);}
+.back:hover{color:var(--accent);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+ padding:1rem 1.2rem;margin-bottom:.8rem;position:relative;}
+.card:hover{border-color:var(--accent);}
+.card .name{font-size:1.1rem;color:var(--accent);font-weight:bold;}
+.card .sub{color:var(--muted);font-size:.8rem;margin-top:.2rem;}
+.card .open{position:absolute;inset:0;border-radius:8px;z-index:1;}
+.actions{position:absolute;top:.6rem;right:.7rem;z-index:2;}
+.del{background:var(--card);border:1px solid var(--border);color:var(--text);
+ font-size:.72rem;padding:.22rem .55rem;border-radius:5px;cursor:pointer;font-family:inherit;}
+.del:hover{border-color:var(--red);color:var(--red);}
+.empty{color:var(--muted);font-style:italic;}
+form.new{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+ padding:1.1rem 1.2rem;}
+label{display:block;color:var(--accent);font-size:.85rem;margin:.7rem 0 .3rem;}
+input[type=text],select{width:100%;background:var(--bg);border:1px solid var(--border);
+ color:var(--text);font-family:inherit;font-size:.9rem;padding:.45rem .6rem;border-radius:6px;}
+.party{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.3rem;}
+.party label{display:inline-flex;align-items:center;gap:.35rem;color:var(--text);
+ font-size:.85rem;margin:0;background:var(--bg);border:1px solid var(--border);
+ padding:.3rem .6rem;border-radius:20px;cursor:pointer;}
+.btn{margin-top:1.1rem;background:var(--accent);color:#000;border:none;font-weight:bold;
+ font-family:inherit;padding:.55rem 1.2rem;border-radius:8px;cursor:pointer;letter-spacing:.5px;}
+.btn:hover{filter:brightness(1.08);}
+.hint{color:var(--muted);font-size:.72rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>🗺 DM — Kampagner</h1>
+    <a class="back" href="{{ url_for('index') }}">← Karakterer</a>
+  </div>
+
+  <h2>Aktive sessioner</h2>
+  {% for s in sessions %}
+  <div class="card">
+    <a class="open" href="{{ url_for('dm.play', slug=s.slug) }}" aria-label="Åbn {{ s.name }}"></a>
+    <div class="actions">
+      <form method="post" action="{{ url_for('dm.delete', slug=s.slug) }}"
+            onsubmit="return confirm('Slet sessionen ' + {{ s.name|tojson }} + '? (Eventyret selv røres ikke.)');">
+        <button class="del" type="submit">🗑 Slet</button>
+      </form>
+    </div>
+    <div class="name">{{ s.name }}</div>
+    <div class="sub">Eventyr: {{ s.adventure }}</div>
+  </div>
+  {% else %}
+  <p class="empty">Ingen sessioner endnu — opret en herunder.</p>
+  {% endfor %}
+
+  <h2>Ny session</h2>
+  {% if adventures %}
+  <form class="new" method="post" action="{{ url_for('dm.create') }}">
+    <label for="name">Navn</label>
+    <input id="name" type="text" name="name" placeholder="Fx Tjørns Midsommer" required>
+
+    <label for="adventure">Eventyr</label>
+    <select id="adventure" name="adventure" required>
+      {% for a in adventures %}<option value="{{ a }}">{{ a }}</option>{% endfor %}
+    </select>
+
+    <label>Party</label>
+    <div class="party">
+      {% for c in characters %}
+      <label><input type="checkbox" name="party" value="{{ c }}"> {{ c }}</label>
+      {% else %}
+      <span class="hint">Ingen karakterer fundet.</span>
+      {% endfor %}
+    </div>
+
+    <button class="btn" type="submit">Opret session</button>
+  </form>
+  {% else %}
+  <p class="empty">Ingen eventyr i <code>adventures/</code>. Læg en .md-fil (se _TEMPLATE.md).</p>
+  {% endif %}
+</div>
+</body>
+</html>
