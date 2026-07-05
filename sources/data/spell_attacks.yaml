@@ -407,8 +407,10 @@
 - spell_id: inflict_minor_wounds
   label: Inflict Minor Wounds
   kind: save
+  base_damage: "1"
+  dmg_type: Negativ energi
   save_type: will
-  save_effect: half
+  save_effect: negates
 - spell_id: insanity
   label: Insanity
   kind: save
