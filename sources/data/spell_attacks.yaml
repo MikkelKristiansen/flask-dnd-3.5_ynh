@@ -981,3 +981,23 @@
   dmg_per_level_max: 15
   crit: x2
   alt_note: Kun mod jern-/metal-væsner (3d6 +1/niveau, max +15). Mod bæret metalrustning ødelægger den i stedet 1d6 AC. Ét nærkamps-touch pr. runde, 1 runde/niveau.
+
+# Acid Fog — ingen redningskast; 2d6 syre til ALT i tågen hver runde (på din tur),
+# 1 runde/niveau. Vedvarende varighed → vises på "I brug" med runde-tracker (som
+# Flaming Sphere), ingen save_type → effekt-panelet viser ingen falsk DC.
+- spell_id: acid_fog
+  label: Acid Fog
+  kind: save
+  base_damage: 2d6
+  dmg_type: Syre
+  alt_note: Ingen redningskast — 2d6 syre til alt i tågen hver runde (på din tur), 1 runde/niveau. Tågen slører syn og halverer bevægelse (som Solid Fog).
+
+# Ice Storm — ingen redningskast; fast 3d6 knusning + 2d6 kulde til alle i
+# cylinderen. dice.roll kan kun parse én terninggruppe, så de to typer slås
+# sammen til 5d6 (samme fem d6 — identisk fordeling); splittet står i dmg_type.
+- spell_id: ice_storm
+  label: Ice Storm
+  kind: save
+  base_damage: 5d6
+  dmg_type: 3d6 knusning + 2d6 kulde
+  alt_note: Ingen redningskast — fast 3d6 knusning + 2d6 kulde (rullet samlet som 5d6) til alle i cylinderen. Varer 1 fuld runde; halverer bevægelse og −4 på Listen i området.
