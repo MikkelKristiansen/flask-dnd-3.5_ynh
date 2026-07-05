@@ -205,6 +205,13 @@ window.DND = {
 };
 </script>
 <script src="{{ url_for('static', filename='equipment_picker.js') }}"></script>
-<script src="{{ url_for('static', filename='character.js') }}"></script>
+{# character-core.js FØRST — de øvrige refererer dens delte data/hjælpere (D, charBuffs,
+   escHtml, quickRoll m.fl.). Indbyrdes rækkefølge blandt resten er uden betydning. #}
+<script src="{{ url_for('static', filename='character-core.js') }}"></script>
+<script src="{{ url_for('static', filename='character-combat.js') }}"></script>
+<script src="{{ url_for('static', filename='character-spells.js') }}"></script>
+<script src="{{ url_for('static', filename='character-companion.js') }}"></script>
+<script src="{{ url_for('static', filename='character-progression.js') }}"></script>
+<script src="{{ url_for('static', filename='character-inventory.js') }}"></script>
 </body>
 </html>
