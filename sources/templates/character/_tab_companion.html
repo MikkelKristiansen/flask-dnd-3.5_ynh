@@ -1,0 +1,167 @@
+<!-- ══════════════════════════════════════════════ -->
+<!-- Tab: Dyreledsager (companion)                 -->
+<!-- ══════════════════════════════════════════════ -->
+{% import "character/_macros.html" as m with context %}
+{% if companion %}
+{% set cp = companion %}
+<div id="tab-companion" class="tab-panel">
+
+  {% if cp.effect_flags %}
+  <div class="flags-box">
+    <span class="flags-lead">⚑ Aktive flag</span>
+    {% for f in cp.effect_flags %}
+    <span class="flags-item {{ f.kind }}"><span class="flags-name">{{ f.name }}:</span> {{ f.note }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="section">
+    <div class="section-title">{{ cp.name }} — {{ cp.animal_name }}
+      <span style="color:var(--muted);font-size:.7rem;font-style:italic;text-transform:none">
+        {{ cp.size|capitalize }}, {{ cp.total_hd }} HD · {{ cp.level_label }}</span>
+    </div>
+    {% if cp.kind == 'familiar' and familiar_note %}
+    <div class="flags-box" style="margin-bottom:.6rem">
+      <span class="flags-lead">✨ Familiar-bonus (indregnet i dine tal)</span>
+      <span class="flags-item buff"><span class="flags-name">{{ familiar_note }}</span></span>
+      <span class="flags-item buff"><span class="flags-name">Alertness:</span> +2 Listen/Spot når familiaren er inden for arm's reach</span>
+    </div>
+    {% endif %}
+    <div id="buff-rem-combat-companion" class="buff-reminder" style="display:none"></div>
+    <div class="stat-row">
+      <span class="stat-label">HP</span>
+      <span style="display:flex;align-items:center;gap:.4rem">
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjCompHp(-1)">−</button>
+        <span class="stat-val" id="comp-hp-val">{{ cp.hp_current }}/{{ cp.hp_max }}</span>
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjCompHp(+1)">+</button>
+      </span>
+    </div>
+    <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val"><span style="cursor:help"
+          onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+          data-bd='{{ {"name": "AC", "total": cp.ac.ac|string, "parts": cp.ac.parts}|tojson }}'>{{ cp.ac.ac }}</span>
+      <span style="color:var(--muted);font-size:.75rem">(touch {{ cp.ac.touch }}, flat {{ cp.ac.flat_footed }}, nat +{{ cp.natural_armor }})</span></span></div>
+    <div class="stat-row"><span class="stat-label">Initiativ</span>
+      <span class="stat-val roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(cp.initiative) }}','Initiativ ({{ cp.name }})')">{{ "%+d"|format(cp.initiative) }}</span></div>
+    <div class="stat-row"><span class="stat-label">Grapple</span>
+      <span class="stat-val roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(cp.grapple) }}','Grapple ({{ cp.name }})')">{{ "%+d"|format(cp.grapple) }}</span></div>
+    <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ cp.speed }}</span></div>
+    <div class="stat-row"><span class="stat-label">Saves</span>
+      <span class="stat-val" style="font-size:.85rem">
+        <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(cp.saves.fort) }}','Fort ({{ cp.name }})')">Fort {{ "%+d"|format(cp.saves.fort) }}</span> ·
+        <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(cp.saves.ref) }}','Ref ({{ cp.name }})')">Ref {{ "%+d"|format(cp.saves.ref) }}</span> ·
+        <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(cp.saves.will) }}','Will ({{ cp.name }})')">Will {{ "%+d"|format(cp.saves.will) }}</span>
+      </span></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Effekter <span style="color:var(--muted);font-size:.7rem;font-style:italic">(tilstande + buffs)</span></div>
+    <div class="conditions-strip">
+      {% for cid, cond in cp.conditions %}
+        <span class="cond-badge" onclick="showDetail('condition','{{ cid }}')" title="{{ cond.summary if cond else '' }}">
+          {{ cond.name if cond else cid }}
+          <button class="cond-remove" onclick="event.stopPropagation();removeCondition('{{ cid }}','companion')" title="Fjern">×</button>
+        </span>
+      {% endfor %}
+      {% for buff in cp.buffs %}
+        <span class="buff-badge" onclick="showBuff('companion',{{ loop.index0 }})" title="{{ buff.note }}">
+          {{ buff.name }}
+          <button class="cond-remove" onclick="event.stopPropagation();removeBuff('companion',{{ loop.index0 }})" title="Fjern">×</button>
+        </span>
+      {% endfor %}
+      {% if not cp.conditions and not cp.buffs %}
+        <span class="no-conditions">Ingen aktive effekter</span>
+      {% endif %}
+      <button class="cond-add-btn" onclick="toggleEffectPicker('companion')" title="Tilføj effekt">+</button>
+    </div>
+    {{ m.effect_picker('companion') }}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Abilities</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.6rem;font-size:.85rem">
+      {% for ab in ['str','dex','con','int','wis','cha'] %}
+      <span><b>{{ ab|upper }}</b> {{ cp.abilities[ab] }}
+        <span style="color:var(--muted)">({{ "%+d"|format((cp.abilities[ab]-10)//2) }})</span></span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Angreb <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for at slå)</span></div>
+    <div id="buff-rem-attacks-companion" class="buff-reminder" style="display:none"></div>
+    {% for atk in cp.attacks %}
+    <div class="stat-row">
+      <span class="stat-label">{% if atk.count > 1 %}{{ atk.count }}× {% endif %}{{ atk.name }}{% if atk.group == 'secondary' %} <span style="color:var(--muted);font-size:.7rem">(sek.)</span>{% endif %}</span>
+      <span class="stat-val" style="font-size:.85rem">
+        <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(atk.to_hit) }}','{{ atk.name }} til-hit ({{ cp.name }})')"
+              onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+              data-bd='{{ {"name": atk.name ~ " til-hit", "total": atk.to_hit, "parts": atk.hit_parts}|tojson }}'>{{ "%+d"|format(atk.to_hit) }}</span>
+        / <span class="roll-tap" onclick="quickRoll('{{ atk.damage }}','{{ atk.name }} skade ({{ cp.name }})', 1)"
+              onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+              data-bd='{{ {"name": atk.name ~ " skade", "total": atk.damage, "parts": atk.dmg_parts}|tojson }}'>{{ atk.damage }}</span>
+      </span>
+    </div>
+    {% endfor %}
+    {% if cp.special_attacks %}<div class="stat-row"><span class="stat-label">Special-angreb</span><span class="stat-val" style="font-size:.8rem">{{ cp.special_attacks }}</span></div>{% endif %}
+    {% if cp.special_qualities %}<div class="stat-row"><span class="stat-label">Kvaliteter</span><span class="stat-val" style="font-size:.8rem">{{ cp.special_qualities }}</span></div>{% endif %}
+  </div>
+
+  {% if cp.skills %}
+  <div class="section">
+    <div class="section-title">Skills <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik modifier for at slå)</span></div>
+    {% for sk in cp.skills %}
+    <div class="skill-row" style="cursor:default">
+      <span>
+        <span class="skill-name">{{ sk.name }}</span>
+        {% if sk.note %}<span class="skill-ability" style="font-style:italic">{{ sk.note }}</span>{% endif %}
+      </span>
+      <span class="skill-total roll-tap"
+            onclick="quickRoll('1d20{{ "%+d"|format(sk.total) }}','{{ sk.name }} ({{ cp.name }})')"
+            title="Slå {{ sk.name }} for {{ cp.name }}">{{ "%+d"|format(sk.total) }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="section">
+    <div class="section-title">Evner</div>
+    {% if cp.special_refs %}
+    <div class="stat-row"><span class="stat-label">{{ 'Mount' if cp.kind == 'mount' else ('Familiar' if cp.kind == 'familiar' else 'Companion') }}</span><span class="stat-val" style="font-size:.8rem;text-align:right">{% for e in cp.special_refs %}<span {% if e.id %}class="ws-abil" onclick="showDetail('ability','{{ e.id }}')" title="Tryk for forklaring"{% endif %}>{{ e.label }}</span>{{ ", " if not loop.last }}{% endfor %}</span></div>
+    {% endif %}
+    {% if cp.kind == 'familiar' and cp.specials %}
+    <div class="stat-row"><span class="stat-label">Specials</span><span class="stat-val" style="font-size:.8rem;text-align:right">{{ cp.specials|join(", ") }}</span></div>
+    {% endif %}
+    {% if cp.feat_refs %}
+    <div class="stat-row"><span class="stat-label">Feats</span><span class="stat-val" style="font-size:.8rem;text-align:right">{% for e in cp.feat_refs %}<span {% if e.id %}class="ws-abil" onclick="showDetail('feat','{{ e.id }}')" title="Tryk for forklaring"{% endif %}>{{ e.label }}</span>{{ ", " if not loop.last }}{% endfor %}</span></div>
+    {% endif %}
+    {# Mounts og familiarer er intelligente (Int 6+) og bruger ikke trick-systemet. #}
+    {% if cp.kind != 'mount' and cp.kind != 'familiar' %}
+    <div style="margin-top:.6rem;color:var(--muted);font-size:.7rem;font-style:italic;text-transform:uppercase;letter-spacing:.05em">Tricks ({{ cp.bonus_tricks }} bonus)</div>
+    <div id="comp-tricks" style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.35rem"></div>
+    <div style="display:flex;gap:.4rem;margin-top:.4rem">
+      <input class="form-input" id="comp-trick-input" type="text" placeholder="Nyt trick…"
+             style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addTrick();}">
+      <button class="add-btn" style="padding:.2rem .7rem" onclick="addTrick()">+ Tilføj</button>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Skilles ad</div>
+    <div style="color:var(--muted);font-size:.82rem;margin-bottom:.5rem">
+      Sig farvel til {{ cp.name }}. Ledsagerens data slettes — kan ikke fortrydes.
+    </div>
+    <button class="add-btn" style="border-color:var(--red);color:var(--red)"
+            onclick="dismissCompanion('{{ cp.name }}')">🐾 Sig farvel til {{ cp.name }}</button>
+    {% if cp.kind == 'familiar' %}
+    <div style="color:var(--muted);font-size:.82rem;margin:.7rem 0 .5rem">
+      Døde {{ cp.name }} i kamp? Så starter en ventetid før en ny kan tilkaldes, og du bærer en midlertidig straf indtil da.
+    </div>
+    <button class="add-btn" style="border-color:var(--red);color:var(--red)"
+            onclick="familiarDied('{{ cp.name }}')">💀 {{ cp.name }} døde</button>
+    {% endif %}
+  </div>
+
+</div>
+{% endif %}
+

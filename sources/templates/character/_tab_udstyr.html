@@ -1,0 +1,58 @@
+<!-- ══════════════════════════════════════════════ -->
+<!-- Tab 4: Udstyr                                 -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-udstyr" class="tab-panel">
+
+  <div class="section">
+    <div class="section-title">Inventory <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik navn for detaljer/rediger)</span></div>
+    <div id="inv-list"></div>
+    <div id="inv-totals" style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border);
+                display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--muted);font-size:.85rem">Total bærevægt</span>
+      <span>
+        <strong id="total-weight" style="color:var(--accent)"></strong>
+        &nbsp;<span id="enc-badge" class="enc-badge"></span>
+      </span>
+    </div>
+    <div id="enc-consequences" style="display:none;margin-top:.5rem;padding:.5rem;
+         background:rgba(192,57,43,.12);border-radius:4px;border:1px solid rgba(192,57,43,.4)"></div>
+    <div id="enc-limits-text" style="color:var(--muted);font-size:.75rem;margin-top:.4rem"></div>
+
+    <div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)">
+      <div style="color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Tilføj fra katalog (butik)</div>
+      {# Udrustningsbutikken — tilstand udledes af kategori; juster bagefter i detalje-modalen. #}
+      {% include "_equipment_picker.html" %}
+      <button class="add-btn" onclick="addSelectedFromShop()" style="width:100%;margin-top:.5rem">+ Tilføj valgte til inventar</button>
+    </div>
+
+    <div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)">
+      <div style="color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Tilføj custom genstand <span style="font-style:italic;text-transform:none">(ikke i katalog)</span></div>
+      <div class="add-grid">
+        <input class="form-input" id="add-name" type="text" placeholder="Navn"
+               onkeydown="if(event.key==='Enter')addItem()">
+        <input class="form-input" id="add-weight" type="number" placeholder="lbs" min="0" step="0.1" value="0">
+        <input class="form-input" id="add-qty" type="number" placeholder="×" min="1" value="1">
+      </div>
+      <textarea class="form-input" id="add-notes" rows="2"
+                placeholder="Beskrivelse / noter (valgfri — kan f.eks. beskrive DM-opfundne egenskaber)"
+                style="resize:vertical;font-size:.82rem"></textarea>
+      <button class="add-btn" onclick="addItem()" style="width:100%;margin-top:.3rem">+ Tilføj custom</button>
+    </div>
+  </div>
+
+  {% if char.gold is defined %}
+  <div class="section">
+    <div class="section-title">Guld <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for at redigere)</span></div>
+    <div class="gold-row" id="gold-row">
+      {% for coin in ["pp","gp","sp","cp"] %}
+      <span class="gold-item" id="gold-item-{{ coin }}">
+        <span class="gold-val" id="gold-val-{{ coin }}"
+              onclick="editGold('{{ coin }}')"
+              title="Klik for at redigere">{{ char.gold.get(coin,0) }}</span> {{ coin }}
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>

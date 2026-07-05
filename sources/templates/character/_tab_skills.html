@@ -1,0 +1,59 @@
+<!-- ══════════════════════════════════════════════ -->
+<!-- Tab 2: Skills & Feats                         -->
+<!-- ══════════════════════════════════════════════ -->
+{% import "character/_macros.html" as m with context %}
+<div id="tab-skills" class="tab-panel">
+
+  {% set hidden_count = skill_data|rejectattr('usable')|list|length %}
+  <div class="section skills-section" id="skills-section">
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem">
+      <span>Skills <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik navn for detaljer · klik total for at slå · ▲ = trænet kun)</span></span>
+      {% if hidden_count > 0 %}
+      <button class="skill-toggle" id="skill-toggle-btn" onclick="toggleUnusableSkills()"
+              title="Vis/skjul trænet-kun skills uden ranks">+ {{ hidden_count }} trænet-kun</button>
+      {% endif %}
+    </div>
+    {% for item in skill_data %}
+    {% set s = item.skill %}
+    {% set defn = item.defn %}
+    <div class="skill-row{% if not item.ranked %} untrained{% endif %}{% if not item.usable %} unusable{% endif %}" onclick="showDetail('skill','{{ s.id }}')">
+      <span>
+        <span class="skill-name">{{ defn.name if defn else s.id }}</span>
+        <span class="skill-ability">({{ defn.ability|upper if defn else "?" }})</span>
+        {% if item.trained_only %}<span class="skill-trained" title="Trænet kun — kan ikke bruges utrænet">▲</span>{% endif %}
+      </span>
+      <span style="display:flex;align-items:baseline;gap:.8rem"
+            onmouseenter="showSkillBreakdown('{{ s.id }}',this)" onmouseleave="hideSpellTooltip()">
+        <span class="skill-ranks">{{ s.ranks|int }} ranks{% if item.synergy > 0 %}&nbsp;<span style="color:var(--green);font-size:.7rem">+{{ item.synergy }}⟳</span>{% endif %}{% if item.acp_applied != 0 %}&nbsp;<span style="color:var(--red);font-size:.7rem">{{ item.acp_applied }}🛡</span>{% endif %}</span>
+        {% if item.usable %}
+        {% if item.synergy > 0 %}
+        <span class="skill-total roll-tap"
+              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.base_total) }}','{{ defn.name if defn else s.id }}')">{{ "%+d"|format(item.base_total) }}</span>
+        <span class="skill-total roll-tap" style="color:var(--green);font-size:.82rem"
+              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }} (m. synergi)')">{{ "%+d"|format(item.total) }}⟳{{ m.dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect, "detail": item.effect_detail}) }}</span>
+        {% else %}
+        <span class="skill-total roll-tap"
+              onclick="event.stopPropagation();guidedRoll('1d20{{ "%+d"|format(item.total) }}','{{ defn.name if defn else s.id }}')">{{ "%+d"|format(item.total) }}{{ m.dmark({"changed": item.effect_changed, "up": item.effect_up, "base": item.pre_effect, "detail": item.effect_detail}) }}</span>
+        {% endif %}
+        {% else %}
+        <span class="skill-na" title="Trænet kun — Tjørn har ingen ranks, så denne kan ikke bruges utrænet">—</span>
+        {% endif %}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Feats <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for detaljer)</span></div>
+    {% for fid, feat, label in feat_data %}
+    <div class="feat-item" onclick="showDetail('feat','{{ fid }}')">
+      <div class="feat-name">{{ label }}</div>
+      {% if feat and feat.benefit %}
+      <div class="feat-benefit">{{ feat.benefit|truncate(90) }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+

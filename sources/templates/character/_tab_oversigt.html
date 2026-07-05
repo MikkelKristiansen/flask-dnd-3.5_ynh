@@ -1,0 +1,503 @@
+<!-- ══════════════════════════════════════════════ -->
+<!-- Tab 1: Oversigt                               -->
+<!-- ══════════════════════════════════════════════ -->
+{% import "character/_macros.html" as m with context %}
+<div id="tab-oversigt" class="tab-panel active">
+
+  {# Guidance: +1 på ÉT angreb/save/skill — armes og forbruges på næste rul. #}
+  <div id="guidance-chip" class="guidance-chip" onclick="toggleGuidance()"></div>
+
+  {# Aktive ryttere/flag: ikke-numeriske effekter + mekaniske påmindelser. #}
+  {% if effect_flags %}
+  <div class="flags-box">
+    <span class="flags-lead">⚑ Aktive flag</span>
+    {% for f in effect_flags %}
+    <span class="flags-item {{ f.kind }}"><span class="flags-name">{{ f.name }}:</span> {{ f.note }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="section">
+    <div class="section-title">Evnescores <span style="color:var(--muted);font-size:.7rem;font-style:italic">(▲/▼ = ændret af effekt · tap for detaljer)</span></div>
+    <div class="ability-grid">
+      {% for a in abilities %}
+      <div class="ability-box{% if a.changed %} eff-changed {{ 'eff-up' if a.up else 'eff-down' }}{% endif %}"
+           {% if a.changed %}onclick="showAbilityBreakdown('{{ a.key }}')"{% endif %}>
+        <div class="ability-abbr">{{ a.abbr }}</div>
+        <div class="ability-score">{{ a.score }}{% if a.changed %}<span class="eff-delta {{ 'up' if a.up else 'down' }}">{{ '▲' if a.up else '▼' }}</span>{% endif %}</div>
+        <div class="ability-mod">{{ "%+d"|format(a.mod) }}</div>
+        {% if a.changed %}<div class="eff-base">basis {{ a.base }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="section">
+      <div class="section-title">Saves <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for at slå)</span></div>
+      <div id="buff-rem-saves-character" class="buff-reminder" style="display:none"></div>
+      {% for s in saves %}
+      <div class="stat-row roll-tap" onclick="guidedRoll('1d20{{ "%+d"|format(s.val) }}','{{ s.name }} Save')" title="Slå {{ s.name }} Save">
+        <span class="stat-label">{{ s.name }}</span>
+        <span class="stat-val">{{ "%+d"|format(s.val) }}{{ m.dmark(s) }}</span>
+      </div>
+      {% endfor %}
+      {% set save_notes = conditional_notes | selectattr("target", "in", ["save_all","save_fort","save_ref","save_will"]) | list %}
+      {% for n in save_notes %}
+      <div class="cond-note">{{ "%+d"|format(n.value) }} {{ {"save_all":"alle saves","save_will":"Will","save_fort":"Fort","save_ref":"Ref"}[n.target] }} mod {{ n.only_vs }} <span class="cond-note-src">({{ n.name }})</span></div>
+      {% endfor %}
+    </div>
+    <div class="section">
+      <div class="section-title">Kamp</div>
+      <div id="buff-rem-combat-character" class="buff-reminder" style="display:none"></div>
+      {% set co = char.combat %}
+      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val" style="cursor:help"
+            onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+            data-bd='{{ {"name": "AC", "total": ac.ac|string, "parts": ac.parts}|tojson }}'>{{ ac.ac }}{{ m.dmark(ac_delta.ac) }}</span></div>
+      <div class="stat-row"><span class="stat-label">Touch</span><span class="stat-val">{{ ac.touch }}{{ m.dmark(ac_delta.touch) }}</span></div>
+      <div class="stat-row"><span class="stat-label">FF</span><span class="stat-val">{{ ac.flat_footed }}{{ m.dmark(ac_delta.flat_footed) }}</span></div>
+      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(initiative.val) }}','Initiativ')" title="Slå initiativ"><span class="stat-label">Init</span><span class="stat-val">{{ "%+d"|format(initiative.val) }}{{ m.dmark(initiative) }}</span></div>
+      <div class="stat-row"><span class="stat-label">BAB</span><span class="stat-val">{{ "%+d"|format(bab) }}</span></div>
+      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ "%+d"|format(grapple.val) }}','Grapple')" title="Slå grapple-check"><span class="stat-label">Grapple</span><span class="stat-val">{{ "%+d"|format(grapple.val) }}{{ m.dmark(grapple) }}</span></div>
+      <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ speed.val }} ft{{ m.dmark(speed) }}</span></div>
+    </div>
+  </div>
+
+  {% macro attack_row(row, extra_class="") %}
+    {% set atk = row.attack %}
+    <div class="attack-row {{ extra_class }}">
+      <span class="attack-name-cell">
+        {% if row.manual %}
+        <span class="attack-name-edit" onclick="editAttack({{ row.idx }})" title="Rediger angreb">{{ atk.name }}</span>
+        {% else %}
+        <span>{{ atk.name }}</span>
+        {% endif %}
+        {% if row.charges_max %}
+        <span class="charge-badge" onclick="spendCharge({{ row.charge_level }},{{ row.charge_index }})"
+              title="Brug en — klik for at tælle ned (0 = Brugt)">🪨 {{ row.charges_remaining }}/{{ row.charges_max }}</span>
+        {% endif %}
+        {% if row.mode and row.mode.count > 1 %}
+        <span class="mode-toggle"
+              onclick="{% if row.mode.weapon_index is defined %}cycleWeaponThrow({{ row.mode.weapon_index }}){% else %}cycleSpellMode({{ row.charge_level }},{{ row.charge_index }}){% endif %}"
+              title="Skift tilstand — {{ row.mode.options|join(' / ') }}">⇄ skift</span>
+        {% endif %}
+        {% if row.alt_note %}<span class="attack-alt">{{ row.alt_note }}</span>{% endif %}
+        {% if row.shots and row.shots > 1 %}<span class="attack-alt" title="Antal missiler/stråler ved dit casterniveau">×{{ row.shots }}</span>{% endif %}
+        {% if atk.not_proficient %}<span class="attack-alt" style="color:var(--red)"
+              title="Ikke proficient med dette våben — −4 er allerede trukket fra. Hak 'DM tillader' på genstanden for at fjerne straffen.">⚠ −4 uvant</span>{% endif %}
+        {% if atk.note %}<span class="attack-alt" style="color:var(--accent)"
+              title="Two-weapon fighting: straffen er allerede trukket fra. Off-hånd giver kun ½ Str til skade.">{{ atk.note }}</span>{% endif %}
+      </span>
+      {% if row.auto_hit %}
+      <span class="attack-bonus" title="Rammer automatisk — intet til-hit-rul (Magic Missile)">auto</span>
+      {% else %}
+      <span class="attack-bonus roll-tap"
+            onclick="guidedRoll('1d20{{ "%+d"|format(row.to_hit) }}','{{ atk.name }} angreb')"
+            onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+            data-bd='{{ {"name": atk.name ~ " til-hit", "total": row.to_hit, "parts": row.hit_parts}|tojson }}'>{{ "%+d"|format(row.to_hit) }}{% if row.hit_changed %}<span class="eff-delta {{ 'up' if row.hit_up else 'down' }}">{{ '▲' if row.hit_up else '▼' }}</span>{% endif %}</span>
+      {% endif %}
+      <span class="attack-dmg roll-tap"
+            onclick="quickRoll('{{ row.damage }}','{{ atk.name }} skade', 1)"
+            onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+            data-bd='{{ {"name": atk.name ~ " skade", "total": row.damage, "parts": row.dmg_parts}|tojson }}'>{{ row.damage }}{% if row.dmg_changed %}<span class="eff-delta {{ 'up' if row.dmg_up else 'down' }}">{{ '▲' if row.dmg_up else '▼' }}</span>{% endif %}{% for bd in row.bonus_dice %}<span class="attack-alt roll-tap" onclick="event.stopPropagation();quickRoll('{{ bd.die }}','{{ atk.name }} {{ bd.type }} skade', 1)" title="Ekstra skade fra buff — rul separat">+{{ bd.die }}{% if bd.type %} {{ bd.type|lower }}{% endif %}</span>{% endfor %}</span>
+      <span class="attack-type">{{ atk.type }}{% if atk.range %} · {{ atk.range }}{% endif %}</span>
+    </div>
+  {% endmacro %}
+  {% set spell_rows = attack_rows | selectattr("attack.source", "equalto", "spell") | list %}
+  <div class="section">
+    <div class="section-title">Angreb <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik bonus/skade for at slå · klik navn for at rette)</span></div>
+    <div id="buff-rem-attacks-character" class="buff-reminder" style="display:none"></div>
+    {% if prof_block.weapons or prof_block.armor %}
+    <div style="border:1px solid var(--red);background:rgba(180,40,40,.12);color:var(--red);
+                padding:.55rem .75rem;border-radius:5px;margin-bottom:.6rem;font-size:.83rem;line-height:1.45">
+      ⚠ <strong>Manglende proficiency:</strong>
+      {% if prof_block.weapons %}<br>Våben: {{ prof_block.weapons|join(", ") }} — <strong>−4 til angreb</strong>.{% endif %}
+      {% if prof_block.armor %}<br>Rustning: {{ prof_block.armor|join(", ") }} — tjekstraffen
+        ({{ "%+d"|format(armor_atk_pen) }}) rammer <strong>alle angreb</strong> + Str/Dex-skills.{% endif %}
+      <br><span style="color:var(--muted)">Lovligt at bruge med straf. Er det DM-tilladt? Åbn genstanden i Inventar og hak <em>“DM tillader (house-rule)”</em>.</span>
+    </div>
+    {% endif %}
+    {% if hand_block.over %}
+    <div style="border:1px solid var(--red);background:rgba(180,40,40,.12);color:var(--red);
+                padding:.55rem .75rem;border-radius:5px;margin-bottom:.6rem;font-size:.83rem;line-height:1.45">
+      ⚠ <strong>For mange hænder i brug:</strong> {{ hand_block.used }} af 2 —
+      {% for it in hand_block.parts %}{{ it[0] }} ({{ it[1] }}){% if not loop.last %}, {% endif %}{% endfor %}.
+      <br><span style="color:var(--muted)">Du har kun to hænder. Sæt et våben til <em>rygsæk</em>, eller marker
+      det ene som <em>off-hånd</em> i Inventar for korrekt two-weapon fighting.</span>
+    </div>
+    {% endif %}
+    {% for row in attack_rows if row.attack.source != "spell" %}
+      {{ attack_row(row) }}
+    {% endfor %}
+    {% if spell_rows %}
+    <div class="spell-attacks-label">Spell-angreb <span style="font-style:italic;text-transform:none;letter-spacing:0">(aktiv — koster en slot)</span></div>
+    {% for row in spell_rows %}
+      {{ attack_row(row, "spell-attack") }}
+    {% endfor %}
+    {% endif %}
+    {# Kategori E: område/save-spells på "I brug". Ingen til-hit — vis save-DC hvor
+       angrebsbonus plejer at stå, og gør skade-formlen klikbar (rul-skade). #}
+    {% if spell_effects %}
+    {% set save_names = {"reflex":"Refleks","fortitude":"Fysik","will":"Vilje"} %}
+    {% set save_fx = {"half":"halv","negates":"negerer","partial":"delvis"} %}
+    <div class="spell-attacks-label">Spell-effekter <span style="font-style:italic;text-transform:none;letter-spacing:0">(område/save — koster en slot)</span></div>
+    {% for e in spell_effects %}
+      <div class="attack-row spell-attack">
+        <span class="attack-name-cell">
+          <span class="attack-name-edit" style="cursor:default">{{ e.label }}</span>
+          {% if e.range or e.area or e.duration %}<span class="attack-alt">{{ e.range }}{% if e.area %} · {{ e.area }}{% endif %}{% if e.duration %} · {{ e.duration }}{% endif %}</span>{% endif %}
+          {% if e.tracker %}
+          <span class="attack-alt" style="display:flex;align-items:center;gap:.3rem">
+            <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.95rem" title="−1 {{ e.unit_label }}" onclick="adjUtilDuration({{ e.level }},{{ e.index }},-1,false,'effect')">−</button>
+            <span class="summon-rounds{{ ' expired' if e.tracker.left == 0 else '' }}" id="effect-{{ e.level }}-{{ e.index }}-dur">{% if e.tracker.left == 0 %}udløbet{% else %}{{ e.tracker.left }}/{{ e.tracker.max }} {{ e.unit_label }}{% endif %}</span>
+            <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.95rem" title="+1 {{ e.unit_label }}" onclick="adjUtilDuration({{ e.level }},{{ e.index }},1,false,'effect')">+</button>
+            <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.85rem" title="Nulstil til fuld varighed" onclick="adjUtilDuration({{ e.level }},{{ e.index }},0,true,'effect')">⟲</button>
+          </span>
+          {% endif %}
+        </span>
+        <span class="attack-bonus" title="Save-DC modstanderen skal slå">
+          {% if e.save_type %}{{ save_names.get(e.save_type, e.save_type|capitalize) }} DC {{ e.dc }}{% if e.save_effect %} ({{ save_fx.get(e.save_effect, e.save_effect) }}){% endif %}{% endif %}
+        </span>
+        {% if e.damage %}
+        <span class="attack-dmg roll-tap" onclick="quickRoll('{{ e.damage }}','{{ e.label }} skade', 1)" title="Rul skade">{{ e.damage }}</span>
+        {% else %}
+        <span class="attack-dmg" style="color:var(--muted)">—</span>
+        {% endif %}
+        <span class="attack-type">{{ e.dmg_type }}</span>
+      </div>
+    {% endfor %}
+    {% endif %}
+    <button class="add-attack-btn" onclick="openWeaponSwitch()">⇄ Skift våben</button>
+    <button class="add-attack-btn" onclick="openAttackModal('add')">+ Tilføj angreb</button>
+  </div>
+
+  {# Kategori F: aktive utility-spells (Fly, Invisibility, Tongues …). Ingen tal —
+     kun navn + beregnet varighed + evt. (D)/koncentrations-mærkat. Sæt spellet
+     "I brug" under Forberedte for at få det her. #}
+  {% if spell_utilities %}
+  <div class="section">
+    <div class="section-title">Aktive effekter <span style="color:var(--muted);font-size:.7rem;font-style:italic">(utility på "I brug" — varighed)</span></div>
+    {% for u in spell_utilities %}
+    <div class="attack-row spell-attack">
+      <span class="attack-name-cell">
+        <span class="attack-name-edit" style="cursor:pointer" onclick="showDetail('spell','{{ u.spell_id }}')">{{ u.label }}</span>
+        {% if u.note %}<span class="attack-alt" style="display:block;font-style:italic">{{ u.note }}</span>{% endif %}
+        {% if u.range or u.area %}<span class="attack-alt">{{ u.range }}{% if u.area %} · {{ u.area }}{% endif %}</span>{% endif %}
+      </span>
+      <span class="attack-bonus" title="Varighed ved dit casterniveau ({{ u.duration_text }})" style="white-space:nowrap">
+        {% if u.tracker %}
+        <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.95rem" title="−1 {{ u.unit_label }}" onclick="adjUtilDuration({{ u.level }},{{ u.index }},-1)">−</button>
+        <span class="summon-rounds{{ ' expired' if u.tracker.left == 0 else '' }}" id="util-{{ u.level }}-{{ u.index }}-dur">{% if u.tracker.left == 0 %}udløbet{% else %}{{ u.tracker.left }}/{{ u.tracker.max }} {{ u.unit_label }}{% endif %}</span>
+        <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.95rem" title="+1 {{ u.unit_label }}" onclick="adjUtilDuration({{ u.level }},{{ u.index }},1)">+</button>
+        <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.85rem" title="Nulstil til fuld varighed" onclick="adjUtilDuration({{ u.level }},{{ u.index }},0,true)">⟲</button>
+        {% elif u.concentration %}⊙ Koncentration{% elif u.permanent %}∞ Permanent{% else %}{{ u.duration_text }}{% endif %}
+      </span>
+      <span class="attack-dmg" style="color:var(--muted)">{% if u.dismissible %}(kan afsluttes){% endif %}</span>
+      <span class="attack-type">{{ u.school }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# Kampindstillinger: toggles der lægger angrebs-/AC-bonusser oveni FØR man
+     slår — Point Blank Shot, Dodge (feat-gated) + Charge/Fighting Defensively
+     (generiske) er simple afkrydsninger. Power Attack/Combat Expertise (Lag B)
+     er "editable" — et talfelt (N) + evt. tilknyttede under-toggles (tohånds).
+     Panelet er tomt hvis ingen options er synlige (ingen af de relevante feats
+     ejet). #}
+  {% if combat_options_panel %}
+  <div class="section">
+    <div class="section-title">Kampindstillinger <span style="color:var(--muted);font-size:.7rem;font-style:italic">(vinges af FØR du slår)</span></div>
+    {% for opt in combat_options_panel %}
+    {% if opt.editable %}
+    <div class="stat-row" title="{{ opt.note }}">
+      <label class="stat-label" for="combat-opt-{{ opt.id }}">{{ opt.label }}</label>
+      <input type="number" id="combat-opt-{{ opt.id }}" class="form-input" style="width:3.5rem;text-align:right"
+             min="0" max="{{ opt.cap }}" value="{{ opt.value }}" title="{{ opt.prompt }}"
+             onchange="setCombatOption('{{ opt.id }}', this)">
+    </div>
+    {% for tg in opt.toggles %}
+    <div class="stat-row" title="{{ opt.note }}">
+      <label class="stat-label" style="cursor:pointer;padding-left:1rem" for="combat-opt-{{ opt.id }}-{{ tg.name }}">↳ {{ tg.label }}</label>
+      <input type="checkbox" id="combat-opt-{{ opt.id }}-{{ tg.name }}" {% if tg.on %}checked{% endif %}
+             onchange="toggleCombatOption('{{ opt.id }}.{{ tg.name }}', this)">
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="stat-row" title="{{ opt.note }}">
+      <label class="stat-label" style="cursor:pointer" for="combat-opt-{{ opt.id }}">{{ opt.label }}</label>
+      <input type="checkbox" id="combat-opt-{{ opt.id }}" {% if opt.on %}checked{% endif %}
+             onchange="toggleCombatOption('{{ opt.id }}', this)">
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Ammunition — client-renderet fra inventaret; vises kun når der er ammo -->
+  <div class="section" id="ammo-section" style="display:none">
+    <div class="section-title">Ammunition <span style="color:var(--muted);font-size:.7rem;font-style:italic">(antal skud)</span></div>
+    <div id="ammo-strip"></div>
+  </div>
+
+  {% if paladin_info %}
+  {% set pi = paladin_info %}
+  <div class="section">
+    <div class="section-title">Paladin</div>
+    <div class="stat-row">
+      <span class="stat-label">⚔ Smite Evil</span>
+      <span style="text-align:right">
+        <span id="smite-remaining">{{ pi.smite_remaining }}</span>/{{ pi.smite_per_day }} pr. dag
+        <span style="color:var(--muted);font-size:.78rem">· +{{ pi.smite_attack }} angreb, +{{ pi.smite_damage }} skade mod onde</span>
+        <button class="pal-btn" onclick="useSmite()"{% if pi.smite_remaining < 1 %} disabled{% endif %}>Brug</button>
+      </span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">✋ Lay on Hands</span>
+      <span style="text-align:right">
+        {% if pi.lay_pool > 0 %}
+          <span id="lay-remaining">{{ pi.lay_remaining }}</span>/{{ pi.lay_pool }} HP pr. dag
+          <button class="pal-btn" onclick="useLayOnHands()"{% if pi.lay_remaining < 1 %} disabled{% endif %}>Helbred dig selv</button>
+        {% else %}
+          <span style="color:var(--muted);font-size:.8rem">Kræver Cha 12+</span>
+        {% endif %}
+      </span>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if rogue_info %}
+  <div class="section">
+    <div class="section-title">Rogue</div>
+    <div class="stat-row">
+      <span class="stat-label">🗡 Sneak Attack</span>
+      <span style="text-align:right">
+        +{{ rogue_info.sneak_dice }}d6 skade
+        <span style="color:var(--muted);font-size:.78rem">· når målet er fladfodet/nægtes Dex eller flankeres (≤30 ft.)</span>
+      </span>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if monk_info %}
+  <div class="section">
+    <div class="section-title">Monk</div>
+
+    {# Flurry of Blows #}
+    <div class="stat-row">
+      <span class="stat-label">⚔ Flurry of Blows</span>
+      <span style="text-align:right">
+        {% if monk_info.unarmored %}
+          +{{ monk_info.flurry_extra_attacks }} angreb · {{ monk_info.flurry_penalty }} til alle angreb
+          <span style="color:var(--muted);font-size:.78rem">· kun uden rustning/skjold og ved let last</span>
+        {% else %}
+          <span style="color:var(--muted);font-size:.8rem">inaktiv (rustning / skjold / last)</span>
+        {% endif %}
+      </span>
+    </div>
+
+    {# Ki Strike — kun hvis aktiveret #}
+    {% if monk_info.ki_strike %}
+    <div class="stat-row">
+      <span class="stat-label">✨ Ki Strike</span>
+      <span style="text-align:right">
+        {{ monk_info.ki_strike }}
+        <span style="color:var(--muted);font-size:.78rem">· overvinder DR</span>
+      </span>
+    </div>
+    {% endif %}
+
+    {# Fast Movement — kun hvis aktiv #}
+    {% if monk_info.fast_movement %}
+    <div class="stat-row">
+      <span class="stat-label">💨 Fast Movement</span>
+      <span style="text-align:right">+{{ monk_info.fast_movement }} ft</span>
+    </div>
+    {% endif %}
+
+    {# Evasion / Improved Evasion — kun hvis aktiveret #}
+    {% if monk_info.evasion %}
+    <div class="stat-row">
+      <span class="stat-label">🤸 {{ monk_info.evasion }}</span>
+      <span style="text-align:right">
+        {% if monk_info.evasion == "Improved Evasion" %}
+          <span style="color:var(--muted);font-size:.78rem">selv ved fejlet Reflex-save kun halv skade</span>
+        {% else %}
+          <span style="color:var(--muted);font-size:.78rem">Reflex-save = ingen skade</span>
+        {% endif %}
+      </span>
+    </div>
+    {% endif %}
+
+    {# AC Bonus (level-skaleret del, Wis-delen vises i AC-sektionen) #}
+    {% if monk_info.ac_bonus %}
+    <div class="stat-row">
+      <span class="stat-label">🛡 AC-bonus (level)</span>
+      <span style="text-align:right">+{{ monk_info.ac_bonus }}</span>
+    </div>
+    {% endif %}
+
+  </div>
+  {% endif %}
+
+  {% if class_feature_rows %}
+  <div class="section">
+    <div class="section-title">Klasseevner</div>
+    {% for cf in class_feature_rows %}
+    <div class="stat-row">
+      <span class="stat-label{% if cf.slug %} ws-abil{% endif %}" style="text-transform:capitalize"
+        {% if cf.slug %}onclick="showDetail('ability','{{ cf.slug }}')" title="Tryk for forklaring"{% endif %}>{{ cf.name|replace("_"," ") }}</span>
+      <span style="color:var(--muted);font-size:.8rem;text-align:right;max-width:65%">{{ cf.val }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if wild_shape_info %}
+  {% set wi = wild_shape_info %}
+  <div class="section">
+    <div class="section-title">Wild Shape
+      <span style="color:var(--muted);font-size:.7rem;font-style:italic;text-transform:none">
+        {{ wi.duration_hours }} t/brug · formens HD ≤ {{ wi.max_hd }}</span>
+    </div>
+
+    <div style="font-size:.85rem;margin-bottom:.5rem">
+      Brug i dag: <strong>dyr <span id="ws-animal-left">{{ wi.animal_left }}</span>/<span id="ws-animal-uses">{{ wi.animal_uses }}</span></strong>{% if wi.elemental_uses %} ·
+      <strong>elemental <span id="ws-elemental-left">{{ wi.elemental_left }}</span>/<span id="ws-elemental-uses">{{ wi.elemental_uses }}</span></strong>{% endif %}
+      <span style="color:var(--muted)"> · størrelser: {{ wi.sizes|join(", ") }} · typer: {{ wi.types|join(", ") }}</span>
+    </div>
+
+    {% if wild_form %}
+    {% set wf = wild_form %}
+    <div style="border:1px solid var(--accent);background:rgba(120,160,90,.12);border-radius:6px;padding:.6rem .75rem;margin-bottom:.5rem">
+      <div style="color:var(--accent);font-weight:bold;margin-bottom:.4rem">
+        🐾 I form som {{ wf.animal_name }} <span style="font-weight:normal;color:var(--muted);font-size:.8rem">({{ wf.size|capitalize }}, {{ wf.hd }} HD)</span>
+      </div>
+      <div class="stat-row"><span class="stat-label">AC</span><span class="stat-val"><span style="cursor:help"
+            onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+            data-bd='{{ {"name": "AC", "total": wf.ac.ac|string, "parts": wf.ac.parts}|tojson }}'>{{ wf.ac.ac }}</span>
+        <span style="color:var(--muted);font-size:.75rem">(touch {{ wf.ac.touch }}, flat {{ wf.ac.flat_footed }}, nat +{{ wf.natural_armor }} · udstyr meldt væk)</span></span></div>
+      <div class="stat-row"><span class="stat-label">Init</span>
+        <span class="stat-val roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(wf.initiative) }}','Init ({{ wf.animal_name }})')">{{ "%+d"|format(wf.initiative) }}</span></div>
+      <div class="stat-row"><span class="stat-label">BAB</span><span class="stat-val">{{ "%+d"|format(wf.bab) }}</span></div>
+      <div class="stat-row roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(wf.grapple) }}','Grapple ({{ wf.animal_name }})')"><span class="stat-label">Grapple</span><span class="stat-val">{{ "%+d"|format(wf.grapple) }}</span></div>
+      <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">{{ wf.speed }}</span></div>
+      <div class="stat-row"><span class="stat-label">Saves</span><span class="stat-val">Fort {{ "%+d"|format(wf.saves.fort) }} · Ref {{ "%+d"|format(wf.saves.ref) }} · Will {{ "%+d"|format(wf.saves.will) }}</span></div>
+      <div class="stat-row"><span class="stat-label">Stats</span><span class="stat-val" style="font-size:.8rem">
+        STR {{ wf.abilities.str }} · DEX {{ wf.abilities.dex }} · CON {{ wf.abilities.con }}
+        <span style="color:var(--muted)">(INT {{ wf.abilities.int }} · WIS {{ wf.abilities.wis }} · CHA {{ wf.abilities.cha }})</span></span></div>
+      {% for a in wf.attacks %}
+      <div class="stat-row"><span class="stat-label">{{ a.name }}{% if a.count > 1 %} ×{{ a.count }}{% endif %}</span>
+        <span style="display:flex;gap:.5rem">
+          <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(a.to_hit) }}','{{ a.name }} ({{ wf.animal_name }})')"
+                onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+                data-bd='{{ {"name": a.name ~ " til-hit", "total": a.to_hit, "parts": a.hit_parts}|tojson }}'>{{ "%+d"|format(a.to_hit) }}</span>
+          <span class="roll-tap" onclick="quickRoll('{{ a.damage }}','{{ a.name }} skade', 1)"
+                onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()"
+                data-bd='{{ {"name": a.name ~ " skade", "total": a.damage, "parts": a.dmg_parts}|tojson }}'>{{ a.damage }}</span>
+        </span></div>
+      {% endfor %}
+      {% set na = wf.natural_abilities %}
+      {% if na.gained %}
+      <div style="font-size:.78rem;margin-top:.4rem"><span style="color:var(--muted)">Natural abilities:</span>
+        {% for ab in na.gained %}
+        <div class="ws-gained-row">
+          <span {% if ab.description %}class="ws-abil" onclick="showDetail('ability','{{ ab.slug }}')" title="Tryk for forklaring"{% endif %}>{{ ab.name if (ab.rider and ab.rider.rolls) else ab.label }}{% if ab.kind %} <span class="ws-kind">({{ ab.kind|upper }})</span>{% endif %}</span>{% if ab.activatable %}<button class="ws-toggle{% if ab.active %} on{% endif %}" onclick="toggleWildAbility('{{ ab.slug }}')">{{ "● Aktiv" if ab.active else "Tænd" }}</button>{% endif %}{% if ab.rider %}{% for rl in ab.rider.rolls %}<span class="ws-rider">{% if rl.to_hit is defined %}<span class="roll-tap" onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()" data-bd='{{ {"name": rl.name ~ " til-hit", "total": rl.to_hit, "parts": rl.hit_parts}|tojson }}' onclick="quickRoll('1d20{{ '%+d'|format(rl.to_hit) }}','{{ rl.name }} ({{ wf.animal_name }})')">{{ '%+d'|format(rl.to_hit) }}</span> {% endif %}<span class="roll-tap" onmouseenter="showAttackBreakdown(this)" onmouseleave="hideSpellTooltip()" data-bd='{{ {"name": rl.name ~ " skade", "total": rl.damage, "parts": rl.dmg_parts}|tojson }}' onclick="quickRoll('{{ rl.damage }}','{{ rl.name }} skade',1)">{{ rl.damage }}</span>{% if rl.count and rl.count > 1 %} ×{{ rl.count }}{% endif %}</span>{% endfor %}{% if ab.rider.trigger %}<span class="ws-rider-note">{{ ab.rider.trigger }}</span>{% endif %}{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if na.reference %}
+      <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">Fås ikke i animal-form (RAW):
+        {% for ab in na.reference %}<span {% if ab.description %}class="ws-abil" onclick="showDetail('ability','{{ ab.slug }}')" title="Tryk for forklaring"{% endif %}>{{ ab.label }}</span>{{ " · " if not loop.last }}{% endfor %}</div>
+      {% endif %}
+      {% if wf.skills %}
+      <div style="font-size:.78rem;margin-top:.4rem"><span style="color:var(--muted)">Skills i form (Str/Dex/Con):</span>
+        {% for sk in wf.skills %}<span class="ws-rider">{{ sk.name }} <span class="roll-tap" onclick="quickRoll('1d20{{ '%+d'|format(sk.total) }}','{{ sk.name }} ({{ wf.animal_name }})')">{{ "%+d"|format(sk.total) }}</span></span>{{ " · " if not loop.last }}{% endfor %}</div>
+      {% endif %}
+      <div style="font-size:.75rem;color:var(--muted);margin-top:.35rem">HP er druidens (uændret, helet ved skift) — se Kamp. Du kan ikke tale; spells kræver Natural Spell.</div>
+      <button class="add-btn" style="margin-top:.5rem" onclick="revertWildShape()">↩ Skift tilbage til egen form</button>
+    </div>
+    {% endif %}
+
+    {% if wi.forms %}
+    <div style="display:flex;gap:.4rem;align-items:center;margin-top:.3rem">
+      <select id="ws-form-pick" class="form-input" style="flex:1">
+        {% for f in wi.forms %}<option value="{{ f.id }}">{{ f.name }} ({{ f.size|capitalize }}, {{ f.hd }} HD)</option>{% endfor %}
+      </select>
+      <button class="add-btn" onclick="shapeWildShape()">{{ "Skift form" if wild_form else "🐾 Wild Shape" }}</button>
+    </div>
+    {% else %}
+    <div style="color:var(--muted);font-size:.82rem">Ingen lovlige former i kataloget for dette niveau.</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if can_summon_companion and not companion %}
+  <div class="section">
+    <div class="section-title">{{ companion_noun }}</div>
+    {% if familiar_lost %}
+    <div class="flags-box" style="margin-bottom:.6rem">
+      <span class="flags-lead">💀 Familiaren døde</span>
+      <span class="flags-item negative">Midlertidig straf: −1 på angreb og alle saves — indtil en ny familiar er tilkaldt.</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Ventetid</span>
+      <span style="display:flex;align-items:center;gap:.4rem">
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjFamiliarCooldown(-1)">−</button>
+        <span class="stat-val" id="fam-cooldown">{{ familiar_lost.cooldown }} dag(e)</span>
+        <button class="hp-btn" style="width:1.8rem;height:1.8rem;font-size:1rem" onclick="adjFamiliarCooldown(+1)">+</button>
+      </span>
+    </div>
+    {% if familiar_can_resummon %}
+    <button class="add-btn" style="margin-top:.4rem" onclick="openSummonCompanion()">🐾 Tilkald ny {{ companion_noun }}</button>
+    {% else %}
+    <button class="add-btn" style="margin-top:.4rem;opacity:.5;cursor:not-allowed" disabled
+            title="Ventetiden er ikke udløbet endnu">🐾 Tilkald (vent {{ familiar_lost.cooldown }} dag(e))</button>
+    {% endif %}
+    {% else %}
+    <div style="color:var(--muted);font-size:.85rem;margin-bottom:.5rem">Ingen ledsager lige nu.</div>
+    <button class="add-btn" onclick="openSummonCompanion()">🐾 Tilkald {{ companion_noun }}</button>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if char.racial_traits %}
+  <div class="section">
+    <div class="section-title">Raceevner</div>
+    {% for key, val in char.racial_traits.items() %}
+    {% if key == "spell_like_abilities" %}
+    <div class="stat-row" style="flex-direction:column;align-items:flex-start;gap:.1rem">
+      <span class="stat-label" style="margin-bottom:.2rem">Spell-like abilities
+        <span style="color:var(--muted);font-size:.7rem;font-style:italic">(klik for beskrivelse)</span>
+      </span>
+      {% for sla in sla_data %}
+      <span class="sla-entry"
+            onclick="showDetail('spell','{{ sla.id }}')"
+            onmouseenter="showSlaTooltip(event,'{{ sla.id }}')"
+            onmouseleave="hideSpellTooltip()">
+        {{ sla.spell.name if sla.spell else sla.id }}{% if sla.note %} <em>({{ sla.note }})</em>{% endif %} — {{ sla.freq }}{% if sla.save_dc %} <span style="color:var(--accent);font-size:.72rem" title="Save DC monstre skal slå: {{ sla.save_text }}">· DC {{ sla.save_dc }}</span>{% endif %}
+      </span>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="stat-row">
+      <span class="stat-label" style="text-transform:capitalize">{{ key|replace("_"," ") }}</span>
+      <span style="color:var(--muted);font-size:.8rem;text-align:right;max-width:65%">{{ val }}</span>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if char.languages %}
+  <div class="section">
+    <div class="section-title">Sprog</div>
+    <div class="lang-list">
+      {% for lang in char.languages %}<span class="lang-chip">{{ lang }}</span>{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+

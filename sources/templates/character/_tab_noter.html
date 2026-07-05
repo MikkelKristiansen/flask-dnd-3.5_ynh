@@ -1,0 +1,43 @@
+<!-- ── Notes tab ── -->
+<div id="tab-noter" class="tab-panel">
+  <div class="section">
+    <div class="section-title">
+      Noter
+      <button class="notes-edit-btn" id="notes-edit-btn" onclick="toggleNotesEdit()">✎ Rediger</button>
+    </div>
+    <div class="notes-view" id="notes-view"></div>
+    <div id="notes-edit-area" style="display:none">
+      <textarea class="notes-textarea" id="notes-textarea" rows="14"></textarea>
+      <div class="notes-action-row">
+        <button class="notes-save-btn" onclick="saveNotes()">Gem</button>
+        <button class="notes-cancel-btn" onclick="cancelNotesEdit()">Annuller</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="versions-section">
+    <div class="section-title">Versioner</div>
+    {% if snapshots %}
+    <p style="color:var(--muted);font-size:.8rem;margin-bottom:.6rem">
+      Tidligere gemte tilstande, nyeste øverst. Gendan ruller arket tilbage til en version —
+      den nuværende tilstand gemmes som et nyt snapshot først, så du kan fortryde.
+    </p>
+    {% for s in snapshots %}
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;
+                padding:.45rem .2rem;border-bottom:1px solid var(--border)">
+      <span style="color:var(--text);font-size:.85rem">
+        {{ s.label }}{% if s.is_current %} <span style="color:var(--green);font-size:.75rem">· nuværende</span>{% endif %}
+      </span>
+      {% if not s.is_current %}
+      <button onclick="restoreSnapshot('{{ s.file }}','{{ s.label }}')"
+              style="background:var(--card);border:1px solid var(--border);color:var(--text);
+                     font-family:Georgia,serif;font-size:.78rem;padding:.25rem .7rem;
+                     border-radius:5px;cursor:pointer;white-space:nowrap">↩ Gendan</button>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <p style="color:var(--muted);font-style:italic">Ingen tidligere versioner endnu — der oprettes et snapshot ved hvert gem.</p>
+    {% endif %}
+  </div>
+</div>

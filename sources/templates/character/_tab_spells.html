@@ -1,0 +1,336 @@
+<!-- ══════════════════════════════════════════════ -->
+<!-- Tab 3: Trylleformler                          -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-spells" class="tab-panel">
+
+  {% if druid_armor_block %}
+  <div style="border:1px solid var(--red);background:rgba(180,40,40,.12);color:var(--red);
+              padding:.6rem .8rem;border-radius:5px;margin-bottom:.8rem;font-size:.9rem">
+    ⚠ <strong>Forbudt rustning for druide:</strong> {{ druid_armor_block|join(", ") }}.
+    En druide i metalrustning/-skjold kan <strong>ikke caste druidespells</strong> eller bruge
+    su/sp-evner — mens den bæres og 24 timer efter. Skift til padded/leather/hide + træskjold.
+  </div>
+  {% endif %}
+
+  {% if cast_type == 'spontaneous' %}
+  {# ── Spontan caster (sorcerer/bard): kendt liste + slot-pulje pr. niveau ── #}
+  <div class="spell-subtabs">
+    <button class="spell-subtab active" id="spellsubtab-known" onclick="showSpellView('known', this)">✨ Kendte</button>
+    <button class="spell-subtab" id="spellsubtab-available" onclick="showSpellView('available', this)">📚 Lær nye</button>
+  </div>
+
+  <div id="spellview-known" class="spell-view active">
+    {% if slots %}
+    <div class="section">
+      <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem">
+        <span>Kendte trylleformler <span style="color:var(--muted);font-size:.7rem;font-style:italic;text-transform:none">(spontan · {{ cast_ability|upper }} · klik Kast for at bruge en slot)</span></span>
+        <button onclick="newDay()" style="background:var(--card);border:1px solid var(--border);color:var(--text);font-family:Georgia,serif;font-size:.75rem;padding:.25rem .6rem;border-radius:4px;cursor:pointer;white-space:nowrap">🌅 Ny dag</button>
+      </div>
+      {% for lvl in slots|sort %}
+      {% set total = slots.get(lvl, 0) %}
+      {% set used = char.spells_known_used.get(lvl, 0) %}
+      <div class="spell-level-header">
+        <span>Level {{ lvl }}</span>
+        <span style="display:flex;align-items:center;gap:.4rem">
+          <button onclick="castKnown({{ lvl }},-1)" title="Fortryd en slot" style="background:var(--card);border:1px solid var(--border);color:var(--text);width:1.6rem;height:1.6rem;border-radius:4px;cursor:pointer">−</button>
+          <span id="known-slots-{{ lvl }}" style="color:var(--muted);font-size:.8rem;min-width:2.6rem;text-align:center">{{ total - used }}/{{ total }}</span>
+          <button onclick="castKnown({{ lvl }},1)" title="Forbrug en slot" style="background:var(--accent);border:none;color:#000;font-family:Georgia,serif;font-size:.72rem;padding:.2rem .55rem;border-radius:4px;cursor:pointer">Kast</button>
+        </span>
+      </div>
+      {% for entry in known_data.get(lvl, []) %}
+      <div class="spell-row" data-spell-id="{{ entry.id }}" onclick="showDetail('spell','{{ entry.id }}')">
+        <span>
+          <span class="spell-name">{{ entry.spell.name if entry.spell else entry.id }}</span>
+          {% if entry.spell %}<span class="spell-school">&nbsp;·&nbsp;{{ entry.spell.school }}</span>{% endif %}
+          <span style="color:var(--accent);font-size:.72rem;margin-left:.35rem" title="Save-DC modstandere skal slå">DC {{ entry.dc }}</span>
+        </span>
+        <button onclick="event.stopPropagation();forgetKnown({{ lvl }},'{{ entry.id }}')" title="Glem dette spell" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:.9rem">✕</button>
+      </div>
+      {% endfor %}
+      {% endfor %}
+      {% if not known_data %}
+      <p style="color:var(--muted);font-style:italic;margin-top:.5rem">Ingen kendte spells endnu — gå til <strong>Lær nye</strong>.</p>
+      {% endif %}
+    </div>
+    {% else %}
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1.2rem;text-align:center">
+      <p style="color:var(--muted)">{{ char.cls }} har ingen spell slots ved level {{ char.level }}.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div id="spellview-available" class="spell-view">
+    <div class="section">
+      <div class="section-title">Lær nye {{ char.cls }}-formler
+        <span style="color:var(--muted);font-size:.7rem;font-style:italic">(qua dit level · klik navn for detaljer)</span>
+      </div>
+      {% if slots %}
+      {% for lvl in slots|sort %}
+      {% set known_ids = char.spells_known.get(lvl, []) %}
+      {% set lvl_spells = available_spells.get(lvl, [])|sort(attribute='name') %}
+      <div class="spell-level-header">
+        <span>Level {{ lvl }}&nbsp;<span style="color:var(--muted);font-size:.75rem">{{ lvl_spells|length }} formler</span></span>
+      </div>
+      {% for spell in lvl_spells %}
+      <div class="spell-row">
+        <span onclick="showDetail('spell','{{ spell.id }}')">
+          <span class="spell-name">{{ spell.name }}</span>
+          <span class="spell-school">&nbsp;·&nbsp;{{ spell.school }}</span>
+        </span>
+        {% if spell.id in known_ids %}
+        <span class="spell-prepared-badge" title="Allerede kendt">✓ kendt</span>
+        {% else %}
+        <button onclick="learnKnown({{ lvl }},'{{ spell.id }}')" style="background:var(--accent);border:none;color:#000;font-family:Georgia,serif;font-size:.72rem;padding:.2rem .55rem;border-radius:4px;cursor:pointer">+ Lær</button>
+        {% endif %}
+      </div>
+      {% endfor %}
+      {% endfor %}
+      {% else %}
+      <p style="color:var(--muted);font-style:italic">Denne karakter har ingen spell slots.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% else %}
+  {% if slots %}
+  <div class="spell-subtabs">
+    <button class="spell-subtab active" id="spellsubtab-prepared" onclick="showSpellView('prepared', this)">📖 Forberedte</button>
+    {% if cast_type == 'spellbook' %}
+    <button class="spell-subtab" id="spellsubtab-spellbook" onclick="showSpellView('spellbook', this)">📕 Spellbog</button>
+    {% else %}
+    <button class="spell-subtab" id="spellsubtab-available" onclick="showSpellView('available', this)">📚 Alle tilgængelige</button>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div id="spellview-prepared" class="spell-view active">
+
+  {% if domains_info %}
+  <div class="section" id="domains-section">
+    <div class="section-title">⛨ Domæner</div>
+    {% for d in domains_info %}
+    <div style="margin-bottom:.5rem">
+      <div style="color:var(--accent);font-weight:bold">{{ d.name }}</div>
+      <div style="color:var(--muted);font-size:.82rem">{{ d.granted_power }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if spell_data %}
+  <div class="section" id="prepared-section">
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem">
+      <span>Forberedte trylleformler</span>
+      <span style="display:flex;gap:.4rem">
+        <button onclick="newDay()"
+                style="background:var(--card);border:1px solid var(--border);color:var(--text);
+                       font-family:Georgia,serif;font-size:.75rem;padding:.25rem .6rem;
+                       border-radius:4px;cursor:pointer;white-space:nowrap">
+          🌅 Ny dag
+        </button>
+        <button onclick="openPrepModal()"
+                style="background:var(--accent);border:none;color:#fff;
+                       font-family:Georgia,serif;font-size:.75rem;padding:.25rem .6rem;
+                       border-radius:4px;cursor:pointer;white-space:nowrap">
+          📖 Forbered
+        </button>
+      </span>
+    </div>
+    <p style="color:var(--muted);font-size:.75rem;margin-bottom:.5rem;font-style:italic">
+      Klik en spell for beskrivelse · klik <strong style="color:var(--text)">Ledig/Brugt</strong> for at markere
+    </p>
+    {% for lvl in spell_data|sort %}
+    {% set total_slots = slots.get(lvl, 0) %}
+    {% set entries = spell_data[lvl] %}
+    {% set used_count = entries|selectattr("used")|list|length %}
+    <div class="spell-level-header">
+      <span>Level {{ lvl }}&nbsp;<span style="color:var(--muted);font-size:.75rem">{{ total_slots - used_count }}/{{ total_slots }}</span></span>
+      <span class="slot-pips" id="pips-{{ lvl }}">
+        {% for i in range(total_slots) %}
+        <span class="pip {% if i < used_count %}used{% else %}free{% endif %}"></span>
+        {% endfor %}
+      </span>
+    </div>
+    {% set state_label = {"free": "Ledig", "active": "I brug", "used": "Brugt"} %}
+    {% for entry in entries %}
+    <div class="spell-row {% if entry.state != 'free' %}{{ entry.state }}{% endif %}"
+         id="spell-{{ lvl }}-{{ entry.index }}"
+         data-spell-id="{{ entry.id }}"
+         data-three-state="{{ '1' if entry.three_state else '0' }}"
+         onclick="showDetail('spell','{{ entry.id }}')">
+      <span>
+        <span class="spell-name">{{ entry.spell.name if entry.spell else entry.id }}</span>
+        {% if entry.spell %}<span class="spell-school">&nbsp;·&nbsp;{{ entry.spell.school }}</span>{% endif %}
+      </span>
+      <span style="display:flex;align-items:center;gap:.4rem">
+        {% if entry.is_summon and entry.state == 'free' %}
+        <button class="summon-cast-btn" onclick="event.stopPropagation();openSummonPicker({{ lvl }},{{ entry.index }},'cast','{{ entry.spell.name if entry.spell else entry.id }}')">🐾 Kast</button>
+        {% elif can_sacrifice and entry.state == 'free' and lvl in summon_catalog %}
+        <button class="summon-cast-btn summon-sac-btn"
+                onclick="event.stopPropagation();openSummonPicker({{ lvl }},{{ entry.index }},'sacrifice')"
+                title="Ofre denne plads til Summon Nature's Ally {{ ['','I','II','III','IV','V','VI','VII','VIII','IX'][lvl] }}">🐾 Ofre→SNA {{ ['','I','II','III','IV','V','VI','VII','VIII','IX'][lvl] }}</button>
+        {% endif %}
+        {% if can_spontaneous_cure and entry.state == 'free' and lvl in cure_catalog %}
+        <button class="summon-cast-btn cure-cast-btn"
+                onclick="event.stopPropagation();openCurePicker({{ lvl }},{{ entry.index }})"
+                title="Ofre denne plads til en {{ cure_direction }}-spell af niveau {{ lvl }} eller lavere">✚ Ofre→{{ cure_direction|capitalize }}</button>
+        {% endif %}
+        {% if entry.cast %}
+        <button class="summon-cast-btn spell-cast-btn{% if entry.cast.kind == 'heal' %} heal-cast-btn{% endif %}"{% if entry.state != 'free' %} style="display:none"{% endif %}
+                onclick='event.stopPropagation();castSpell({{ lvl }},{{ entry.index }},{{ entry.cast.roll_expr|tojson }},{{ entry.cast.roll_label|tojson }})'
+                title="{{ entry.cast.title }}">{{ entry.cast.button_label }}</button>
+        {% endif %}
+        <span class="spell-status {{ entry.state }}"
+              onclick="event.stopPropagation();cycleSpell({{ lvl }},{{ entry.index }})">
+          {{ state_label[entry.state] }}
+        </span>
+      </span>
+    </div>
+    {% endfor %}
+    {% endfor %}
+  </div>
+  {% elif slots %}
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;
+              padding:1.2rem;text-align:center;margin-bottom:.8rem">
+    <p style="color:var(--muted);margin-bottom:.8rem">Ingen forberedte trylleformler endnu.</p>
+    <button onclick="openPrepModal()"
+            style="background:var(--accent);border:none;color:#000;
+                   font-family:Georgia,serif;font-size:.95rem;padding:.6rem 1.5rem;
+                   border-radius:6px;cursor:pointer">
+      📖 Forbered spells til i dag
+    </button>
+  </div>
+  {% else %}
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;
+              padding:1.2rem;text-align:center;margin-bottom:.8rem">
+    <p style="color:var(--muted)">{{ char.cls }} har ingen trylleformler ved level {{ char.level }}.</p>
+  </div>
+  {% endif %}
+
+  {% if domain_prepared %}
+  <div class="section" id="domain-prepared-section">
+    <div class="section-title">⛨ Domæne-formler <span style="color:var(--muted);font-size:.7rem;font-style:italic">(1 ekstra plads pr. niveau)</span></div>
+    {% for lvl in domain_prepared|sort %}
+    {% set dp = domain_prepared[lvl] %}
+    <div class="spell-level-header"><span>Level {{ lvl }}</span></div>
+    <div class="spell-row {% if dp.used %}used{% endif %}" id="domain-spell-{{ lvl }}"
+         data-spell-id="{{ dp.id }}" onclick="showDetail('spell','{{ dp.id }}')">
+      <span>
+        <span class="spell-name">{{ dp.spell.name if dp.spell else dp.id }}</span>
+        {% if dp.spell %}<span class="spell-school">&nbsp;·&nbsp;{{ dp.spell.school }}</span>{% endif %}
+        <span class="spell-prepared-badge" title="Domæne-formel">⛨ domæne</span>
+      </span>
+      <span class="spell-status {% if dp.used %}used{% else %}free{% endif %}"
+            onclick="event.stopPropagation();toggleDomainSpell({{ lvl }},{{ 'true' if dp.used else 'false' }})">
+        {{ "Brugt" if dp.used else "Ledig" }}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if slots %}
+  <div class="section">
+    <div class="section-title">Spell slots (inkl. WIS-bonus)</div>
+    {% for lvl, total in slots.items() %}
+    {% set used_count = spell_data.get(lvl, [])|selectattr("used")|list|length %}
+    <div class="stat-row">
+      <span class="stat-label">Level {{ lvl }}</span>
+      <span class="stat-val" id="slots-{{ lvl }}">{{ total - used_count }} / {{ total }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  </div><!-- /spellview-prepared -->
+
+  {% if cast_type == 'spellbook' %}
+  {# ── Wizard: spellbog (= spells_known). Man forbereder dagligt FRA bogen. ── #}
+  <div id="spellview-spellbook" class="spell-view">
+    <div class="section">
+      <div class="section-title">📕 Spellbog
+        <span style="color:var(--muted);font-size:.7rem;font-style:italic;text-transform:none">(skrevne formler · forbered herfra · {{ cast_ability|upper }})</span>
+      </div>
+      {% if known_data %}
+      {% for lvl in known_data|sort %}
+      <div class="spell-level-header"><span>Level {{ lvl }}</span></div>
+      {% for entry in known_data[lvl] %}
+      <div class="spell-row" data-spell-id="{{ entry.id }}" onclick="showDetail('spell','{{ entry.id }}')">
+        <span>
+          <span class="spell-name">{{ entry.spell.name if entry.spell else entry.id }}</span>
+          {% if entry.spell %}<span class="spell-school">&nbsp;·&nbsp;{{ entry.spell.school }}</span>{% endif %}
+          <span style="color:var(--accent);font-size:.72rem;margin-left:.35rem" title="Save-DC modstandere skal slå">DC {{ entry.dc }}</span>
+        </span>
+        <button onclick="event.stopPropagation();forgetKnown({{ lvl }},'{{ entry.id }}')" title="Fjern fra spellbogen" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:.9rem">✕</button>
+      </div>
+      {% endfor %}
+      {% endfor %}
+      {% else %}
+      <p style="color:var(--muted);font-style:italic;margin-top:.5rem">Spellbogen er tom — tilføj formler nedenfor, og forbered dem så under <strong>Forberedte</strong>.</p>
+      {% endif %}
+    </div>
+    <div class="section">
+      <div class="section-title">Tilføj til spellbog
+        <span style="color:var(--muted);font-size:.7rem;font-style:italic">(alle {{ char.cls }}-formler qua dit level)</span>
+      </div>
+      {% if slots %}
+      {% for lvl in slots|sort %}
+      {% set book_ids = char.spells_known.get(lvl, []) %}
+      {% set lvl_spells = available_spells.get(lvl, [])|sort(attribute='name') %}
+      <div class="spell-level-header">
+        <span>Level {{ lvl }}&nbsp;<span style="color:var(--muted);font-size:.75rem">{{ lvl_spells|length }} formler</span></span>
+      </div>
+      {% for spell in lvl_spells %}
+      <div class="spell-row">
+        <span onclick="showDetail('spell','{{ spell.id }}')">
+          <span class="spell-name">{{ spell.name }}</span>
+          <span class="spell-school">&nbsp;·&nbsp;{{ spell.school }}</span>
+        </span>
+        {% if spell.id in book_ids %}
+        <span class="spell-prepared-badge" title="Allerede i spellbogen">✓ i bog</span>
+        {% else %}
+        <button onclick="learnKnown({{ lvl }},'{{ spell.id }}')" style="background:var(--accent);border:none;color:#000;font-family:Georgia,serif;font-size:.72rem;padding:.2rem .55rem;border-radius:4px;cursor:pointer">+ Tilføj</button>
+        {% endif %}
+      </div>
+      {% endfor %}
+      {% endfor %}
+      {% else %}
+      <p style="color:var(--muted);font-style:italic">Denne karakter har ingen spell slots.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% else %}
+  <div id="spellview-available" class="spell-view">
+    <div class="section">
+      <div class="section-title">Tilgængelige {{ char.cls }}-formler
+        <span style="color:var(--muted);font-size:.7rem;font-style:italic">(qua dit level · klik for detaljer)</span>
+      </div>
+      {% if slots %}
+      {% for lvl in slots|sort %}
+      {% set prepared_ids = char.spells_prepared.get(lvl, []) %}
+      {% set lvl_spells = available_spells.get(lvl, [])|sort(attribute='name') %}
+      <div class="spell-level-header">
+        <span>Level {{ lvl }}&nbsp;<span style="color:var(--muted);font-size:.75rem">{{ lvl_spells|length }} formler</span></span>
+      </div>
+      {% for spell in lvl_spells %}
+      <div class="spell-row" onclick="showDetail('spell','{{ spell.id }}')">
+        <span>
+          <span class="spell-name">{{ spell.name }}</span>
+          <span class="spell-school">&nbsp;·&nbsp;{{ spell.school }}</span>
+          {% if spell.id in prepared_ids %}<span class="spell-prepared-badge" title="Forberedt i dag">✓ forberedt</span>{% endif %}
+        </span>
+      </div>
+      {% endfor %}
+      {% endfor %}
+      {% else %}
+      <p style="color:var(--muted);font-style:italic">Denne karakter har ingen spell slots.</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% endif %}{# /cast_type spontaneous vs. forberedt #}
+
+</div>
+

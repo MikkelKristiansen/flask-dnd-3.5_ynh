@@ -1,0 +1,40 @@
+{# Delte macroer på tværs af character.html + fane-partials.
+   Importeres eksplicit hvor de bruges — Jinja's {% include %} deler IKKE
+   macro-navnerum automatisk, kun context-variabler. #}
+
+{# Genbrugelig picker til effekter (tilstande + buffs), target = character|companion #}
+{% macro effect_picker(target) %}
+<div class="cond-picker" id="effect-picker-{{ target }}">
+  <div class="pick-label">Tilstand (negativ)</div>
+  <select id="cond-select-{{ target }}">
+    <option value="">— vælg tilstand —</option>
+    {% for cond in all_conditions %}<option value="{{ cond.id }}">{{ cond.name }} — {{ cond.summary }}</option>{% endfor %}
+  </select>
+  <button onclick="addCondition('{{ target }}')">+ Tilføj tilstand</button>
+  <div class="pick-label">Buff (positiv)</div>
+  {# Buffs grupperes pr. category i optgroups (wizard-spells i egen 'Arcane'-gruppe).
+     option-value = det ORIGINALE indeks i buff_catalog (JS slår op i concat-listen),
+     så det ydre loop bevares og category filtreres med et indre if — ikke i for-if,
+     som ville nulstille loop.index0. #}
+  {% set buff_cats = buff_catalog|map(attribute='category')|select|unique|list %}
+  <select id="buff-select-{{ target }}" onchange="onBuffPick('{{ target }}')">
+    <option value="">— vælg buff —</option>
+    {% for b in buff_catalog %}{% if not b.category %}<option value="{{ loop.index0 }}">{{ b.name }} — {{ b.note }}</option>{% endif %}{% endfor %}
+    {% for cat in buff_cats %}
+    <optgroup label="{{ 'Arcane (wizard)' if cat == 'arcane' else cat|capitalize }}">
+    {% for b in buff_catalog %}{% if b.category == cat %}<option value="{{ loop.index0 }}">{{ b.name }} — {{ b.note }}</option>{% endif %}{% endfor %}
+    </optgroup>
+    {% endfor %}
+    <optgroup label="Ability-skade (kaskaderer)">
+    {% for b in damage_catalog %}<option value="{{ buff_catalog|length + loop.index0 }}">{{ b.name }}</option>{% endfor %}
+    </optgroup>
+    <option value="custom">✏ Egen buff…</option>
+  </select>
+  <input type="text" id="buff-name-{{ target }}" placeholder="Eget navn" style="display:none">
+  <input type="text" id="buff-note-{{ target }}" placeholder="Virkning / note" style="display:none">
+  <button onclick="addBuff('{{ target }}')">+ Tilføj buff</button>
+</div>
+{% endmacro %}
+
+{# Delta-markør: lille ▲/▼ ved et tal som en aktiv effekt har ændret. #}
+{% macro dmark(d) %}{% if d.changed %}<span class="eff-delta {{ 'up' if d.up else 'down' }}" title="Basis: {{ d.base }}{% if d.detail %} — {{ d.detail }}{% else %} — ændret af aktiv effekt{% endif %}">{{ '▲' if d.up else '▼' }}</span>{% endif %}{% endmacro %}
