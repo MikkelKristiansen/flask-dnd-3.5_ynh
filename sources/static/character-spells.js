@@ -272,9 +272,12 @@ function updateSpellDisplay(level) {
       statusEl.className = "spell-status " + st;
       statusEl.onclick = (e) => { e.stopPropagation(); cycleSpell(level, idx); };
     }
-    // ⚡ Kast-knappen giver kun mening på en ledig slot (kan ikke kaste en brugt spell).
-    const castBtn = row.querySelector(".spell-cast-btn");
-    if (castBtn) castBtn.style.display = (st === "free") ? "" : "none";
+    // ⚡ Kast- OG Ofre-knapperne (Ofre→SNA / Ofre→Cure) giver kun mening på en
+    // ledig slot: man kan hverken kaste eller ofre en slot man allerede har brugt.
+    // Serveren udelader dem ved reload — her skal vi skjule dem live, ellers hænger
+    // de klikbare tilbage på en "Brugt" række (fx efter ⚡ Kast på Cure Light Wounds).
+    row.querySelectorAll(".spell-cast-btn, .summon-sac-btn, .cure-cast-btn")
+       .forEach(btn => { btn.style.display = (st === "free") ? "" : "none"; });
   });
   updatePips(level);
   const total = slotTotals[level] || 0;
