@@ -233,6 +233,7 @@ CREATE TABLE animals (
 -- den kanoniske kildedata. Ability-modifiers udledes stadig ved visning (bestiary.py),
 -- aldrig gemt. Samme skema bruges til adventure-lokale statblokke (## Statblok:
 -- i et eventyrs # Dokumenter) via dm_parser.
+DROP TABLE IF EXISTS monsters;
 CREATE TABLE monsters (
     id                TEXT PRIMARY KEY,
     name              TEXT NOT NULL,

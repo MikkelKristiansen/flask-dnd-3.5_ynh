@@ -17,9 +17,11 @@
 #   skills    = JSON-liste [{name, total}]; ~ hvis væsenet ingen skills har.
 #   feats     = JSON-liste af feat-navne.
 #
-# NB: kun dette ene eksempel (skelet) er transkriberet indtil videre — resten af
-# starter-bestiaret (kriger, tyv, goblin, ork, ulv, zombie, kobold …) tilføjes
-# som et Sonnet-dataspor mod rules/srd-v3.5-md/monsters/.
+# NB: starter-bestiaret (skelet, goblin, ork, kobold, hobgoblin, gnoll, bugbear,
+# ulv, dire-rotte, zombie) er transkriberet fra trykte SRD-tabeller i
+# rules/srd-v3.5-md/monsters/. kriger og tyv er derimod KONSTRUEREDE menneske-
+# NPC'er (Warrior 1 / Rogue 1) bygget efter SRD's NPC-klasse-regler, ikke en
+# direkte trykt tabel — se deres source_note for detaljer.
 
 - id: skelet
   name: Skelet (menneske)
@@ -53,3 +55,366 @@
   skills: ~
   feats: '["Improved Initiative"]'
   source_note: "SRD: Human Warrior Skeleton"
+
+- id: goblin
+  name: Goblin (kriger)
+  size: small
+  type: humanoid
+  cr: "1/3"
+  alignment: "Sædvanligvis neutral ond"
+  hd: "1d8+1 (5 hp)"
+  hp_max: 5
+  ac: 15
+  ac_touch: 12
+  ac_flat: 14
+  ac_note: "+1 størrelse, +1 Dex, +2 læderrustning, +1 let skjold"
+  init: 1
+  speed: "30 ft."
+  bab: 1
+  grapple: -3
+  str: 11
+  dex: 13
+  con: 12
+  int: 10
+  wis: 9
+  cha: 6
+  save_fort: 3
+  save_ref: 1
+  save_will: -1
+  attacks: '[{"name": "Morgenstjerne", "bonus": "+2", "damage": "1d6", "notes": "nærkamp"}, {"name": "Kastespyd", "bonus": "+3", "damage": "1d4", "notes": "kastet"}]'
+  full_attack: "Morgenstjerne +2 (1d6) eller kastespyd +3 (1d4)"
+  special_attacks: ~
+  special_qualities: "Mørkesyn 18 m"
+  skills: '[{"name": "Hide", "total": 5}, {"name": "Listen", "total": 2}, {"name": "Move Silently", "total": 5}, {"name": "Ride", "total": 4}, {"name": "Spot", "total": 2}]'
+  feats: '["Alertness"]'
+  source_note: "SRD: Goblin, 1st-Level Warrior"
+
+- id: ork
+  name: Ork (kriger)
+  size: medium
+  type: humanoid
+  cr: "1/2"
+  alignment: "Ofte kaotisk ond"
+  hd: "1d8+1 (5 hp)"
+  hp_max: 5
+  ac: 13
+  ac_touch: 10
+  ac_flat: 13
+  ac_note: "+3 forstærket læderrustning"
+  init: 0
+  speed: "30 ft."
+  bab: 1
+  grapple: 4
+  str: 17
+  dex: 11
+  con: 12
+  int: 8
+  wis: 7
+  cha: 6
+  save_fort: 3
+  save_ref: 0
+  save_will: -2
+  attacks: '[{"name": "Falchion", "bonus": "+4", "damage": "2d4+4", "crit": "18-20", "notes": "nærkamp"}, {"name": "Kastespyd", "bonus": "+1", "damage": "1d6+3", "notes": "kastet"}]'
+  full_attack: "Falchion +4 (2d4+4/18-20) eller kastespyd +1 (1d6+3)"
+  special_attacks: ~
+  special_qualities: "Mørkesyn 18 m, lysfølsomhed"
+  skills: '[{"name": "Listen", "total": 1}, {"name": "Spot", "total": 1}]'
+  feats: '["Alertness"]'
+  source_note: "SRD: Orc, 1st-Level Warrior"
+
+- id: kobold
+  name: Kobold (kriger)
+  size: small
+  type: humanoid
+  cr: "1/4"
+  alignment: "Sædvanligvis lovlig ond"
+  hd: "1d8 (4 hp)"
+  hp_max: 4
+  ac: 15
+  ac_touch: 12
+  ac_flat: 14
+  ac_note: "+1 størrelse, +1 Dex, +1 naturlig, +2 læderrustning"
+  init: 1
+  speed: "30 ft."
+  bab: 1
+  grapple: -4
+  str: 9
+  dex: 13
+  con: 10
+  int: 10
+  wis: 9
+  cha: 8
+  save_fort: 2
+  save_ref: 1
+  save_will: -1
+  attacks: '[{"name": "Spyd", "bonus": "+1", "damage": "1d6-1", "crit": "x3", "notes": "nærkamp"}, {"name": "Slynge", "bonus": "+3", "damage": "1d3", "notes": "kastet"}]'
+  full_attack: "Spyd +1 (1d6-1/x3) eller slynge +3 (1d3)"
+  special_attacks: ~
+  special_qualities: "Mørkesyn 18 m, lysfølsomhed"
+  skills: '[{"name": "Craft (trapmaking)", "total": 2}, {"name": "Hide", "total": 6}, {"name": "Listen", "total": 2}, {"name": "Move Silently", "total": 2}, {"name": "Profession (miner)", "total": 2}, {"name": "Search", "total": 2}, {"name": "Spot", "total": 2}]'
+  feats: '["Alertness"]'
+  source_note: "SRD: Kobold, 1st-Level Warrior"
+
+- id: hobgoblin
+  name: Hobgoblin (kriger)
+  size: medium
+  type: humanoid
+  cr: "1/2"
+  alignment: "Sædvanligvis lovlig ond"
+  hd: "1d8+2 (6 hp)"
+  hp_max: 6
+  ac: 15
+  ac_touch: 11
+  ac_flat: 14
+  ac_note: "+1 Dex, +3 forstærket læderrustning, +1 let skjold"
+  init: 1
+  speed: "30 ft."
+  bab: 1
+  grapple: 2
+  str: 13
+  dex: 13
+  con: 14
+  int: 10
+  wis: 9
+  cha: 8
+  save_fort: 4
+  save_ref: 1
+  save_will: -1
+  attacks: '[{"name": "Langsværd", "bonus": "+2", "damage": "1d8+1", "crit": "19-20", "notes": "nærkamp"}, {"name": "Kastespyd", "bonus": "+2", "damage": "1d6+1", "notes": "kastet"}]'
+  full_attack: "Langsværd +2 (1d8+1/19-20) eller kastespyd +2 (1d6+1)"
+  special_attacks: ~
+  special_qualities: "Mørkesyn 18 m"
+  skills: '[{"name": "Hide", "total": 3}, {"name": "Listen", "total": 2}, {"name": "Move Silently", "total": 3}, {"name": "Spot", "total": 2}]'
+  feats: '["Alertness"]'
+  source_note: "SRD: Hobgoblin, 1st-Level Warrior"
+
+- id: gnoll
+  name: Gnoll
+  size: medium
+  type: humanoid
+  cr: "1"
+  alignment: "Sædvanligvis kaotisk ond"
+  hd: "2d8+2 (11 hp)"
+  hp_max: 11
+  ac: 15
+  ac_touch: 10
+  ac_flat: 15
+  ac_note: "+1 naturlig, +2 læderrustning, +2 tungt stålskjold"
+  init: 0
+  speed: "30 ft."
+  bab: 1
+  grapple: 3
+  str: 15
+  dex: 10
+  con: 13
+  int: 8
+  wis: 11
+  cha: 8
+  save_fort: 4
+  save_ref: 0
+  save_will: 0
+  attacks: '[{"name": "Stridsøkse", "bonus": "+3", "damage": "1d8+2", "crit": "x3", "notes": "nærkamp"}, {"name": "Kortbue", "bonus": "+1", "damage": "1d6", "crit": "x3", "notes": "afstand"}]'
+  full_attack: "Stridsøkse +3 (1d8+2/x3) eller kortbue +1 (1d6/x3)"
+  special_attacks: ~
+  special_qualities: "Mørkesyn 18 m"
+  skills: '[{"name": "Listen", "total": 2}, {"name": "Spot", "total": 3}]'
+  feats: '["Power Attack"]'
+  source_note: "SRD: Gnoll (grundstatblok, 2 HD humanoid-race — ikke en klasseniveau-warrior)"
+
+- id: bugbear
+  name: Bugbear
+  size: medium
+  type: humanoid
+  cr: "2"
+  alignment: "Sædvanligvis kaotisk ond"
+  hd: "3d8+3 (16 hp)"
+  hp_max: 16
+  ac: 17
+  ac_touch: 11
+  ac_flat: 16
+  ac_note: "+1 Dex, +3 naturlig, +2 læderrustning, +1 let træskjold"
+  init: 1
+  speed: "30 ft."
+  bab: 2
+  grapple: 4
+  str: 15
+  dex: 12
+  con: 13
+  int: 10
+  wis: 10
+  cha: 9
+  save_fort: 2
+  save_ref: 4
+  save_will: 1
+  attacks: '[{"name": "Morgenstjerne", "bonus": "+5", "damage": "1d8+2", "notes": "nærkamp"}, {"name": "Kastespyd", "bonus": "+3", "damage": "1d6+2", "notes": "kastet"}]'
+  full_attack: "Morgenstjerne +5 (1d8+2) eller kastespyd +3 (1d6+2)"
+  special_attacks: ~
+  special_qualities: "Mørkesyn 18 m, lugtesans"
+  skills: '[{"name": "Climb", "total": 3}, {"name": "Hide", "total": 4}, {"name": "Listen", "total": 4}, {"name": "Move Silently", "total": 6}, {"name": "Spot", "total": 4}]'
+  feats: '["Alertness", "Weapon Focus (morningstar)"]'
+  source_note: "SRD: Bugbear"
+
+- id: ulv
+  name: Ulv
+  size: medium
+  type: animal
+  cr: "1"
+  alignment: ~
+  hd: "2d8+4 (13 hp)"
+  hp_max: 13
+  ac: 14
+  ac_touch: 12
+  ac_flat: 12
+  ac_note: "+2 Dex, +2 naturlig"
+  init: 2
+  speed: "50 ft."
+  bab: 1
+  grapple: 2
+  str: 13
+  dex: 15
+  con: 15
+  int: 2
+  wis: 12
+  cha: 6
+  save_fort: 5
+  save_ref: 5
+  save_will: 1
+  attacks: '[{"name": "Bid", "bonus": "+3", "damage": "1d6+1", "notes": "nærkamp"}]'
+  full_attack: "Bid +3 (1d6+1)"
+  special_attacks: "Fælde (bid-angreb kan udløse et gratis væltnings-forsøg, +1 på tjekket, uden berøringsangreb eller frihedsslag til modstanderen)"
+  special_qualities: "Lavlys-syn, lugtesans"
+  skills: '[{"name": "Hide", "total": 2}, {"name": "Listen", "total": 3}, {"name": "Move Silently", "total": 3}, {"name": "Spot", "total": 3}, {"name": "Survival", "total": 1}]'
+  feats: '["Track", "Weapon Focus (bite)"]'
+  source_note: "SRD: Wolf (alignment ikke trykt for denne art — dyr regnes generelt som neutrale)"
+
+- id: dire-rotte
+  name: Kæmperotte (dire rat)
+  size: small
+  type: animal
+  cr: "1/3"
+  alignment: "Altid neutral"
+  hd: "1d8+1 (5 hp)"
+  hp_max: 5
+  ac: 15
+  ac_touch: 14
+  ac_flat: 12
+  ac_note: "+1 størrelse, +3 Dex, +1 naturlig"
+  init: 3
+  speed: "40 ft., klatring 20 ft."
+  bab: 0
+  grapple: -4
+  str: 10
+  dex: 17
+  con: 12
+  int: 1
+  wis: 12
+  cha: 4
+  save_fort: 3
+  save_ref: 5
+  save_will: 3
+  attacks: '[{"name": "Bid", "bonus": "+4", "damage": "1d4", "notes": "nærkamp, plus sygdom"}]'
+  full_attack: "Bid +4 (1d4 plus sygdom)"
+  special_attacks: "Sygdom (filtfeber – bid, Udholdenhed DC 11, inkubationstid 1d3 dage, skade 1d3 Dex og 1d3 Con)"
+  special_qualities: "Lavlys-syn, lugtesans"
+  skills: '[{"name": "Climb", "total": 11}, {"name": "Hide", "total": 8}, {"name": "Listen", "total": 4}, {"name": "Move Silently", "total": 4}, {"name": "Spot", "total": 4}, {"name": "Swim", "total": 11}]'
+  feats: '["Alertness", "Weapon Finesse"]'
+  source_note: "SRD: Dire Rat"
+
+- id: zombie
+  name: Zombie (menneske)
+  size: medium
+  type: undead
+  cr: "1/2"
+  alignment: "Altid neutral ond"
+  hd: "2d12+3 (16 hp)"
+  hp_max: 16
+  ac: 11
+  ac_touch: 9
+  ac_flat: 11
+  ac_note: "-1 Dex, +2 naturlig"
+  init: -1
+  speed: "30 ft. (kan ikke løbe)"
+  bab: 1
+  grapple: 2
+  str: 12
+  dex: 8
+  con: ~
+  int: ~
+  wis: 10
+  cha: 1
+  save_fort: 0
+  save_ref: -1
+  save_will: 3
+  attacks: '[{"name": "Håndkantslag", "bonus": "+2", "damage": "1d6+1", "notes": "nærkamp"}, {"name": "Kølle", "bonus": "+2", "damage": "1d6+1", "notes": "nærkamp, våben"}]'
+  full_attack: "Håndkantslag +2 (1d6+1) eller kølle +2 (1d6+1)"
+  special_attacks: ~
+  special_qualities: "Kun én handling pr. runde, skadesreduktion 5/hugvåben, mørkesyn 18 m, udøde-træk"
+  skills: ~
+  feats: '["Toughness"]'
+  source_note: "SRD: Human Commoner Zombie"
+
+- id: kriger
+  name: Kriger (menneske, niveau 1)
+  size: medium
+  type: humanoid
+  cr: "1/2"
+  alignment: "Enhver"
+  hd: "1d8+1 plus Toughness (8 hp)"
+  hp_max: 8
+  ac: 15
+  ac_touch: 10
+  ac_flat: 15
+  ac_note: "+3 forstærket læderrustning, +2 tungt træskjold"
+  init: 0
+  speed: "30 ft."
+  bab: 1
+  grapple: 2
+  str: 13
+  dex: 11
+  con: 12
+  int: 10
+  wis: 9
+  cha: 8
+  save_fort: 3
+  save_ref: 0
+  save_will: -1
+  attacks: '[{"name": "Langsværd", "bonus": "+2", "damage": "1d8+1", "crit": "19-20", "notes": "nærkamp"}, {"name": "Kastespyd", "bonus": "+1", "damage": "1d6+1", "notes": "kastet"}]'
+  full_attack: "Langsværd +2 (1d8+1/19-20) eller kastespyd +1 (1d6+1)"
+  special_attacks: ~
+  special_qualities: ~
+  skills: '[{"name": "Climb", "total": 5}, {"name": "Jump", "total": 5}, {"name": "Ride", "total": 4}]'
+  feats: '["Alertness", "Toughness"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Warrior 1 bygget efter SRD's NPC-klasse-regler. Ability scores følger den nonelite-array-fordeling SRD selv bruger til alle sine 1st-Level Warrior-racer (Str 13/Dex 11/Con 12/Int 10/Wis 9/Cha 8, her uden racial justering da mennesket ikke har nogen). Udstyr (forstærket læder + tungt træskjold + langsværd + kastespyd) er et generisk soldater-loadout, ikke trykt. Warrior har 2 skill-point/niveau, mennesket lægger 4 bonus-point til ved niveau 1 (i alt 12 point) — kun tre repræsentative færdigheder er listet i stedet for at udtømme alle point. Feats: ét almindeligt niveau-1-feat + menneskets bonus-feat."
+
+- id: tyv
+  name: Tyv (menneske, niveau 1)
+  size: medium
+  type: humanoid
+  cr: "1/2"
+  alignment: "Enhver"
+  hd: "1d6 (3 hp)"
+  hp_max: 3
+  ac: 13
+  ac_touch: 11
+  ac_flat: 12
+  ac_note: "+1 Dex, +2 læderrustning"
+  init: 1
+  speed: "30 ft."
+  bab: 0
+  grapple: 0
+  str: 10
+  dex: 13
+  con: 11
+  int: 12
+  wis: 9
+  cha: 8
+  save_fort: 0
+  save_ref: 3
+  save_will: -1
+  attacks: '[{"name": "Kårde", "bonus": "+1", "damage": "1d6", "crit": "18-20", "notes": "nærkamp, Weapon Finesse (Dex i stedet for Str)"}, {"name": "Kortbue", "bonus": "+1", "damage": "1d6", "crit": "x3", "notes": "afstand"}]'
+  full_attack: "Kårde +1 (1d6/18-20) eller kortbue +1 (1d6/x3)"
+  special_attacks: "Snigangreb +1d6"
+  special_qualities: "Fælde-opdagelse"
+  skills: '[{"name": "Hide", "total": 5}, {"name": "Move Silently", "total": 5}, {"name": "Open Lock", "total": 5}, {"name": "Disable Device", "total": 5}, {"name": "Search", "total": 5}, {"name": "Tumble", "total": 5}, {"name": "Listen", "total": 3}, {"name": "Spot", "total": 3}]'
+  feats: '["Weapon Finesse", "Alertness"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Rogue 1 bygget efter SRD's rogue-klasse (godt Ref-save, snigangreb +1d6, fælde-opdagelse) med en dex/int-tung nonelite-array-fordeling (Dex 13/Int 12/Con 11/Str 10/Wis 9/Cha 8 — egen fordeling, da SRD kun viser Str-primær-fordelingen for warrior-racer). Udstyr: læderrustning + kårde (Weapon Finesse, jf. SRD equipment.md: 'You can use the Weapon Finesse feat to apply your Dexterity modifier... to attack rolls with a rapier') + kortbue. Rogue får (8+Int-mod)x4 + 4 menneske-bonus-point = 40 skill-point ved niveau 1, langt mere end kan vises i en kompakt statblok — kun 8 repræsentative færdigheder (maks 4 ranks hver, jf. niveau-1-loftet) er listet i stedet for at udtømme alle point."
