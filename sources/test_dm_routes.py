@@ -153,3 +153,47 @@ def test_handout_container_rendered_for_lightbox(client):
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
     assert 'id="doc-brev-testbrev"' in html          # skjult handout til lightbox
     assert "Kære helte, kom straks." in html         # brevets indhold
+
+
+# ── Billed-administration (upload/slet) ──────────────────────────────────────
+import io
+
+_PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 40
+
+
+def test_adventure_page_lists_and_index_links(client):
+    assert client.get("/dm/adventures/Test").status_code == 200
+    # DM-forsiden linker til billed-siden
+    assert "/dm/adventures/Test" in client.get("/dm/").get_data(as_text=True)
+
+
+def test_adventure_page_unknown_404(client):
+    assert client.get("/dm/adventures/Findes-ej").status_code == 404
+
+
+def test_upload_stores_image_and_serves_it(client):
+    r = client.post("/dm/adventures/Test/media",
+                    data={"images": (io.BytesIO(_PNG), "Heltenes hus.png")},
+                    content_type="multipart/form-data")
+    assert r.status_code == 302
+    # filnavnet saneres (mellemrum → bindestreg), bevarer .png
+    page = client.get("/dm/adventures/Test").get_data(as_text=True)
+    assert "Heltenes-hus.png" in page
+    assert client.get("/dm/media/Test/media/Heltenes-hus.png").status_code == 200
+
+
+def test_upload_rejects_non_image(client):
+    r = client.post("/dm/adventures/Test/media",
+                    data={"images": (io.BytesIO(b"ikke et billede"), "ondt.txt")},
+                    content_type="multipart/form-data", follow_redirects=True)
+    assert "ondt" in r.get_data(as_text=True)         # fejl vises
+    assert client.get("/dm/media/Test/media/ondt.txt").status_code == 404
+
+
+def test_delete_media(client):
+    client.post("/dm/adventures/Test/media",
+                data={"images": (io.BytesIO(_PNG), "kort.png")},
+                content_type="multipart/form-data")
+    assert client.get("/dm/media/Test/media/kort.png").status_code == 200
+    client.post("/dm/adventures/Test/media/kort.png/delete")
+    assert client.get("/dm/media/Test/media/kort.png").status_code == 404

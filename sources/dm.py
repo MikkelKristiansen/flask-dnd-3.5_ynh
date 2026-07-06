@@ -16,6 +16,7 @@ from flask import (Blueprint, abort, redirect, render_template, request,
 from markupsafe import Markup, escape
 
 import db
+import dm_media
 import dm_party
 import dm_session as ds
 from paths import CHARACTERS_DIR
@@ -89,6 +90,47 @@ def create():
 def delete(slug):
     ds.delete_session(slug)
     return redirect(url_for("dm.index"))
+
+
+@dm_bp.route("/adventures/<adventure>")
+def adventure(adventure):
+    """Administrér ét eventyrs kort/handout-billeder: se dem + upload + slet."""
+    if adventure not in ds.list_adventures():
+        abort(404)
+    adv_dir = ds.adventure_dir(adventure)
+    return render_template("dm/adventure.html", ref=adventure,
+                           media=dm_media.list_media(adv_dir),
+                           uploaded=request.args.get("uploaded"),
+                           error=request.args.get("error"))
+
+
+@dm_bp.route("/adventures/<adventure>/media", methods=["POST"])
+def upload_media(adventure):
+    if adventure not in ds.list_adventures():
+        abort(404)
+    adv_dir = ds.adventure_dir(adventure)
+    names, errors = [], []
+    for f in request.files.getlist("images"):
+        if not f or not f.filename:
+            continue
+        try:
+            names.append(dm_media.save_media(adv_dir, f))
+        except ValueError as e:
+            errors.append(f"{f.filename}: {e}")
+    q = {}
+    if names:
+        q["uploaded"] = ", ".join(names)
+    if errors:
+        q["error"] = " · ".join(errors)
+    return redirect(url_for("dm.adventure", adventure=adventure, **q))
+
+
+@dm_bp.route("/adventures/<adventure>/media/<filename>/delete", methods=["POST"])
+def delete_media(adventure, filename):
+    if adventure not in ds.list_adventures():
+        abort(404)
+    dm_media.delete_media(ds.adventure_dir(adventure), filename)
+    return redirect(url_for("dm.adventure", adventure=adventure))
 
 
 @dm_bp.route("/media/<adventure>/<path:filename>")

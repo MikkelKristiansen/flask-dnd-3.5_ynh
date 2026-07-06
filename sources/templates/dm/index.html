@@ -67,6 +67,17 @@ input[type=text],select{width:100%;background:var(--bg);border:1px solid var(--b
   <p class="empty">Ingen sessioner endnu — opret en herunder.</p>
   {% endfor %}
 
+  <h2>Eventyr</h2>
+  {% for a in adventures %}
+  <div class="card">
+    <a class="open" href="{{ url_for('dm.adventure', adventure=a) }}" aria-label="Billeder til {{ a }}"></a>
+    <div class="name">{{ a }}</div>
+    <div class="sub">🖼 Administrér kort &amp; handout-billeder</div>
+  </div>
+  {% else %}
+  <p class="empty">Ingen eventyr endnu.</p>
+  {% endfor %}
+
   <h2>Ny session</h2>
   {% if adventures %}
   <form class="new" method="post" action="{{ url_for('dm.create') }}">

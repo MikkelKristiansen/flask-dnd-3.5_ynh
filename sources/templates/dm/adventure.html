@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ ref }} — billeder</title>
+<style>
+:root{--bg:#403932;--surface:#4a4139;--card:#554c43;--accent:#DAC597;
+--text:#ede7d5;--muted:#a5a195;--border:#6b5f53;--red:#b5432c;--ok:#7fa86b;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;min-height:100vh;
+ padding:2rem 1rem;display:flex;flex-direction:column;align-items:center;}
+a{color:var(--accent);}
+.wrap{width:100%;max-width:720px;}
+.top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.3rem;}
+h1{color:var(--accent);font-size:1.5rem;letter-spacing:.5px;}
+h2{color:var(--accent);font-size:1rem;margin:1.6rem 0 .7rem;letter-spacing:.5px;}
+.back{font-size:.85rem;text-decoration:none;color:var(--muted);}
+.back:hover{color:var(--accent);}
+.hint{color:var(--muted);font-size:.8rem;line-height:1.5;}
+.hint code{background:var(--bg);padding:.05rem .3rem;border-radius:4px;}
+.flash{border-radius:6px;padding:.5rem .8rem;margin:.8rem 0;font-size:.85rem;}
+.flash.ok{background:#33402b;color:var(--ok);border:1px solid var(--ok);}
+.flash.err{background:#402b28;color:#e0947f;border:1px solid var(--red);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.8rem;}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+ overflow:hidden;display:flex;flex-direction:column;}
+.tile img{width:100%;height:110px;object-fit:cover;background:var(--card);display:block;}
+.tile .fn{font-size:.72rem;color:var(--text);padding:.35rem .5rem;word-break:break-all;flex:1;}
+.tile .row{display:flex;justify-content:space-between;align-items:center;
+ padding:0 .5rem .45rem;}
+.tile code{font-size:.66rem;color:var(--muted);}
+.del{background:var(--card);border:1px solid var(--border);color:var(--text);
+ font-size:.7rem;padding:.2rem .5rem;border-radius:5px;cursor:pointer;font-family:inherit;}
+.del:hover{border-color:var(--red);color:var(--red);}
+.empty{color:var(--muted);font-style:italic;}
+form.up{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+ padding:1.1rem 1.2rem;margin-top:.6rem;}
+input[type=file]{color:var(--text);font-family:inherit;font-size:.85rem;width:100%;}
+.btn{margin-top:1rem;background:var(--accent);color:#000;border:none;font-weight:bold;
+ font-family:inherit;padding:.55rem 1.2rem;border-radius:8px;cursor:pointer;letter-spacing:.5px;}
+.btn:hover{filter:brightness(1.08);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>🖼 {{ ref }} — billeder</h1>
+    <a class="back" href="{{ url_for('dm.index') }}">← Kampagner</a>
+  </div>
+  <p class="hint">Kort og handouts til eventyret. Referér et billede i
+    <code>adventure.md</code> som <code>![alt](media/{{ media[0] if media else 'filnavn.png' }})</code>
+    — filnavnet skal matche præcis.</p>
+
+  {% if uploaded %}<div class="flash ok">Uploadet: {{ uploaded }}</div>{% endif %}
+  {% if error %}<div class="flash err">{{ error }}</div>{% endif %}
+
+  <h2>Billeder i media/</h2>
+  {% if media %}
+  <div class="grid">
+    {% for fn in media %}
+    <div class="tile">
+      <img src="{{ url_for('dm.media', adventure=ref, filename='media/' + fn) }}" alt="{{ fn }}" loading="lazy">
+      <div class="fn">{{ fn }}</div>
+      <div class="row">
+        <code>media/{{ fn }}</code>
+        <form method="post" action="{{ url_for('dm.delete_media', adventure=ref, filename=fn) }}"
+              onsubmit="return confirm('Slet ' + {{ fn|tojson }} + '?');">
+          <button class="del" type="submit">🗑</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">Ingen billeder endnu — upload nedenfor.</p>
+  {% endif %}
+
+  <h2>Upload billeder</h2>
+  <form class="up" method="post" enctype="multipart/form-data"
+        action="{{ url_for('dm.upload_media', adventure=ref) }}">
+    <input type="file" name="images" accept="image/png,image/jpeg,image/webp" multiple required>
+    <p class="hint" style="margin-top:.5rem">JPG, PNG eller WEBP. Flere ad gangen er ok.</p>
+    <button class="btn" type="submit">Upload</button>
+  </form>
+</div>
+</body>
+</html>
