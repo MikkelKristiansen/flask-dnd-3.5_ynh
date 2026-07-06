@@ -1,0 +1,55 @@
+# monsters — DM-bestiar (SRD v3.5, OGL v1.0a). Kilden til sandheden.
+#
+# TRYKT HYBRID: gem den FÆRDIGE SRD-statblok direkte (HP/AC/saves/angreb som
+# trykt). Monstre har ofte klasse-niveauer (kriger/tyv) eller skabeloner (skelet)
+# der ikke beregnes rent fra rå stats — derfor transkriberes den trykte statblok.
+# Ability-modifiers udledes ved VISNING (bestiary.monster_view), aldrig gemt.
+#
+# Felt-noter:
+#   type      = væsen-type (humanoid/undead/animal/giant/magical beast/…). Fri tekst.
+#   cr        = challenge rating som trykt (streng: "1/3", "2").
+#   hd        = trykt HD-linje, fx "1d12 (6 hp)". hp_max = tallet i parentes.
+#   ac/ac_touch/ac_flat = de tre trykte AC-tal. ac_note = den trykte opdeling.
+#   str…cha   = ability scores; brug ~ (null) for "—" (fx undead uden Con/Int).
+#   attacks   = JSON-liste: [{name, bonus, damage, crit?, notes?}] — ét objekt pr.
+#               angrebsform (bonus/damage som trykte strenge, fx "+1"/"1d6+1").
+#   full_attack = fri tekst: den fulde angrebs-rutine hvis der er mere end ét angreb.
+#   skills    = JSON-liste [{name, total}]; ~ hvis væsenet ingen skills har.
+#   feats     = JSON-liste af feat-navne.
+#
+# NB: kun dette ene eksempel (skelet) er transkriberet indtil videre — resten af
+# starter-bestiaret (kriger, tyv, goblin, ork, ulv, zombie, kobold …) tilføjes
+# som et Sonnet-dataspor mod rules/srd-v3.5-md/monsters/.
+
+- id: skelet
+  name: Skelet (menneske)
+  size: medium
+  type: undead
+  cr: "1/3"
+  alignment: "Altid neutral ond"
+  hd: "1d12 (6 hp)"
+  hp_max: 6
+  ac: 15
+  ac_touch: 11
+  ac_flat: 14
+  ac_note: "+1 Dex, +2 naturlig, +2 tungt stålskjold"
+  init: 5
+  speed: "30 ft."
+  bab: 0
+  grapple: 1
+  str: 13
+  dex: 13
+  con: ~
+  int: ~
+  wis: 10
+  cha: 1
+  save_fort: 0
+  save_ref: 1
+  save_will: 2
+  attacks: '[{"name": "Krumsabel", "bonus": "+1", "damage": "1d6+1", "crit": "18-20", "notes": "nærkamp"}, {"name": "Klo", "bonus": "+1", "damage": "1d4+1", "notes": "nærkamp"}]'
+  full_attack: "Krumsabel +1 (1d6+1/18-20) eller 2 klør +1 (1d4+1)"
+  special_attacks: ~
+  special_qualities: "Skadesreduktion 5/slag, mørkesyn 18 m, immun over for kulde, udøde-træk"
+  skills: ~
+  feats: '["Improved Initiative"]'
+  source_note: "SRD: Human Warrior Skeleton"

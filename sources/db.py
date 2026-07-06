@@ -186,6 +186,30 @@ def get_all_animals() -> list[dict]:
     return [_animal_row(r) for r in rows]
 
 
+def _monster_row(row) -> dict:
+    """Konverter en monsters-række til dict og afkod JSON-felterne (attacks/
+    skills/feats). Trykt hybrid — tallene er allerede færdige, kun listerne dekodes."""
+    rec = dict(row)
+    rec["attacks"] = json.loads(rec["attacks"]) if rec.get("attacks") else []
+    rec["skills"] = json.loads(rec["skills"]) if rec.get("skills") else []
+    rec["feats"] = json.loads(rec["feats"]) if rec.get("feats") else []
+    return rec
+
+
+def get_monster(monster_id: str) -> dict | None:
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM monsters WHERE id = ?", (monster_id,)
+        ).fetchone()
+    return _monster_row(row) if row else None
+
+
+def get_all_monsters() -> list[dict]:
+    with _connect() as conn:
+        rows = conn.execute("SELECT * FROM monsters ORDER BY name").fetchall()
+    return [_monster_row(r) for r in rows]
+
+
 def _effect_row(row) -> dict:
     """Konverter en effects-række til dict og afkod JSON-felterne (modifiers/riders/affects)."""
     rec = dict(row)

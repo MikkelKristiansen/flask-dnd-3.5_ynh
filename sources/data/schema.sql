@@ -227,6 +227,47 @@ CREATE TABLE animals (
     companion_ok      INTEGER                     -- 1/NULL = kan vælges som animal companion; 0 = kun summonbar
 );
 
+-- DM-bestiar: monstre/NPC'er til DM-modulet. MODSAT animals (rå stats → beregn)
+-- gemmes her den TRYKTE SRD-statblok direkte ("hybrid"): monstre har ofte
+-- klasse-niveauer/skabeloner der ikke beregnes rent, og den trykte statblok ER
+-- den kanoniske kildedata. Ability-modifiers udledes stadig ved visning (bestiary.py),
+-- aldrig gemt. Samme skema bruges til adventure-lokale statblokke (## Statblok:
+-- i et eventyrs # Dokumenter) via dm_parser.
+CREATE TABLE monsters (
+    id                TEXT PRIMARY KEY,
+    name              TEXT NOT NULL,
+    size              TEXT NOT NULL,              -- tiny | small | medium | large | huge …
+    type              TEXT NOT NULL,              -- humanoid | undead | animal | giant | magical beast | …
+    cr                TEXT,                       -- challenge rating som trykt, fx "1/3", "2"
+    alignment         TEXT,                       -- fx "NE", "Always neutral evil"
+    hd                TEXT,                       -- trykt HD-udtryk, fx "1d12 (6 hp)"
+    hp_max            INTEGER NOT NULL,           -- trykt gennemsnits-HP
+    ac                INTEGER NOT NULL,
+    ac_touch          INTEGER NOT NULL,
+    ac_flat           INTEGER NOT NULL,
+    ac_note           TEXT,                       -- trykt AC-opdeling, fx "+1 Dex, +2 natural, +2 skjold"
+    init              INTEGER NOT NULL DEFAULT 0,
+    speed             TEXT NOT NULL,
+    bab               INTEGER NOT NULL DEFAULT 0,
+    grapple           INTEGER,                    -- NULL = ikke relevant
+    str               INTEGER,                    -- NULL = — (fx undead uden Con)
+    dex               INTEGER,
+    con               INTEGER,
+    int               INTEGER,
+    wis               INTEGER,
+    cha               INTEGER,
+    save_fort         INTEGER NOT NULL DEFAULT 0,
+    save_ref          INTEGER NOT NULL DEFAULT 0,
+    save_will         INTEGER NOT NULL DEFAULT 0,
+    attacks           TEXT NOT NULL,              -- JSON: [{name, bonus, damage, crit?, notes?}]
+    full_attack       TEXT,                       -- fri tekst: fuld-angrebs-rutine (hvis > ét angreb)
+    special_attacks   TEXT,                       -- fri tekst; NULL = ingen
+    special_qualities TEXT,                       -- fri tekst
+    skills            TEXT,                       -- JSON: [{name, total}]; NULL = ingen
+    feats             TEXT,                       -- JSON: liste af feat-navne
+    source_note       TEXT                        -- fx "SRD: Human Warrior Skeleton"
+);
+
 -- Mekaniske effekter: buffs & tilstande oversat til modifiers, så de ændrer de
 -- faktiske tal (ability scores kaskaderer; direkte bonusser lægges på pr. tal).
 -- modifiers/riders gemmes som JSON-tekst og afkodes i db._effect_row.
