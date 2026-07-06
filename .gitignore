@@ -23,6 +23,8 @@ sources/adventures/*/media/
 # Egne tanker og ideer
 overvejelser-og-briefs/
 
-# Lokal test-mappe lavet af run-local.sh (kopi af defaults/)
+# Lokal test-tilstand lavet af run-local.sh (kopi af defaults/ + DM-sessioner)
 sources/.local-characters/
+sources/.local-sessions/
+sources/sessions/
 briefs/

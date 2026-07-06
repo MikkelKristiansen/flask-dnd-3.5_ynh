@@ -1,24 +1,31 @@
 #!/usr/bin/env bash
-# Kør D&D-webappen lokalt til udvikling/test.
+# Kør D&D-webappen lokalt til udvikling/test (debug=True → auto-reload:
+# template/CSS-ændringer slår igennem ved browser-refresh, .py-ændringer
+# genstarter serveren). Ingen git/yunohost nødvendig for at se ændringer.
 #
-# Gør tre ting før den starter Flask:
+# Gør før den starter Flask:
 #   1. Tjekker at flask/ruamel.yaml er installeret.
 #   2. Seeder srd35.db fra data/*.yaml hvis den mangler (genereres, ikke i git).
-#   3. Bruger en lokal, git-ignoreret kopi af eksempel-karaktererne, så test
-#      (tilføj/rediger angreb osv.) IKKE ændrer de committede defaults/.
+#   3. Lokal, git-ignoreret kopi af eksempel-karaktererne, så test IKKE ændrer
+#      de committede defaults/.
+#   4. DM-sessioner i en lokal, git-ignoreret mappe (så de ikke roder git-status).
+#      Eventyr læses direkte fra sources/adventures/ (rediger adventure.md +
+#      refresh for at se ændringer live).
 #
 # Brug:   ./run-local.sh            → starter på http://localhost:5000
-#         ./run-local.sh --fresh    → nulstiller test-karaktererne fra defaults/
+#         ./run-local.sh --fresh    → nulstiller test-data OG srd35.db (brug efter
+#                                      ændringer i data/*.yaml eller schema.sql)
 set -euo pipefail
 
 cd "$(dirname "$0")/sources"
 
 DATA_DIR=".local-characters"
+SESS_DIR=".local-sessions"
 
-# --fresh: smid den lokale test-mappe væk, så den seedes på ny fra defaults/
+# --fresh: smid lokal test-tilstand + databasen væk, så alt seedes/genopbygges.
 if [ "${1:-}" = "--fresh" ]; then
-  rm -rf "$DATA_DIR" backups
-  echo "Nulstillede $DATA_DIR (og lokale backups)."
+  rm -rf "$DATA_DIR" "$SESS_DIR" backups srd35.db
+  echo "Nulstillede lokal test-tilstand ($DATA_DIR, $SESS_DIR, backups) + srd35.db."
 fi
 
 # 1) Afhængigheder
@@ -41,6 +48,7 @@ if [ ! -d "$DATA_DIR" ]; then
   cp defaults/*.yaml "$DATA_DIR"/
 fi
 
-# 4) Start
+# 4) Start. DND_ADVENTURES_DIR er ikke sat → defaulter til sources/adventures/
+#    (de committede eventyr). Sessioner holdes i en lokal, git-ignoreret mappe.
 echo "▶ http://localhost:5000   (Ctrl+C for at stoppe)"
-DND_CHARACTERS_DIR="$DATA_DIR" python app.py
+DND_CHARACTERS_DIR="$DATA_DIR" DND_SESSIONS_DIR="$SESS_DIR" python app.py
