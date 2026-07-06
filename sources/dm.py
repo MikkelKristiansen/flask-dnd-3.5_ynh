@@ -12,13 +12,13 @@ statblokke + billed-/entity-opslag kommer i R1 commit 4.
 import re
 
 from flask import (Blueprint, abort, redirect, render_template, request,
-                   url_for)
+                   send_from_directory, url_for)
 from markupsafe import Markup, escape
 
 import db
 import dm_party
 import dm_session as ds
-from paths import CHARACTERS_DIR
+from paths import ADVENTURES_DIR, CHARACTERS_DIR
 
 dm_bp = Blueprint("dm", __name__, url_prefix="/dm")
 
@@ -70,6 +70,14 @@ def create():
 def delete(slug):
     ds.delete_session(slug)
     return redirect(url_for("dm.index"))
+
+
+@dm_bp.route("/media/<path:filename>")
+def media(filename):
+    """Servér eventyr-billeder (kort/handouts). Kilden er `adventures/media/…`,
+    som ligger i install-mappen sammen med selve eventyrene. send_from_directory
+    afviser sti-traversal, så `filename` ikke kan slippe ud af ADVENTURES_DIR."""
+    return send_from_directory(ADVENTURES_DIR, filename)
 
 
 @dm_bp.route("/play/<slug>")

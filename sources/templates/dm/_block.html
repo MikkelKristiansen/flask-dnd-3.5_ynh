@@ -7,9 +7,22 @@
   <div class="roster"><b>⚔ {{ b.label or 'Monstre' }}:</b>
     {% for e in b.entries %}{{ e.count }}× {{ e.id }}{{ ', ' if not loop.last }}{% endfor %}</div>
 {% elif b.kind == 'embed' %}
-  <div class="embed">🗺 {{ b.entity.type }}: {{ b.entity.id }}</div>
+  {% set doc = adventure.resolve(b.entity) %}
+  {% if doc %}
+    {# Dokument-lokal reference (kort/brev/…) placeret alene på en linje →
+       vis dokumentets indhold inline her. #}
+    <figure class="embed-doc">
+      <figcaption>{{ '🗺' if b.entity.type == 'kort' else '📜' }} {{ doc.title }}</figcaption>
+      {% for b in doc.blocks %}{% include "dm/_block.html" %}{% endfor %}
+    </figure>
+  {% else %}
+    {# Ekstern reference (fx @monster/@npc) — klikbar statblok kommer i R2. #}
+    <div class="embed">🗺 {{ b.entity.type }}: {{ b.entity.id }}</div>
+  {% endif %}
 {% elif b.kind == 'image' %}
-  <div class="embed">🖼 {{ b.src }}</div>
+  <img class="scene-img" src="{{ url_for('dm.media', filename=b.src) }}" alt="{{ b.alt }}"
+       loading="lazy" onerror="this.classList.add('broken');this.alt='⚠ Billede mangler: '+this.getAttribute('src');">
+  {% if b.alt %}<div class="img-cap">{{ b.alt }}</div>{% endif %}
 {% elif b.kind == 'subheading' %}
   <div class="subhead">{{ b.text }}</div>
 {% elif b.kind == 'room' %}

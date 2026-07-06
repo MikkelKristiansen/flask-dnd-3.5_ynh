@@ -13,11 +13,20 @@ party: [tjorn]
 
 Almindelig DM-note med @npc[bram].
 
+![Oversigt](media/oversigt.png)
+
+@kort[testkort]
+
 ## Monstre
 * 2x @monster[goblin]
 
 # Anden scene
 Tekst to.
+
+# Dokumenter
+
+## Kort: Testkort
+![Testkort](media/testkort.png)
 """
 
 
@@ -98,3 +107,31 @@ def test_party_sidebar_broken_pc_is_marked(client):
     slug = _new(client, name="Broken", party=["findes-ej"])
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
     assert "findes-ej" in html and "Kunne ikke indlæses" in html
+
+
+def test_inline_image_renders_as_img(client):
+    slug = _new(client, name="Img")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert '<img class="scene-img"' in html
+    assert "/dm/media/media/oversigt.png" in html   # url_for('dm.media', filename=src)
+
+
+def test_kort_embed_resolves_to_map_inline(client):
+    slug = _new(client, name="Kort")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "Testkort" in html                        # dokument-titel som caption
+    assert "/dm/media/media/testkort.png" in html    # kortets billede renderet inline
+
+
+def test_media_route_serves_file(client, tmp_path, monkeypatch):
+    import dm
+    media = tmp_path / "adventures" / "media"
+    media.mkdir(parents=True)
+    (media / "x.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+    monkeypatch.setattr(dm, "ADVENTURES_DIR", tmp_path / "adventures")
+    assert client.get("/dm/media/media/x.png").status_code == 200
+
+
+def test_media_route_blocks_traversal(client):
+    r = client.get("/dm/media/../dm_session.py")
+    assert r.status_code in (403, 404)               # send_from_directory afviser
