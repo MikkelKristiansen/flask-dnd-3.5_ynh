@@ -26,16 +26,35 @@ _ENTITY_RE = re.compile(r"@([A-Za-zÆØÅæøå]+)\[([^\]]+)\]")
 
 
 @dm_bp.app_template_filter("entities")
-def _entities_filter(text: str) -> Markup:
-    """Vis @type[id] som en diskret markeret id-tekst (klikbar i commit 4)."""
+def _entities_filter(text: str, docs: dict | None = None) -> Markup:
+    """Vis @type[id] som en diskret markeret reference.
+
+    `docs` er {"type:id": titel} for eventyrets dokument-lokale handouts. En
+    reference der findes deri bliver et klikbart link (åbner handout i lightbox,
+    med titlen som tekst); alt andet (fx @monster/@npc) forbliver ren tekst —
+    deres statblokke kommer i R2.
+    """
+    docs = docs or {}
     out, last = [], 0
     for m in _ENTITY_RE.finditer(text or ""):
         out.append(escape(text[last:m.start()]))
-        out.append(Markup('<span class="ent ent-{}">{}</span>').format(
-            m.group(1).lower(), m.group(2)))
+        typ, ident = m.group(1).lower(), m.group(2)
+        key = f"{typ}:{ident}"
+        if key in docs:
+            out.append(Markup(
+                '<a class="ent ent-{} ent-link" data-doc="{}">{}</a>').format(
+                    typ, key, docs[key]))
+        else:
+            out.append(Markup('<span class="ent ent-{}">{}</span>').format(
+                typ, ident))
         last = m.end()
     out.append(escape((text or "")[last:]))
     return Markup("").join(out)
+
+
+def _doc_titles(adventure) -> dict:
+    """{"type:id": titel} for eventyrets dokumenter — fodrer entities-filteret."""
+    return {f"{d.type}:{d.id}": d.title for d in adventure.documents.values()}
 
 
 def _character_slugs() -> list[str]:
@@ -95,4 +114,5 @@ def play(slug):
                   adventure.scenes[0] if adventure.scenes else None)
     party = dm_party.party_view(session.party, db)
     return render_template("dm/play.html", session=session,
-                           adventure=adventure, active=active, party=party)
+                           adventure=adventure, active=active, party=party,
+                           doc_titles=_doc_titles(adventure))

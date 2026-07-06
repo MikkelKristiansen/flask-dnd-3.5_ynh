@@ -1,8 +1,8 @@
 {# Renderer én scene-blok (variabel `b`). Rekursiv for rum. #}
 {% if b.kind == 'readaloud' %}
-  <div class="read">{% if b.caption %}<span class="cap">{{ b.caption }}</span>{% endif %}{{ b.text | entities }}</div>
+  <div class="read">{% if b.caption %}<span class="cap">{{ b.caption }}</span>{% endif %}{{ b.text | entities(doc_titles) }}</div>
 {% elif b.kind == 'prose' %}
-  <p class="prose">{% if b.label %}<b>{{ b.label }}:</b> {% endif %}{{ b.text | entities }}</p>
+  <p class="prose">{% if b.label %}<b>{{ b.label }}:</b> {% endif %}{{ b.text | entities(doc_titles) }}</p>
 {% elif b.kind == 'roster' %}
   <div class="roster"><b>⚔ {{ b.label or 'Monstre' }}:</b>
     {% for e in b.entries %}{{ e.count }}× {{ e.id }}{{ ', ' if not loop.last }}{% endfor %}</div>

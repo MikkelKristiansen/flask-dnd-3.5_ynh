@@ -11,7 +11,7 @@ party: [tjorn]
 # Første scene
 > Læses højt.
 
-Almindelig DM-note med @npc[bram].
+Almindelig DM-note med @npc[bram] og handout @brev[testbrev].
 
 ![Oversigt](media/oversigt.png)
 
@@ -27,6 +27,9 @@ Tekst to.
 
 ## Kort: Testkort
 ![Testkort](media/testkort.png)
+
+## Brev: Testbrev
+> Kære helte, kom straks.
 """
 
 
@@ -135,3 +138,19 @@ def test_media_route_serves_file(client, tmp_path, monkeypatch):
 def test_media_route_blocks_traversal(client):
     r = client.get("/dm/media/../dm_session.py")
     assert r.status_code in (403, 404)               # send_from_directory afviser
+
+
+def test_inline_doc_ref_is_clickable(client):
+    slug = _new(client, name="Ref")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    # @brev[testbrev] resolver til et dokument → klikbart link med titel som tekst
+    assert 'class="ent ent-brev ent-link" data-doc="brev:testbrev">Testbrev</a>' in html
+    # @npc[bram] resolver IKKE → forbliver ren span (R2)
+    assert '<span class="ent ent-npc">bram</span>' in html
+
+
+def test_handout_container_rendered_for_lightbox(client):
+    slug = _new(client, name="LB")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert 'id="doc-brev-testbrev"' in html          # skjult handout til lightbox
+    assert "Kære helte, kom straks." in html         # brevets indhold

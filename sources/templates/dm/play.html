@@ -40,6 +40,25 @@ a{color:var(--accent);}
  background:var(--surface);}
 .room h3{color:var(--accent);font-size:1.05rem;margin-bottom:.3rem;}
 .ent{color:var(--accent);border-bottom:1px dotted var(--accent);}
+.ent-link{cursor:pointer;text-decoration:none;border-bottom:1px dashed var(--accent);}
+.ent-link::before{content:"❦ ";font-size:.8em;}
+.ent-link:hover{background:var(--accent);color:#000;border-radius:3px;}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;
+ align-items:center;justify-content:center;padding:1.5rem;z-index:50;}
+.lb[hidden]{display:none;}
+.lb-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+ max-width:900px;width:100%;max-height:90vh;display:flex;flex-direction:column;
+ box-shadow:0 10px 40px rgba(0,0,0,.5);}
+.lb-head{display:flex;justify-content:space-between;align-items:center;
+ padding:.7rem 1rem;border-bottom:1px solid var(--border);}
+.lb-title{color:var(--accent);font-weight:bold;letter-spacing:.4px;}
+.lb-close{background:none;border:none;color:var(--muted);font-size:1.2rem;
+ cursor:pointer;line-height:1;}
+.lb-close:hover{color:var(--accent);}
+.lb-body{padding:1rem;overflow:auto;}
+.lb-body .scene-img{max-height:78vh;width:auto;max-width:100%;margin:0 auto;}
+.lb-body .embed-doc{border:none;background:none;padding:0;margin:0;}
+.lb-body .embed-doc>figcaption{display:none;}
 .scene-img{display:block;max-width:100%;height:auto;border-radius:6px;
  border:1px solid var(--border);margin:.7rem 0 .2rem;}
 .scene-img.broken{max-width:100%;padding:.7rem 1rem;background:var(--card);
@@ -120,5 +139,47 @@ a{color:var(--accent);}
     {% endfor %}
   </aside>
 </div>
+
+{# Handouts renderet skjult; lightboxen kopierer den valgte ind i overlayet. #}
+<div id="handouts" hidden>
+  {% for doc in adventure.documents.values() %}
+  <div class="handout" id="doc-{{ doc.type }}-{{ doc.id }}"
+       data-title="{{ '🗺 ' if doc.type == 'kort' else '📜 ' }}{{ doc.title }}">
+    {% for b in doc.blocks %}{% include "dm/_block.html" %}{% endfor %}
+  </div>
+  {% endfor %}
+</div>
+
+<div id="lightbox" class="lb" hidden>
+  <div class="lb-box" role="dialog" aria-modal="true">
+    <div class="lb-head"><span class="lb-title"></span>
+      <button class="lb-close" type="button" aria-label="Luk">✕</button></div>
+    <div class="lb-body"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var lb = document.getElementById('lightbox');
+  var body = lb.querySelector('.lb-body');
+  var title = lb.querySelector('.lb-title');
+  function open(key) {
+    var src = document.getElementById('doc-' + key.replace(':', '-'));
+    if (!src) return;
+    title.textContent = src.dataset.title || '';
+    body.innerHTML = src.innerHTML;
+    lb.hidden = false;
+  }
+  function close() { lb.hidden = true; body.innerHTML = ''; }
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('.ent-link');
+    if (link) { e.preventDefault(); open(link.dataset.doc); return; }
+    if (e.target === lb || e.target.closest('.lb-close')) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !lb.hidden) close();
+  });
+})();
+</script>
 </body>
 </html>
