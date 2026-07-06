@@ -4,7 +4,8 @@ import os
 import dm_parser as P
 import dm_preview as V
 
-FIXTURE = os.path.join(os.path.dirname(__file__), "adventures", "Midsommer-2.md")
+FIXTURE = os.path.join(os.path.dirname(__file__),
+                       "adventures", "Midsommer", "adventure.md")
 
 
 def test_fixture_has_no_dead_refs():

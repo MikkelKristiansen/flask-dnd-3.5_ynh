@@ -15,6 +15,11 @@ sources/srd35.db
 # Snapshots af karakterfiler (skrives ved siden af characters/ ved gem) — runtime-data
 backups/
 
+# Eventyr-billeder (kort/handouts) er brugerdata: uploades til data_dir på serveren
+# (eller scp'es), ikke versioneret i git. Print-opløste kort ville ellers bloate
+# repoet permanent. Selve eventyr-teksten (adventure.md) committes som seed.
+sources/adventures/*/media/
+
 # Egne tanker og ideer
 overvejelser-og-briefs/
 

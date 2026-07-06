@@ -20,7 +20,7 @@
     <div class="embed">🗺 {{ b.entity.type }}: {{ b.entity.id }}</div>
   {% endif %}
 {% elif b.kind == 'image' %}
-  <img class="scene-img" src="{{ url_for('dm.media', filename=b.src) }}" alt="{{ b.alt }}"
+  <img class="scene-img" src="{{ url_for('dm.media', adventure=adv_ref, filename=b.src) }}" alt="{{ b.alt }}"
        loading="lazy" onerror="this.classList.add('broken');this.alt='⚠ Billede mangler: '+this.getAttribute('src');">
   {% if b.alt %}<div class="img-cap">{{ b.alt }}</div>{% endif %}
 {% elif b.kind == 'subheading' %}

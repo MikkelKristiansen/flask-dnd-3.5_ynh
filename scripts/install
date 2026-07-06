@@ -12,12 +12,20 @@ python3 -m venv "$install_dir/venv"
 
 ynh_script_progression "Initialising data directory..."
 mkdir -p "$data_dir/characters"
+mkdir -p "$data_dir/adventures"
 chown -R "$app:$app" "$data_dir"
 
 # Copy sample character on first install if the directory is empty
 if [ -z "$(ls -A "$data_dir/characters")" ]; then
     cp "$install_dir/defaults/"*.yaml "$data_dir/characters/" 2>/dev/null || true
 fi
+
+# Seed bundled adventures (tekst + kort-billeder) on first install. Herefter er
+# adventures/ ren brugerdata: nye eventyr og uploadede kort bor kun i data_dir.
+if [ -z "$(ls -A "$data_dir/adventures")" ]; then
+    cp -r "$install_dir/adventures/." "$data_dir/adventures/" 2>/dev/null || true
+fi
+chown -R "$app:$app" "$data_dir/adventures"
 
 ynh_script_progression "Seeding database..."
 DND_DB_PATH="$data_dir/srd35.db" \

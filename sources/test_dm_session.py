@@ -18,9 +18,10 @@ Mere tekst.
 @pytest.fixture
 def env(tmp_path, monkeypatch):
     adv = tmp_path / "adventures"
-    adv.mkdir()
-    (adv / "Test-Eventyr.md").write_text(MINI, encoding="utf-8")
-    (adv / "_TEMPLATE.md").write_text("# X\n", encoding="utf-8")
+    (adv / "Test-Eventyr").mkdir(parents=True)
+    (adv / "Test-Eventyr" / "adventure.md").write_text(MINI, encoding="utf-8")
+    (adv / "_TEMPLATE").mkdir()
+    (adv / "_TEMPLATE" / "adventure.md").write_text("# X\n", encoding="utf-8")
     monkeypatch.setattr(S, "ADVENTURES_DIR", adv)
     monkeypatch.setattr(S, "SESSIONS_DIR", tmp_path / "sessions")
     return tmp_path

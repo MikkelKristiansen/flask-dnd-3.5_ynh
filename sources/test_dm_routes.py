@@ -36,8 +36,8 @@ Tekst to.
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     adv = tmp_path / "adventures"
-    adv.mkdir()
-    (adv / "Test.md").write_text(MINI, encoding="utf-8")
+    (adv / "Test" / "media").mkdir(parents=True)
+    (adv / "Test" / "adventure.md").write_text(MINI, encoding="utf-8")
     monkeypatch.setattr(ds, "ADVENTURES_DIR", adv)
     monkeypatch.setattr(ds, "SESSIONS_DIR", tmp_path / "sessions")
     app.config.update(TESTING=True)
@@ -116,27 +116,26 @@ def test_inline_image_renders_as_img(client):
     slug = _new(client, name="Img")
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
     assert '<img class="scene-img"' in html
-    assert "/dm/media/media/oversigt.png" in html   # url_for('dm.media', filename=src)
+    # url_for('dm.media', adventure='Test', filename='media/oversigt.png')
+    assert "/dm/media/Test/media/oversigt.png" in html
 
 
 def test_kort_embed_resolves_to_map_inline(client):
     slug = _new(client, name="Kort")
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
-    assert "Testkort" in html                        # dokument-titel som caption
-    assert "/dm/media/media/testkort.png" in html    # kortets billede renderet inline
+    assert "Testkort" in html                             # dokument-titel som caption
+    assert "/dm/media/Test/media/testkort.png" in html    # kort renderet inline
 
 
-def test_media_route_serves_file(client, tmp_path, monkeypatch):
-    import dm
-    media = tmp_path / "adventures" / "media"
-    media.mkdir(parents=True)
-    (media / "x.png").write_bytes(b"\x89PNG\r\n\x1a\n")
-    monkeypatch.setattr(dm, "ADVENTURES_DIR", tmp_path / "adventures")
-    assert client.get("/dm/media/media/x.png").status_code == 200
+def test_media_route_serves_file(client, tmp_path):
+    # Fixturen har allerede adventures/Test/media/ under ADVENTURES_DIR.
+    (tmp_path / "adventures" / "Test" / "media" / "x.png").write_bytes(
+        b"\x89PNG\r\n\x1a\n")
+    assert client.get("/dm/media/Test/media/x.png").status_code == 200
 
 
 def test_media_route_blocks_traversal(client):
-    r = client.get("/dm/media/../dm_session.py")
+    r = client.get("/dm/media/Test/../../dm_session.py")
     assert r.status_code in (403, 404)               # send_from_directory afviser
 
 

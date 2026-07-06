@@ -38,18 +38,32 @@ class CampaignSession:
 
 
 # ── Eventyr-filer ────────────────────────────────────────────────────────────
+# Hvert eventyr er en mappe: adventures/<ref>/adventure.md (+ media/-billeder).
+ADVENTURE_FILE = "adventure.md"
+
+
+def _safe_ref(ref: str) -> str:
+    """Case-bevarende sanitering (mappenavne kan have store bogstaver, fx
+    Midsommer) + værn mod sti-traversal — ét mappe-segment, ingen skråstreger."""
+    return re.sub(r"[^A-Za-z0-9_-]+", "", str(ref))
+
+
+def adventure_dir(ref: str) -> Path:
+    return ADVENTURES_DIR / _safe_ref(ref)
+
+
 def _adventure_path(ref: str) -> Path:
-    # Case-bevarende sanitering (filnavne kan have store bogstaver, fx Midsommer-2)
-    # + værn mod sti-traversal.
-    return ADVENTURES_DIR / f"{re.sub(r'[^A-Za-z0-9_-]+', '', str(ref))}.md"
+    return adventure_dir(ref) / ADVENTURE_FILE
 
 
 def list_adventures() -> list[str]:
-    """Filnavn-stems for tilgængelige eventyr (skjuler _TEMPLATE o.l.)."""
+    """Mappenavne for tilgængelige eventyr (skjuler _TEMPLATE o.l.). Et eventyr
+    tæller kun med hvis mappen har en adventure.md."""
     if not ADVENTURES_DIR.exists():
         return []
-    return sorted(p.stem for p in ADVENTURES_DIR.glob("*.md")
-                  if not p.name.startswith("_"))
+    return sorted(p.name for p in ADVENTURES_DIR.iterdir()
+                  if p.is_dir() and not p.name.startswith("_")
+                  and (p / ADVENTURE_FILE).exists())
 
 
 def load_adventure(ref: str) -> P.Adventure:

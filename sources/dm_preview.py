@@ -12,7 +12,8 @@ import sys
 
 import dm_parser as P
 
-DEFAULT = os.path.join(os.path.dirname(__file__), "adventures", "Midsommer-2.md")
+DEFAULT = os.path.join(os.path.dirname(__file__),
+                       "adventures", "Midsommer", "adventure.md")
 
 
 # ── Reference-opsamling ──────────────────────────────────────────────────────

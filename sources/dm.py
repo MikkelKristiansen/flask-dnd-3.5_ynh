@@ -18,7 +18,7 @@ from markupsafe import Markup, escape
 import db
 import dm_party
 import dm_session as ds
-from paths import ADVENTURES_DIR, CHARACTERS_DIR
+from paths import CHARACTERS_DIR
 
 dm_bp = Blueprint("dm", __name__, url_prefix="/dm")
 
@@ -91,12 +91,12 @@ def delete(slug):
     return redirect(url_for("dm.index"))
 
 
-@dm_bp.route("/media/<path:filename>")
-def media(filename):
-    """Servér eventyr-billeder (kort/handouts). Kilden er `adventures/media/…`,
-    som ligger i install-mappen sammen med selve eventyrene. send_from_directory
-    afviser sti-traversal, så `filename` ikke kan slippe ud af ADVENTURES_DIR."""
-    return send_from_directory(ADVENTURES_DIR, filename)
+@dm_bp.route("/media/<adventure>/<path:filename>")
+def media(adventure, filename):
+    """Servér et eventyrs billeder fra `adventures/<eventyr>/media/…`.
+    `adventure` saniteres til ét mappe-segment; send_from_directory afviser
+    desuden sti-traversal i `filename`."""
+    return send_from_directory(ds.adventure_dir(adventure), filename)
 
 
 @dm_bp.route("/play/<slug>")
@@ -115,4 +115,5 @@ def play(slug):
     party = dm_party.party_view(session.party, db)
     return render_template("dm/play.html", session=session,
                            adventure=adventure, active=active, party=party,
+                           adv_ref=session.adventure,
                            doc_titles=_doc_titles(adventure))

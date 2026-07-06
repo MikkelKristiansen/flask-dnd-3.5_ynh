@@ -1,10 +1,11 @@
-"""Tests for dm_parser — mod den rigtige fixtur adventures/Midsommer-2.md
+"""Tests for dm_parser — mod den rigtige fixtur adventures/Midsommer/adventure.md
 plus små hermetiske enheds-tests."""
 import os
 
 import dm_parser as P
 
-FIXTURE = os.path.join(os.path.dirname(__file__), "adventures", "Midsommer-2.md")
+FIXTURE = os.path.join(os.path.dirname(__file__),
+                       "adventures", "Midsommer", "adventure.md")
 
 
 def _adv():
