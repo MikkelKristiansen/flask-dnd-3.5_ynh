@@ -25,6 +25,9 @@ a{color:var(--accent);}
 .nav a.active{background:var(--accent);color:#000;font-weight:bold;}
 .main{flex:1;min-width:0;}
 .scene-title{color:var(--accent);font-size:1.5rem;margin-bottom:.8rem;}
+.board-link{font-size:.8rem;color:var(--muted);text-decoration:none;margin-left:.6rem;
+ border:1px solid var(--border);border-radius:5px;padding:.15rem .5rem;white-space:nowrap;}
+.board-link:hover{color:var(--accent);border-color:var(--accent);}
 .read{background:var(--read);border-left:4px solid var(--accent);border-radius:4px;
  padding:.8rem 1rem;margin:.8rem 0;font-style:italic;white-space:pre-line;line-height:1.5;}
 .read .cap{display:block;font-style:normal;color:var(--accent);font-size:.78rem;
@@ -197,7 +200,9 @@ a{color:var(--accent);}
 
   <div class="main">
     {% if active %}
-    <div class="scene-title">{{ active.title }}</div>
+    <div class="scene-title">{{ active.title }}
+      {% if map_slug %}<a class="board-link" href="{{ url_for('dm.board', adventure=session.adventure, map_slug=map_slug) }}">🗺 Åbn bræt</a>{% endif %}
+    </div>
     {% for b in active.blocks %}{% include "dm/_block.html" %}{% endfor %}
     {% else %}
     <p class="note">Ingen scener i dette eventyr.</p>

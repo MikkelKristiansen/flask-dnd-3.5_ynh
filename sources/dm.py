@@ -17,9 +17,11 @@ from markupsafe import Markup, escape
 
 import bestiary
 import db
+import dm_board
 import dm_media
 import dm_party
 import dm_session as ds
+import dm_setups
 from paths import CHARACTERS_DIR
 
 # Entity-typer der slås op som statblok (klikbare → inspector). Dokument-lokale
@@ -305,6 +307,30 @@ def api_statblock(adventure, etype, ident):
     return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
 
 
+def _map_src(adv, map_slug):
+    """Billed-src for et kort (fra dets '## Kort:'-def i eventyret)."""
+    doc = adv.documents.get(("kort", map_slug))
+    if not doc:
+        return None, map_slug
+    img = next((b for b in doc.blocks if getattr(b, "kind", None) == "image"), None)
+    return (img.src if img else None), doc.title
+
+
+@dm_bp.route("/board/<adventure>/<map_slug>")
+def board(adventure, map_slug):
+    """Vis et korts startopstilling (grid + tokens). Vis-tilstand — kalibrering
+    og træk-placér kommer i næste trin."""
+    if adventure not in ds.list_adventures():
+        abort(404)
+    adv = ds.load_adventure(adventure)
+    src, title = _map_src(adv, map_slug)
+    setup = dm_setups.load_setup(adventure, map_slug)
+    return render_template(
+        "dm/board.html", title=title,
+        map_url=url_for("dm.media", adventure=adventure, filename=src) if src else None,
+        board=dm_board.board_view(setup, adv, db, audience="dm"))
+
+
 @dm_bp.route("/media/<adventure>/<path:filename>")
 def media(adventure, filename):
     """Servér et eventyrs billeder fra `adventures/<eventyr>/media/…`.
@@ -327,8 +353,15 @@ def play(slug):
     active = next((sc for sc in adventure.scenes if sc.id == session.active_scene),
                   adventure.scenes[0] if adventure.scenes else None)
     party = dm_party.party_view(session.party, db)
+    # Kort-slug for aktiv scene (første @kort-embed) → link til brættet.
+    map_slug = None
+    if active:
+        for b in active.blocks:
+            if getattr(b, "kind", None) == "embed" and b.entity.type == "kort":
+                map_slug = b.entity.id
+                break
     return render_template("dm/play.html", session=session,
                            adventure=adventure, active=active, party=party,
-                           adv_ref=session.adventure,
+                           adv_ref=session.adventure, map_slug=map_slug,
                            doc_titles=_doc_titles(adventure),
                            tracker_html=_tracker_html(session))

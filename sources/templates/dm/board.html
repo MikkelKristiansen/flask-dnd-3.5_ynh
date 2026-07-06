@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }} — bræt</title>
+<style>
+:root{--bg:#403932;--surface:#4a4139;--card:#554c43;--accent:#DAC597;
+--text:#ede7d5;--muted:#a5a195;--border:#6b5f53;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;min-height:100vh;padding:1rem;}
+a{color:var(--accent);}
+.top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.8rem;}
+h1{color:var(--accent);font-size:1.3rem;}
+.back{font-size:.85rem;color:var(--muted);text-decoration:none;}
+.back:hover{color:var(--accent);}
+.hint{color:var(--muted);font-size:.8rem;font-style:italic;margin-bottom:.6rem;}
+/* Bræt */
+.board{position:relative;display:inline-block;max-width:100%;border:1px solid var(--border);border-radius:6px;overflow:hidden;line-height:0;}
+.board-map{display:block;max-width:100%;height:auto;}
+.board-nomap{padding:2rem;color:var(--muted);font-style:italic;line-height:1.5;}
+.board-grid{position:absolute;inset:0;pointer-events:none;display:none;
+ background-image:linear-gradient(to right, rgba(0,0,0,.30) 1px, transparent 1px),
+                  linear-gradient(to bottom, rgba(0,0,0,.30) 1px, transparent 1px);}
+.tok{position:absolute;transform:translate(-50%,-50%);width:5%;aspect-ratio:1;
+ display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;}
+.tok-pc{border-radius:50%;background:var(--card);border:2px solid var(--accent);overflow:hidden;}
+.tok-lbl{color:var(--text);font-weight:bold;font-size:.8vw;}
+.tok-por{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.tok-disc{width:100%;height:100%;border-radius:50%;border:2px solid rgba(0,0,0,.4);
+ display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:.8vw;}
+.tok-mark{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+ font-size:1.4vw;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));}
+.tok-hidden{outline:2px dashed var(--accent);outline-offset:1px;opacity:.85;}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>🗺 {{ title }} — bræt</h1>
+  <a class="back" href="{{ url_for('dm.index') }}">← Kampagner</a>
+</div>
+<p class="hint">Startopstilling (vis-tilstand). Grid-kalibrering + træk-og-placér
+  kommer i næste trin. Stiplet kant = skjult for spillere (DM-kun).</p>
+
+{% include "dm/_board.html" %}
+</body>
+</html>

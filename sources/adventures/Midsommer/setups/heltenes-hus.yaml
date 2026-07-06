@@ -1,0 +1,12 @@
+# Startopstilling for kortet "Heltenes hus". Grid er et FORELØBIGT gæt —
+# finjusteres med kalibrerings-UI'et (næste trin), så gridet flugter det
+# printede. Tokens demonstrerer alle typer (pc/monster/npc + markør).
+grid: {cell: 120, x: 0, y: 0}
+tokens:
+  - {kind: pc, ref: tjorn, col: 2, row: 8}
+  - {kind: pc, ref: faelyn, col: 3, row: 8}
+  - {kind: monster, ref: kriger, label: A, col: 6, row: 3}
+  - {kind: monster, ref: kriger, label: B, col: 7, row: 3}
+  - {kind: monster, ref: tyv, col: 8, row: 4}
+  - {kind: trap, ref: spydfaelde, col: 5, row: 1, note: "Spydfælde på døren"}
+  - {kind: npc, ref: mordekain, col: 9, row: 2, hidden: true}

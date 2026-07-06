@@ -1,0 +1,51 @@
+{# Genbrugelig bræt-komponent: kort-billede + grid-overlay + tokens.
+   Forventer: map_url, board={grid:{cell,x,y}, tokens:[…]}.
+   Positioner beregnes i browseren som % af billedets naturlige mål (skalerer
+   automatisk). Samme partial kan senere genbruges til et player-view (kald
+   board_view med audience='player', så filtreres hidden-tokens fra). #}
+<div class="board" data-cell="{{ board.grid.cell or 0 }}"
+     data-gx="{{ board.grid.x or 0 }}" data-gy="{{ board.grid.y or 0 }}">
+  {% if map_url %}<img class="board-map" src="{{ map_url }}" alt="">{% else %}
+  <div class="board-nomap">Intet kort-billede — upload det under Eventyr → billeder.</div>{% endif %}
+  <div class="board-grid"></div>
+  {% for t in board.tokens %}
+  <div class="tok tok-{{ t.kind }}{{ ' tok-hidden' if t.hidden }}"
+       data-col="{{ t.col }}" data-row="{{ t.row }}" title="{{ t.name }}">
+    {% if t.kind == 'pc' %}
+      <span class="tok-lbl">{{ t.label }}</span>
+      <img class="tok-por" src="{{ url_for('portrait', slug=t.portrait) }}" alt="" onerror="this.remove()">
+    {% elif t.kind in ('monster', 'npc') %}
+      <span class="tok-disc" style="background:{{ t.color }}">{{ t.label }}</span>
+    {% else %}
+      <span class="tok-mark">{{ t.icon }}</span>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+(function () {
+  document.querySelectorAll('.board').forEach(function (board) {
+    var img = board.querySelector('.board-map');
+    if (!img) return;
+    function layout() {
+      var Wn = img.naturalWidth, Hn = img.naturalHeight;
+      if (!Wn || !Hn) return;
+      var cell = +board.dataset.cell || 0, gx = +board.dataset.gx || 0, gy = +board.dataset.gy || 0;
+      var grid = board.querySelector('.board-grid');
+      if (cell > 0) {
+        grid.style.backgroundSize = (cell / Wn * 100) + '% ' + (cell / Hn * 100) + '%';
+        grid.style.backgroundPosition = (gx / Wn * 100) + '% ' + (gy / Hn * 100) + '%';
+        grid.style.display = 'block';
+      } else { grid.style.display = 'none'; }
+      board.querySelectorAll('.tok').forEach(function (tok) {
+        var col = +tok.dataset.col || 0, row = +tok.dataset.row || 0;
+        tok.style.left = ((gx + (col + 0.5) * cell) / Wn * 100) + '%';
+        tok.style.top = ((gy + (row + 0.5) * cell) / Hn * 100) + '%';
+        if (cell > 0) tok.style.width = (cell / Wn * 100) + '%';
+      });
+    }
+    if (img.complete) layout(); else img.addEventListener('load', layout);
+  });
+})();
+</script>

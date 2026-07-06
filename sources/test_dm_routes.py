@@ -304,6 +304,29 @@ def test_encounter_hp_damage_and_next_turn(enc_client):
     assert ds.load_session(slug).encounter["turn_index"] == 1
 
 
+def test_board_view_renders_tokens(client):
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 100},
+        "tokens": [{"kind": "monster", "ref": "goblin", "label": "A", "col": 2, "row": 2},
+                   {"kind": "trap", "ref": "faelde", "col": 1, "row": 1, "note": "DC15"}]})
+    html = client.get("/dm/board/Test/testkort").get_data(as_text=True)
+    assert 'class="board"' in html and 'data-cell="100"' in html
+    assert 'data-col="2"' in html                      # token placeret
+    assert "🪤" in html                                 # trap-markør
+    # kortets billede fra ## Kort: Testkort
+    assert "/dm/media/Test/media/testkort.png" in html
+
+
+def test_board_unknown_adventure_404(client):
+    assert client.get("/dm/board/Nope/testkort").status_code == 404
+
+
+def test_play_has_board_link(client):
+    slug = _new(client, name="BL")                     # scene 1 har @kort[testkort]
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "/dm/board/Test/testkort" in html and "Åbn bræt" in html
+
+
 def test_play_gets_combat_class_when_encounter_active(enc_client):
     slug, _ = _start(enc_client)
     html = enc_client.get(f"/dm/play/{slug}").get_data(as_text=True)
