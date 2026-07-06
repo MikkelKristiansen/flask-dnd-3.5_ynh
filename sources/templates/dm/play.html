@@ -169,6 +169,12 @@ a{color:var(--accent);}
 .sbk-mut{color:var(--muted);}
 .sbk-sp{color:var(--muted);font-size:.72rem;margin-top:.15rem;}
 .sbk-sp b{color:var(--muted);}
+.sbk-list{display:block;}
+/* Kamp-tilstand: historien er ligegyldig når der rulles terninger → giv
+   konsollen pladsen. Scene-nav skjules, konsollen bliver bred, statblokke 2-op. */
+.layout.combat .nav{display:none;}
+.layout.combat .side{flex:0 0 48%;}
+.layout.combat .sbk-list{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;align-items:start;}
 @media(max-width:800px){.layout{flex-direction:column;}.nav,.side{position:static;width:100%;flex-basis:auto;}}
 </style>
 </head>
@@ -181,7 +187,7 @@ a{color:var(--accent);}
   <a class="back" href="{{ url_for('dm.index') }}">← Kampagner</a>
 </div>
 
-<div class="layout">
+<div class="layout{{ ' combat' if session.encounter.active }}">
   <nav class="nav">
     {% for sc in adventure.scenes %}
     <a href="{{ url_for('dm.play', slug=session.slug, scene=sc.id) }}"
@@ -301,7 +307,12 @@ a{color:var(--accent);}
     }
     fetch(f.action, { method: 'POST', body: fd })
       .then(function (r) { return r.text(); })
-      .then(function (html) { tracker.innerHTML = html; })
+      .then(function (html) {
+        tracker.innerHTML = html;
+        // Kamp-tilstand: udvid konsollen når en kamp er aktiv (.enc-top findes kun da).
+        document.querySelector('.layout').classList.toggle(
+          'combat', !!tracker.querySelector('.enc-top'));
+      })
       .catch(function () {});
   });
 })();

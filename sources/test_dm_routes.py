@@ -304,6 +304,15 @@ def test_encounter_hp_damage_and_next_turn(enc_client):
     assert ds.load_session(slug).encounter["turn_index"] == 1
 
 
+def test_play_gets_combat_class_when_encounter_active(enc_client):
+    slug, _ = _start(enc_client)
+    html = enc_client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert 'class="layout combat"' in html         # kamp-tilstand → bred konsol
+    enc_client.post(f"/dm/api/encounter/{slug}/end")
+    html = enc_client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert 'class="layout"' in html                 # ingen kamp → normal
+
+
 def test_encounter_condition_toggle_and_end(enc_client):
     slug, _ = _start(enc_client)
     enc_client.post(f"/dm/api/encounter/{slug}/condition",

@@ -63,6 +63,7 @@
 
   {% if statblocks %}
   <div class="sbk-head">Statblokke</div>
+  <div class="sbk-list">
   {% for m in statblocks %}
   <div class="sbk">
     <div class="sbk-top"><span class="sbk-name">{{ m.name }}</span>
@@ -85,5 +86,6 @@
     {% if m.special_qualities %}<div class="sbk-line sbk-sp"><b>Egenskaber:</b> {{ m.special_qualities }}</div>{% endif %}
   </div>
   {% endfor %}
+  </div>
   {% endif %}
 {% endif %}
