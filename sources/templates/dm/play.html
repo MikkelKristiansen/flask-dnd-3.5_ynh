@@ -40,11 +40,22 @@ a{color:var(--accent);}
  background:var(--surface);}
 .room h3{color:var(--accent);font-size:1.05rem;margin-bottom:.3rem;}
 .ent{color:var(--accent);border-bottom:1px dotted var(--accent);}
-.side{flex:0 0 170px;background:var(--surface);border:1px solid var(--border);
+.side{flex:0 0 200px;background:var(--surface);border:1px solid var(--border);
  border-radius:8px;padding:.7rem;position:sticky;top:1rem;}
 .side h3{color:var(--accent);font-size:.9rem;margin-bottom:.5rem;letter-spacing:.5px;}
-.pc{font-size:.88rem;padding:.35rem 0;border-bottom:1px solid var(--border);}
+.pc{font-size:.82rem;padding:.5rem 0;border-bottom:1px solid var(--border);}
 .pc:last-child{border-bottom:none;}
+.pc.dead{opacity:.55;}
+.pc-name{display:flex;align-items:center;gap:.4rem;color:var(--accent);
+ text-decoration:none;font-weight:bold;font-size:.9rem;margin-bottom:.2rem;}
+.pc-name:hover span{text-decoration:underline;}
+.pc-por{width:26px;height:26px;border-radius:50%;object-fit:cover;
+ border:1px solid var(--border);flex:0 0 auto;}
+.pc-hp{color:#e5b8a0;font-size:.85rem;}
+.pc.dead .pc-hp{color:#c77;}
+.pc-line{color:var(--text);line-height:1.5;}
+.pc-line .mut{color:var(--muted);}
+.pc-cond{color:var(--accent);font-size:.76rem;margin-top:.15rem;}
 .note{color:var(--muted);font-size:.72rem;font-style:italic;margin-top:.7rem;}
 @media(max-width:800px){.layout{flex-direction:column;}.nav,.side{position:static;width:100%;flex-basis:auto;}}
 </style>
@@ -77,12 +88,26 @@ a{color:var(--accent);}
 
   <aside class="side">
     <h3>Party</h3>
-    {% for pc in session.party %}
-    <div class="pc">{{ pc }}</div>
+    {% for pc in party %}
+    <div class="pc{{ ' dead' if pc.dead }}">
+      {% if pc.broken %}
+      <div class="pc-name">{{ pc.name }}</div>
+      <div class="note">Kunne ikke indlæses.</div>
+      {% else %}
+      <a class="pc-name" href="{{ url_for('karakter', name=pc.slug) }}" target="_blank" rel="noopener">
+        {% if pc.has_portrait %}<img class="pc-por" src="{{ url_for('portrait', slug=pc.slug) }}" alt="">{% endif %}
+        <span>{{ pc.name }}</span>
+      </a>
+      <div class="pc-hp">❤ {{ pc.hp_current }}/{{ pc.hp_max }}</div>
+      <div class="pc-line">AC {{ pc.ac }} <span class="mut">(t{{ pc.touch }} ff{{ pc.flat_footed }})</span></div>
+      <div class="pc-line">{% for s in pc.saves %}{{ s.name[:3] }} {{ '%+d'|format(s.val) }}{{ ' ' if not loop.last }}{% endfor %}</div>
+      <div class="pc-line">Init {{ '%+d'|format(pc.init) }} · {{ pc.speed }}ft</div>
+      {% if pc.conditions %}<div class="pc-cond">⚑ {{ pc.conditions|join(', ') }}</div>{% endif %}
+      {% endif %}
+    </div>
     {% else %}
     <div class="note">Intet party valgt.</div>
     {% endfor %}
-    <div class="note">Statblokke + billeder kommer i næste opdatering.</div>
   </aside>
 </div>
 </body>

@@ -81,3 +81,20 @@ def test_create_requires_adventure(client):
 
 def test_play_unknown_slug_404(client):
     assert client.get("/dm/play/findes-ikke").status_code == 404
+
+
+def test_party_sidebar_shows_statblock(client, monkeypatch):
+    import dm_party
+    monkeypatch.setattr(dm_party, "CHARACTERS_DIR", __import__("pathlib").Path("defaults"))
+    slug = _new(client, name="Party", party=["tjorn"])
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "❤ 24/24" in html                 # HP fra build_character_view
+    assert "AC 15" in html                    # AC-total
+    assert "For +5" in html                   # save (Fortitude, forkortet)
+
+
+def test_party_sidebar_broken_pc_is_marked(client):
+    # En PC-slug der ikke resolver må ikke crashe siden — den vises som "broken".
+    slug = _new(client, name="Broken", party=["findes-ej"])
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "findes-ej" in html and "Kunne ikke indlæses" in html

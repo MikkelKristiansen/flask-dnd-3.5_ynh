@@ -15,6 +15,8 @@ from flask import (Blueprint, abort, redirect, render_template, request,
                    url_for)
 from markupsafe import Markup, escape
 
+import db
+import dm_party
 import dm_session as ds
 from paths import CHARACTERS_DIR
 
@@ -83,5 +85,6 @@ def play(slug):
         session = ds.goto_scene(slug, scene_id)          # persistér navigation
     active = next((sc for sc in adventure.scenes if sc.id == session.active_scene),
                   adventure.scenes[0] if adventure.scenes else None)
+    party = dm_party.party_view(session.party, db)
     return render_template("dm/play.html", session=session,
-                           adventure=adventure, active=active)
+                           adventure=adventure, active=active, party=party)
