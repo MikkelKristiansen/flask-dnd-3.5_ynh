@@ -321,6 +321,18 @@ def test_board_unknown_adventure_404(client):
     assert client.get("/dm/board/Nope/testkort").status_code == 404
 
 
+def test_board_grid_calibration_persists(client):
+    import dm_setups
+    r = client.post("/dm/board/Test/testkort/grid",
+                    data={"cell": "142.5", "x": "8", "y": "-3"})
+    assert r.status_code == 204
+    grid = dm_setups.load_setup("Test", "testkort")["grid"]
+    assert grid == {"cell": 142.5, "x": 8, "y": -3}
+    # kalibreringen slår igennem i vis-tilstand
+    html = client.get("/dm/board/Test/testkort").get_data(as_text=True)
+    assert 'data-cell="142.5"' in html
+
+
 def test_play_has_board_link(client):
     slug = _new(client, name="BL")                     # scene 1 har @kort[testkort]
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)

@@ -331,6 +331,19 @@ def board(adventure, map_slug):
         board=dm_board.board_view(setup, adv, db, audience="dm"))
 
 
+@dm_bp.route("/board/<adventure>/<map_slug>/grid", methods=["POST"])
+def board_grid(adventure, map_slug):
+    """Gem grid-kalibreringen (cellestørrelse + offset) for et kort."""
+    if adventure not in ds.list_adventures():
+        abort(404)
+    setup = dm_setups.load_setup(adventure, map_slug)
+    setup["grid"] = {"cell": round(float(request.form.get("cell") or 0), 2),
+                     "x": int(float(request.form.get("x") or 0)),
+                     "y": int(float(request.form.get("y") or 0))}
+    dm_setups.save_setup(adventure, map_slug, setup)
+    return ("", 204)
+
+
 @dm_bp.route("/media/<adventure>/<path:filename>")
 def media(adventure, filename):
     """Servér et eventyrs billeder fra `adventures/<eventyr>/media/…`.

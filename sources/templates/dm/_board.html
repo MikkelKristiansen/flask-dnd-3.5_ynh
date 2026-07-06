@@ -25,12 +25,17 @@
 
 <script>
 (function () {
+  var boards = [];
   document.querySelectorAll('.board').forEach(function (board) {
     var img = board.querySelector('.board-map');
     if (!img) return;
+    // Læser board.dataset (cell/gx/gy) frisk hver gang → kan re-køres live under
+    // kalibrering. window.dmNaturalW eksponerer billedets naturlige bredde til
+    // "N felter kant-til-kant"-genvejen.
     function layout() {
       var Wn = img.naturalWidth, Hn = img.naturalHeight;
       if (!Wn || !Hn) return;
+      board.dataset.naturalW = Wn;
       var cell = +board.dataset.cell || 0, gx = +board.dataset.gx || 0, gy = +board.dataset.gy || 0;
       var grid = board.querySelector('.board-grid');
       if (cell > 0) {
@@ -45,7 +50,10 @@
         if (cell > 0) tok.style.width = (cell / Wn * 100) + '%';
       });
     }
+    board.__layout = layout;
+    boards.push(board);
     if (img.complete) layout(); else img.addEventListener('load', layout);
   });
+  window.dmRelayout = function () { boards.forEach(function (b) { b.__layout(); }); };
 })();
 </script>

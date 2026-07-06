@@ -32,6 +32,16 @@ h1{color:var(--accent);font-size:1.3rem;}
 .tok-mark{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
  font-size:1.4vw;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));}
 .tok-hidden{outline:2px dashed var(--accent);outline-offset:1px;opacity:.85;}
+.calib{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;margin-bottom:.7rem;
+ background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;font-size:.85rem;}
+.calib label{color:var(--muted);display:inline-flex;align-items:center;gap:.35rem;}
+.calib input{width:72px;background:var(--bg);border:1px solid var(--border);color:var(--text);
+ font-family:inherit;font-size:.85rem;padding:.25rem .4rem;border-radius:5px;}
+.calib .sep{color:var(--border);}
+.calib button{background:var(--accent);color:#000;border:none;font-family:inherit;font-weight:bold;
+ padding:.3rem .8rem;border-radius:6px;cursor:pointer;}
+.calib button.ghost{background:var(--card);color:var(--text);border:1px solid var(--border);font-weight:normal;}
+.calib #ci-msg{color:var(--accent);}
 </style>
 </head>
 <body>
@@ -39,9 +49,51 @@ h1{color:var(--accent);font-size:1.3rem;}
   <h1>🗺 {{ title }} — bræt</h1>
   <a class="back" href="{{ url_for('dm.index') }}">← Kampagner</a>
 </div>
-<p class="hint">Startopstilling (vis-tilstand). Grid-kalibrering + træk-og-placér
-  kommer i næste trin. Stiplet kant = skjult for spillere (DM-kun).</p>
+<p class="hint">Justér gridet så det flugter kortets felter (live preview), og gem.
+  Træk-og-placér af tokens kommer i næste trin. Stiplet kant = DM-kun (skjult for spillere).</p>
+
+<div class="calib">
+  <label>Felt-px <input id="ci-cell" type="number" min="0" step="0.5" value="{{ board.grid.cell or 0 }}"></label>
+  <label>X-offset <input id="ci-x" type="number" step="1" value="{{ board.grid.x or 0 }}"></label>
+  <label>Y-offset <input id="ci-y" type="number" step="1" value="{{ board.grid.y or 0 }}"></label>
+  <span class="sep">|</span>
+  <label>Felter på tværs <input id="ci-cols" type="number" min="1" placeholder="fx 20"></label>
+  <button type="button" class="ghost" id="ci-fromcols">Beregn felt-px</button>
+  <span class="sep">|</span>
+  <button type="button" id="ci-save">Gem grid</button>
+  <span id="ci-msg"></span>
+</div>
 
 {% include "dm/_board.html" %}
+
+<script>
+(function () {
+  var board = document.querySelector('.board');
+  var cell = document.getElementById('ci-cell'), x = document.getElementById('ci-x'),
+      y = document.getElementById('ci-y'), cols = document.getElementById('ci-cols'),
+      msg = document.getElementById('ci-msg');
+  function preview() {
+    board.dataset.cell = cell.value || 0;
+    board.dataset.gx = x.value || 0;
+    board.dataset.gy = y.value || 0;
+    if (window.dmRelayout) window.dmRelayout();
+  }
+  [cell, x, y].forEach(function (i) { i.addEventListener('input', preview); });
+
+  document.getElementById('ci-fromcols').addEventListener('click', function () {
+    var n = +cols.value, Wn = +board.dataset.naturalW || 0;   // sat af bræt-layout
+    if (n > 0 && Wn > 0) { cell.value = Math.round(Wn / n * 100) / 100; preview(); }
+  });
+
+  document.getElementById('ci-save').addEventListener('click', function () {
+    var fd = new FormData();
+    fd.set('cell', cell.value || 0); fd.set('x', x.value || 0); fd.set('y', y.value || 0);
+    fetch(location.pathname + '/grid', { method: 'POST', body: fd }).then(function (r) {
+      msg.textContent = r.ok ? 'Gemt ✓' : 'Fejl';
+      setTimeout(function () { msg.textContent = ''; }, 2000);
+    }).catch(function () { msg.textContent = 'Fejl'; });
+  });
+})();
+</script>
 </body>
 </html>
