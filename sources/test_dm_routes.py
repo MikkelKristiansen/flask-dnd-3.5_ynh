@@ -11,7 +11,7 @@ party: [tjorn]
 # Første scene
 > Læses højt.
 
-Almindelig DM-note med @npc[bram] og handout @brev[testbrev].
+Almindelig DM-note med @npc[bram] og handout @brev[testbrev]. En @monster[goblin] lurer, ledet af @npc[testskurk].
 
 ![Oversigt](media/oversigt.png)
 
@@ -30,6 +30,16 @@ Tekst to.
 
 ## Brev: Testbrev
 > Kære helte, kom straks.
+
+## Statblok: Testskurk
+```yaml
+type: humanoid
+hp_max: 18
+ac: 15
+attacks:
+  - {name: Kårde, bonus: "+3", damage: 1d6+1}
+feats: [Dodge]
+```
 """
 
 
@@ -76,9 +86,13 @@ def test_navigation_persists(client):
 
 
 def test_entities_rendered_as_span(client):
-    slug = _new(client, name="E")
+    # Et @-token der hverken er handout eller monster/npc forbliver ren tekst.
+    raw = ("---\ntitle: T\n---\n# S\nEn @genstand[amulet] uden opslag.\n")
+    (ds.ADVENTURES_DIR / "Plain").mkdir()
+    (ds.ADVENTURES_DIR / "Plain" / "adventure.md").write_text(raw, encoding="utf-8")
+    slug = _new(client, name="E", adventure="Plain")
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
-    assert '<span class="ent ent-npc">bram</span>' in html
+    assert '<span class="ent ent-genstand">amulet</span>' in html
 
 
 def test_delete_session(client):
@@ -142,10 +156,10 @@ def test_media_route_blocks_traversal(client):
 def test_inline_doc_ref_is_clickable(client):
     slug = _new(client, name="Ref")
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
-    # @brev[testbrev] resolver til et dokument → klikbart link med titel som tekst
+    # @brev[testbrev] resolver til et dokument → handout-link (lightbox), titel som tekst
     assert 'class="ent ent-brev ent-link" data-doc="brev:testbrev">Testbrev</a>' in html
-    # @npc[bram] resolver IKKE → forbliver ren span (R2)
-    assert '<span class="ent ent-npc">bram</span>' in html
+    # @npc[bram] er ikke et handout → statblok-link (fetch), IKKE lightbox
+    assert 'class="ent ent-npc ent-stat" data-stat="npc/bram">bram</a>' in html
 
 
 def test_handout_container_rendered_for_lightbox(client):
@@ -197,3 +211,33 @@ def test_delete_media(client):
     assert client.get("/dm/media/Test/media/kort.png").status_code == 200
     client.post("/dm/adventures/Test/media/kort.png/delete")
     assert client.get("/dm/media/Test/media/kort.png").status_code == 404
+
+
+# ── Statblok-inspector (R2 commit 3) ─────────────────────────────────────────
+def test_monster_ref_is_clickable_stat(client):
+    slug = _new(client, name="Stat")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    # @monster[goblin] i MINI → klikbart statblok-link (fetch), ikke plain span
+    assert 'class="ent ent-monster ent-stat" data-stat="monster/goblin"' in html
+
+
+def test_statblock_endpoint_bestiary_monster(client):
+    # goblin findes i det seedede bestiar (kræver srd35.db)
+    html = client.get("/dm/api/statblock/Test/monster/goblin").get_data(as_text=True)
+    assert "Goblin" in html and "Bestiar" in html
+    assert "Morgenstjerne" in html            # angreb renderet
+
+
+def test_statblock_endpoint_adventure_local(client):
+    # MINI's # Dokumenter har ## Statblok: Testskurk → adventure-lokalt vinder
+    html = client.get("/dm/api/statblock/Test/npc/testskurk").get_data(as_text=True)
+    assert "Testskurk" in html and "Eventyr" in html
+
+
+def test_statblock_endpoint_unknown_is_graceful(client):
+    html = client.get("/dm/api/statblock/Test/monster/findes-ej").get_data(as_text=True)
+    assert "Ingen statblok endnu" in html
+
+
+def test_statblock_endpoint_unknown_adventure_404(client):
+    assert client.get("/dm/api/statblock/Nope/monster/goblin").status_code == 404

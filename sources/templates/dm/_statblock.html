@@ -1,0 +1,75 @@
+{# Statblok-fragment til inspector-panelet. Én af: m (monster), pc (party-PC), none. #}
+{% if m %}
+<div class="sb">
+  <div class="sb-head">
+    <span class="sb-name">{{ m.name }}</span>
+    {% if origin %}<span class="sb-origin">{{ origin }}</span>{% endif %}
+  </div>
+  <div class="sb-sub">
+    {{ m.size|capitalize if m.size }} {{ m.type }}{% if m.cr %} · CR {{ m.cr }}{% endif %}{% if m.alignment %} · {{ m.alignment }}{% endif %}
+  </div>
+
+  <div class="sb-grid">
+    <div><span class="sb-k">HP</span> {{ m.hp_max }}{% if m.hd %} <span class="sb-mut">({{ m.hd }})</span>{% endif %}</div>
+    <div><span class="sb-k">AC</span> {{ m.ac.ac }} <span class="sb-mut">(touch {{ m.ac.touch }}, ff {{ m.ac.flat_footed }})</span></div>
+    <div><span class="sb-k">Init</span> {{ '%+d'|format(m.init) }}</div>
+    <div><span class="sb-k">Fart</span> {{ m.speed }}</div>
+    <div><span class="sb-k">BAB/Greb</span> {{ '%+d'|format(m.bab) }}{% if m.grapple is not none %} / {{ '%+d'|format(m.grapple) }}{% endif %}</div>
+  </div>
+  {% if m.ac.note %}<div class="sb-note">AC: {{ m.ac.note }}</div>{% endif %}
+
+  <div class="sb-saves">
+    <span><b>Fort</b> {{ '%+d'|format(m.saves.fort) }}</span>
+    <span><b>Ref</b> {{ '%+d'|format(m.saves.ref) }}</span>
+    <span><b>Will</b> {{ '%+d'|format(m.saves.will) }}</span>
+  </div>
+
+  <div class="sb-abils">
+    {% for a in m.abilities %}
+    <div class="sb-ab"><span class="sb-ab-l">{{ a.label }}</span>
+      <span class="sb-ab-s">{{ a.score if a.score is not none else '—' }}</span>
+      <span class="sb-ab-m">{{ a.mod }}</span></div>
+    {% endfor %}
+  </div>
+
+  {% if m.attacks %}
+  <div class="sb-sec"><span class="sb-k">Angreb</span>
+    <ul class="sb-atk">
+      {% for at in m.attacks %}
+      <li>{{ at.name }} {{ at.bonus }}{% if at.damage %} ({{ at.damage }}{% if at.crit %}/{{ at.crit }}{% endif %}){% endif %}{% if at.notes %} <span class="sb-mut">{{ at.notes }}</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+    {% if m.full_attack %}<div class="sb-note">Fuldt angreb: {{ m.full_attack }}</div>{% endif %}
+  </div>
+  {% endif %}
+
+  {% if m.special_attacks %}<div class="sb-sec"><span class="sb-k">Særlige angreb</span> {{ m.special_attacks }}</div>{% endif %}
+  {% if m.special_qualities %}<div class="sb-sec"><span class="sb-k">Særlige egenskaber</span> {{ m.special_qualities }}</div>{% endif %}
+  {% if m.skills %}<div class="sb-sec"><span class="sb-k">Skills</span> {% for s in m.skills %}{{ s.name }} {{ '%+d'|format(s.total) if s.total is number else s.total }}{{ ', ' if not loop.last }}{% endfor %}</div>{% endif %}
+  {% if m.feats %}<div class="sb-sec"><span class="sb-k">Feats</span> {{ m.feats|join(', ') }}</div>{% endif %}
+  {% if m.source_note %}<div class="sb-src">{{ m.source_note }}</div>{% endif %}
+</div>
+
+{% elif pc %}
+<div class="sb">
+  <div class="sb-head"><span class="sb-name">{{ pc.name }}</span><span class="sb-origin">Party</span></div>
+  <div class="sb-grid">
+    <div><span class="sb-k">HP</span> {{ pc.hp_current }}/{{ pc.hp_max }}</div>
+    <div><span class="sb-k">AC</span> {{ pc.ac }} <span class="sb-mut">(touch {{ pc.touch }}, ff {{ pc.flat_footed }})</span></div>
+    <div><span class="sb-k">Init</span> {{ '%+d'|format(pc.init) }}</div>
+    <div><span class="sb-k">Fart</span> {{ pc.speed }} ft.</div>
+  </div>
+  <div class="sb-saves">
+    {% for s in pc.saves %}<span><b>{{ s.name[:4] }}</b> {{ '%+d'|format(s.val) }}</span>{% endfor %}
+  </div>
+  {% if pc.conditions %}<div class="sb-note">⚑ {{ pc.conditions|join(', ') }}</div>{% endif %}
+  <div class="sb-src"><a href="{{ url_for('karakter', name=pc.slug) }}" target="_blank" rel="noopener">Åbn fuldt karakterark →</a></div>
+</div>
+
+{% else %}
+<div class="sb sb-none">
+  <p>Ingen statblok endnu for <b>{{ etype }}</b> «{{ ident }}».</p>
+  <p class="sb-mut">Tilføj den i det delte bestiar (<code>data/monsters.yaml</code>) eller som
+    <code>## Statblok: {{ ident|capitalize }}</code> i eventyrets <code># Dokumenter</code>.</p>
+</div>
+{% endif %}

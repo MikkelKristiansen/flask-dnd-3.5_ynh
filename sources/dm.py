@@ -15,11 +15,16 @@ from flask import (Blueprint, abort, redirect, render_template, request,
                    send_from_directory, url_for)
 from markupsafe import Markup, escape
 
+import bestiary
 import db
 import dm_media
 import dm_party
 import dm_session as ds
 from paths import CHARACTERS_DIR
+
+# Entity-typer der slås op som statblok (klikbare → inspector). Dokument-lokale
+# typer (kort/brev/gaade/faelde) håndteres separat som handouts (lightbox).
+_STAT_TYPES = {"monster", "npc"}
 
 dm_bp = Blueprint("dm", __name__, url_prefix="/dm")
 
@@ -41,10 +46,14 @@ def _entities_filter(text: str, docs: dict | None = None) -> Markup:
         out.append(escape(text[last:m.start()]))
         typ, ident = m.group(1).lower(), m.group(2)
         key = f"{typ}:{ident}"
-        if key in docs:
+        if key in docs:                                   # handout → lightbox
             out.append(Markup(
                 '<a class="ent ent-{} ent-link" data-doc="{}">{}</a>').format(
                     typ, key, docs[key]))
+        elif typ in _STAT_TYPES:                          # monster/npc → statblok-fetch
+            out.append(Markup(
+                '<a class="ent ent-{} ent-stat" data-stat="{}/{}">{}</a>').format(
+                    typ, typ, ident, ident))
         else:
             out.append(Markup('<span class="ent ent-{}">{}</span>').format(
                 typ, ident))
@@ -131,6 +140,28 @@ def delete_media(adventure, filename):
         abort(404)
     dm_media.delete_media(ds.adventure_dir(adventure), filename)
     return redirect(url_for("dm.adventure", adventure=adventure))
+
+
+@dm_bp.route("/api/statblock/<adventure>/<etype>/<ident>")
+def api_statblock(adventure, etype, ident):
+    """Slå en klikket entity op og returnér dens statblok som HTML-fragment til
+    inspector-panelet. Opslags-rækkefølge: adventure-lokalt statblok (unikke
+    NPC'er) → delt bestiar (generiske monstre) → party-PC (via slug) → ingen."""
+    if adventure not in ds.list_adventures():
+        abort(404)
+    adv = ds.load_adventure(adventure)
+    stats = adv.statblock(ident)
+    if stats:
+        return render_template("dm/_statblock.html",
+                               m=bestiary.monster_view(stats), origin="Eventyr")
+    row = db.get_monster(ident)
+    if row:
+        return render_template("dm/_statblock.html",
+                               m=bestiary.monster_view(row), origin="Bestiar")
+    pcs = dm_party.party_view([ident], db)
+    if pcs and not pcs[0].get("broken"):
+        return render_template("dm/_statblock.html", pc=pcs[0])
+    return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
 
 
 @dm_bp.route("/media/<adventure>/<path:filename>")

@@ -43,6 +43,35 @@ a{color:var(--accent);}
 .ent-link{cursor:pointer;text-decoration:none;border-bottom:1px dashed var(--accent);}
 .ent-link::before{content:"❦ ";font-size:.8em;}
 .ent-link:hover{background:var(--accent);color:#000;border-radius:3px;}
+.ent-stat{cursor:pointer;text-decoration:none;border-bottom:1px dotted var(--accent);}
+.ent-stat::before{content:"⚔ ";font-size:.8em;}
+.ent-stat:hover{background:var(--accent);color:#000;border-radius:3px;}
+/* Statblok-fragment (inspector) */
+.lb-loading{color:var(--muted);font-style:italic;}
+.sb-head{display:flex;align-items:baseline;gap:.6rem;}
+.sb-name{color:var(--accent);font-size:1.2rem;font-weight:bold;}
+.sb-origin{font-size:.68rem;color:var(--muted);border:1px solid var(--border);
+ border-radius:10px;padding:.05rem .5rem;text-transform:uppercase;letter-spacing:.5px;}
+.sb-sub{color:var(--muted);font-size:.85rem;margin:.15rem 0 .7rem;}
+.sb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+ gap:.3rem .9rem;font-size:.9rem;margin:.3rem 0;}
+.sb-k{color:var(--accent);font-weight:bold;font-size:.75rem;text-transform:uppercase;
+ letter-spacing:.4px;margin-right:.25rem;}
+.sb-mut{color:var(--muted);font-size:.85em;}
+.sb-note{color:var(--muted);font-size:.8rem;font-style:italic;margin:.25rem 0;}
+.sb-saves{display:flex;gap:1.1rem;margin:.5rem 0;font-size:.92rem;}
+.sb-saves b{color:var(--accent);}
+.sb-abils{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0;}
+.sb-ab{background:var(--card);border:1px solid var(--border);border-radius:6px;
+ padding:.25rem .5rem;text-align:center;min-width:52px;}
+.sb-ab-l{display:block;font-size:.62rem;color:var(--accent);letter-spacing:.5px;}
+.sb-ab-s{font-size:.95rem;}
+.sb-ab-m{display:block;font-size:.72rem;color:var(--muted);}
+.sb-sec{margin:.55rem 0;font-size:.9rem;line-height:1.5;}
+.sb-atk{list-style:none;margin:.2rem 0 0;padding:0;}
+.sb-atk li{padding:.1rem 0;}
+.sb-src{margin-top:.7rem;font-size:.74rem;color:var(--muted);}
+.sb-none p{margin:.4rem 0;}
 .lb{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;
  align-items:center;justify-content:center;padding:1.5rem;z-index:50;}
 .lb[hidden]{display:none;}
@@ -150,6 +179,8 @@ a{color:var(--accent);}
   {% endfor %}
 </div>
 
+<span id="dm-cfg" data-root="{{ request.script_root }}" data-adv="{{ adv_ref }}" hidden></span>
+
 <div id="lightbox" class="lb" hidden>
   <div class="lb-box" role="dialog" aria-modal="true">
     <div class="lb-head"><span class="lb-title"></span>
@@ -163,17 +194,34 @@ a{color:var(--accent);}
   var lb = document.getElementById('lightbox');
   var body = lb.querySelector('.lb-body');
   var title = lb.querySelector('.lb-title');
-  function open(key) {
+  var cfg = document.getElementById('dm-cfg');
+  var ROOT = cfg.dataset.root, ADV = cfg.dataset.adv;
+
+  function openDoc(key) {                       // handout (renderet skjult i siden)
     var src = document.getElementById('doc-' + key.replace(':', '-'));
     if (!src) return;
     title.textContent = src.dataset.title || '';
     body.innerHTML = src.innerHTML;
     lb.hidden = false;
   }
+  function openStat(ref) {                       // monster/npc → hent statblok
+    var parts = ref.split('/');                  // "type/id"
+    title.textContent = 'Statblok';
+    body.innerHTML = '<p class="lb-loading">Henter …</p>';
+    lb.hidden = false;
+    fetch(ROOT + '/dm/api/statblock/' + encodeURIComponent(ADV) + '/'
+          + encodeURIComponent(parts[0]) + '/' + encodeURIComponent(parts[1]))
+      .then(function (r) { return r.text(); })
+      .then(function (html) { body.innerHTML = html; })
+      .catch(function () { body.innerHTML = '<p>Kunne ikke hente statblok.</p>'; });
+  }
   function close() { lb.hidden = true; body.innerHTML = ''; }
+
   document.addEventListener('click', function (e) {
-    var link = e.target.closest('.ent-link');
-    if (link) { e.preventDefault(); open(link.dataset.doc); return; }
+    var doc = e.target.closest('.ent-link');
+    if (doc) { e.preventDefault(); openDoc(doc.dataset.doc); return; }
+    var stat = e.target.closest('.ent-stat');
+    if (stat) { e.preventDefault(); openStat(stat.dataset.stat); return; }
     if (e.target === lb || e.target.closest('.lb-close')) close();
   });
   document.addEventListener('keydown', function (e) {
