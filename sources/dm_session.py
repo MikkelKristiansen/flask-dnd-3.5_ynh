@@ -17,6 +17,7 @@ from pathlib import Path
 
 from ruamel.yaml import YAML
 
+import dm_encounter
 import dm_parser as P
 from paths import ADVENTURES_DIR, SESSIONS_DIR, _safe_slug
 
@@ -30,11 +31,17 @@ class CampaignSession:
     party: list[str] = field(default_factory=list)  # PC-slugs
     active_scene: str = ""                          # scene-id
     name: str = ""
+    # Aktiv kamp (mutabel tilstand): {} = ingen. Ellers {round, turn_index,
+    # turn_order:[ids], combatants:[dict]}. Combatants er et SNAPSHOT af kampen
+    # i gang (navn/init/hp_max taget ved start; current_hp/conditions muterer) —
+    # samme mønster som summons' per-instans-HP, ikke afledte tal der genberegnes.
+    encounter: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         """Kun mutabel tilstand — aldrig det parsede eventyr."""
         return {"name": self.name, "adventure": self.adventure,
-                "party": list(self.party), "active_scene": self.active_scene}
+                "party": list(self.party), "active_scene": self.active_scene,
+                "encounter": dict(self.encounter)}
 
 
 # ── Eventyr-filer ────────────────────────────────────────────────────────────
@@ -114,6 +121,7 @@ def load_session(slug: str) -> CampaignSession:
         party=list(data.get("party") or []),
         active_scene=str(data.get("active_scene", "")),
         name=str(data.get("name", "")),
+        encounter=dict(data.get("encounter") or {}),
     )
 
 
@@ -163,4 +171,70 @@ def goto_scene(slug: str, scene_id: str) -> CampaignSession:
         raise ValueError(f"Ukendt scene '{scene_id}' i {session.adventure}")
     session.active_scene = scene_id
     save_session(session)
+    return session
+
+
+# ── Encounter-tilstand ───────────────────────────────────────────────────────
+# Ren logik (initiativ/rækkefølge/tur) bor i dm_encounter; her bindes den til
+# den persisterede session. Combatant-opslag i encounteren er pr. id.
+def _find_combatant(session: CampaignSession, cid: str) -> dict | None:
+    return next((c for c in session.encounter.get("combatants", [])
+                 if c["id"] == cid), None)
+
+
+def begin_encounter(slug: str, combatants: list[dict]) -> CampaignSession:
+    """Start en kamp fra allerede byggede+initiativ-rullede combatants (bygges i
+    routen ud fra scenens roster + party). Sætter tur-rækkefølge, runde 1, tur 0."""
+    session = load_session(slug)
+    session.encounter = {
+        "round": 1,
+        "turn_index": 0,
+        "turn_order": dm_encounter.turn_order(combatants),
+        "combatants": combatants,
+        "active": True,
+    }
+    save_session(session)
+    return session
+
+
+def end_encounter(slug: str) -> CampaignSession:
+    session = load_session(slug)
+    session.encounter = {}
+    save_session(session)
+    return session
+
+
+def next_turn(slug: str) -> CampaignSession:
+    """Ryk turen frem (og runden når rækken er gennemløbet)."""
+    session = load_session(slug)
+    enc = session.encounter
+    if enc.get("active"):
+        enc["round"], enc["turn_index"] = dm_encounter.advance(
+            int(enc.get("round", 1)), int(enc.get("turn_index", 0)),
+            len(enc.get("turn_order", [])))
+        save_session(session)
+    return session
+
+
+def set_combatant_hp(slug: str, cid: str, current_hp: int) -> CampaignSession:
+    """Sæt en combatants aktuelle HP (kan gå negativt — DM afgør bevidstløs/død)."""
+    session = load_session(slug)
+    c = _find_combatant(session, cid)
+    if c is not None:
+        c["current_hp"] = int(current_hp)
+        save_session(session)
+    return session
+
+
+def toggle_condition(slug: str, cid: str, condition: str) -> CampaignSession:
+    """Slå en condition til/fra på en combatant (fri streng — condition-id)."""
+    session = load_session(slug)
+    c = _find_combatant(session, cid)
+    if c is not None:
+        conds = c.setdefault("conditions", [])
+        if condition in conds:
+            conds.remove(condition)
+        else:
+            conds.append(condition)
+        save_session(session)
     return session

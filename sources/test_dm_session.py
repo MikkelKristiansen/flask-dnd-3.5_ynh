@@ -93,3 +93,60 @@ def test_delete_session(env):
     with pytest.raises(FileNotFoundError):
         S.load_session(s.slug)
     assert S.list_sessions() == []
+
+
+# ── Encounter-tilstand ───────────────────────────────────────────────────────
+import dm_encounter as E
+
+
+def _combatants():
+    c = E.build_combatants([
+        {"name": "Kriger", "count": 2, "ref": "kriger", "kind": "monster",
+         "init_mod": 1, "hp_max": 8},
+        {"name": "Tjørn", "count": 1, "ref": "tjorn", "kind": "pc",
+         "init_mod": 3, "hp_max": 24},
+    ])
+    E.roll_initiative(c, roller=lambda mod: 10 + mod)   # deterministisk
+    return c
+
+
+def test_begin_encounter_persists_and_orders(env):
+    s = S.create_session("K", "Test-Eventyr", ["tjorn"])
+    S.begin_encounter(s.slug, _combatants())
+    enc = S.load_session(s.slug).encounter
+    assert enc["active"] and enc["round"] == 1 and enc["turn_index"] == 0
+    # Tjørn (init 13) før krigerne (init 11) i rækkefølgen
+    assert enc["turn_order"][0] == "tjorn"
+    assert set(enc["turn_order"]) == {"tjorn", "kriger-a", "kriger-b"}
+
+
+def test_next_turn_advances_and_wraps(env):
+    s = S.create_session("K", "Test-Eventyr", ["tjorn"])
+    S.begin_encounter(s.slug, _combatants())
+    S.next_turn(s.slug); S.next_turn(s.slug)
+    e = S.load_session(s.slug).encounter
+    assert e["round"] == 1 and e["turn_index"] == 2
+    S.next_turn(s.slug)                                  # 3 combatants → wrap
+    e = S.load_session(s.slug).encounter
+    assert e["round"] == 2 and e["turn_index"] == 0
+
+
+def test_set_hp_and_toggle_condition_persist(env):
+    s = S.create_session("K", "Test-Eventyr", ["tjorn"])
+    S.begin_encounter(s.slug, _combatants())
+    S.set_combatant_hp(s.slug, "kriger-a", 3)
+    S.toggle_condition(s.slug, "kriger-a", "prone")
+    c = next(x for x in S.load_session(s.slug).encounter["combatants"]
+             if x["id"] == "kriger-a")
+    assert c["current_hp"] == 3 and c["conditions"] == ["prone"]
+    S.toggle_condition(s.slug, "kriger-a", "prone")      # slår fra igen
+    c = next(x for x in S.load_session(s.slug).encounter["combatants"]
+             if x["id"] == "kriger-a")
+    assert c["conditions"] == []
+
+
+def test_end_encounter_clears(env):
+    s = S.create_session("K", "Test-Eventyr", ["tjorn"])
+    S.begin_encounter(s.slug, _combatants())
+    S.end_encounter(s.slug)
+    assert S.load_session(s.slug).encounter == {}
