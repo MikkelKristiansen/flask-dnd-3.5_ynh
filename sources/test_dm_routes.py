@@ -241,3 +241,66 @@ def test_statblock_endpoint_unknown_is_graceful(client):
 
 def test_statblock_endpoint_unknown_adventure_404(client):
     assert client.get("/dm/api/statblock/Nope/monster/goblin").status_code == 404
+
+
+# ── Encounter-tracker (R3 commit 3) ──────────────────────────────────────────
+from pathlib import Path
+
+
+@pytest.fixture
+def enc_client(client, monkeypatch):
+    # Lad party-PC'er (tjorn) resolve fra defaults/, så de kommer med i kampen.
+    import dm_party
+    monkeypatch.setattr(dm_party, "CHARACTERS_DIR", Path("defaults"))
+    return client
+
+
+def _start(enc_client):
+    slug = _new(enc_client, name="Kamp", party=["tjorn"])   # scene 1: 2x goblin
+    html = enc_client.post(f"/dm/api/encounter/{slug}/start").get_data(as_text=True)
+    return slug, html
+
+
+def test_encounter_start_builds_labeled_combatants(enc_client):
+    slug, html = _start(enc_client)
+    # per-instans-labels (bestiar-navnet er "Goblin (kriger)")
+    assert "Goblin (kriger) A" in html and "Goblin (kriger) B" in html
+    assert "Tjørn" in html                              # PC med i kampen
+    assert "Runde 1" in html
+    enc = ds.load_session(slug).encounter
+    assert enc["active"] and len(enc["combatants"]) == 3
+
+
+def test_encounter_pc_initiative_blank_monsters_rolled(enc_client):
+    slug, _ = _start(enc_client)
+    combs = {c["id"]: c for c in ds.load_session(slug).encounter["combatants"]}
+    assert combs["tjorn"]["initiative"] is None        # PC tastes af DM
+    assert combs["goblin-a"]["initiative"] is not None  # monster auto-rullet
+
+
+def test_encounter_set_pc_initiative_reorders(enc_client):
+    slug, _ = _start(enc_client)
+    enc_client.post(f"/dm/api/encounter/{slug}/initiative",
+                    data={"cid": "tjorn", "value": "25"})
+    enc = ds.load_session(slug).encounter
+    assert enc["turn_order"][0] == "tjorn"             # højeste initiativ → først
+
+
+def test_encounter_hp_damage_and_next_turn(enc_client):
+    slug, _ = _start(enc_client)
+    enc_client.post(f"/dm/api/encounter/{slug}/hp",
+                    data={"cid": "goblin-a", "delta": "-3"})
+    combs = {c["id"]: c for c in ds.load_session(slug).encounter["combatants"]}
+    assert combs["goblin-a"]["current_hp"] == 2        # goblin har 5 HP → 2
+    enc_client.post(f"/dm/api/encounter/{slug}/next")
+    assert ds.load_session(slug).encounter["turn_index"] == 1
+
+
+def test_encounter_condition_toggle_and_end(enc_client):
+    slug, _ = _start(enc_client)
+    enc_client.post(f"/dm/api/encounter/{slug}/condition",
+                    data={"cid": "goblin-b", "condition": "prone"})
+    combs = {c["id"]: c for c in ds.load_session(slug).encounter["combatants"]}
+    assert combs["goblin-b"]["conditions"] == ["prone"]
+    enc_client.post(f"/dm/api/encounter/{slug}/end")
+    assert ds.load_session(slug).encounter == {}

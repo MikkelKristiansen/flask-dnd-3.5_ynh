@@ -216,6 +216,21 @@ def next_turn(slug: str) -> CampaignSession:
     return session
 
 
+def set_initiative(slug: str, cid: str, value: int) -> CampaignSession:
+    """Sæt en combatants initiativ (fx en PC's egen rulning) og genberegn tur-
+    rækkefølgen. turn_index nulstilles ikke — kampen fortsætter hvor den er."""
+    session = load_session(slug)
+    c = _find_combatant(session, cid)
+    if c is not None and session.encounter.get("active"):
+        c["initiative"] = int(value)
+        enc = session.encounter
+        enc["turn_order"] = dm_encounter.turn_order(enc["combatants"])
+        enc["turn_index"] = min(int(enc.get("turn_index", 0)),
+                                max(0, len(enc["turn_order"]) - 1))
+        save_session(session)
+    return session
+
+
 def set_combatant_hp(slug: str, cid: str, current_hp: int) -> CampaignSession:
     """Sæt en combatants aktuelle HP (kan gå negativt — DM afgør bevidstløs/død)."""
     session = load_session(slug)

@@ -142,6 +142,125 @@ def delete_media(adventure, filename):
     return redirect(url_for("dm.adventure", adventure=adventure))
 
 
+# ── Encounter-tracker (R3) ───────────────────────────────────────────────────
+import dm_encounter
+
+
+def _scene_rosters(scene):
+    """Alle roster-poster i en scene (top-niveau + i rum)."""
+    entries = []
+    for b in getattr(scene, "blocks", []):
+        if getattr(b, "kind", None) == "roster":
+            entries.extend(b.entries)
+        elif getattr(b, "kind", None) == "room":
+            for rb in b.blocks:
+                if getattr(rb, "kind", None) == "roster":
+                    entries.extend(rb.entries)
+    return entries
+
+
+def _monster_source(ref, adv):
+    """Resolv et roster-id til combatant-kildedata (navn/init/hp) via adventure-
+    lokalt statblok → bestiar → fallback (ukendt = rå id, 0 init, ingen hp)."""
+    stats = adv.statblock(ref) or db.get_monster(ref)
+    if stats:
+        v = bestiary.monster_view(stats)
+        return {"name": v["name"], "init_mod": v["init"], "hp_max": v["hp_max"],
+                "kind": "monster"}
+    return {"name": ref, "init_mod": 0, "hp_max": None, "kind": "monster"}
+
+
+def _encounter_sources(session, adv):
+    """Byg combatant-kilder for den aktive scene: monstre fra rosteret + party-PC'er."""
+    scene = next((s for s in adv.scenes if s.id == session.active_scene),
+                 adv.scenes[0] if adv.scenes else None)
+    sources = []
+    if scene:
+        for e in _scene_rosters(scene):
+            src = _monster_source(e.id, adv)
+            sources.append({"ref": e.id, "count": e.count, **src})
+    for pc in dm_party.party_view(session.party, db):
+        if pc.get("broken"):
+            continue
+        sources.append({"ref": pc["slug"], "count": 1, "name": pc["name"],
+                        "kind": "pc", "init_mod": pc["init"], "hp_max": pc["hp_max"]})
+    return sources
+
+
+def _tracker_html(session):
+    """Render tracker-fragmentet for sessionens encounter (eller start-knap)."""
+    enc = session.encounter
+    ordered, current_id = [], None
+    if enc.get("active"):
+        by_id = {c["id"]: c for c in enc.get("combatants", [])}
+        ordered = [by_id[cid] for cid in enc.get("turn_order", []) if cid in by_id]
+        order = enc.get("turn_order", [])
+        if order:
+            current_id = order[min(enc.get("turn_index", 0), len(order) - 1)]
+    return render_template("dm/_tracker.html", enc=enc, ordered=ordered,
+                           current_id=current_id, slug=session.slug,
+                           all_conditions=db.get_all_conditions())
+
+
+def _load_or_404(slug):
+    try:
+        return ds.load_session(slug)
+    except FileNotFoundError:
+        abort(404)
+
+
+@dm_bp.route("/api/encounter/<slug>/start", methods=["POST"])
+def encounter_start(slug):
+    session = _load_or_404(slug)
+    adv = ds.load_adventure(session.adventure)
+    combs = dm_encounter.build_combatants(_encounter_sources(session, adv))
+    # Auto-rul initiativ for monstre; PC'er efterlades blanke (DM taster spillernes rul).
+    dm_encounter.roll_initiative([c for c in combs if c["kind"] != "pc"])
+    session = ds.begin_encounter(slug, combs)
+    return _tracker_html(session)
+
+
+@dm_bp.route("/api/encounter/<slug>/initiative", methods=["POST"])
+def encounter_initiative(slug):
+    _load_or_404(slug)
+    session = ds.set_initiative(slug, request.form.get("cid", ""),
+                               int(request.form.get("value") or 0))
+    return _tracker_html(session)
+
+
+@dm_bp.route("/api/encounter/<slug>/next", methods=["POST"])
+def encounter_next(slug):
+    _load_or_404(slug)
+    return _tracker_html(ds.next_turn(slug))
+
+
+@dm_bp.route("/api/encounter/<slug>/hp", methods=["POST"])
+def encounter_hp(slug):
+    session = _load_or_404(slug)
+    cid = request.form.get("cid", "")
+    c = next((x for x in session.encounter.get("combatants", []) if x["id"] == cid), None)
+    if c is not None:
+        delta = int(request.form.get("delta") or 0)
+        new_hp = (c.get("current_hp") or 0) + delta if delta \
+            else int(request.form.get("value") or 0)
+        session = ds.set_combatant_hp(slug, cid, new_hp)
+    return _tracker_html(session)
+
+
+@dm_bp.route("/api/encounter/<slug>/condition", methods=["POST"])
+def encounter_condition(slug):
+    _load_or_404(slug)
+    session = ds.toggle_condition(slug, request.form.get("cid", ""),
+                                 request.form.get("condition", ""))
+    return _tracker_html(session)
+
+
+@dm_bp.route("/api/encounter/<slug>/end", methods=["POST"])
+def encounter_end(slug):
+    _load_or_404(slug)
+    return _tracker_html(ds.end_encounter(slug))
+
+
 @dm_bp.route("/api/statblock/<adventure>/<etype>/<ident>")
 def api_statblock(adventure, etype, ident):
     """Slå en klikket entity op og returnér dens statblok som HTML-fragment til
@@ -189,4 +308,5 @@ def play(slug):
     return render_template("dm/play.html", session=session,
                            adventure=adventure, active=active, party=party,
                            adv_ref=session.adventure,
-                           doc_titles=_doc_titles(adventure))
+                           doc_titles=_doc_titles(adventure),
+                           tracker_html=_tracker_html(session))

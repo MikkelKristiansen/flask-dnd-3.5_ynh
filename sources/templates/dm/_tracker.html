@@ -1,0 +1,63 @@
+{# Encounter-tracker-fragment. Erstattes i #tracker ved hver handling (fetch-swap).
+   Alle handlinger er <form class="enc-f"> som JS'en opsnapper og POST'er. #}
+{% if not enc or not enc.active %}
+  <form class="enc-f enc-start" action="{{ url_for('dm.encounter_start', slug=slug) }}" method="post">
+    <button type="submit">⚔ Start kamp fra denne scene</button>
+  </form>
+  <div class="enc-hint">Bygger combatants af scenens monstre + party. Monstre får
+    auto-rullet initiativ; du taster spillernes egne rul.</div>
+{% else %}
+  <div class="enc-top">
+    <span class="enc-round">Runde {{ enc.round }}</span>
+    <form class="enc-f" action="{{ url_for('dm.encounter_next', slug=slug) }}" method="post">
+      <button type="submit" class="enc-next">Næste tur →</button></form>
+    <form class="enc-f" action="{{ url_for('dm.encounter_end', slug=slug) }}" method="post">
+      <button type="submit" class="enc-end" data-confirm="Afslut kampen?">Afslut</button></form>
+  </div>
+
+  {% for c in ordered %}
+  <div class="cbt{{ ' cbt-cur' if c.id == current_id }}{{ ' cbt-pc' if c.kind == 'pc' }}">
+    <div class="cbt-row1">
+      <span class="cbt-init">
+        {% if c.initiative is none %}
+        <form class="enc-f cbt-initf" action="{{ url_for('dm.encounter_initiative', slug=slug) }}" method="post">
+          <input type="hidden" name="cid" value="{{ c.id }}">
+          <input type="number" name="value" placeholder="init" aria-label="Initiativ for {{ c.name }}">
+          <button type="submit">✓</button>
+        </form>
+        {% else %}{{ c.initiative }}{% endif %}
+      </span>
+      <span class="cbt-name">{{ '▶ ' if c.id == current_id }}{{ c.name }}</span>
+      <span class="cbt-kind">{{ 'PC' if c.kind == 'pc' else c.kind }}</span>
+    </div>
+
+    <div class="cbt-row2">
+      <span class="cbt-hp{{ ' dead' if c.current_hp is not none and c.current_hp <= 0 }}">
+        ❤ {{ c.current_hp if c.current_hp is not none else '—' }}{% if c.hp_max is not none %}/{{ c.hp_max }}{% endif %}
+      </span>
+      <form class="enc-f cbt-hpf" action="{{ url_for('dm.encounter_hp', slug=slug) }}" method="post">
+        <input type="hidden" name="cid" value="{{ c.id }}">
+        <input type="number" name="amount" min="0" placeholder="0" aria-label="Mængde">
+        <button type="submit" data-sign="-" title="Skade">−</button>
+        <button type="submit" data-sign="+" title="Helbred">＋</button>
+      </form>
+    </div>
+
+    {% if c.conditions %}
+    <div class="cbt-conds">{% for cond in c.conditions %}<span class="cond-chip">{{ cond }}</span>{% endfor %}</div>
+    {% endif %}
+    <details class="cbt-condpick">
+      <summary>Conditions</summary>
+      <div class="cond-grid">
+        {% for cond in all_conditions %}
+        <form class="enc-f" action="{{ url_for('dm.encounter_condition', slug=slug) }}" method="post">
+          <input type="hidden" name="cid" value="{{ c.id }}">
+          <input type="hidden" name="condition" value="{{ cond.id }}">
+          <button type="submit" class="cond-t{{ ' on' if cond.id in c.conditions }}">{{ cond.id }}</button>
+        </form>
+        {% endfor %}
+      </div>
+    </details>
+  </div>
+  {% endfor %}
+{% endif %}
