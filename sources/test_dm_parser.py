@@ -162,3 +162,33 @@ def test_readaloud_caption_split():
     ra = _only(P.parse_adventure(raw).scenes[0].blocks, "readaloud")
     assert ra.caption == "Hvis låst"
     assert ra.text == "Døren giver sig ikke."
+
+
+def test_statblock_appendix_parsed_by_id():
+    raw = ("# Dokumenter\n## Statblok: Mordekain\n```yaml\n"
+           "type: humanoid\nhp_max: 22\nac: 16\n"
+           "attacks:\n  - {name: Daggert, bonus: \"+4\", damage: 1d4+1}\n"
+           "feats: [Combat Casting]\n```\n")
+    adv = P.parse_adventure(raw)
+    sb = adv.statblock("mordekain")           # slås op på id, ikke (type,id)
+    assert sb is not None
+    assert sb["id"] == "mordekain" and sb["name"] == "Mordekain"
+    assert sb["hp_max"] == 22
+    assert sb["attacks"][0]["name"] == "Daggert"   # native YAML-liste
+    assert sb["feats"] == ["Combat Casting"]
+    # et statblok er IKKE et lightbox-dokument
+    assert ("statblok", "mordekain") not in adv.documents
+
+
+def test_statblock_accepts_json_string_fields():
+    # attacks/feats må også skrives som JSON-strenge (copy-paste fra monsters.yaml)
+    raw = ('# Dokumenter\n## Statblok: Ork Høvding\n```yaml\n'
+           'hp_max: 9\nattacks: \'[{"name": "Økse", "bonus": "+4", "damage": "1d12+3"}]\'\n```\n')
+    sb = P.parse_adventure(raw).statblock("ork-hoevding")
+    assert sb["attacks"][0]["damage"] == "1d12+3"
+
+
+def test_statblock_without_fence():
+    raw = "# Dokumenter\n## Statblok: Simpel\nhp_max: 4\nac: 12\n"
+    sb = P.parse_adventure(raw).statblock("simpel")
+    assert sb["hp_max"] == 4 and sb["ac"] == 12

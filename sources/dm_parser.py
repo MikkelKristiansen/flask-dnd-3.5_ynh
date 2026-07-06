@@ -14,6 +14,7 @@ Format i korthed:
 """
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
 from typing import ClassVar
@@ -119,11 +120,17 @@ class Adventure:
     party: list[str] = field(default_factory=list)
     scenes: list[Scene] = field(default_factory=list)
     documents: dict = field(default_factory=dict)   # (type, id) -> Definition
+    statblocks: dict = field(default_factory=dict)  # id -> stat-dict (## Statblok:)
 
     def resolve(self, entity: Entity) -> Definition | None:
         """Slå en dokument-lokal entity op (brev/kort/…). None hvis ekstern
         (monster/npc uden appendiks-def) eller ukendt."""
         return self.documents.get((entity.type, entity.id))
+
+    def statblock(self, ident: str) -> dict | None:
+        """Adventure-lokalt statblok slået op på id (uafhængigt af ref-typen, så
+        @npc[mordekain] rammer '## Statblok: Mordekain'). None hvis ukendt."""
+        return self.statblocks.get(ident)
 
 
 # ── Hjælpere ────────────────────────────────────────────────────────────────
@@ -238,19 +245,47 @@ def _parse_scene(title: str, body: list[str]) -> Scene:
     return scene
 
 
-def _parse_appendix(body: list[str]) -> dict:
-    """# Dokumenter → {(type, id): Definition}. Hver '## Type: Titel' bliver en
-    definition (generisk: brev/kort/npc/gaade/…)."""
-    docs = {}
+def _fenced_or_all(lines: list[str]) -> list[str]:
+    """Linjerne inde i den første ```-indhegnede blok, ellers alle linjerne."""
+    fences = [i for i, l in enumerate(lines) if l.strip().startswith("```")]
+    if len(fences) >= 2:
+        return lines[fences[0] + 1:fences[1]]
+    return lines
+
+
+def _parse_statblock(lines: list[str]) -> dict:
+    """'## Statblok:'-sektion → stat-dict (samme skema som data/monsters.yaml).
+    YAML foretrækkes i en ```-blok, men rå YAML virker også. attacks/skills/feats
+    accepteres både som native YAML-lister OG JSON-strenge (copy-paste fra
+    monsters.yaml), så forfatteren har én genkendelig form."""
+    data = _yaml.load("\n".join(_fenced_or_all(lines))) or {}
+    for key in ("attacks", "skills", "feats"):
+        if isinstance(data.get(key), str):
+            data[key] = json.loads(data[key])
+    return data
+
+
+def _parse_appendix(body: list[str]) -> tuple[dict, dict]:
+    """# Dokumenter → ({(type, id): Definition}, {id: stat-dict}). Hver '## Type:
+    Titel' bliver en definition (brev/kort/npc/gaade/…); '## Statblok: Navn'
+    bliver derimod et adventure-lokalt monster-statblok."""
+    docs, statblocks = {}, {}
     for head, sub in _group_by(body, "## "):
         if head is None or ":" not in head:
             continue
         typ, title = head.split(":", 1)
         typ, title = typ.strip().lower(), title.strip()
+        if typ in ("statblok", "statblock"):
+            stats = _parse_statblock(sub)
+            sid = slugify(title)
+            stats.setdefault("id", sid)
+            stats.setdefault("name", title)
+            statblocks[sid] = stats
+            continue
         d = Definition(type=typ, id=slugify(title), title=title,
                        blocks=_parse_blocks(sub))
         docs[(typ, d.id)] = d
-    return docs
+    return docs, statblocks
 
 
 # ── Indgang ─────────────────────────────────────────────────────────────────
@@ -277,7 +312,7 @@ def parse_adventure(raw: str) -> Adventure:
         if head is None:
             continue
         if head.strip().lower() == "dokumenter":
-            adv.documents = _parse_appendix(body)
+            adv.documents, adv.statblocks = _parse_appendix(body)
         else:
             adv.scenes.append(_parse_scene(head, body))
     return adv
