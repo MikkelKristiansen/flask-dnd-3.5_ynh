@@ -148,6 +148,55 @@ Den gamle mølle fremstå som den plejer, hvis huset gennemsøges findes møller
 ## Kort: Kælderen
 ![Kælderen](media/Kaelderen-print-rotate.png)
 
+## Statblok: Mordekain
+```yaml
+size: medium
+type: humanoid
+cr: "3"
+alignment: "Neutral ond"
+hd: "3d4+3 (11 hp)"
+hp_max: 11
+ac: 11
+ac_touch: 11
+ac_flat: 10
+ac_note: "+1 Dex — Mage Armor hæver AC til 15 (touch 11, ff 14) når den er oppe"
+init: 1
+speed: "30 ft."
+bab: 1
+grapple: 1
+str: 10
+dex: 13
+con: 12
+int: 16
+wis: 11
+cha: 10
+save_fort: 2
+save_ref: 2
+save_will: 3
+attacks:
+  - {name: Daggert, bonus: "+1", damage: "1d4", crit: "19-20", notes: "nærkamp"}
+  - {name: Let armbrøst, bonus: "+2", damage: "1d8", crit: "19-20", notes: "afstand, 24 m"}
+full_attack: "Daggert +1 (1d4/19-20) eller let armbrøst +2 (1d8/19-20)"
+special_attacks: >-
+  Troldmandsformularer (Wizard 3, forberedt) — 0-niveau: Detect Magic, Ray of
+  Frost, Touch of Fatigue, Light. 1. niveau: Magic Missile, Mage Armor, Ray of
+  Enfeeblement. 2. niveau: Summon Monster II, Scorching Ray.
+  SCRIPTED: når han når sin dødemanerbog, fremmaner han 2 ekstra skeletter (jf. Kælder-scenen).
+special_qualities: "Arcane bond (dødemanerbog — mister forberedte formularer hvis bogen tages fra ham), fortrolig: rotte (+2 Fort udeladt af enkelhed)."
+skills:
+  - {name: Concentration, total: 7}
+  - {name: Knowledge (arcana), total: 9}
+  - {name: Spellcraft, total: 9}
+  - {name: Bluff, total: 3}
+feats: [Scribe Scroll, Spell Focus (necromancy), Combat Casting]
+source_note: >-
+  UDKAST til rettelse (Mikkel): menneske Wizard 3 med dødemaner-tema, CR 3 —
+  tænkt som climax-boss for et niveau 1-2 party sammen med krigere/tyv/skeletter.
+  Tal er bygget efter Wizard-klassereglerne (½ BAB, god Will, 3d4+Con HP);
+  formular-udvalg, udstyr og feats er FORSLAG. Ret frit — fx flere/andre spells,
+  en decideret dødemaner-specialisering, eller højere niveau hvis dit party er stærkere.
+```
+
 ---
 
 # Om ressourcer og programmer anvendt
