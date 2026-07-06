@@ -187,18 +187,40 @@ def _encounter_sources(session, adv):
     return sources
 
 
+def _encounter_statblocks(session, ordered):
+    """Statblokke pr. DISTINKT monstertype i kampen (Goblin A/B deler ét kort),
+    så DM'en har monster-stats permanent foran sig. Reference-data resolves live
+    (adventure-lokalt → bestiar) — ikke gemt i sessionen. PC'er udelades (de står
+    i party-panelet). Rækkefølge følger tur-ordenen."""
+    try:
+        adv = ds.load_adventure(session.adventure)
+    except FileNotFoundError:
+        adv = None
+    out, seen = [], set()
+    for c in ordered:
+        if c["kind"] == "pc" or c["ref"] in seen:
+            continue
+        seen.add(c["ref"])
+        row = (adv.statblock(c["ref"]) if adv else None) or db.get_monster(c["ref"])
+        if row:
+            out.append(bestiary.monster_view(row))
+    return out
+
+
 def _tracker_html(session):
     """Render tracker-fragmentet for sessionens encounter (eller start-knap)."""
     enc = session.encounter
-    ordered, current_id = [], None
+    ordered, current_id, statblocks = [], None, []
     if enc.get("active"):
         by_id = {c["id"]: c for c in enc.get("combatants", [])}
         ordered = [by_id[cid] for cid in enc.get("turn_order", []) if cid in by_id]
         order = enc.get("turn_order", [])
         if order:
             current_id = order[min(enc.get("turn_index", 0), len(order) - 1)]
+        statblocks = _encounter_statblocks(session, ordered)
     return render_template("dm/_tracker.html", enc=enc, ordered=ordered,
                            current_id=current_id, slug=session.slug,
+                           statblocks=statblocks,
                            all_conditions=db.get_all_conditions())
 
 

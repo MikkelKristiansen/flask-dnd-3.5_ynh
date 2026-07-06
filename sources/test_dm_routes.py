@@ -271,6 +271,14 @@ def test_encounter_start_builds_labeled_combatants(enc_client):
     assert enc["active"] and len(enc["combatants"]) == 3
 
 
+def test_encounter_shows_statblock_cards(enc_client):
+    slug, html = _start(enc_client)
+    assert "Statblokke" in html                    # statblok-sektion i konsollen
+    assert "Morgenstjerne" in html                 # goblinens angreb vises direkte
+    # dedup pr. type: 2 goblins i kampen, men kun ÉT statblok-kort
+    assert html.count('class="sbk-name"') == 1
+
+
 def test_encounter_pc_initiative_blank_monsters_rolled(enc_client):
     slug, _ = _start(enc_client)
     combs = {c["id"]: c for c in ds.load_session(slug).encounter["combatants"]}

@@ -60,4 +60,30 @@
     </details>
   </div>
   {% endfor %}
+
+  {% if statblocks %}
+  <div class="sbk-head">Statblokke</div>
+  {% for m in statblocks %}
+  <div class="sbk">
+    <div class="sbk-top"><span class="sbk-name">{{ m.name }}</span>
+      {% if m.cr %}<span class="sbk-cr">CR {{ m.cr }}</span>{% endif %}</div>
+    <div class="sbk-line">
+      <b>AC</b> {{ m.ac.ac }} <span class="sbk-mut">(t{{ m.ac.touch }} ff{{ m.ac.flat_footed }})</span>
+      · <b>HP</b> {{ m.hp_max }}
+      · <b>Init</b> {{ '%+d'|format(m.init) }}
+    </div>
+    <div class="sbk-line"><b>Saves</b>
+      F {{ '%+d'|format(m.saves.fort) }} · R {{ '%+d'|format(m.saves.ref) }} · V {{ '%+d'|format(m.saves.will) }}
+      · <b>Fart</b> {{ m.speed }}
+    </div>
+    {% if m.attacks %}
+    <div class="sbk-line"><b>Angreb</b>
+      {% for at in m.attacks %}{{ at.name }} {{ at.bonus }}{% if at.damage %} ({{ at.damage }}{% if at.crit %}/{{ at.crit }}{% endif %}){% endif %}{{ '; ' if not loop.last }}{% endfor %}
+    </div>
+    {% endif %}
+    {% if m.special_attacks %}<div class="sbk-line sbk-sp"><b>Særlige angreb:</b> {{ m.special_attacks }}</div>{% endif %}
+    {% if m.special_qualities %}<div class="sbk-line sbk-sp"><b>Egenskaber:</b> {{ m.special_qualities }}</div>{% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
 {% endif %}
