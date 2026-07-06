@@ -12,6 +12,17 @@ ynh_script_progression "Updating Python dependencies..."
 "$install_dir/venv/bin/pip" install --quiet --upgrade pip
 "$install_dir/venv/bin/pip" install --quiet -r "$install_dir/requirements.txt"
 
+ynh_script_progression "Ensuring adventures data dir..."
+# Eventyr flyttede fra install-mappen til data_dir (per-eventyr-mapper). Ved
+# upgrade fra en ældre version findes data_dir/adventures ikke endnu → opret +
+# seed de medfølgende eventyr (kun hvis tom, så uploadede kort/redigeringer
+# aldrig overskrives). Samme "if empty"-mønster som characters/ i install.
+mkdir -p "$data_dir/adventures"
+if [ -z "$(ls -A "$data_dir/adventures")" ]; then
+    cp -r "$install_dir/adventures/." "$data_dir/adventures/" 2>/dev/null || true
+fi
+chown -R "$app:$app" "$data_dir/adventures"
+
 ynh_script_progression "Regenerating database..."
 DND_DB_PATH="$data_dir/srd35.db" "$install_dir/venv/bin/python" "$install_dir/importer.py"
 chown "$app:$app" "$data_dir/srd35.db"
