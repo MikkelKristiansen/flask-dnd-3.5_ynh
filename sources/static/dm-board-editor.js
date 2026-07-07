@@ -191,22 +191,20 @@ window.DmBoardEditor = (function () {
         el.releasePointerCapture(ev.pointerId);
         el.removeEventListener("pointermove", move);
         el.removeEventListener("pointerup", up);
-        if (moved) { snap(i, e, rect); } else { select(i); }
+        if (moved) { snap(i, e); } else { select(i); }
       }
       el.addEventListener("pointermove", move);
       el.addEventListener("pointerup", up);
     });
   }
 
-  function snap(i, e, rect) {
-    var g = grid();
-    var Wn = +board.dataset.naturalW || 0;
-    var Hn = (board.querySelector(".board-map") || {}).naturalHeight || 0;
-    if (!Wn || !Hn || g.cell <= 0) { paint(); return; }
-    var natX = clamp((e.clientX - rect.left) / rect.width) * Wn;
-    var natY = clamp((e.clientY - rect.top) / rect.height) * Hn;
-    model[i].col = Math.max(0, Math.round((natX - g.x) / g.cell - 0.5));
-    model[i].row = Math.max(0, Math.round((natY - g.y) / g.cell - 0.5));
+  function snap(i, e) {
+    // Delt snap (fra _board.html): snapper OG clamper til kortets gyldige celler,
+    // så en token ikke kan trækkes uden for det synlige område.
+    var cell = window.dmSnapCell(board, e.clientX, e.clientY);
+    if (!cell) { paint(); return; }
+    model[i].col = cell.col;
+    model[i].row = cell.row;
     paint();
   }
 

@@ -46,11 +46,18 @@
       // Token-diameter i faktiske px → skaler skriften med (læsbar i både
       // fuld-bredde og den smalle kamp-kolonne).
       var frac = cell > 0 ? cell / Wn : 0.05;
-      var tokPx = frac * (img.clientWidth || Wn);
+      var cw = img.clientWidth || Wn, ch = img.clientHeight || Hn;
+      var tokPx = frac * cw;
+      var hx = frac * 50;                 // halv token-bredde, % af brættets bredde
+      var hy = (tokPx / ch) * 50;         // halv token-højde, % af brættets højde
       board.querySelectorAll('.tok').forEach(function (tok) {
         var col = +tok.dataset.col || 0, row = +tok.dataset.row || 0;
-        tok.style.left = ((gx + (col + 0.5) * cell) / Wn * 100) + '%';
-        tok.style.top = ((gy + (row + 0.5) * cell) / Hn * 100) + '%';
+        var L = (gx + (col + 0.5) * cell) / Wn * 100, T = (gy + (row + 0.5) * cell) / Hn * 100;
+        // Render-clamp: hold token fuldt inde i brættet, så en token på en celle
+        // uden for kortet (fx seedet fra en opstilling der rakte ud over kortet)
+        // stadig kan ses og gribes ved kanten i stedet for at blive klippet væk.
+        tok.style.left = Math.min(100 - hx, Math.max(hx, L)) + '%';
+        tok.style.top = Math.min(100 - hy, Math.max(hy, T)) + '%';
         if (cell > 0) tok.style.width = (frac * 100) + '%';
         tok.style.fontSize = Math.max(8, tokPx * 0.42) + 'px';
       });
@@ -73,8 +80,12 @@
     var r = board.getBoundingClientRect();
     var cl = function (f) { return f < 0 ? 0 : f > 1 ? 1 : f; };
     var natX = cl((clientX - r.left) / r.width) * Wn, natY = cl((clientY - r.top) / r.height) * Hn;
-    return { col: Math.max(0, Math.round((natX - gx) / cell - 0.5)),
-             row: Math.max(0, Math.round((natY - gy) / cell - 0.5)) };
+    // Clamp til kortets gyldige celler (center på kortet), så en token aldrig
+    // droppes uden for det synlige/klikbare område.
+    var maxCol = Math.max(0, Math.floor((Wn - gx) / cell - 0.5));
+    var maxRow = Math.max(0, Math.floor((Hn - gy) / cell - 0.5));
+    return { col: Math.min(maxCol, Math.max(0, Math.round((natX - gx) / cell - 0.5))),
+             row: Math.min(maxRow, Math.max(0, Math.round((natY - gy) / cell - 0.5))) };
   };
   window.dmLayoutAll();
   window.addEventListener('resize', window.dmRelayout);   // re-skalér tokens+skrift

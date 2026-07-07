@@ -8,9 +8,12 @@
  *
  * Forudsætter at værts-siden definerer palette-variablerne (--card/--accent/…).
  */
+/* overflow:visible (ikke hidden) → tokens ved kanten, HP-badges og aktiv-ringen
+   klippes aldrig. Tokens holdes alligevel inde i brættet af render-clampen i
+   _board.html, så intet flyder ud i siden. Billedet rundes selv for pæne hjørner. */
 .board{position:relative;display:inline-block;max-width:100%;border:1px solid var(--border);
- border-radius:6px;overflow:hidden;line-height:0;}
-.board-map{display:block;max-width:100%;height:auto;}
+ border-radius:6px;line-height:0;}
+.board-map{display:block;max-width:100%;height:auto;border-radius:5px;}
 .board-nomap{padding:2rem;color:var(--muted);font-style:italic;line-height:1.5;}
 .board-grid{position:absolute;inset:0;pointer-events:none;display:none;
  background-image:linear-gradient(to right, rgba(0,0,0,.30) 1px, transparent 1px),
