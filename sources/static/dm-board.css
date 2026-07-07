@@ -25,3 +25,12 @@
 .tok-mark{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
  font-size:1.35em;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));}
 .tok-hidden{outline:2px dashed var(--accent);outline-offset:1px;opacity:.85;}
+/* Kamp-overlay: HP-badge, aktiv-tur-ring, død. */
+.tok-hp{position:absolute;left:50%;bottom:-0.35em;transform:translateX(-50%);
+ background:rgba(20,16,12,.9);color:#ede7d5;font-size:.62em;font-weight:bold;
+ line-height:1;padding:.12em .3em;border-radius:.5em;white-space:nowrap;
+ border:1px solid rgba(0,0,0,.4);pointer-events:none;}
+.tok-active{outline:3px solid #ffd24a;outline-offset:2px;
+ box-shadow:0 0 8px 2px rgba(255,210,74,.7);z-index:4;}
+.tok-dead{opacity:.5;filter:grayscale(.7);}
+.tok-dead .tok-disc,.tok-dead .tok-lbl{text-decoration:line-through;}

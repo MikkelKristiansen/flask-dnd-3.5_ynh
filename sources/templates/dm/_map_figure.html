@@ -1,0 +1,11 @@
+{# Ét korts figur i play-viewet: overskrift + bræt (opstilling ELLER kamp).
+   Forventer: m = board_maps-post {map_url, board, title, combat, map_slug},
+   adv_ref, session. Genbruges af _block.html (inline i scenen) og af
+   /dm/api/encounter/<slug>/board (fragment-swap under kamp). #}
+<figure class="embed-doc board-fig"{% if m.combat %} data-combat="1" data-session="{{ session.slug }}"{% endif %}>
+  <figcaption>🗺 {{ m.title }}
+    {% if m.combat %}<span class="combat-badge">⚔ kamp — træk for at flytte</span>{% endif %}
+    <a class="board-link" href="{{ url_for('dm.board', adventure=adv_ref, map_slug=m.map_slug, **{'from': session.slug}) }}">✏️ Rediger</a>
+  </figcaption>
+  {% with map_url=m.map_url, board=m.board %}{% include "dm/_board.html" %}{% endwith %}
+</figure>

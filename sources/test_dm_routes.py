@@ -294,6 +294,35 @@ def test_encounter_set_pc_initiative_reorders(enc_client):
     assert enc["turn_order"][0] == "tjorn"             # højeste initiativ → først
 
 
+def test_encounter_board_shows_live_combat_positions(enc_client):
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 80}, "tokens": [
+        {"kind": "monster", "ref": "goblin", "label": "A", "col": 4, "row": 2},
+        {"kind": "monster", "ref": "goblin", "label": "B", "col": 5, "row": 2},
+        {"kind": "pc", "ref": "tjorn", "col": 1, "row": 6}]})
+    slug, _ = _start(enc_client)                        # seeder positioner fra opstillingen
+    # combatants fik startposition fra opstillingen
+    by = {c["id"]: c for c in ds.load_session(slug).encounter["combatants"]}
+    assert (by["goblin-a"]["col"], by["goblin-a"]["row"]) == (4, 2)
+    assert (by["tjorn"]["col"], by["tjorn"]["row"]) == (1, 6)
+    # bræt-fragmentet viser dem som combatant-tokens m/ HP-badge + kamp-markering
+    frag = enc_client.get(f"/dm/api/encounter/{slug}/board").get_data(as_text=True)
+    assert 'data-cid="goblin-a"' in frag and 'data-cid="goblin-b"' in frag
+    assert 'class="tok-hp"' in frag and "⚔ kamp" in frag
+    # play-viewet viser kamp-brættet direkte i #board-slot
+    html = enc_client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert 'id="board-slot"' in html and 'data-combat="1"' in html
+
+
+def test_encounter_board_falls_back_to_setup_when_no_combat(client):
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 80},
+        "tokens": [{"kind": "monster", "ref": "goblin", "col": 2, "row": 2}]})
+    slug = _new(client, name="NB")
+    frag = client.get(f"/dm/api/encounter/{slug}/board").get_data(as_text=True)
+    assert 'class="board"' in frag and "⚔ kamp" not in frag   # opstilling, ingen kamp
+
+
 def test_encounter_hp_damage_and_next_turn(enc_client):
     slug, _ = _start(enc_client)
     enc_client.post(f"/dm/api/encounter/{slug}/hp",

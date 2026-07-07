@@ -55,3 +55,53 @@ def board_view(setup: dict, adv=None, db=None, audience: str = "dm") -> dict:
             tv["name"] = t.get("note") or t.get("label") or kind
         tokens.append(tv)
     return {"grid": dict(setup.get("grid") or {}), "tokens": tokens}
+
+
+def _marker_token(t: dict) -> dict:
+    kind = t.get("kind", "note")
+    return {"kind": kind, "col": int(t.get("col", 0)), "row": int(t.get("row", 0)),
+            "hidden": bool(t.get("hidden")), "icon": _MARKER_ICON.get(kind, "📌"),
+            "name": t.get("note") or t.get("label") or kind}
+
+
+def _instance_letter(c: dict) -> str:
+    """Bogstav-etiket for en combatant-skive: 'A' fra id 'kriger-a', ellers navnets
+    forbogstav (enlig instans)."""
+    ref, cid = c.get("ref", ""), c.get("id", "")
+    if ref and cid.startswith(ref + "-"):
+        return cid[len(ref) + 1:].upper()
+    return (c.get("name") or ref)[:1].upper()
+
+
+def combat_board_view(setup: dict, encounter: dict, current_id: str | None = None) -> dict:
+    """Kamp-bræt: markører fra den forfattede opstilling + væsener fra encounterens
+    combatants på deres LIVE positioner (col/row sat ved seed/flyt), beriget med
+    HP, død-flag og aktiv-tur-markering. Combatants uden position udelades (de
+    står 'uden for brættet' men er stadig i trackeren). Grid arves fra opstillingen
+    (samme kalibrering editoren brugte). Genbruger _board.html via samme token-form
+    som board_view — bare med ekstra kamp-felter (cid/hp/active/dead)."""
+    tokens = [_marker_token(t) for t in setup.get("tokens", [])
+              if t.get("kind") not in ("pc", "monster", "npc")]
+    color_of, palette_i = {}, 0
+    for c in encounter.get("combatants", []):
+        if c.get("col") is None or c.get("row") is None:
+            continue
+        kind, ref = c.get("kind", "monster"), c.get("ref", "")
+        cur, hp_max = c.get("current_hp"), c.get("hp_max")
+        tv = {"kind": kind, "col": int(c["col"]), "row": int(c["row"]),
+              "cid": c["id"], "name": c.get("name") or ref,
+              "hp": ("" if cur is None else
+                     f"{cur}/{hp_max}" if hp_max is not None else str(cur)),
+              "dead": cur is not None and cur <= 0,
+              "active": c["id"] == current_id}
+        if kind == "pc":
+            tv["portrait"] = ref
+            tv["label"] = (c.get("name") or ref)[:2].upper()
+        else:
+            if ref not in color_of:
+                color_of[ref] = _COLORS[palette_i % len(_COLORS)]
+                palette_i += 1
+            tv["color"] = color_of[ref]
+            tv["label"] = _instance_letter(c)
+        tokens.append(tv)
+    return {"grid": dict(setup.get("grid") or {}), "tokens": tokens}

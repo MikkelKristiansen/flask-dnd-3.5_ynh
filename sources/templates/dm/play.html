@@ -29,6 +29,8 @@ a{color:var(--accent);}
 .board-link{font-size:.8rem;color:var(--muted);text-decoration:none;margin-left:.6rem;
  border:1px solid var(--border);border-radius:5px;padding:.15rem .5rem;white-space:nowrap;}
 .board-link:hover{color:var(--accent);border-color:var(--accent);}
+.combat-badge{font-size:.72rem;color:#ffd24a;border:1px solid #8a6d3d;border-radius:5px;
+ padding:.1rem .45rem;margin-left:.5rem;white-space:nowrap;vertical-align:middle;}
 .read{background:var(--read);border-left:4px solid var(--accent);border-radius:4px;
  padding:.8rem 1rem;margin:.8rem 0;font-style:italic;white-space:pre-line;line-height:1.5;}
 .read .cap{display:block;font-style:normal;color:var(--accent);font-size:.78rem;
@@ -248,7 +250,7 @@ a{color:var(--accent);}
   {% endfor %}
 </div>
 
-<span id="dm-cfg" data-root="{{ request.script_root }}" data-adv="{{ adv_ref }}" hidden></span>
+<span id="dm-cfg" data-root="{{ request.script_root }}" data-adv="{{ adv_ref }}" data-slug="{{ session.slug }}" hidden></span>
 
 <div id="lightbox" class="lb" hidden>
   <div class="lb-box" role="dialog" aria-modal="true">
@@ -297,6 +299,23 @@ a{color:var(--accent);}
     if (e.key === 'Escape' && !lb.hidden) close();
   });
 
+  // Kamp-brættet holdes synkront med trackeren: efter enhver kamp-handling
+  // (start/tur/HP/afslut) refetches bræt-fragmentet og #board-slot swappes, så
+  // positioner, HP og aktiv-tur-ring følger med. Server = sandhedskilde.
+  var SLUG = cfg.dataset.slug;
+  function refreshBoard() {
+    var slot = document.getElementById('board-slot');
+    if (!slot) return;
+    fetch(ROOT + '/dm/api/encounter/' + encodeURIComponent(SLUG) + '/board')
+      .then(function (r) { return r.status === 200 ? r.text() : null; })
+      .then(function (html) {
+        if (html === null) return;
+        slot.innerHTML = html;
+        if (window.dmLayoutAll) window.dmLayoutAll();     // swappet <script> kører ikke selv
+      })
+      .catch(function () {});
+  }
+
   // Encounter-tracker: alle handlinger er <form class="enc-f"> → POST via fetch,
   // og #tracker erstattes med det re-renderede fragment (server = sandhedskilde).
   var tracker = document.getElementById('tracker');
@@ -318,6 +337,7 @@ a{color:var(--accent);}
         // Kamp-tilstand: udvid konsollen når en kamp er aktiv (.enc-top findes kun da).
         document.querySelector('.layout').classList.toggle(
           'combat', !!tracker.querySelector('.enc-top'));
+        refreshBoard();
       })
       .catch(function () {});
   });

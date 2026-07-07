@@ -48,6 +48,34 @@ def test_player_audience_hides_hidden_tokens():
     assert len(pl) == len(dm) - 1
 
 
+def test_combat_board_view_places_combatants_with_hp_and_active():
+    setup = {"grid": {"cell": 100}, "tokens": [
+        {"kind": "trap", "ref": "spyd", "col": 0, "row": 0, "note": "DC15"}]}
+    encounter = {"active": True, "combatants": [
+        {"id": "kriger-a", "ref": "kriger", "kind": "monster", "name": "Kriger A",
+         "current_hp": 5, "hp_max": 8, "col": 6, "row": 3},
+        {"id": "tjorn", "ref": "tjorn", "kind": "pc", "name": "Tjørn",
+         "current_hp": 24, "hp_max": 24, "col": 2, "row": 8},
+        {"id": "skelet", "ref": "skelet", "kind": "monster", "name": "Skelet",
+         "current_hp": 6, "hp_max": 6}]}          # ingen position → uden for brættet
+    bv = B.combat_board_view(setup, encounter, current_id="kriger-a")
+    by = {t.get("cid") or t["name"]: t for t in bv["tokens"]}
+    assert by["DC15"]["icon"] == "🪤"              # markør fra opstillingen bevaret
+    assert by["kriger-a"]["hp"] == "5/8" and by["kriger-a"]["active"] is True
+    assert by["kriger-a"]["label"] == "A"          # instans-bogstav på skiven
+    assert by["tjorn"]["portrait"] == "tjorn" and by["tjorn"]["active"] is False
+    assert "skelet" not in by                       # combatant uden position udeladt
+    assert sum(1 for t in bv["tokens"] if t.get("cid")) == 2
+
+
+def test_combat_board_view_marks_dead():
+    enc = {"active": True, "combatants": [
+        {"id": "ork", "ref": "ork", "kind": "monster", "name": "Ork",
+         "current_hp": 0, "hp_max": 10, "col": 1, "row": 1}]}
+    t = B.combat_board_view({"grid": {}, "tokens": []}, enc)["tokens"][0]
+    assert t["dead"] is True and t["hp"] == "0/10"
+
+
 def test_setup_load_missing_is_empty(tmp_path, monkeypatch):
     monkeypatch.setattr(S, "ADVENTURES_DIR", tmp_path / "adventures")
     assert dm_setups.load_setup("Ukendt", "kort") == {"grid": {}, "tokens": []}

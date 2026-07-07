@@ -299,6 +299,20 @@ def encounter_end(slug):
     return _tracker_html(ds.end_encounter(slug))
 
 
+@dm_bp.route("/api/encounter/<slug>/board")
+def encounter_board(slug):
+    """Bræt-fragmentet for aktiv scenes primær-kort (kamp- eller opstillings-
+    tilstand). Play-viewet refetcher det efter tracker-handlinger, så positioner,
+    HP og aktiv-tur-markør holdes synkrone med kampen."""
+    session = _load_or_404(slug)
+    adv = ds.load_adventure(session.adventure)
+    board_maps, map_slug = _scene_board_maps(session, adv)
+    if not map_slug:
+        return ("", 204)
+    return render_template("dm/_map_figure.html", m=board_maps[map_slug],
+                           adv_ref=session.adventure, session=session)
+
+
 @dm_bp.route("/api/statblock/<adventure>/<etype>/<ident>")
 def api_statblock(adventure, etype, ident):
     """Slå en klikket entity op og returnér dens statblok som HTML-fragment til
@@ -415,6 +429,43 @@ def media(adventure, filename):
     return send_from_directory(ds.adventure_dir(adventure), filename)
 
 
+def _current_combatant_id(enc):
+    """Id på combatanten hvis tur det er (eller None hvis ingen aktiv kamp)."""
+    order = enc.get("turn_order", [])
+    if enc.get("active") and order:
+        return order[min(int(enc.get("turn_index", 0)), len(order) - 1)]
+    return None
+
+
+def _scene_board_maps(session, adventure):
+    """Bræt-data pr. @kort-embed i sessionens aktive scene. Primær-kortet (første
+    @kort) viser LIVE kamp-positioner når en kamp er i gang, ellers den forfattede
+    opstilling. Returnerer (board_maps, primær-map-slug)."""
+    active = next((sc for sc in adventure.scenes if sc.id == session.active_scene),
+                  adventure.scenes[0] if adventure.scenes else None)
+    enc = session.encounter
+    current_id = _current_combatant_id(enc)
+    board_maps, map_slug = {}, None
+    for b in (active.blocks if active else []):
+        if getattr(b, "kind", None) != "embed" or b.entity.type != "kort":
+            continue
+        mslug = b.entity.id
+        if map_slug is None:
+            map_slug = mslug
+        if mslug in board_maps:
+            continue
+        src, title = _map_src(adventure, mslug)
+        setup = dm_setups.load_setup(session.adventure, mslug)
+        combat = bool(enc.get("active")) and mslug == map_slug   # kun primær-kortet
+        board = (dm_board.combat_board_view(setup, enc, current_id) if combat
+                 else dm_board.board_view(setup, adventure, db, audience="dm"))
+        board_maps[mslug] = {
+            "map_url": url_for("dm.media", adventure=session.adventure,
+                               filename=src) if src else None,
+            "board": board, "title": title, "combat": combat, "map_slug": mslug}
+    return board_maps, map_slug
+
+
 @dm_bp.route("/play/<slug>")
 def play(slug):
     try:
@@ -429,22 +480,7 @@ def play(slug):
     active = next((sc for sc in adventure.scenes if sc.id == session.active_scene),
                   adventure.scenes[0] if adventure.scenes else None)
     party = dm_party.party_view(session.party, db)
-    # Bræt-data pr. @kort-embed i aktiv scene, så play-viewet kan vise selve
-    # brættet (kort + grid + opstillingens tokens), ikke bare kort-billedet.
-    # map_slug = første kort (til "Åbn bræt"-linket).
-    board_maps, map_slug = {}, None
-    for b in (active.blocks if active else []):
-        if getattr(b, "kind", None) == "embed" and b.entity.type == "kort":
-            mslug = b.entity.id
-            if map_slug is None:
-                map_slug = mslug
-            if mslug not in board_maps:
-                src, _ = _map_src(adventure, mslug)
-                setup = dm_setups.load_setup(session.adventure, mslug)
-                board_maps[mslug] = {
-                    "map_url": url_for("dm.media", adventure=session.adventure,
-                                       filename=src) if src else None,
-                    "board": dm_board.board_view(setup, adventure, db, audience="dm")}
+    board_maps, map_slug = _scene_board_maps(session, adventure)
     return render_template("dm/play.html", session=session,
                            adventure=adventure, active=active, party=party,
                            adv_ref=session.adventure, map_slug=map_slug,

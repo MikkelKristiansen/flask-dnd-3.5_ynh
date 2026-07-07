@@ -9,8 +9,8 @@
   <div class="board-nomap">Intet kort-billede — upload det under Eventyr → billeder.</div>{% endif %}
   <div class="board-grid"></div>
   {% for t in board.tokens %}
-  <div class="tok tok-{{ t.kind }}{{ ' tok-hidden' if t.hidden }}"
-       data-col="{{ t.col }}" data-row="{{ t.row }}" title="{{ t.name }}">
+  <div class="tok tok-{{ t.kind }}{{ ' tok-hidden' if t.hidden }}{{ ' tok-active' if t.active }}{{ ' tok-dead' if t.dead }}"
+       data-col="{{ t.col }}" data-row="{{ t.row }}"{% if t.cid %} data-cid="{{ t.cid }}"{% endif %} title="{{ t.name }}">
     {% if t.kind == 'pc' %}
       <span class="tok-lbl">{{ t.label }}</span>
       <img class="tok-por" src="{{ url_for('portrait', slug=t.portrait) }}" alt="" onerror="this.remove()">
@@ -19,20 +19,20 @@
     {% else %}
       <span class="tok-mark">{{ t.icon }}</span>
     {% endif %}
+    {% if t.hp %}<span class="tok-hp">{{ t.hp }}</span>{% endif %}
   </div>
   {% endfor %}
 </div>
 
 <script>
 (function () {
-  var boards = [];
-  document.querySelectorAll('.board').forEach(function (board) {
+  // Én layout-funktion pr. bræt, hængt på elementet (board.__layout). Idempotent
+  // og re-kørbar → virker både ved kalibrering (live preview) OG efter en DOM-swap
+  // af kamp-brættet (dmLayoutAll gen-scanner .board og genskaber manglende layout).
+  function attach(board) {
     var img = board.querySelector('.board-map');
-    if (!img) return;
-    // Læser board.dataset (cell/gx/gy) frisk hver gang → kan re-køres live under
-    // kalibrering. window.dmNaturalW eksponerer billedets naturlige bredde til
-    // "N felter kant-til-kant"-genvejen.
-    function layout() {
+    if (!img || board.__layout) return;
+    board.__layout = function () {
       var Wn = img.naturalWidth, Hn = img.naturalHeight;
       if (!Wn || !Hn) return;
       board.dataset.naturalW = Wn;
@@ -54,12 +54,29 @@
         if (cell > 0) tok.style.width = (frac * 100) + '%';
         tok.style.fontSize = Math.max(8, tokPx * 0.42) + 'px';
       });
-    }
-    board.__layout = layout;
-    boards.push(board);
-    if (img.complete) layout(); else img.addEventListener('load', layout);
-  });
-  window.dmRelayout = function () { boards.forEach(function (b) { b.__layout(); }); };
+    };
+    if (img.complete) board.__layout(); else img.addEventListener('load', board.__layout);
+  }
+  // Læg alle brætter ud (kaldes efter en swap af kamp-brættet — swappet <script>
+  // kører ikke selv, så værts-siden kalder denne).
+  window.dmLayoutAll = function () { document.querySelectorAll('.board').forEach(attach); };
+  window.dmRelayout = function () {
+    document.querySelectorAll('.board').forEach(function (b) { if (b.__layout) b.__layout(); });
+  };
+  // Delt snap: (klient-px) → nærmeste grid-celle {col,row}. Genbruges af kamp-flyt.
+  // null hvis brættet ikke er kalibreret (intet grid).
+  window.dmSnapCell = function (board, clientX, clientY) {
+    var img = board.querySelector('.board-map'); if (!img) return null;
+    var Wn = +board.dataset.naturalW || img.naturalWidth, Hn = img.naturalHeight;
+    var cell = +board.dataset.cell || 0, gx = +board.dataset.gx || 0, gy = +board.dataset.gy || 0;
+    if (!Wn || !Hn || cell <= 0) return null;
+    var r = board.getBoundingClientRect();
+    var cl = function (f) { return f < 0 ? 0 : f > 1 ? 1 : f; };
+    var natX = cl((clientX - r.left) / r.width) * Wn, natY = cl((clientY - r.top) / r.height) * Hn;
+    return { col: Math.max(0, Math.round((natX - gx) / cell - 0.5)),
+             row: Math.max(0, Math.round((natY - gy) / cell - 0.5)) };
+  };
+  window.dmLayoutAll();
   window.addEventListener('resize', window.dmRelayout);   // re-skalér tokens+skrift
 })();
 </script>
