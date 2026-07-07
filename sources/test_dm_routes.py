@@ -397,6 +397,16 @@ def test_board_tokens_save_persists_and_sanitizes(client):
     assert setup["tokens"][1]["hidden"] is True
 
 
+def test_play_board_markers_are_clickable_with_note(client):
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 80}, "tokens": [
+        {"kind": "trap", "ref": "spyd", "col": 3, "row": 3, "note": "DC 15 Reflex"}]})
+    slug = _new(client, name="MK")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert 'data-marker="1"' in html and 'data-mkind="trap"' in html
+    assert 'DC 15 Reflex' in html                       # noten bæres ud til klik-detalje
+
+
 def test_board_tokens_unknown_adventure_404(client):
     assert client.post("/dm/board/Nope/testkort/tokens", json=[]).status_code == 404
 

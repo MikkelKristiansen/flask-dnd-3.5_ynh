@@ -68,6 +68,13 @@ def test_combat_board_view_places_combatants_with_hp_and_active():
     assert sum(1 for t in bv["tokens"] if t.get("cid")) == 2
 
 
+def test_combat_board_marker_carries_note_and_ref():
+    setup = {"grid": {}, "tokens": [
+        {"kind": "trap", "ref": "spyd", "col": 0, "row": 0, "note": "DC15"}]}
+    t = B.combat_board_view(setup, {"active": True, "combatants": []})["tokens"][0]
+    assert t["kind"] == "trap" and t["note"] == "DC15" and t["ref"] == "spyd"
+
+
 def test_combat_board_view_marks_dead():
     enc = {"active": True, "combatants": [
         {"id": "ork", "ref": "ork", "kind": "monster", "name": "Ork",

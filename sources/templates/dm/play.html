@@ -289,11 +289,24 @@ a{color:var(--accent);}
   }
   function close() { lb.hidden = true; body.innerHTML = ''; }
 
+  var MARKER_LABEL = { trap: '🪤 Fælde', door: '🚪 Dør', treasure: '💰 Skat', note: '📌 Note' };
+  function openMarker(el) {                       // markør på brættet → note-detalje
+    title.textContent = MARKER_LABEL[el.dataset.mkind] || '📌 Markør';
+    var p = document.createElement('p');
+    var note = el.dataset.mnote || '';
+    if (note) { p.textContent = note; } else { p.className = 'note'; p.textContent = 'Ingen note.'; }
+    body.innerHTML = '';
+    body.appendChild(p);
+    lb.hidden = false;
+  }
+
   document.addEventListener('click', function (e) {
     var doc = e.target.closest('.ent-link');
     if (doc) { e.preventDefault(); openDoc(doc.dataset.doc); return; }
     var stat = e.target.closest('.ent-stat');
     if (stat) { e.preventDefault(); openStat(stat.dataset.stat); return; }
+    var marker = e.target.closest('.tok[data-marker]');
+    if (marker) { e.preventDefault(); openMarker(marker); return; }
     if (e.target === lb || e.target.closest('.lb-close')) close();
   });
   document.addEventListener('keydown', function (e) {

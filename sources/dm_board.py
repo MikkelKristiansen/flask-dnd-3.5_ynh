@@ -61,6 +61,7 @@ def _marker_token(t: dict) -> dict:
     kind = t.get("kind", "note")
     return {"kind": kind, "col": int(t.get("col", 0)), "row": int(t.get("row", 0)),
             "hidden": bool(t.get("hidden")), "icon": _MARKER_ICON.get(kind, "📌"),
+            "ref": t.get("ref", ""), "note": t.get("note", ""),
             "name": t.get("note") or t.get("label") or kind}
 
 
