@@ -21,6 +21,7 @@ import db
 import dm_board
 import dm_media
 import dm_party
+import dm_rolls
 import dm_session as ds
 import dm_setups
 from paths import CHARACTERS_DIR
@@ -221,22 +222,36 @@ def _encounter_sources(session, adv):
 
 
 def _encounter_statblocks(session, ordered):
-    """Statblokke pr. DISTINKT monstertype i kampen (Goblin A/B deler ét kort),
-    så DM'en har monster-stats permanent foran sig. Reference-data resolves live
-    (adventure-lokalt → bestiar) — ikke gemt i sessionen. PC'er udelades (de står
-    i party-panelet). Rækkefølge følger tur-ordenen."""
+    """To ting i ét gennemløb (deler statblok-opslaget, så eventyret kun loades én gang):
+
+    1. Returnér statblokke pr. DISTINKT monstertype (Goblin A/B deler ét reference-
+       kort) i tur-rækkefølge, så DM'en har monster-stats permanent foran sig.
+    2. Hæft `rolls` PR. INSTANS på hver monster-combatant (in-place) — de klikbare
+       til-hit/skade/save-udtryk med combatantens aktive conditions foldet ind
+       (dm_rolls). Så Goblin A (shaken) ruller lavere end Goblin B.
+
+    Reference-data resolves live (adventure-lokalt → bestiar), ikke gemt i sessionen.
+    PC'er udelades (de står i party-panelet og ruller på egne ark)."""
     try:
         adv = ds.load_adventure(session.adventure)
     except FileNotFoundError:
         adv = None
+    views: dict[str, dict] = {}                 # ref → monster_view (delt opslag)
     out, seen = [], set()
     for c in ordered:
-        if c["kind"] == "pc" or c["ref"] in seen:
+        if c["kind"] == "pc":
             continue
-        seen.add(c["ref"])
-        row = (adv.statblock(c["ref"]) if adv else None) or db.get_monster(c["ref"])
-        if row:
-            out.append(bestiary.monster_view(row))
+        ref = c["ref"]
+        if ref not in views:
+            row = (adv.statblock(ref) if adv else None) or db.get_monster(ref)
+            views[ref] = bestiary.monster_view(row) if row else None
+        m = views[ref]
+        if not m:
+            continue
+        c["rolls"] = dm_rolls.combatant_rolls(m, c.get("conditions") or [], db)
+        if ref not in seen:                     # ét reference-kort pr. type
+            seen.add(ref)
+            out.append(m)
     return out
 
 

@@ -176,6 +176,36 @@ a{color:var(--accent);}
 .sbk-sp{color:var(--muted);font-size:.84rem;margin-top:.2rem;}
 .sbk-sp b{color:var(--muted);}
 .sbk-list{display:block;}
+/* Klikbare terninger pr. combatant + rulle-log (genbruger /api/roll via dm-rolls.js).
+   Conditions er foldet ind server-side (dm_rolls); .modded markerer en ændret række. */
+.cbt-rolls{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;margin-top:.3rem;
+ padding-top:.3rem;border-top:1px dotted var(--border);}
+.cbt-rolls.modded{border-top-color:#b5432c;}
+.cbt-saves{display:inline-flex;align-items:center;gap:.2rem;margin-left:auto;}
+.atk{display:inline-flex;align-items:center;gap:.25rem;background:var(--surface);
+ border:1px solid var(--border);border-radius:6px;padding:.1rem .35rem;}
+.atk-name{color:var(--text);font-size:.78rem;}
+.roll{font-family:inherit;font-size:.8rem;background:var(--surface);color:var(--text);
+ border:1px solid var(--border);border-radius:5px;padding:.05rem .4rem;cursor:pointer;line-height:1.4;}
+.roll:hover{border-color:var(--accent);color:var(--accent);}
+.roll:active{transform:translateY(1px);}
+.roll-hit{color:var(--accent);font-weight:bold;}
+.roll-dmg{color:#e5b8a0;}
+.roll-crit{color:#ffd24a;border-color:#8a6d3d;}
+.rolllog{margin-top:.9rem;}
+.rolllog-head{display:flex;justify-content:space-between;align-items:center;color:var(--accent);
+ font-size:.85rem;font-weight:bold;letter-spacing:.5px;border-bottom:1px solid var(--border);
+ padding-bottom:.2rem;margin-bottom:.35rem;}
+#roll-clear{background:none;border:1px solid var(--border);color:var(--muted);font-family:inherit;
+ font-size:.66rem;border-radius:4px;padding:.05rem .45rem;cursor:pointer;}
+#roll-clear:hover{color:var(--accent);border-color:var(--accent);}
+#roll-log{display:flex;flex-direction:column;gap:.2rem;}
+.rl-row{display:flex;align-items:baseline;gap:.5rem;font-size:.82rem;background:var(--read);
+ border-radius:5px;padding:.2rem .5rem;}
+.rl-lbl{flex:1;color:var(--text);min-width:0;}
+.rl-tot{color:var(--accent);font-weight:bold;font-size:1.05rem;}
+.rl-det{color:var(--muted);font-size:.75rem;white-space:nowrap;}
+.rl-empty{color:var(--muted);font-size:.75rem;font-style:italic;}
 /* Kamp-tilstand: historien er ligegyldig når der rulles terninger → giv
    konsollen pladsen. Scene-nav skjules, konsollen bliver bred. Statblokke
    står i ÉN kolonne og fylder hele div-bredden. */
@@ -215,6 +245,15 @@ a{color:var(--accent);}
   <aside class="side">
     <h3>Kamp</h3>
     <div id="tracker" class="tracker">{{ tracker_html|safe }}</div>
+
+    {# Rulle-loggen bor UDEN FOR #tracker, så den ikke tørres væk hver gang
+       trackeren re-renderes (Næste tur / HP / condition). #}
+    <div class="rolllog">
+      <div class="rolllog-head"><span>Terningkast</span>
+        <button type="button" id="roll-clear">Ryd</button></div>
+      <div id="roll-log"><div class="rl-empty">Klik en bonus, skade eller save i
+        statblokkene for at rulle.</div></div>
+    </div>
 
     <h3>Party</h3>
     {% for pc in party %}
@@ -261,6 +300,7 @@ a{color:var(--accent);}
 </div>
 
 <script src="{{ static_url('dm-combat-board.js') }}"></script>
+<script src="{{ static_url('dm-rolls.js') }}"></script>
 <script>
 (function () {
   var lb = document.getElementById('lightbox');

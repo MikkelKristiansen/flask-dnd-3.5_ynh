@@ -43,6 +43,39 @@
       </form>
     </div>
 
+    {% if c.rolls %}
+    {# Pr-instans terningkast (monstre/NPC'er). Aktive conditions er ALLEREDE foldet
+       ind i udtrykkene af dm_rolls.combatant_rolls, så Goblin A (shaken) ruller
+       lavere end Goblin B. .modded + title markerer at et tal er ændret. #}
+    <div class="cbt-rolls{{ ' modded' if c.rolls.modified }}"
+         {% if c.rolls.sources %}title="Inkl. {{ c.rolls.sources|join(', ') }}"{% endif %}>
+      {% for at in c.rolls.attacks %}
+      <span class="atk">
+        <span class="atk-name">{{ at.name }}</span>
+        <button type="button" class="roll roll-hit" data-roll="{{ at.hit_expr }}"
+                data-label="{{ c.name }} · {{ at.name }} til-hit">{{ '%+d'|format(at.hit_bonus) }}</button>
+        {% if at.dmg_expr %}
+        <button type="button" class="roll roll-dmg" data-roll="{{ at.dmg_expr }}" data-min="1"
+                data-label="{{ c.name }} · {{ at.name }} skade">{{ at.dmg_expr }}</button>
+        {% if at.crit_mult %}
+        <button type="button" class="roll roll-crit" data-roll="{{ at.dmg_expr }}" data-min="1"
+                data-crit="{{ at.crit_mult }}" title="Trusselsområde {{ at.crit_range }}"
+                data-label="{{ c.name }} · {{ at.name }} KRIT ×{{ at.crit_mult }}">⚡×{{ at.crit_mult }}</button>
+        {% endif %}
+        {% endif %}
+      </span>
+      {% endfor %}
+      <span class="cbt-saves">
+        <button type="button" class="roll" data-roll="{{ c.rolls.saves.fort.expr }}"
+                data-label="{{ c.name }} · Fort-save">F {{ '%+d'|format(c.rolls.saves.fort.val) }}</button>
+        <button type="button" class="roll" data-roll="{{ c.rolls.saves.ref.expr }}"
+                data-label="{{ c.name }} · Ref-save">R {{ '%+d'|format(c.rolls.saves.ref.val) }}</button>
+        <button type="button" class="roll" data-roll="{{ c.rolls.saves.will.expr }}"
+                data-label="{{ c.name }} · Will-save">V {{ '%+d'|format(c.rolls.saves.will.val) }}</button>
+      </span>
+    </div>
+    {% endif %}
+
     {% if c.conditions %}
     <div class="cbt-conds">{% for cond in c.conditions %}<span class="cond-chip">{{ cond }}</span>{% endfor %}</div>
     {% endif %}
@@ -78,6 +111,8 @@
       · <b>Fart</b> {{ m.speed }}
     </div>
     {% if m.attacks %}
+    {# Ren reference (basis-tal). De KLIKBARE, condition-foldede rul bor pr. instans
+       på combatant-rækkerne ovenfor — her står de trykte grundtal til opslag. #}
     <div class="sbk-line"><b>Angreb</b>
       {% for at in m.attacks %}{{ at.name }} {{ at.bonus }}{% if at.damage %} ({{ at.damage }}{% if at.crit %}/{{ at.crit }}{% endif %}){% endif %}{{ '; ' if not loop.last }}{% endfor %}
     </div>
