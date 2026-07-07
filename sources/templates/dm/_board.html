@@ -43,11 +43,16 @@
         grid.style.backgroundPosition = (gx / Wn * 100) + '% ' + (gy / Hn * 100) + '%';
         grid.style.display = 'block';
       } else { grid.style.display = 'none'; }
+      // Token-diameter i faktiske px → skaler skriften med (læsbar i både
+      // fuld-bredde og den smalle kamp-kolonne).
+      var frac = cell > 0 ? cell / Wn : 0.05;
+      var tokPx = frac * (img.clientWidth || Wn);
       board.querySelectorAll('.tok').forEach(function (tok) {
         var col = +tok.dataset.col || 0, row = +tok.dataset.row || 0;
         tok.style.left = ((gx + (col + 0.5) * cell) / Wn * 100) + '%';
         tok.style.top = ((gy + (row + 0.5) * cell) / Hn * 100) + '%';
-        if (cell > 0) tok.style.width = (cell / Wn * 100) + '%';
+        if (cell > 0) tok.style.width = (frac * 100) + '%';
+        tok.style.fontSize = Math.max(8, tokPx * 0.42) + 'px';
       });
     }
     board.__layout = layout;
@@ -55,5 +60,6 @@
     if (img.complete) layout(); else img.addEventListener('load', layout);
   });
   window.dmRelayout = function () { boards.forEach(function (b) { b.__layout(); }); };
+  window.addEventListener('resize', window.dmRelayout);   // re-skalér tokens+skrift
 })();
 </script>

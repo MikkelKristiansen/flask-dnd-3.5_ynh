@@ -357,11 +357,16 @@ def board(adventure, map_slug):
     adv = ds.load_adventure(adventure)
     src, title = _map_src(adv, map_slug)
     setup = dm_setups.load_setup(adventure, map_slug)
+    # ?from=<session> → tilbage-link til den kamp man kom fra (validér den findes).
+    back = request.args.get("from")
+    if back and not any(s["slug"] == back for s in ds.list_sessions()):
+        back = None
     return render_template(
         "dm/board.html", title=title,
         map_url=url_for("dm.media", adventure=adventure, filename=src) if src else None,
         board=dm_board.board_view(setup, adv, db, audience="dm"),
-        palette=_board_palette(adv), token_style=dm_board.token_style())
+        palette=_board_palette(adv), token_style=dm_board.token_style(),
+        back_session=back)
 
 
 @dm_bp.route("/board/<adventure>/<map_slug>/grid", methods=["POST"])
@@ -411,15 +416,25 @@ def play(slug):
     active = next((sc for sc in adventure.scenes if sc.id == session.active_scene),
                   adventure.scenes[0] if adventure.scenes else None)
     party = dm_party.party_view(session.party, db)
-    # Kort-slug for aktiv scene (første @kort-embed) → link til brættet.
-    map_slug = None
-    if active:
-        for b in active.blocks:
-            if getattr(b, "kind", None) == "embed" and b.entity.type == "kort":
-                map_slug = b.entity.id
-                break
+    # Bræt-data pr. @kort-embed i aktiv scene, så play-viewet kan vise selve
+    # brættet (kort + grid + opstillingens tokens), ikke bare kort-billedet.
+    # map_slug = første kort (til "Åbn bræt"-linket).
+    board_maps, map_slug = {}, None
+    for b in (active.blocks if active else []):
+        if getattr(b, "kind", None) == "embed" and b.entity.type == "kort":
+            mslug = b.entity.id
+            if map_slug is None:
+                map_slug = mslug
+            if mslug not in board_maps:
+                src, _ = _map_src(adventure, mslug)
+                setup = dm_setups.load_setup(session.adventure, mslug)
+                board_maps[mslug] = {
+                    "map_url": url_for("dm.media", adventure=session.adventure,
+                                       filename=src) if src else None,
+                    "board": dm_board.board_view(setup, adventure, db, audience="dm")}
     return render_template("dm/play.html", session=session,
                            adventure=adventure, active=active, party=party,
                            adv_ref=session.adventure, map_slug=map_slug,
+                           board_maps=board_maps,
                            doc_titles=_doc_titles(adventure),
                            tracker_html=_tracker_html(session))

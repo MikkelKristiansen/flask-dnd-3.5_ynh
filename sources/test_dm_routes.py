@@ -368,6 +368,28 @@ def test_play_has_board_link(client):
     assert "/dm/board/Test/testkort" in html and "Åbn bræt" in html
 
 
+def test_play_renders_board_with_setup_tokens(client):
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 80},
+        "tokens": [{"kind": "monster", "ref": "goblin", "label": "A", "col": 3, "row": 2}]})
+    slug = _new(client, name="BM")                     # aktiv scene har @kort[testkort]
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    # Selve brættet (kort+grid+token) vises inline i kamp-overblikket, ikke bare billedet.
+    assert 'class="board"' in html and "dm-board.css" in html
+    assert 'class="tok tok-monster"' in html and 'data-cell="80"' in html
+    # + link tilbage til brættet med session-kontekst (?from=)
+    assert f"from={slug}" in html
+
+
+def test_board_back_link_needs_valid_from(client):
+    slug = _new(client, name="BK")
+    with_from = client.get(f"/dm/board/Test/testkort?from={slug}").get_data(as_text=True)
+    assert "Tilbage til kampen" in with_from and f"/dm/play/{slug}" in with_from
+    # ugyldig session ignoreres (intet dødt tilbage-link)
+    bad = client.get("/dm/board/Test/testkort?from=findes-ikke").get_data(as_text=True)
+    assert "Tilbage til kampen" not in bad
+
+
 def test_play_gets_combat_class_when_encounter_active(enc_client):
     slug, _ = _start(enc_client)
     html = enc_client.get(f"/dm/play/{slug}").get_data(as_text=True)

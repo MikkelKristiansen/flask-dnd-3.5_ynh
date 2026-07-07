@@ -8,7 +8,18 @@
     {% for e in b.entries %}{{ e.count }}× {{ e.id }}{{ ', ' if not loop.last }}{% endfor %}</div>
 {% elif b.kind == 'embed' %}
   {% set doc = adventure.resolve(b.entity) %}
-  {% if doc %}
+  {% if b.entity.type == 'kort' and board_maps and b.entity.id in board_maps %}
+    {# Kort med en kalibreret opstilling → vis selve brættet (kort+grid+tokens),
+       ikke bare billedet, så DM'en ser hvor tokens starter. Genbruger den delte
+       bræt-komponent (view-tilstand). #}
+    <figure class="embed-doc">
+      <figcaption>🗺 {{ doc.title if doc else b.entity.id }}
+        <a class="board-link" href="{{ url_for('dm.board', adventure=adv_ref, map_slug=b.entity.id, **{'from': session.slug}) }}">✏️ Rediger</a></figcaption>
+      {% with map_url=board_maps[b.entity.id].map_url, board=board_maps[b.entity.id].board %}
+        {% include "dm/_board.html" %}
+      {% endwith %}
+    </figure>
+  {% elif doc %}
     {# Dokument-lokal reference (kort/brev/…) placeret alene på en linje →
        vis dokumentets indhold inline her. #}
     <figure class="embed-doc">
