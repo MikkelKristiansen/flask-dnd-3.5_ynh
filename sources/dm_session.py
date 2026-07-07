@@ -182,10 +182,15 @@ def _find_combatant(session: CampaignSession, cid: str) -> dict | None:
                  if c["id"] == cid), None)
 
 
-def begin_encounter(slug: str, combatants: list[dict]) -> CampaignSession:
+def begin_encounter(slug: str, combatants: list[dict],
+                    setup_tokens: list[dict] | None = None) -> CampaignSession:
     """Start en kamp fra allerede byggede+initiativ-rullede combatants (bygges i
-    routen ud fra scenens roster + party). Sætter tur-rækkefølge, runde 1, tur 0."""
+    routen ud fra scenens roster + party). Sætter tur-rækkefølge, runde 1, tur 0.
+    `setup_tokens` (kortets opstilling) → hver combatant får sin startposition
+    fra den matchende token, så brættet viser hvor alle står ved kamp-start."""
     session = load_session(slug)
+    if setup_tokens:
+        dm_encounter.seed_positions(combatants, setup_tokens)
     session.encounter = {
         "round": 1,
         "turn_index": 0,
@@ -237,6 +242,17 @@ def set_combatant_hp(slug: str, cid: str, current_hp: int) -> CampaignSession:
     c = _find_combatant(session, cid)
     if c is not None:
         c["current_hp"] = int(current_hp)
+        save_session(session)
+    return session
+
+
+def set_combatant_position(slug: str, cid: str, col: int, row: int) -> CampaignSession:
+    """Flyt en combatant til en ny grid-celle (live-position under kamp). Muterer
+    kun encounter-tilstanden — kortets forfattede opstilling røres ikke."""
+    session = load_session(slug)
+    c = _find_combatant(session, cid)
+    if c is not None and session.encounter.get("active"):
+        c["col"], c["row"] = int(col), int(row)
         save_session(session)
     return session
 

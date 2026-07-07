@@ -65,3 +65,32 @@ def test_advance_wraps_to_new_round():
     assert E.advance(1, 0, 3) == (1, 1)
     assert E.advance(1, 2, 3) == (2, 0)          # sidste tur → ny runde
     assert E.advance(5, 0, 0) == (5, 0)          # tom encounter rører ikke tælleren
+
+
+def test_seed_positions_binds_by_instance_letter():
+    combs = E.build_combatants([
+        {"name": "Kriger", "count": 2, "ref": "kriger", "kind": "monster",
+         "init_mod": 0, "hp_max": 8},
+        {"name": "Tjørn", "count": 1, "ref": "tjorn", "kind": "pc",
+         "init_mod": 0, "hp_max": 24}])
+    tokens = [
+        {"kind": "monster", "ref": "kriger", "label": "A", "col": 6, "row": 3},
+        {"kind": "monster", "ref": "kriger", "label": "B", "col": 7, "row": 3},
+        {"kind": "pc", "ref": "tjorn", "col": 2, "row": 8},
+        {"kind": "trap", "ref": "spyd", "col": 5, "row": 1},   # markør ignoreres
+    ]
+    E.seed_positions(combs, tokens)
+    by = {c["id"]: c for c in combs}
+    assert (by["kriger-a"]["col"], by["kriger-a"]["row"]) == (6, 3)
+    assert (by["kriger-b"]["col"], by["kriger-b"]["row"]) == (7, 3)
+    assert (by["tjorn"]["col"], by["tjorn"]["row"]) == (2, 8)
+
+
+def test_seed_positions_next_free_when_no_letter_match_and_no_token_ok():
+    combs = E.build_combatants([
+        {"name": "Ulv", "count": 2, "ref": "ulv", "init_mod": 0, "hp_max": 13}])
+    # DM placerede kun ÉN ulv-token (uden bogstav) + ingen for kriger
+    E.seed_positions(combs, [{"kind": "monster", "ref": "ulv", "col": 4, "row": 4}])
+    a, b = combs
+    assert (a["col"], a["row"]) == (4, 4)          # første ulv tager den ledige token
+    assert "col" not in b                           # anden ulv står uden for brættet

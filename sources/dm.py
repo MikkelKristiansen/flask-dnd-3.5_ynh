@@ -234,6 +234,16 @@ def _load_or_404(slug):
         abort(404)
 
 
+def _active_map_slug(adv, session):
+    """Kort-slug for sessionens aktive scene (første @kort-embed), ellers None."""
+    scene = next((s for s in adv.scenes if s.id == session.active_scene),
+                 adv.scenes[0] if adv.scenes else None)
+    for b in (scene.blocks if scene else []):
+        if getattr(b, "kind", None) == "embed" and b.entity.type == "kort":
+            return b.entity.id
+    return None
+
+
 @dm_bp.route("/api/encounter/<slug>/start", methods=["POST"])
 def encounter_start(slug):
     session = _load_or_404(slug)
@@ -241,7 +251,10 @@ def encounter_start(slug):
     combs = dm_encounter.build_combatants(_encounter_sources(session, adv))
     # Auto-rul initiativ for monstre; PC'er efterlades blanke (DM taster spillernes rul).
     dm_encounter.roll_initiative([c for c in combs if c["kind"] != "pc"])
-    session = ds.begin_encounter(slug, combs)
+    # Seed startpositioner fra kortets opstilling (hvis scenen har et kort).
+    map_slug = _active_map_slug(adv, session)
+    tokens = dm_setups.load_setup(session.adventure, map_slug)["tokens"] if map_slug else []
+    session = ds.begin_encounter(slug, combs, tokens)
     return _tracker_html(session)
 
 

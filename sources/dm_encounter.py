@@ -63,6 +63,29 @@ def build_combatants(sources: list[dict]) -> list[dict]:
     return out
 
 
+def seed_positions(combatants: list[dict], tokens: list[dict]) -> None:
+    """Sæt `col`/`row` på hver combatant (in-place) fra den matchende opstillings-
+    token på kortet. Binder væsen-token ↔ combatant via ref + instans-bogstav:
+    en combatant med id `kriger-a` tager token'en {ref:kriger, label:A}. Er der
+    intet bogstav-match (fx DM'en labelede anderledes), tildeles den næste ledige
+    token af samme ref. Tokens forbruges, så to combatants aldrig deler position;
+    combatants uden token får ingen position (bliver "uden for brættet").
+    """
+    pool: dict[str, list[dict]] = {}
+    for t in tokens:
+        if t.get("kind") in ("pc", "monster", "npc") and t.get("ref"):
+            pool.setdefault(t["ref"], []).append(t)
+    for c in combatants:
+        toks = pool.get(c["ref"])
+        if not toks:
+            continue
+        letter = c["id"][len(c["ref"]) + 1:] if c["id"].startswith(c["ref"] + "-") else ""
+        tok = next((t for t in toks
+                    if (t.get("label") or "").strip().lower() == letter), None) or toks[0]
+        toks.remove(tok)
+        c["col"], c["row"] = int(tok.get("col", 0)), int(tok.get("row", 0))
+
+
 def default_roller(init_mod: int) -> int:
     """Standard-initiativkast: 1d20 + init-modifier (bruger dice.py)."""
     return dice.roll(f"1d20{init_mod:+d}")["total"]

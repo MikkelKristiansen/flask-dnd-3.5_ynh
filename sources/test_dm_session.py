@@ -150,3 +150,26 @@ def test_end_encounter_clears(env):
     S.begin_encounter(s.slug, _combatants())
     S.end_encounter(s.slug)
     assert S.load_session(s.slug).encounter == {}
+
+
+def test_begin_encounter_seeds_positions_from_setup(env):
+    s = S.create_session("K", "Test-Eventyr", ["tjorn"])
+    tokens = [{"kind": "monster", "ref": "kriger", "label": "A", "col": 6, "row": 3},
+              {"kind": "pc", "ref": "tjorn", "col": 2, "row": 8}]
+    S.begin_encounter(s.slug, _combatants(), tokens)
+    by = {c["id"]: c for c in S.load_session(s.slug).encounter["combatants"]}
+    assert (by["kriger-a"]["col"], by["kriger-a"]["row"]) == (6, 3)
+    assert (by["tjorn"]["col"], by["tjorn"]["row"]) == (2, 8)
+
+
+def test_set_combatant_position_persists_and_is_live_only(env):
+    s = S.create_session("K", "Test-Eventyr", ["tjorn"])
+    S.begin_encounter(s.slug, _combatants())
+    S.set_combatant_position(s.slug, "kriger-a", 9, 4)
+    c = next(x for x in S.load_session(s.slug).encounter["combatants"]
+             if x["id"] == "kriger-a")
+    assert (c["col"], c["row"]) == (9, 4)
+    # uden aktiv kamp gør flyt intet
+    S.end_encounter(s.slug)
+    S.set_combatant_position(s.slug, "kriger-a", 1, 1)
+    assert S.load_session(s.slug).encounter == {}
