@@ -260,6 +260,7 @@ a{color:var(--accent);}
   </div>
 </div>
 
+<script src="{{ static_url('dm-combat-board.js') }}"></script>
 <script>
 (function () {
   var lb = document.getElementById('lightbox');
@@ -303,6 +304,10 @@ a{color:var(--accent);}
   // (start/tur/HP/afslut) refetches bræt-fragmentet og #board-slot swappes, så
   // positioner, HP og aktiv-tur-ring følger med. Server = sandhedskilde.
   var SLUG = cfg.dataset.slug;
+  function attachCombat() {                            // (gen)tilknyt træk-flyt til kamp-tokens
+    if (window.DmCombatBoard)
+      DmCombatBoard.attach({ root: ROOT, slug: SLUG, onMoved: refreshBoard });
+  }
   function refreshBoard() {
     var slot = document.getElementById('board-slot');
     if (!slot) return;
@@ -312,9 +317,11 @@ a{color:var(--accent);}
         if (html === null) return;
         slot.innerHTML = html;
         if (window.dmLayoutAll) window.dmLayoutAll();     // swappet <script> kører ikke selv
+        attachCombat();                                   // nye DOM-tokens = nye handlers
       })
       .catch(function () {});
   }
+  attachCombat();                                      // kamp allerede i gang ved sideload
 
   // Encounter-tracker: alle handlinger er <form class="enc-f"> → POST via fetch,
   // og #tracker erstattes med det re-renderede fragment (server = sandhedskilde).

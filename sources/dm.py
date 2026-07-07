@@ -313,6 +313,17 @@ def encounter_board(slug):
                            adv_ref=session.adventure, session=session)
 
 
+@dm_bp.route("/api/encounter/<slug>/move", methods=["POST"])
+def encounter_move(slug):
+    """Flyt en combatant til en ny grid-celle under kamp (live-position). Brættet
+    genhentes af klienten bagefter, så tur/HP-overlay følger med."""
+    _load_or_404(slug)
+    ds.set_combatant_position(slug, request.form.get("cid", ""),
+                              int(float(request.form.get("col") or 0)),
+                              int(float(request.form.get("row") or 0)))
+    return ("", 204)
+
+
 @dm_bp.route("/api/statblock/<adventure>/<etype>/<ident>")
 def api_statblock(adventure, etype, ident):
     """Slå en klikket entity op og returnér dens statblok som HTML-fragment til

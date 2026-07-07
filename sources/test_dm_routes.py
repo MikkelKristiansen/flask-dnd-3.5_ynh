@@ -314,6 +314,22 @@ def test_encounter_board_shows_live_combat_positions(enc_client):
     assert 'id="board-slot"' in html and 'data-combat="1"' in html
 
 
+def test_encounter_move_updates_live_position(enc_client):
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 80},
+        "tokens": [{"kind": "monster", "ref": "goblin", "label": "A", "col": 4, "row": 2}]})
+    slug, _ = _start(enc_client)
+    r = enc_client.post(f"/dm/api/encounter/{slug}/move",
+                        data={"cid": "goblin-a", "col": "9", "row": "7"})
+    assert r.status_code == 204
+    c = next(x for x in ds.load_session(slug).encounter["combatants"]
+             if x["id"] == "goblin-a")
+    assert (c["col"], c["row"]) == (9, 7)              # live-position flyttet
+    # play indlæser combat-drag-modulet
+    html = enc_client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "dm-combat-board.js" in html
+
+
 def test_encounter_board_falls_back_to_setup_when_no_combat(client):
     import dm_setups
     dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 80},
