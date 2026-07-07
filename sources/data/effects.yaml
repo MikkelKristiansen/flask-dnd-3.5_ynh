@@ -324,9 +324,8 @@
 - id: prone
   name: Prone
   kind: condition
-  modifiers: '[]'
-  riders: '[{"note": "−4 på melee-angreb"}, {"note": "+4 AC mod ranged, −4 AC mod
-    melee"}]'
+  modifiers: '[{"target": "attack_melee", "type": "penalty", "value": -4}]'
+  riders: '[{"note": "+4 AC mod ranged, −4 AC mod melee (endnu ikke i tallene)"}]'
 
 - id: helpless
   name: Helpless
