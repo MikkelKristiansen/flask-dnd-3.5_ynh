@@ -436,6 +436,21 @@ def test_edit_adventure_unknown_404(client):
     assert client.get("/dm/adventures/Nope/edit").status_code == 404
 
 
+def test_new_adventure_creates_and_redirects_to_editor(client):
+    r = client.post("/dm/adventures", data={"name": "Ulvevinter"})
+    assert r.status_code == 302 and "/adventures/Ulvevinter/edit" in r.headers["Location"]
+    assert "Ulvevinter" in ds.list_adventures()
+    assert ds.load_adventure("Ulvevinter").scenes         # startskelet parser
+
+
+def test_new_adventure_duplicate_and_empty_are_rejected(client):
+    client.post("/dm/adventures", data={"name": "Dobbelt"})
+    dup = client.post("/dm/adventures", data={"name": "Dobbelt"})
+    assert "adv_error" in dup.headers["Location"]           # findes allerede
+    empty = client.post("/dm/adventures", data={"name": "   "})
+    assert "adv_error" in empty.headers["Location"]         # tomt navn
+
+
 def test_play_has_board_link(client):
     slug = _new(client, name="BL")                     # scene 1 har @kort[testkort]
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)

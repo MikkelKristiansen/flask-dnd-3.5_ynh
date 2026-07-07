@@ -51,8 +51,9 @@ ADVENTURE_FILE = "adventure.md"
 
 def _safe_ref(ref: str) -> str:
     """Case-bevarende sanitering (mappenavne kan have store bogstaver, fx
-    Midsommer) + værn mod sti-traversal — ét mappe-segment, ingen skråstreger."""
-    return re.sub(r"[^A-Za-z0-9_-]+", "", str(ref))
+    Midsommer) + værn mod sti-traversal — ét mappe-segment, ingen skråstreger.
+    Danske bogstaver (ÆØÅ) bevares, så et eventyr kan hedde fx 'Ødemarken'."""
+    return re.sub(r"[^A-Za-z0-9ÆØÅæøå_-]+", "", str(ref))
 
 
 def adventure_dir(ref: str) -> Path:
@@ -91,6 +92,37 @@ def read_adventure_source(ref: str) -> str:
 def write_adventure_source(ref: str, text: str) -> None:
     """Overskriv et eventyrs adventure.md (atomisk). Normaliserer CRLF→LF."""
     _atomic_write(_adventure_path(ref), text.replace("\r\n", "\n").encode("utf-8"))
+
+
+_ADVENTURE_STARTER = """\
+---
+title: {title}
+---
+# Første scene
+
+> **Læs højt:** Den tekst spillerne skal høre, når scenen starter.
+
+Skriv DM-noter som almindelig prosa. Referér et kort med @kort[kort-slug], et
+monster med @monster[goblin] og en NPC med @npc[navn].
+
+## Monstre
+* 1x @monster[goblin]
+"""
+
+
+def create_adventure(name: str) -> str:
+    """Opret et nyt, tomt eventyr: mappe + `adventure.md` (med et startskelet) +
+    `media/`. Returnerer mappenavnet (ref). Fejler hvis navnet er tomt efter
+    sanitering (ValueError) eller allerede findes (FileExistsError)."""
+    ref = _safe_ref(name.replace(" ", "-")).strip("_-")
+    if not ref:
+        raise ValueError("Ugyldigt eventyrnavn.")
+    if (adventure_dir(ref) / ADVENTURE_FILE).exists():
+        raise FileExistsError(ref)
+    (adventure_dir(ref) / "media").mkdir(parents=True, exist_ok=True)
+    _atomic_write(_adventure_path(ref),
+                  _ADVENTURE_STARTER.format(title=name.strip()).encode("utf-8"))
+    return ref
 
 
 # ── Session-persistens ───────────────────────────────────────────────────────

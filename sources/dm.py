@@ -81,7 +81,21 @@ def index():
     return render_template("dm/index.html",
                            sessions=ds.list_sessions(),
                            adventures=ds.list_adventures(),
-                           characters=_character_slugs())
+                           characters=_character_slugs(),
+                           adv_error=request.args.get("adv_error"))
+
+
+@dm_bp.route("/adventures", methods=["POST"])
+def new_adventure():
+    """Opret et nyt eventyr fra forsiden og hop direkte i tekst-editoren."""
+    name = (request.form.get("name") or "").strip()
+    try:
+        ref = ds.create_adventure(name)
+    except ValueError:
+        return redirect(url_for("dm.index", adv_error="Skriv et gyldigt navn til eventyret."))
+    except FileExistsError:
+        return redirect(url_for("dm.index", adv_error="Der findes allerede et eventyr med det navn."))
+    return redirect(url_for("dm.edit_adventure", adventure=ref))
 
 
 @dm_bp.route("/sessions", methods=["POST"])

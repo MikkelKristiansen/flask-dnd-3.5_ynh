@@ -63,6 +63,23 @@ def test_roundtrip_persists_only_mutable_state(env):
     assert "scenes" not in raw and "blocks" not in raw
 
 
+def test_create_adventure_writes_starter(env):
+    ref = S.create_adventure("Ny Kampagne")
+    assert ref == "Ny-Kampagne"                            # mellemrum → bindestreg
+    assert "title: Ny Kampagne" in S.read_adventure_source(ref)
+    assert S.load_adventure(ref).scenes                    # skelettet parser
+    with pytest.raises(FileExistsError):
+        S.create_adventure("Ny Kampagne")                  # dublet afvises
+    with pytest.raises(ValueError):
+        S.create_adventure("   ")                          # tomt navn afvises
+
+
+def test_create_adventure_keeps_danish_letters(env):
+    ref = S.create_adventure("Ødemarken")
+    assert ref == "Ødemarken"                              # æøå bevares i mappenavnet
+    assert ref in S.list_adventures()
+
+
 def test_unique_slug(env):
     a = S.create_session("Samme navn", "Test-Eventyr")
     b = S.create_session("Samme navn", "Test-Eventyr")

@@ -40,6 +40,12 @@ input[type=text],select{width:100%;background:var(--bg);border:1px solid var(--b
 .btn{margin-top:1.1rem;background:var(--accent);color:#000;border:none;font-weight:bold;
  font-family:inherit;padding:.55rem 1.2rem;border-radius:8px;cursor:pointer;letter-spacing:.5px;}
 .btn:hover{filter:brightness(1.08);}
+.flash.err{background:#402b28;color:#e0947f;border:1px solid var(--red);border-radius:6px;
+ padding:.5rem .8rem;margin-bottom:.8rem;font-size:.9rem;}
+form.new.inline{display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap;}
+form.new.inline label{margin:0 0 .3rem;}
+form.new.inline .grow{flex:1;min-width:200px;}
+form.new.inline .btn{margin-top:0;}
 .hint{color:var(--muted);font-size:.72rem;}
 </style>
 </head>
@@ -49,6 +55,8 @@ input[type=text],select{width:100%;background:var(--bg);border:1px solid var(--b
     <h1>🗺 DM — Kampagner</h1>
     <a class="back" href="{{ url_for('index') }}">← Karakterer</a>
   </div>
+
+  {% if adv_error %}<div class="flash err">{{ adv_error }}</div>{% endif %}
 
   <h2>Aktive sessioner</h2>
   {% for s in sessions %}
@@ -78,8 +86,16 @@ input[type=text],select{width:100%;background:var(--bg);border:1px solid var(--b
     <div class="sub">🖼 Administrér kort &amp; handout-billeder</div>
   </div>
   {% else %}
-  <p class="empty">Ingen eventyr endnu.</p>
+  <p class="empty">Ingen eventyr endnu — opret et herunder.</p>
   {% endfor %}
+
+  <form class="new inline" method="post" action="{{ url_for('dm.new_adventure') }}">
+    <div class="grow">
+      <label for="adv-name">Nyt eventyr</label>
+      <input id="adv-name" type="text" name="name" placeholder="Fx Ulvevinter" required>
+    </div>
+    <button class="btn" type="submit">Opret eventyr</button>
+  </form>
 
   <h2>Ny session</h2>
   {% if adventures %}
