@@ -53,6 +53,30 @@ def test_setup_load_missing_is_empty(tmp_path, monkeypatch):
     assert dm_setups.load_setup("Ukendt", "kort") == {"grid": {}, "tokens": []}
 
 
+def test_sanitize_tokens_drops_bad_and_coerces():
+    raw = [
+        {"kind": "pc", "ref": "tjorn", "col": "3", "row": 4},         # streng-col → int
+        {"kind": "monster", "ref": "goblin", "label": "A", "col": 1, "row": 1, "hidden": True},
+        {"kind": "note", "note": " kig ", "col": 0, "row": 0},         # trimmes
+        {"kind": "ukendt", "col": 0, "row": 0},                        # ukendt kind → væk
+        "ikke en dict",                                                # ignoreres
+        {"kind": "trap", "col": "x", "row": None},                     # dårlig col/row → 0
+    ]
+    out = dm_setups.sanitize_tokens(raw)
+    assert [t["kind"] for t in out] == ["pc", "monster", "note", "trap"]
+    assert out[0]["col"] == 3 and isinstance(out[0]["col"], int)
+    assert out[1]["hidden"] is True
+    assert out[2]["note"] == "kig" and "ref" not in out[2]            # tom ref udeladt
+    assert out[3]["col"] == 0 and out[3]["row"] == 0
+
+
+def test_board_view_carries_ref_and_note():
+    setup = {"grid": {}, "tokens": [
+        {"kind": "trap", "ref": "spyd", "col": 0, "row": 0, "note": "DC15"}]}
+    t = B.board_view(setup)["tokens"][0]
+    assert t["ref"] == "spyd" and t["note"] == "DC15"    # editoren kan gemme dem igen
+
+
 def test_setup_save_roundtrip(tmp_path, monkeypatch):
     adv = tmp_path / "adventures"
     (adv / "Test").mkdir(parents=True)

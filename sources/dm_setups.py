@@ -23,6 +23,36 @@ from paths import _safe_slug
 
 _yaml = YAML()
 
+_KINDS = {"pc", "monster", "npc", "trap", "door", "treasure", "note"}
+
+
+def _as_int(v) -> int:
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return 0
+
+
+def sanitize_tokens(raw) -> list:
+    """Rens en rå token-liste (typisk fra browser-editoren) til det gemte skema.
+
+    Ukendte `kind`-værdier og felter droppes, og col/row tvinges til heltal — så
+    en manipuleret POST aldrig kan korrumpere opstillings-YAML'en. Tomme
+    ref/label/note udelades helt (holder filen ren)."""
+    out = []
+    for t in raw or []:
+        if not isinstance(t, dict) or t.get("kind") not in _KINDS:
+            continue
+        tok = {"kind": t["kind"], "col": _as_int(t.get("col")), "row": _as_int(t.get("row"))}
+        for field in ("ref", "label", "note"):
+            val = str(t.get(field) or "").strip()
+            if val:
+                tok[field] = val
+        if t.get("hidden"):
+            tok["hidden"] = True
+        out.append(tok)
+    return out
+
 
 def _setup_path(adv_ref: str, map_slug: str):
     return ds.adventure_dir(adv_ref) / "setups" / f"{_safe_slug(map_slug)}.yaml"

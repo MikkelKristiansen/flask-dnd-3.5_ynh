@@ -333,6 +333,35 @@ def test_board_grid_calibration_persists(client):
     assert 'data-cell="142.5"' in html
 
 
+def test_board_tokens_save_persists_and_sanitizes(client):
+    import dm_setups
+    # Sæt et grid først, så vi kan se at token-gem lader det være urørt.
+    client.post("/dm/board/Test/testkort/grid", data={"cell": "100", "x": "0", "y": "0"})
+    r = client.post("/dm/board/Test/testkort/tokens", json=[
+        {"kind": "pc", "ref": "tjorn", "col": "2", "row": 3},          # col som streng → int
+        {"kind": "monster", "ref": "goblin", "label": "A", "col": 5, "row": 5, "hidden": True},
+        {"kind": "note", "note": "kig her", "col": 1, "row": 1},
+        {"kind": "gremlin", "col": 0, "row": 0},                       # ukendt kind → droppet
+    ])
+    assert r.status_code == 204
+    setup = dm_setups.load_setup("Test", "testkort")
+    assert setup["grid"]["cell"] == 100                               # grid urørt
+    kinds = [t["kind"] for t in setup["tokens"]]
+    assert kinds == ["pc", "monster", "note"]                        # gremlin sorteret fra
+    assert setup["tokens"][0]["col"] == 2 and isinstance(setup["tokens"][0]["col"], int)
+    assert setup["tokens"][1]["hidden"] is True
+
+
+def test_board_tokens_unknown_adventure_404(client):
+    assert client.post("/dm/board/Nope/testkort/tokens", json=[]).status_code == 404
+
+
+def test_board_serves_palette_and_editor(client):
+    html = client.get("/dm/board/Test/testkort").get_data(as_text=True)
+    assert "dm-board-editor.js" in html and 'id="ed-palette"' in html
+    assert "DmBoardEditor.init" in html
+
+
 def test_play_has_board_link(client):
     slug = _new(client, name="BL")                     # scene 1 har @kort[testkort]
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)

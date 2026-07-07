@@ -16,6 +16,7 @@ from flask import (Blueprint, abort, redirect, render_template, request,
 from markupsafe import Markup, escape
 
 import bestiary
+import character as char_module
 import db
 import dm_board
 import dm_media
@@ -307,6 +308,36 @@ def api_statblock(adventure, etype, ident):
     return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
 
 
+def _board_palette(adv):
+    """Kandidater DM'en kan trække ind på brættet: eventyrets egne monstre/NPC'er
+    (unikke refs fra alle scene-rosters, navn resolvet) + alle PC'er + de faste
+    markør-typer. Ren udledning til opstillings-editoren."""
+    creatures, seen = [], set()
+    for scene in adv.scenes:
+        for e in _scene_rosters(scene):
+            # Kun væsener som træk-tokens; roster-fælder (@faelde) placeres via
+            # den faste markør-palette (ref-binding er en senere fase).
+            if e.type not in ("monster", "npc"):
+                continue
+            key = (e.type, e.id)
+            if key in seen:
+                continue
+            seen.add(key)
+            row = adv.statblock(e.id) or db.get_monster(e.id)
+            name = bestiary.monster_view(row)["name"] if row else e.id
+            creatures.append({"kind": e.type, "ref": e.id, "name": name})
+    pcs = []
+    for slug in _character_slugs():
+        try:
+            name = char_module.load_character(str(CHARACTERS_DIR / f"{slug}.yaml")).name
+        except Exception:
+            name = slug
+        pcs.append({"kind": "pc", "ref": slug, "name": name or slug})
+    markers = [{"kind": "trap", "name": "Fælde"}, {"kind": "door", "name": "Dør"},
+               {"kind": "treasure", "name": "Skat"}, {"kind": "note", "name": "Note"}]
+    return {"creatures": creatures, "pcs": pcs, "markers": markers}
+
+
 def _map_src(adv, map_slug):
     """Billed-src for et kort (fra dets '## Kort:'-def i eventyret)."""
     doc = adv.documents.get(("kort", map_slug))
@@ -318,8 +349,9 @@ def _map_src(adv, map_slug):
 
 @dm_bp.route("/board/<adventure>/<map_slug>")
 def board(adventure, map_slug):
-    """Vis et korts startopstilling (grid + tokens). Vis-tilstand — kalibrering
-    og træk-placér kommer i næste trin."""
+    """Vis et korts startopstilling (grid + tokens) med grid-kalibrering og
+    træk-placér-editor. board.tokens er både initial-render OG editorens
+    JS-model; palette = kandidater der kan trækkes ind."""
     if adventure not in ds.list_adventures():
         abort(404)
     adv = ds.load_adventure(adventure)
@@ -328,7 +360,8 @@ def board(adventure, map_slug):
     return render_template(
         "dm/board.html", title=title,
         map_url=url_for("dm.media", adventure=adventure, filename=src) if src else None,
-        board=dm_board.board_view(setup, adv, db, audience="dm"))
+        board=dm_board.board_view(setup, adv, db, audience="dm"),
+        palette=_board_palette(adv), token_style=dm_board.token_style())
 
 
 @dm_bp.route("/board/<adventure>/<map_slug>/grid", methods=["POST"])
@@ -340,6 +373,18 @@ def board_grid(adventure, map_slug):
     setup["grid"] = {"cell": round(float(request.form.get("cell") or 0), 2),
                      "x": int(float(request.form.get("x") or 0)),
                      "y": int(float(request.form.get("y") or 0))}
+    dm_setups.save_setup(adventure, map_slug, setup)
+    return ("", 204)
+
+
+@dm_bp.route("/board/<adventure>/<map_slug>/tokens", methods=["POST"])
+def board_tokens(adventure, map_slug):
+    """Gem token-placeringerne fra opstillings-editoren. Grid-delen røres ikke;
+    listen saniteres server-side før den skrives."""
+    if adventure not in ds.list_adventures():
+        abort(404)
+    setup = dm_setups.load_setup(adventure, map_slug)
+    setup["tokens"] = dm_setups.sanitize_tokens(request.get_json(silent=True))
     dm_setups.save_setup(adventure, map_slug, setup)
     return ("", 204)
 

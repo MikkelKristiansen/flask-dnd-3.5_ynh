@@ -12,6 +12,12 @@ _MARKER_ICON = {"trap": "🪤", "door": "🚪", "treasure": "💰", "note": "�
 _COLORS = ["#b5432c", "#4a7a4a", "#3d6b8a", "#8a6d3d", "#6b4a8a", "#3d8a86", "#8a3d5f"]
 
 
+def token_style() -> dict:
+    """Farve-paletten + markør-ikonerne, så browser-editoren kan farve/ikone nye
+    tokens EFTER samme tabeller som server-renderet (én sandhedskilde)."""
+    return {"colors": list(_COLORS), "icons": dict(_MARKER_ICON)}
+
+
 def _creature_name(ref, adv, db):
     row = (adv.statblock(ref) if adv else None) or (db.get_monster(ref) if db else None)
     return row["name"] if row else ref
@@ -27,8 +33,10 @@ def board_view(setup: dict, adv=None, db=None, audience: str = "dm") -> dict:
             continue
         kind = t.get("kind", "note")
         ref = t.get("ref", "")
+        # ref/note bæres med ud (ud over de rene visnings-props) så editoren kan
+        # redigere og gemme dem igen uden et separat opslag.
         tv = {"kind": kind, "col": int(t.get("col", 0)), "row": int(t.get("row", 0)),
-              "hidden": hidden}
+              "hidden": hidden, "ref": ref, "note": t.get("note", "")}
         if kind == "pc":
             tv["portrait"] = ref                       # /portrait/<slug>, m/ fallback
             tv["label"] = (t.get("label") or ref[:2]).upper()
