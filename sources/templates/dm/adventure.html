@@ -46,7 +46,10 @@ input[type=file]{color:var(--text);font-family:inherit;font-size:.85rem;width:10
 <div class="wrap">
   <div class="top">
     <h1>🖼 {{ ref }} — billeder</h1>
-    <a class="back" href="{{ url_for('dm.index') }}">← Kampagner</a>
+    <span>
+      <a class="back" href="{{ url_for('dm.edit_adventure', adventure=ref) }}">✏️ Rediger tekst</a> ·
+      <a class="back" href="{{ url_for('dm.index') }}">Kampagner</a>
+    </span>
   </div>
   <p class="hint">Kort og handouts til eventyret. Referér et billede i
     <code>adventure.md</code> som <code>![alt](media/{{ media[0] if media else 'filnavn.png' }})</code>

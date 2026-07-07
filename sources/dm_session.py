@@ -80,6 +80,19 @@ def load_adventure(ref: str) -> P.Adventure:
     return P.parse_adventure(path.read_text(encoding="utf-8"))
 
 
+def read_adventure_source(ref: str) -> str:
+    """Rå Markdown-kilde for et eventyr (til browser-redigering)."""
+    path = _adventure_path(ref)
+    if not path.exists():
+        raise FileNotFoundError(f"Eventyr ikke fundet: {ref}")
+    return path.read_text(encoding="utf-8")
+
+
+def write_adventure_source(ref: str, text: str) -> None:
+    """Overskriv et eventyrs adventure.md (atomisk). Normaliserer CRLF→LF."""
+    _atomic_write(_adventure_path(ref), text.replace("\r\n", "\n").encode("utf-8"))
+
+
 # ── Session-persistens ───────────────────────────────────────────────────────
 def _session_path(slug: str) -> Path:
     return SESSIONS_DIR / f"{_safe_slug(slug)}.yaml"

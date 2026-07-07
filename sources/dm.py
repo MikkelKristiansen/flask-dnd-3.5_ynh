@@ -116,6 +116,22 @@ def adventure(adventure):
                            error=request.args.get("error"))
 
 
+@dm_bp.route("/adventures/<adventure>/edit", methods=["GET", "POST"])
+def edit_adventure(adventure):
+    """Rediger et eventyrs rå Markdown i browseren (simpel tekstboks) — fjerner
+    behovet for scp. Gemmer atomisk; play/bræt re-parser ved næste indlæsning."""
+    if adventure not in ds.list_adventures():
+        abort(404)
+    if request.method == "POST":
+        ds.write_adventure_source(adventure, request.form.get("source", ""))
+        return redirect(url_for("dm.edit_adventure", adventure=adventure, saved=1))
+    adv = ds.load_adventure(adventure)               # parse-resumé som kvittering
+    return render_template("dm/edit.html", ref=adventure,
+                           source=ds.read_adventure_source(adventure),
+                           summary={"scenes": len(adv.scenes), "docs": len(adv.documents)},
+                           saved=request.args.get("saved"))
+
+
 @dm_bp.route("/adventures/<adventure>/media", methods=["POST"])
 def upload_media(adventure):
     if adventure not in ds.list_adventures():

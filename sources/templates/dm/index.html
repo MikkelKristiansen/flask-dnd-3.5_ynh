@@ -71,6 +71,9 @@ input[type=text],select{width:100%;background:var(--bg);border:1px solid var(--b
   {% for a in adventures %}
   <div class="card">
     <a class="open" href="{{ url_for('dm.adventure', adventure=a) }}" aria-label="Billeder til {{ a }}"></a>
+    <div class="actions">
+      <a class="del" href="{{ url_for('dm.edit_adventure', adventure=a) }}">✏️ Rediger tekst</a>
+    </div>
     <div class="name">{{ a }}</div>
     <div class="sub">🖼 Administrér kort &amp; handout-billeder</div>
   </div>

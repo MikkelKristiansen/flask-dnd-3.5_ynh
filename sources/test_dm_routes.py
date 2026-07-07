@@ -417,6 +417,25 @@ def test_board_serves_palette_and_editor(client):
     assert "DmBoardEditor.init" in html
 
 
+def test_edit_adventure_get_shows_source_and_summary(client):
+    html = client.get("/dm/adventures/Test/edit").get_data(as_text=True)
+    assert "<textarea" in html and "Første scene" in html      # rå kilde i boksen
+    assert "2 scener" in html                                   # parse-resumé (MINI har 2)
+
+
+def test_edit_adventure_post_saves_and_reparses(client):
+    import dm_session as ds
+    r = client.post("/dm/adventures/Test/edit",
+                    data={"source": "---\ntitle: Ændret\n---\n# Ny scene\nTekst.\n"})
+    assert r.status_code == 302                                 # redirect m/ saved=1
+    assert ds.read_adventure_source("Test").startswith("---\ntitle: Ændret")
+    assert ds.load_adventure("Test").scenes[0].title == "Ny scene"   # slår igennem
+
+
+def test_edit_adventure_unknown_404(client):
+    assert client.get("/dm/adventures/Nope/edit").status_code == 404
+
+
 def test_play_has_board_link(client):
     slug = _new(client, name="BL")                     # scene 1 har @kort[testkort]
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
