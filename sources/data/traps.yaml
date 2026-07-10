@@ -45,3 +45,16 @@
   disable_dc: 20
   price: "1,800 gp"
   source_note: "SRD: Camouflaged Pit Trap"
+
+- id: spydfaelde
+  name: Spydfælde
+  cr: "1"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  attack: "+12 ranged (1d8/×3, spear)"
+  search_dc: 20
+  disable_dc: 20
+  price: "1,200 gp"
+  note: "200-ft. max range, target determined randomly from those in its path."
+  source_note: "SRD: Spear Trap"
