@@ -212,6 +212,16 @@ a{color:var(--accent);}
    står i ÉN kolonne og fylder hele div-bredden. */
 .layout.combat .nav{display:none;}
 .layout.combat .side{flex:0 0 48%;}
+/* Fuld-bredde-kort (toggle): kortet spænder hele bredden, konsollen flyder
+   ned under det. Højere specificitet end .layout.combat .side ovenfor → vinder.
+   Scopet til .combat, så .mapfull er harmløs uden for kamp. */
+.layout.combat.mapfull{flex-wrap:wrap;}
+.layout.combat.mapfull .main{flex:1 1 100%;min-width:0;}
+.layout.combat.mapfull .side{flex:1 1 100%;max-width:none;}
+.bar-actions{display:flex;align-items:center;gap:.8rem;}
+.map-toggle{font-size:.8rem;color:var(--muted);background:none;border:1px solid var(--border);
+ border-radius:5px;padding:.2rem .55rem;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.map-toggle:hover{color:var(--accent);border-color:var(--accent);}
 @media(max-width:800px){.layout{flex-direction:column;}.nav,.side{position:static;width:100%;flex-basis:auto;}}
 </style>
 </head>
@@ -221,7 +231,12 @@ a{color:var(--accent);}
     <h1>{{ adventure.title }}</h1>
     <div class="sub">{{ session.name }}</div>
   </div>
-  <a class="back" href="{{ url_for('dm.index') }}">← Kampagner</a>
+  <div class="bar-actions">
+    {# Altid til stede (uden for #tracker, så tracker-swaps ikke rører den).
+       CSS gør den kun virksom i kamp; teksten viser den handling et klik udfører. #}
+    <button id="map-toggle" type="button" class="map-toggle">⛶ Kort: fuld bredde</button>
+    <a class="back" href="{{ url_for('dm.index') }}">← Kampagner</a>
+  </div>
 </div>
 
 <div class="layout{{ ' combat' if session.encounter.active }}">
@@ -402,6 +417,27 @@ a{color:var(--accent);}
       })
       .catch(function () {});
   });
+
+  // Kort-bredde-toggle: skift kamp-kortet mellem to kolonner og fuld bredde.
+  // Klassen sidder på .layout (uden for #tracker), så valget overlever tracker-
+  // swaps; det huskes pr. session i localStorage. Knap-teksten viser handlingen.
+  (function () {
+    var layout = document.querySelector('.layout');
+    var btn = document.getElementById('map-toggle');
+    if (!layout || !btn) return;
+    var KEY = 'dm-mapfull-' + cfg.dataset.slug;
+    function sync() {
+      var full = layout.classList.contains('mapfull');
+      btn.textContent = full ? '⧉ Kort: to kolonner' : '⛶ Kort: fuld bredde';
+    }
+    if (localStorage.getItem(KEY) === '1') layout.classList.add('mapfull');
+    sync();
+    btn.addEventListener('click', function () {
+      var full = layout.classList.toggle('mapfull');
+      localStorage.setItem(KEY, full ? '1' : '0');
+      sync();
+    });
+  })();
 })();
 </script>
 </body>
