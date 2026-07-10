@@ -12,7 +12,7 @@
   {% set is_marker = t.kind in ('trap', 'door', 'treasure', 'note') %}
   <div class="tok tok-{{ t.kind }}{{ ' tok-hidden' if t.hidden }}{{ ' tok-active' if t.active }}{{ ' tok-dead' if t.dead }}"
        data-col="{{ t.col }}" data-row="{{ t.row }}"{% if t.cid %} data-cid="{{ t.cid }}"{% endif %}
-       {%- if is_marker %} data-marker="1" data-mkind="{{ t.kind }}" data-mname="{{ t.name }}" data-mnote="{{ t.note }}"{% endif %} title="{{ t.name }}">
+       {%- if is_marker %} data-marker="1" data-mkind="{{ t.kind }}" data-mname="{{ t.name }}" data-mnote="{{ t.note }}" data-mref="{{ t.ref }}"{% endif %} title="{{ t.name }}">
     {% if t.kind == 'pc' %}
       <span class="tok-lbl">{{ t.label }}</span>
       <img class="tok-por" src="{{ url_for('portrait', slug=t.portrait) }}" alt="" onerror="this.remove()">

@@ -326,6 +326,12 @@ a{color:var(--accent);}
 
   var MARKER_LABEL = { trap: '🪤 Fælde', door: '🚪 Dør', treasure: '💰 Skat', note: '📌 Note' };
   function openMarker(el) {                       // markør på brættet → note-detalje
+    // En fælde-markør bundet til en fælde i kataloget → åbn dens statblok
+    // (samme opslag som @faelde i prosaen). Ubundet → fald tilbage på noten.
+    if (el.dataset.mkind === 'trap' && el.dataset.mref) {
+      openStat('faelde/' + el.dataset.mref);
+      return;
+    }
     title.textContent = MARKER_LABEL[el.dataset.mkind] || '📌 Markør';
     var p = document.createElement('p');
     var note = el.dataset.mnote || '';

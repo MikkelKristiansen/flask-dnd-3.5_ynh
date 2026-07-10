@@ -497,6 +497,7 @@ def board(adventure, map_slug):
         map_url=url_for("dm.media", adventure=adventure, filename=src) if src else None,
         board=dm_board.board_view(setup, adv, db, audience="dm"),
         palette=_board_palette(adv), token_style=dm_board.token_style(),
+        traps=[{"id": t["id"], "name": t["name"]} for t in db.get_all_traps()],
         back_session=back)
 
 

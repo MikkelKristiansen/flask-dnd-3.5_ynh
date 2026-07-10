@@ -554,3 +554,12 @@ def test_statblock_endpoint_unknown_trap_is_graceful(client):
     r = client.get("/dm/api/statblock/Test/faelde/findes-ikke")
     assert r.status_code == 200                      # ingen 500 — pæn "ingen data"
     assert "findes-ikke" in r.get_data(as_text=True)
+
+
+def test_board_binds_trap_marker_to_statblock(client):
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 50}, "tokens": [
+        {"kind": "trap", "col": 1, "row": 1, "ref": "basic-arrow-trap", "note": "klik!"}]})
+    html = client.get("/dm/board/Test/testkort").get_data(as_text=True)
+    assert 'data-mref="basic-arrow-trap"' in html      # markøren bærer sin fælde-ref
+    assert "Basic Arrow Trap" in html                   # fælde-katalog sendt til editoren

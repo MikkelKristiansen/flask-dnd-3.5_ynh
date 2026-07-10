@@ -95,6 +95,7 @@ h1{color:var(--accent);font-size:1.3rem;}
     model: {{ board.tokens|tojson }},
     palette: {{ palette|tojson }},
     style: {{ token_style|tojson }},
+    traps: {{ traps|tojson }},
     saveUrl: location.pathname + '/tokens',
     portraitBase: "{{ url_for('portrait', slug='') }}"
   });

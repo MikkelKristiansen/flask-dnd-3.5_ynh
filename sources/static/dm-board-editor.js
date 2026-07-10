@@ -17,13 +17,14 @@
 window.DmBoardEditor = (function () {
   "use strict";
 
-  var model, palette, style, saveUrl, portraitBase;
+  var model, palette, style, traps, saveUrl, portraitBase;
   var board, panel, statusEl, detailEl, editing = false, selected = -1;
 
   function init(cfg) {
     model = (cfg.model || []).map(function (t) { return normalise(t); });
     palette = cfg.palette || { pcs: [], creatures: [], markers: [] };
     style = cfg.style || { colors: [], icons: {} };
+    traps = cfg.traps || [];
     saveUrl = cfg.saveUrl;
     portraitBase = cfg.portraitBase;
 
@@ -234,6 +235,15 @@ window.DmBoardEditor = (function () {
         t.label = v; paint(); renderDetail();
       }));
     }
+    if (t.kind === "trap" && traps.length) {
+      // Bind fælde-markøren til en fælde i kataloget → klik på brættet åbner
+      // dens statblok. Tom værdi = ubundet (kun note).
+      var opts = [{ value: "", label: "— ingen (kun note) —" }].concat(
+        traps.map(function (tr) { return { value: tr.id, label: tr.name }; }));
+      detailEl.appendChild(dropdown("Fælde", t.ref, opts, function (v) {
+        t.ref = v; select(selected);
+      }));
+    }
     if (t.kind === "trap" || t.kind === "door" || t.kind === "treasure" || t.kind === "note") {
       detailEl.appendChild(field("Note", t.note, function (v) {
         t.note = v; select(selected);
@@ -259,6 +269,23 @@ window.DmBoardEditor = (function () {
     inp.value = value || "";
     inp.addEventListener("input", function () { onChange(inp.value); });
     wrap.appendChild(inp);
+    return wrap;
+  }
+
+  function dropdown(label, value, options, onChange) {
+    var wrap = document.createElement("label");
+    wrap.className = "ed-field";
+    wrap.textContent = label + " ";
+    var sel = document.createElement("select");
+    options.forEach(function (o) {
+      var opt = document.createElement("option");
+      opt.value = o.value;
+      opt.textContent = o.label;
+      if (o.value === (value || "")) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener("change", function () { onChange(sel.value); });
+    wrap.appendChild(sel);
     return wrap;
   }
 
