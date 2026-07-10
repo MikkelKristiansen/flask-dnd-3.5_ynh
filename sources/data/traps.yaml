@@ -1,0 +1,47 @@
+# traps — DM-fælder (SRD v3.5, OGL v1.0a). Kilden til sandheden.
+#
+# TRYKT statblok: de regulære semikolon-felter fra
+# rules/srd-v3.5-md/basic-rules-and-legal/traps.md transkriberes direkte. En
+# fælde er statisk — intet beregnes. Ability-mods o.l. findes ikke for fælder.
+#
+# Felt-noter (matcher schema.sql-tabellen `traps`):
+#   cr          challenge rating som trykt (streng: "1", "5").
+#   trap_type   mechanical | magic device | spell.
+#   trigger     location | proximity | touch | timed | …
+#   reset       manual | automatic | no reset | repair.
+#   attack      trykt "Atk"-linje UDEN "Atk"-ordet, fx "+10 ranged (1d6/×3, arrow)".
+#               Kun for angrebs-baserede fælder — ellers udeladt (NULL).
+#   save        trykt save-linje, fx "DC 20 Reflex save avoids". Kun for save-
+#               baserede fælder — ellers udeladt (NULL).
+#   effect      skade/effekt-fritekst der ikke ligger i attack, fx "10 ft. deep (1d6, fall)".
+#   search_dc / disable_dc   heltal.
+#   price       trykt markedspris, fx "2,000 gp".
+#   note        valgfrit: bypass / multiple targets / særlig note.
+#
+# SKELET-PRØVE: to fælder der dækker begge former (angreb vs. save). Resten af
+# de 108 SRD-fælder transkriberes i batch (Sonnet) i samme format.
+
+- id: basic-arrow-trap
+  name: Basic Arrow Trap
+  cr: "1"
+  trap_type: mechanical
+  trigger: proximity
+  reset: manual
+  attack: "+10 ranged (1d6/×3, arrow)"
+  search_dc: 20
+  disable_dc: 20
+  price: "2,000 gp"
+  source_note: "SRD: Basic Arrow Trap"
+
+- id: camouflaged-pit-trap
+  name: Camouflaged Pit Trap
+  cr: "1"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  save: "DC 20 Reflex save avoids"
+  effect: "10 ft. deep (1d6, fall)"
+  search_dc: 24
+  disable_dc: 20
+  price: "1,800 gp"
+  source_note: "SRD: Camouflaged Pit Trap"

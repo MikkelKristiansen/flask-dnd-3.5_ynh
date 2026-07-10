@@ -24,11 +24,14 @@ import dm_party
 import dm_rolls
 import dm_session as ds
 import dm_setups
+import traps as traps_module
 from paths import CHARACTERS_DIR
 
-# Entity-typer der slås op som statblok (klikbare → inspector). Dokument-lokale
-# typer (kort/brev/gaade/faelde) håndteres separat som handouts (lightbox).
+# Entity-typer der slås op som statblok (klikbare → inspector).
+# _STAT_TYPES = væsener (→ bestiary.monster_view); _TRAP_TYPE = fælder (→ traps.trap_view).
+# Øvrige dokument-lokale typer (kort/brev/gaade) håndteres som handouts (lightbox).
 _STAT_TYPES = {"monster", "npc"}
+_TRAP_TYPE = "faelde"
 
 dm_bp = Blueprint("dm", __name__, url_prefix="/dm")
 
@@ -54,7 +57,7 @@ def _entities_filter(text: str, docs: dict | None = None) -> Markup:
             out.append(Markup(
                 '<a class="ent ent-{} ent-link" data-doc="{}">{}</a>').format(
                     typ, key, docs[key]))
-        elif typ in _STAT_TYPES:                          # monster/npc → statblok-fetch
+        elif typ in _STAT_TYPES or typ == _TRAP_TYPE:     # monster/npc/fælde → statblok-fetch
             out.append(Markup(
                 '<a class="ent ent-{} ent-stat" data-stat="{}/{}">{}</a>').format(
                     typ, typ, ident, ident))
@@ -384,6 +387,11 @@ def api_statblock(adventure, etype, ident):
     if adventure not in ds.list_adventures():
         abort(404)
     adv = ds.load_adventure(adventure)
+    if etype == _TRAP_TYPE:                            # fælde → delt fælde-katalog
+        row = db.get_trap(ident)
+        if row:
+            return render_template("dm/_trap.html", t=traps_module.trap_view(row))
+        return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
     stats = adv.statblock(ident)
     if stats:
         return render_template("dm/_statblock.html",

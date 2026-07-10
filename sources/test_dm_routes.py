@@ -11,7 +11,7 @@ party: [tjorn]
 # Første scene
 > Læses højt.
 
-Almindelig DM-note med @npc[bram] og handout @brev[testbrev]. En @monster[goblin] lurer, ledet af @npc[testskurk].
+Almindelig DM-note med @npc[bram] og handout @brev[testbrev]. En @monster[goblin] lurer, ledet af @npc[testskurk]. En @faelde[basic-arrow-trap] i gulvet.
 
 ![Oversigt](media/oversigt.png)
 
@@ -532,3 +532,25 @@ def test_play_nav_links_to_bestiary(client):
     slug = _new(client, name="Nav")
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
     assert "/dm/bestiary/Test" in html and "📖 Bestiar" in html
+
+
+# ── Fælder (@faelde → statblok-inspector) ────────────────────────────────────
+def test_faelde_reference_is_clickable_statblok(client):
+    slug = _new(client, name="Fælde")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    # @faelde[...] rendres som klikbar ent-stat (som @monster), ikke ren tekst.
+    assert 'ent-stat" data-stat="faelde/basic-arrow-trap"' in html
+
+
+def test_statblock_endpoint_resolves_trap(client):
+    html = client.get("/dm/api/statblock/Test/faelde/basic-arrow-trap").get_data(as_text=True)
+    assert "Basic Arrow Trap" in html
+    assert "Fælde" in html                          # origin-badge
+    assert "Search DC" in html and "20" in html
+    assert "+10 ranged" in html                     # angrebs-linjen
+
+
+def test_statblock_endpoint_unknown_trap_is_graceful(client):
+    r = client.get("/dm/api/statblock/Test/faelde/findes-ikke")
+    assert r.status_code == 200                      # ingen 500 — pæn "ingen data"
+    assert "findes-ikke" in r.get_data(as_text=True)

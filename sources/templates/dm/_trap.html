@@ -1,0 +1,26 @@
+{# Fælde-statblok til inspector-panelet (lightbox). Genbruger .sb-*-stilene fra
+   den delte static/dm-statblock.css — samme look som monster/PC-statblokke. #}
+<div class="sb">
+  <div class="sb-head">
+    <span class="sb-name">🪤 {{ t.name }}</span>
+    <span class="sb-origin">Fælde</span>
+  </div>
+  <div class="sb-sub">
+    {%- if t.cr %}CR {{ t.cr }}{% endif -%}
+    {%- if t.trap_type %} · {{ t.trap_type }}{% endif -%}
+    {%- if t.trigger %} · {{ t.trigger }} trigger{% endif -%}
+    {%- if t.reset %} · {{ t.reset }} reset{% endif -%}
+  </div>
+
+  <div class="sb-grid">
+    {% if t.attack %}<div><span class="sb-k">Angreb</span> {{ t.attack }}</div>{% endif %}
+    {% if t.save %}<div><span class="sb-k">Save</span> {{ t.save }}</div>{% endif %}
+    {% if t.search_dc is not none %}<div><span class="sb-k">Search DC</span> {{ t.search_dc }}</div>{% endif %}
+    {% if t.disable_dc is not none %}<div><span class="sb-k">Disable DC</span> {{ t.disable_dc }}</div>{% endif %}
+    {% if t.price %}<div><span class="sb-k">Pris</span> {{ t.price }}</div>{% endif %}
+  </div>
+
+  {% if t.effect %}<div class="sb-sec"><span class="sb-k">Effekt</span> {{ t.effect }}</div>{% endif %}
+  {% if t.note %}<div class="sb-note">{{ t.note }}</div>{% endif %}
+  {% if t.source_note %}<div class="sb-src">{{ t.source_note }}</div>{% endif %}
+</div>

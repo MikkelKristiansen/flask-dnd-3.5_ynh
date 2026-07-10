@@ -210,6 +210,22 @@ def get_all_monsters() -> list[dict]:
     return [_monster_row(r) for r in rows]
 
 
+def get_trap(trap_id: str) -> dict | None:
+    """Én fælde fra det delte fælde-katalog (traps). Ingen JSON-felter — rene
+    skalarer, så rækken bruges som den er (trap_view former den til visning)."""
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM traps WHERE id = ?", (trap_id,)
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def get_all_traps() -> list[dict]:
+    with _connect() as conn:
+        rows = conn.execute("SELECT * FROM traps ORDER BY name").fetchall()
+    return [dict(r) for r in rows]
+
+
 def _effect_row(row) -> dict:
     """Konverter en effects-række til dict og afkod JSON-felterne (modifiers/riders/affects)."""
     rec = dict(row)

@@ -269,6 +269,27 @@ CREATE TABLE monsters (
     source_note       TEXT                        -- fx "SRD: Human Warrior Skeleton"
 );
 
+-- Fælder (SRD v3.5). TRYKT statblok — de regulære semikolon-felter fra
+-- traps.md gemmes direkte som skalarer (ingen JSON, ingen beregning): en fælde
+-- er statisk. En fælde er ENTEN angrebs- (attack) ELLER save-baseret; det ikke-
+-- brugte felt er NULL. Vises via traps.trap_view i _trap.html-inspectoren.
+CREATE TABLE traps (
+    id          TEXT PRIMARY KEY,
+    name        TEXT NOT NULL,
+    cr          TEXT,                             -- challenge rating som trykt, fx "1", "5"
+    trap_type   TEXT,                             -- mechanical | magic device | spell
+    trigger     TEXT,                             -- location | proximity | touch | timed | …
+    reset       TEXT,                             -- manual | automatic | no reset | repair
+    attack      TEXT,                             -- trykt Atk-linje, fx "+10 ranged (1d6/×3, arrow)"; NULL hvis save-baseret
+    save        TEXT,                             -- trykt save-linje, fx "DC 20 Reflex save avoids"; NULL hvis atk-baseret
+    effect      TEXT,                             -- skade/effekt-fritekst, fx "10 ft. deep (1d6, fall)"
+    search_dc   INTEGER,                          -- Search DC (find fælden)
+    disable_dc  INTEGER,                          -- Disable Device DC (afmontér)
+    price       TEXT,                             -- trykt markedspris, fx "2,000 gp"
+    note        TEXT,                             -- valgfrit: bypass / multiple targets / særlig note
+    source_note TEXT                              -- fx "SRD: Basic Arrow Trap"
+);
+
 -- Mekaniske effekter: buffs & tilstande oversat til modifiers, så de ændrer de
 -- faktiske tal (ability scores kaskaderer; direkte bonusser lægges på pr. tal).
 -- modifiers/riders gemmes som JSON-tekst og afkodes i db._effect_row.
