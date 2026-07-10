@@ -427,6 +427,39 @@ def _board_palette(adv):
     return {"creatures": creatures, "pcs": pcs, "markers": markers}
 
 
+def _bestiary_entries(adv):
+    """Statblokke for alle unikke monstre/NPC'er i eventyrets scene-rosters.
+
+    Samme opslag som _board_palette (adventure-lokalt statblok → delt bestiar),
+    men resolvet til det fulde monster_view + antal forekomster på tværs af
+    scener. En uopslåelig ref markeres `missing`, så DM'en ser hullet frem for
+    en tavs udeladelse. Sorteret efter navn."""
+    order, agg = [], {}
+    for scene in adv.scenes:
+        for e in _scene_rosters(scene):
+            if e.type not in _STAT_TYPES:
+                continue
+            key = (e.type, e.id)
+            if key not in agg:
+                order.append(key)
+                agg[key] = {"type": e.type, "id": e.id, "count": 0}
+            agg[key]["count"] += int(getattr(e, "count", 1) or 1)
+    entries = []
+    for key in order:
+        info = agg[key]
+        local = adv.statblock(info["id"])
+        row = local or db.get_monster(info["id"])
+        if row:
+            entries.append({"m": bestiary.monster_view(row),
+                            "origin": "Eventyr" if local else "Bestiar",
+                            "count": info["count"]})
+        else:
+            entries.append({"missing": True, "etype": info["type"],
+                            "ident": info["id"], "count": info["count"]})
+    entries.sort(key=lambda x: (x.get("m", {}).get("name") or x.get("ident") or "").lower())
+    return entries
+
+
 def _map_src(adv, map_slug):
     """Billed-src for et kort (fra dets '## Kort:'-def i eventyret)."""
     doc = adv.documents.get(("kort", map_slug))
@@ -456,6 +489,22 @@ def board(adventure, map_slug):
         board=dm_board.board_view(setup, adv, db, audience="dm"),
         palette=_board_palette(adv), token_style=dm_board.token_style(),
         back_session=back)
+
+
+@dm_bp.route("/bestiary/<adventure>")
+def bestiary_view(adventure):
+    """Bestiarie-fane: alle monstre/NPC'er i ét eventyr som statblokke, så DM'en
+    kan slå væsener op uden for en scene. ?from=<session> giver et tilbage-link
+    til kampen. (Navngivet *_view for ikke at skygge for `bestiary`-modulet.)"""
+    if adventure not in ds.list_adventures():
+        abort(404)
+    adv = ds.load_adventure(adventure)
+    back = request.args.get("from")
+    if back and not any(s["slug"] == back for s in ds.list_sessions()):
+        back = None
+    return render_template("dm/bestiary.html", title=adv.title,
+                           adventure=adventure, entries=_bestiary_entries(adv),
+                           back_session=back)
 
 
 @dm_bp.route("/board/<adventure>/<map_slug>/grid", methods=["POST"])

@@ -507,3 +507,28 @@ def test_encounter_condition_toggle_and_end(enc_client):
     assert combs["goblin-b"]["conditions"] == ["prone"]
     enc_client.post(f"/dm/api/encounter/{slug}/end")
     assert ds.load_session(slug).encounter == {}
+
+
+# ── Bestiarie-fane ──────────────────────────────────────────────────────────
+def test_bestiary_lists_adventure_monsters(client):
+    html = client.get("/dm/bestiary/Test").get_data(as_text=True)
+    assert "📖 Bestiar" in html
+    assert "Goblin (kriger)" in html          # roster-monster resolvet fra bestiar
+    assert "2× i eventyret" in html           # 2x @monster[goblin] i scenens roster
+    assert "Bestiar" in html                  # origin-badge (delt bestiar, ikke eventyr-lokal)
+
+
+def test_bestiary_back_link_to_session(client):
+    slug = _new(client, name="Kamp")
+    html = client.get(f"/dm/bestiary/Test?from={slug}").get_data(as_text=True)
+    assert "Tilbage til kampen" in html and f"/dm/play/{slug}" in html
+
+
+def test_bestiary_unknown_adventure_404(client):
+    assert client.get("/dm/bestiary/FindesIkke").status_code == 404
+
+
+def test_play_nav_links_to_bestiary(client):
+    slug = _new(client, name="Nav")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "/dm/bestiary/Test" in html and "📖 Bestiar" in html
