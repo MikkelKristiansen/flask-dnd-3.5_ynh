@@ -205,7 +205,8 @@ def _monster_source(ref, adv):
 
 
 def _encounter_sources(session, adv):
-    """Byg combatant-kilder for den aktive scene: monstre fra rosteret + party-PC'er."""
+    """Byg combatant-kilder for den aktive scene: monstre fra rosteret + party-PC'er
+    + PC'ernes ledsagere (animal companion / familiar / mount)."""
     scene = next((s for s in adv.scenes if s.id == session.active_scene),
                  adv.scenes[0] if adv.scenes else None)
     sources = []
@@ -218,6 +219,11 @@ def _encounter_sources(session, adv):
             continue
         sources.append({"ref": pc["slug"], "count": 1, "name": pc["name"],
                         "kind": "pc", "init_mod": pc["init"], "hp_max": pc["hp_max"]})
+    # Ledsagere er egne combatants (egen initiativ/HP) — auto-rulles som monstre.
+    for comp in dm_party.party_companions(session.party, db):
+        sources.append({"ref": comp["ref"], "count": 1, "name": comp["name"],
+                        "kind": comp["kind"], "init_mod": comp["init_mod"],
+                        "hp_max": comp["hp_max"]})
     return sources
 
 

@@ -4,8 +4,8 @@
   <form class="enc-f enc-start" action="{{ url_for('dm.encounter_start', slug=slug) }}" method="post">
     <button type="submit">⚔ Start kamp fra denne scene</button>
   </form>
-  <div class="enc-hint">Bygger combatants af scenens monstre + party. Monstre får
-    auto-rullet initiativ; du taster spillernes egne rul.</div>
+  <div class="enc-hint">Bygger combatants af scenens monstre + party + ledsagere.
+    Monstre og ledsagere får auto-rullet initiativ; du taster spillernes egne rul.</div>
 {% else %}
   <div class="enc-top">
     <span class="enc-round">Runde {{ enc.round }}</span>
@@ -15,8 +15,10 @@
       <button type="submit" class="enc-end" data-confirm="Afslut kampen?">Afslut</button></form>
   </div>
 
+  {% set kind_labels = {'pc': 'PC', 'companion': 'Ledsager', 'familiar': 'Familiar', 'mount': 'Ridedyr'} %}
+  {% set comp_kinds = ['companion', 'familiar', 'mount'] %}
   {% for c in ordered %}
-  <div class="cbt{{ ' cbt-cur' if c.id == current_id }}{{ ' cbt-pc' if c.kind == 'pc' }}">
+  <div class="cbt{{ ' cbt-cur' if c.id == current_id }}{{ ' cbt-pc' if c.kind == 'pc' }}{{ ' cbt-comp' if c.kind in comp_kinds }}">
     <div class="cbt-row1">
       <span class="cbt-init">
         {% if c.initiative is none %}
@@ -28,7 +30,7 @@
         {% else %}{{ c.initiative }}{% endif %}
       </span>
       <span class="cbt-name">{{ '▶ ' if c.id == current_id }}{{ c.name }}</span>
-      <span class="cbt-kind">{{ 'PC' if c.kind == 'pc' else c.kind }}</span>
+      <span class="cbt-kind">{{ kind_labels.get(c.kind, c.kind) }}</span>
     </div>
 
     <div class="cbt-row2">

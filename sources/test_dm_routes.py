@@ -266,9 +266,20 @@ def test_encounter_start_builds_labeled_combatants(enc_client):
     # per-instans-labels (bestiar-navnet er "Goblin (kriger)")
     assert "Goblin (kriger) A" in html and "Goblin (kriger) B" in html
     assert "Tjørn" in html                              # PC med i kampen
+    assert "Varg" in html                               # Tjørns companion med i kampen
     assert "Runde 1" in html
     enc = ds.load_session(slug).encounter
-    assert enc["active"] and len(enc["combatants"]) == 3
+    # 2 goblins + Tjørn (PC) + Varg (companion)
+    assert enc["active"] and len(enc["combatants"]) == 4
+
+
+def test_encounter_includes_party_companion(enc_client):
+    slug, _ = _start(enc_client)
+    combs = {c["id"]: c for c in ds.load_session(slug).encounter["combatants"]}
+    varg = combs["tjorn-companion"]
+    assert varg["kind"] == "companion" and varg["name"] == "Varg"
+    assert varg["initiative"] is not None              # companion auto-rulles (ikke blank som PC)
+    assert varg["current_hp"] == varg["hp_max"] > 0    # egen HP-pulje
 
 
 def test_encounter_shows_statblock_cards(enc_client):
