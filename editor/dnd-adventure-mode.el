@@ -1,7 +1,7 @@
 ;;; dnd-adventure-mode.el --- Skrivestøtte til D&D 3.5-eventyr (adventure.md) -*- lexical-binding: t; -*-
 
 ;; Author: flask-dnd-3.5
-;; Version: 2 (v2: + buffer-completion, eldoc, hop-til-def, flymake-lint)
+;; Version: 2 (v2: + buffer-completion, eldoc, hop-til-def, flymake-lint, snippets)
 ;; Package-Requires: ((emacs "29.1") (markdown-mode "2.5"))
 ;; Keywords: games, wp
 
@@ -28,6 +28,8 @@
 ;;     for lokale typer, ellers `sources/data/monsters.yaml' for monstre.
 ;;   * Flymake: markér referencer der ikke resolver (ukendt monster-id eller en
 ;;     lokal reference uden matchende `## …:'-overskrift).  @faelde[…] lintes ikke.
+;;   * Snippets (hvis yasnippet er indlæst): scene / rum / roster / statblok /
+;;     ra (read-aloud) / brev / kort — spejler `adventures/_TEMPLATE.md'.
 ;;
 ;; Data-kilden er `srd35.db'.  Den lokaliseres automatisk ved at gå op fra den
 ;; åbne fil til repoets rod (mappen der indeholder `sources/'); ellers sæt
@@ -45,6 +47,12 @@
 (require 'markdown-mode)
 (require 'flymake)
 (require 'json)
+
+;; yasnippet er valgfrit — deklarér symbolerne så byte-compile forbliver rent,
+;; uden at gøre pakken til en hård afhængighed.
+(defvar yas-snippet-dirs)
+(declare-function yas-load-directory "yasnippet")
+(declare-function yas-minor-mode "yasnippet")
 
 (defgroup dnd-adventure nil
   "Skrivestøtte til D&D 3.5-eventyr."
@@ -422,6 +430,20 @@ droppes blødt (ingen falske fejl)."
          '(1 'dnd-structural-face prepend)))
   "Ekstra font-lock-regler lagt oven på `markdown-mode'.")
 
+;; ── Snippets (valgfrit — kun hvis yasnippet er til stede) ────────────────────
+
+(defvar dnd-adventure--snippets-dir
+  (expand-file-name
+   "snippets"
+   (file-name-directory (or load-file-name buffer-file-name default-directory)))
+  "Mappe med de medfølgende yasnippet-snippets (`editor/snippets/').
+Indeholder undermappen `dnd-adventure-mode/' (scene/rum/roster/statblok/ra/…).")
+
+(with-eval-after-load 'yasnippet
+  (when (file-directory-p dnd-adventure--snippets-dir)
+    (add-to-list 'yas-snippet-dirs dnd-adventure--snippets-dir t)
+    (yas-load-directory dnd-adventure--snippets-dir t)))
+
 ;; ── Keymap + mode ───────────────────────────────────────────────────────────
 
 (defvar dnd-adventure-mode-map
@@ -443,7 +465,8 @@ indsæt-kommandoer mod srd35.db."
   (add-hook 'eldoc-documentation-functions #'dnd-adventure-eldoc nil t)
   (eldoc-mode 1)
   (add-hook 'flymake-diagnostic-functions #'dnd-adventure--flymake nil t)
-  (flymake-mode 1))
+  (flymake-mode 1)
+  (when (fboundp 'yas-minor-mode) (yas-minor-mode 1)))
 
 (provide 'dnd-adventure-mode)
 

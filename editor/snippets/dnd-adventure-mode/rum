@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: ## Rum: <titel> (dungeon-lokation)
+# key: rum
+# --
+## Rum: ${1:Rumnavn}
+* **Beskrivelse:** ${2:Kort felt-beskrivelse.}
+* **Monstre:** ${3:1x @monster[tyv]}
+$0

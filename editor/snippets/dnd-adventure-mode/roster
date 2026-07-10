@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: ## Monstre (encounter-roster)
+# key: roster
+# --
+## Monstre
+* ${1:1}x @monster[${2:kriger}]
+* ${3:2}x @monster[${4:tyv}]
+$0

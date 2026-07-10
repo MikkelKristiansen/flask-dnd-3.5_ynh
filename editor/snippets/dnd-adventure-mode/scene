@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: D&D-scene (# titel + Monstre + Handling)
+# key: scene
+# --
+# ${1:Scene-titel}
+
+## Monstre
+* ${2:1}x @monster[${3:kriger}]
+
+## Handling
+
+> ${4:Read-aloud: det spillerne hører når scenen åbner.}
+
+${5:DM-note i almindelig tekst — læses ikke højt.}
+$0

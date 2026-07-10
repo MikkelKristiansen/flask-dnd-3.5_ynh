@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: Read-aloud-boks (>)
+# key: ra
+# --
+> ${1:Det spillerne hører.}
+$0

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: ## Kort: <titel> (handout, refereres @kort[slug])
+# key: kort
+# --
+## Kort: ${1:Kortets titel}
+![${2:alt}](media/${3:fil.png})
+$0

@@ -1,0 +1,32 @@
+# -*- mode: snippet -*-
+# name: ## Statblok: <navn> (adventure-lokalt monster)
+# key: statblok
+# --
+## Statblok: ${1:Navn}
+\`\`\`yaml
+size: ${2:medium}
+type: ${3:humanoid}
+cr: "${4:1}"
+alignment: "${5:Neutral}"
+hd: "${6:1d8 (4 hp)}"
+hp_max: ${7:4}
+ac: ${8:13}
+ac_touch: ${9:11}
+ac_flat: ${10:12}
+init: ${11:1}
+speed: "${12:30 ft.}"
+bab: ${13:0}
+grapple: ${14:0}
+str: ${15:11}
+dex: ${16:13}
+con: ${17:11}
+int: ${18:10}
+wis: ${19:11}
+cha: ${20:10}
+save_fort: ${21:2}
+save_ref: ${22:2}
+save_will: ${23:0}
+attacks:
+  - {name: ${24:Kortsværd}, bonus: "${25:+1}", damage: "${26:1d6}", crit: "${27:19-20}", notes: "${28:nærkamp}"}
+\`\`\`
+$0

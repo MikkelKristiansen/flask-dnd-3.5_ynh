@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: ## Brev: <titel> (handout, refereres @brev[slug])
+# key: brev
+# --
+## Brev: ${1:Brevets titel}
+> ${2:Brev-teksten. Refereres i scenerne som @brev[slug-af-titlen].}
+$0
