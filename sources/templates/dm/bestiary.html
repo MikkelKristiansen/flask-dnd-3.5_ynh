@@ -23,6 +23,8 @@ h1{color:var(--accent);font-size:1.3rem;}
  padding:.7rem .9rem;}
 .bx-count{float:right;color:var(--muted);font-size:.72rem;border:1px solid var(--border);
  border-radius:10px;padding:.05rem .5rem;}
+.bx-h2{color:var(--accent);font-size:1.05rem;margin:1.4rem 0 .7rem;
+ border-bottom:1px solid var(--border);padding-bottom:.25rem;}
 .bx-empty{color:var(--muted);font-style:italic;margin-top:1rem;}
 </style>
 </head>
@@ -34,9 +36,10 @@ h1{color:var(--accent);font-size:1.3rem;}
     <a class="back" href="{{ url_for('dm.index') }}">Kampagner</a>
   </span>
 </div>
-<p class="hint">Alle monstre og NPC'er i dette eventyr. Tallet viser hvor mange gange
-  væsenet optræder på tværs af scenerne.</p>
+<p class="hint">Alle monstre, NPC'er og fælder i dette eventyr. Tallet viser hvor mange gange
+  posten optræder på tværs af scenerne.</p>
 
+<h2 class="bx-h2">📖 Monstre &amp; NPC'er</h2>
 {% if entries %}
 <div class="bx-grid">
   {% for entry in entries %}
@@ -52,6 +55,28 @@ h1{color:var(--accent);font-size:1.3rem;}
 </div>
 {% else %}
 <p class="bx-empty">Ingen monstre eller NPC'er nævnt i dette eventyr endnu.</p>
+{% endif %}
+
+<h2 class="bx-h2">🪤 Fælder</h2>
+{% if traps %}
+<div class="bx-grid">
+  {% for entry in traps %}
+  <div class="bx-card">
+    {% if entry.count %}<span class="bx-count">{{ entry.count }}× i eventyret</span>{% endif %}
+    {% if entry.t %}
+      {% with t=entry.t %}{% include "dm/_trap.html" %}{% endwith %}
+    {% else %}
+      <div class="sb">
+        <div class="sb-head"><span class="sb-name">🪤 {{ entry.ident }}</span>
+          <span class="sb-origin">ukendt</span></div>
+        <div class="sb-note">Fælde-id findes ikke i kataloget (data/traps.yaml).</div>
+      </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="bx-empty">Ingen fælder nævnt i dette eventyr endnu.</p>
 {% endif %}
 </body>
 </html>

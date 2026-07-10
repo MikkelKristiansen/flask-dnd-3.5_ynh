@@ -69,6 +69,20 @@ def load_setup(adv_ref: str, map_slug: str) -> dict:
     return data
 
 
+def all_tokens(adv_ref: str) -> list:
+    """Alle tokens på tværs af eventyrets kort-opstillinger — til opsamling af fx
+    trap-markører uden at kende de enkelte kort-slugs. Manglende setups-mappe →
+    tom liste (eventyret har endnu ingen opstillinger)."""
+    setups_dir = ds.adventure_dir(adv_ref) / "setups"
+    if not setups_dir.exists():
+        return []
+    tokens = []
+    for path in sorted(setups_dir.glob("*.yaml")):
+        data = _yaml.load(path.read_text(encoding="utf-8")) or {}
+        tokens.extend(data.get("tokens") or [])
+    return tokens
+
+
 def save_setup(adv_ref: str, map_slug: str, setup: dict) -> None:
     """Skriv opstillingen atomisk. Kun grid + tokens gemmes."""
     path = _setup_path(adv_ref, map_slug)

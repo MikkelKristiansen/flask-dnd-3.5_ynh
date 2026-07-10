@@ -571,6 +571,22 @@ def test_bestiary_lists_adventure_monsters(client):
     assert "Bestiar" in html                  # origin-badge (delt bestiar, ikke eventyr-lokal)
 
 
+def test_bestiary_lists_adventure_traps(client):
+    html = client.get("/dm/bestiary/Test").get_data(as_text=True)
+    assert "🪤 Fælder" in html
+    assert "Basic Arrow Trap" in html         # @faelde[basic-arrow-trap] i prosaen → opløst statblok
+    assert "+10 ranged" in html               # fælde-statblokkens angrebslinje
+
+
+def test_bestiary_includes_board_trap_markers_and_marks_unknown(client):
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {}, "tokens": [
+        {"kind": "trap", "col": 1, "row": 1, "ref": "ukendt-faelde"}]})
+    html = client.get("/dm/bestiary/Test").get_data(as_text=True)
+    assert "ukendt-faelde" in html                    # ref-bundet bræt-markør samlet op
+    assert "findes ikke i kataloget" in html          # uopslåelig ref → markeret som hul
+
+
 def test_bestiary_back_link_to_session(client):
     slug = _new(client, name="Kamp")
     html = client.get(f"/dm/bestiary/Test?from={slug}").get_data(as_text=True)

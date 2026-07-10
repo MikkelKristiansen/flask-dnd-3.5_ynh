@@ -346,6 +346,7 @@ def bestiary_view(adventure):
         back = None
     return render_template("dm/bestiary.html", title=adv.title,
                            adventure=adventure, entries=dm_scene._bestiary_entries(adv),
+                           traps=dm_scene._trap_entries(adv, adventure),
                            back_session=back)
 
 

@@ -5,12 +5,15 @@ import db
 import dm_party
 import dm_rolls
 import dm_session as ds
+import dm_setups
+import traps as traps_module
 import character as char_module
 from paths import CHARACTERS_DIR
 
 # Entity-typer der slås op som statblok (bruges af _bestiary_entries til at
 # filtrere roster-poster ned til væsener — samme sæt som dm.py's filter).
 _STAT_TYPES = {"monster", "npc"}
+_TRAP_TYPE = "faelde"
 
 
 def _character_slugs() -> list[str]:
@@ -211,6 +214,62 @@ def _bestiary_entries(adv):
             entries.append({"missing": True, "etype": info["type"],
                             "ident": info["id"], "count": info["count"]})
     entries.sort(key=lambda x: (x.get("m", {}).get("name") or x.get("ident") or "").lower())
+    return entries
+
+
+def _walk_blocks(blocks):
+    """Alle blokke i en blok-liste, inkl. dem inde i rum (ét niveau ned)."""
+    for b in blocks or []:
+        yield b
+        if getattr(b, "kind", None) == "room":
+            yield from getattr(b, "blocks", [])
+
+
+def _trap_entries(adv, adv_ref):
+    """Fælde-statblokke for alle fælder eventyret bruger, så DM'en kan browse dem
+    i bestiarie-fanen ligesom monstre. @faelde[id] kan optræde to steder i teksten
+    — som roster-post i et rums '**Fælder:**'-linje, eller inline i prosa/oplæsning
+    — og begge samles her, udvidet med ref-bundne trap-markører (kind=trap) på
+    eventyrets kort-opstillinger. En uopslåelig ref markeres `missing`, så DM'en
+    ser hullet frem for en tavs udeladelse. Tallet er antal forekomster.
+    Sorteret efter navn."""
+    order, count = [], {}
+
+    def bump(ident, n=1):
+        ident = (ident or "").strip()
+        if not ident:
+            return
+        if ident not in count:
+            order.append(ident)
+            count[ident] = 0
+        count[ident] += n
+
+    for scene in adv.scenes:
+        for b in _walk_blocks(scene.blocks):
+            kind = getattr(b, "kind", None)
+            if kind == "roster":
+                for e in b.entries:
+                    if e.type == _TRAP_TYPE:
+                        bump(e.id, int(getattr(e, "count", 1) or 1))
+            elif kind in ("prose", "readaloud"):
+                for e in getattr(b, "entities", []):
+                    if e.type == _TRAP_TYPE:
+                        bump(e.id)
+            elif kind == "embed" and b.entity.type == _TRAP_TYPE:
+                bump(b.entity.id)
+
+    for t in dm_setups.all_tokens(adv_ref):
+        if t.get("kind") == "trap" and t.get("ref"):
+            bump(t["ref"])
+
+    entries = []
+    for ident in order:
+        row = db.get_trap(ident)
+        if row:
+            entries.append({"t": traps_module.trap_view(row), "count": count[ident]})
+        else:
+            entries.append({"missing": True, "ident": ident, "count": count[ident]})
+    entries.sort(key=lambda x: (x.get("t", {}).get("name") or x.get("ident") or "").lower())
     return entries
 
 
