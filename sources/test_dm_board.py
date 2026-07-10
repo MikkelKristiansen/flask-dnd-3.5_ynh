@@ -120,3 +120,13 @@ def test_setup_save_roundtrip(tmp_path, monkeypatch):
     back = dm_setups.load_setup("Test", "kaelder")
     assert back["grid"] == {"cell": 100, "x": 5, "y": 5}
     assert len(back["tokens"]) == 5
+
+
+def test_companion_token_gets_fixed_green_and_letter():
+    enc = {"active": True, "combatants": [
+        {"id": "tjorn-companion", "ref": "tjorn-companion", "kind": "companion",
+         "name": "Varg", "current_hp": 13, "hp_max": 13, "col": 6, "row": 5}]}
+    t = B.combat_board_view({"grid": {}, "tokens": []}, enc)["tokens"][0]
+    assert t["color"] == B._COMPANION_COLOR        # fast ledsager-grøn, ikke monster-palette
+    assert t["label"] == "V"                        # navnets forbogstav (enlig instans)
+    assert t["hp"] == "13/13" and t["cid"] == "tjorn-companion"

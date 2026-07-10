@@ -10,6 +10,10 @@ from __future__ import annotations
 _MARKER_ICON = {"trap": "🪤", "door": "🚪", "treasure": "💰", "note": "📌"}
 # Distinkte farver pr. monster/npc-type (skive-tokens uden art).
 _COLORS = ["#b5432c", "#4a7a4a", "#3d6b8a", "#8a6d3d", "#6b4a8a", "#3d8a86", "#8a3d5f"]
+# Ledsagere (companion/familiar/mount) får én fast grøn — samme som trackerens
+# ledsager-markering (.cbt-comp) — så allierede væsener er ens at scanne på brættet.
+_COMPANION_KINDS = ("companion", "familiar", "mount")
+_COMPANION_COLOR = "#6fae7a"
 
 
 def token_style() -> dict:
@@ -98,6 +102,9 @@ def combat_board_view(setup: dict, encounter: dict, current_id: str | None = Non
         if kind == "pc":
             tv["portrait"] = ref
             tv["label"] = (c.get("name") or ref)[:2].upper()
+        elif kind in _COMPANION_KINDS:
+            tv["color"] = _COMPANION_COLOR
+            tv["label"] = _instance_letter(c)
         else:
             if ref not in color_of:
                 color_of[ref] = _COLORS[palette_i % len(_COLORS)]

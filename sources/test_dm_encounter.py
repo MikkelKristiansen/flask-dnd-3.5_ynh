@@ -94,3 +94,46 @@ def test_seed_positions_next_free_when_no_letter_match_and_no_token_ok():
     a, b = combs
     assert (a["col"], a["row"]) == (4, 4)          # første ulv tager den ledige token
     assert "col" not in b                           # anden ulv står uden for brættet
+
+
+# ── Ledsager-seeding (companion/familiar placeres ved siden af ejer-PC) ───────
+def _party_with_companion():
+    return E.build_combatants([
+        {"name": "Tjørn", "count": 1, "ref": "tjorn", "kind": "pc",
+         "init_mod": 0, "hp_max": 17},
+        {"name": "Varg", "count": 1, "ref": "tjorn-companion", "kind": "companion",
+         "init_mod": 3, "hp_max": 13, "owner": "tjorn"},
+    ])
+
+
+def test_owner_field_only_on_companion():
+    combs = _party_with_companion()
+    tj = next(c for c in combs if c["id"] == "tjorn")
+    varg = next(c for c in combs if c["id"] == "tjorn-companion")
+    assert "owner" not in tj                       # PC/monster bærer ikke owner
+    assert varg["owner"] == "tjorn"
+
+
+def test_companion_seeded_next_to_owner():
+    combs = _party_with_companion()
+    E.seed_positions(combs, [{"kind": "pc", "ref": "tjorn", "col": 5, "row": 5}])
+    tj = next(c for c in combs if c["id"] == "tjorn")
+    varg = next(c for c in combs if c["id"] == "tjorn-companion")
+    assert (tj["col"], tj["row"]) == (5, 5)
+    assert varg.get("col") is not None             # kom på brættet
+    assert max(abs(varg["col"] - 5), abs(varg["row"] - 5)) == 1   # nabocelle
+    assert (varg["col"], varg["row"]) != (5, 5)    # deler ikke ejerens celle
+
+
+def test_companion_off_board_when_owner_unplaced():
+    combs = _party_with_companion()
+    E.seed_positions(combs, [])                    # ingen stiller nogen op
+    varg = next(c for c in combs if c["id"] == "tjorn-companion")
+    assert varg.get("col") is None                 # ingen ejer-position → uden for brættet
+
+
+def test_free_cell_near_prefers_adjacent_then_expands():
+    assert E._free_cell_near(5, 5, set()) == (4, 4)      # første ring-celle
+    neighbors = {(c, r) for c in (4, 5, 6) for r in (4, 5, 6)} - {(5, 5)}
+    cell = E._free_cell_near(5, 5, neighbors)            # alle naboer optaget
+    assert max(abs(cell[0] - 5), abs(cell[1] - 5)) == 2  # tvunget ud i radius 2

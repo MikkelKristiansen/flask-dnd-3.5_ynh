@@ -16,10 +16,11 @@
     {% if t.kind == 'pc' %}
       <span class="tok-lbl">{{ t.label }}</span>
       <img class="tok-por" src="{{ url_for('portrait', slug=t.portrait) }}" alt="" onerror="this.remove()">
-    {% elif t.kind in ('monster', 'npc') %}
-      <span class="tok-disc" style="background:{{ t.color }}">{{ t.label }}</span>
-    {% else %}
+    {% elif is_marker %}
       <span class="tok-mark">{{ t.icon }}</span>
+    {% else %}
+      {# Alle væsen-skiver: monster/npc + ledsagere (companion/familiar/mount). #}
+      <span class="tok-disc" style="background:{{ t.color }}">{{ t.label }}</span>
     {% endif %}
     {% if t.hp %}<span class="tok-hp">{{ t.hp }}</span>{% endif %}
   </div>

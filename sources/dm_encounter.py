@@ -49,7 +49,7 @@ def build_combatants(sources: list[dict]) -> list[dict]:
             seen[ref] = idx + 1
             lettered = totals[ref] > 1
             suffix = _excel_col(idx)
-            out.append({
+            combatant = {
                 "id": f"{ref}-{suffix.lower()}" if lettered else ref,
                 "name": f"{s['name']} {suffix}" if lettered else s["name"],
                 "kind": s.get("kind", "monster"),
@@ -59,7 +59,12 @@ def build_combatants(sources: list[dict]) -> list[dict]:
                 "hp_max": s.get("hp_max"),
                 "current_hp": s.get("hp_max"),
                 "conditions": [],
-            })
+            }
+            # Ledsagere bærer deres ejer-PC med (slug), så de kan seedes ved siden
+            # af ejeren på brættet. Kun companions har feltet.
+            if s.get("owner"):
+                combatant["owner"] = s["owner"]
+            out.append(combatant)
     return out
 
 
@@ -84,6 +89,42 @@ def seed_positions(combatants: list[dict], tokens: list[dict]) -> None:
                     if (t.get("label") or "").strip().lower() == letter), None) or toks[0]
         toks.remove(tok)
         c["col"], c["row"] = int(tok.get("col", 0)), int(tok.get("row", 0))
+    _seed_companions(combatants)
+
+
+def _free_cell_near(col: int, row: int, occupied: set) -> tuple | None:
+    """Nærmeste frie celle omkring (col,row), søgt i voksende ringe. Negative
+    koordinater undgås; grid-loftet håndteres af brættets clamp ved render/flyt."""
+    for radius in range(1, 6):
+        for dc in range(-radius, radius + 1):
+            for dr in range(-radius, radius + 1):
+                if max(abs(dc), abs(dr)) != radius:      # kun selve ringen
+                    continue
+                cell = (col + dc, row + dr)
+                if cell[0] >= 0 and cell[1] >= 0 and cell not in occupied:
+                    return cell
+    return None
+
+
+def _seed_companions(combatants: list[dict]) -> None:
+    """Placér ledsagere (som ikke selv fik en opstillings-token) ved siden af deres
+    ejer-PC, så en companion/familiar altid dukker op på brættet ved kampstart —
+    DM/spiller kan trække den videre. Ejeren findes via `owner` (= PC-combatantens
+    id). Har ejeren ingen position (ikke stillet op), forbliver ledsageren uden
+    for brættet (stadig i trackeren). Tokens deler aldrig celle."""
+    by_id = {c["id"]: c for c in combatants}
+    occupied = {(c["col"], c["row"]) for c in combatants
+                if c.get("col") is not None and c.get("row") is not None}
+    for c in combatants:
+        if c.get("col") is not None or not c.get("owner"):
+            continue
+        owner = by_id.get(c["owner"])
+        if not owner or owner.get("col") is None:
+            continue
+        cell = _free_cell_near(int(owner["col"]), int(owner["row"]), occupied)
+        if cell:
+            c["col"], c["row"] = cell
+            occupied.add(cell)
 
 
 def default_roller(init_mod: int) -> int:

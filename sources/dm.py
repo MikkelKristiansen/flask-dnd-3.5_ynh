@@ -220,10 +220,11 @@ def _encounter_sources(session, adv):
         sources.append({"ref": pc["slug"], "count": 1, "name": pc["name"],
                         "kind": "pc", "init_mod": pc["init"], "hp_max": pc["hp_max"]})
     # Ledsagere er egne combatants (egen initiativ/HP) — auto-rulles som monstre.
+    # `owner` bæres med, så brættet kan stille ledsageren op ved siden af sin PC.
     for comp in dm_party.party_companions(session.party, db):
         sources.append({"ref": comp["ref"], "count": 1, "name": comp["name"],
                         "kind": comp["kind"], "init_mod": comp["init_mod"],
-                        "hp_max": comp["hp_max"]})
+                        "hp_max": comp["hp_max"], "owner": comp["owner"]})
     return sources
 
 
