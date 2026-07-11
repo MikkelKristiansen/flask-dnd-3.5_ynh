@@ -239,3 +239,15 @@ def test_encounter_sources_without_room_includes_whole_scene():
     refs = {s["ref"] for s in sources}
     # bagudkompatibelt: alle rums monstre + fælder-roster er med (gammel scene-kamp)
     assert {"tyv", "kriger", "mordekain", "skelet"} <= refs
+
+
+def test_room_has_combatants_gates_on_monsters():
+    adv = _midsommer()
+    kaelder = next(s for s in adv.scenes if s.id == "kaelderen")
+    room = lambda rid: dm_scene._find_room(kaelder, rid)
+    # rum med væsener → True
+    assert dm_scene.room_has_combatants(room("opbevaringsrum")) is True
+    assert dm_scene.room_has_combatants(room("mordekains-kammer")) is True
+    # kun en fælde (@faelde) → False; intet roster → False
+    assert dm_scene.room_has_combatants(room("indgang")) is False
+    assert dm_scene.room_has_combatants(room("skeletreste-rum")) is False

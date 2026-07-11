@@ -54,6 +54,14 @@ def _find_room(scene, room_id):
     return None
 
 
+def room_has_combatants(room) -> bool:
+    """True hvis rummet har mindst ét væsen (monster/npc) i et roster. En fælde-
+    kun-roster (@faelde) tæller IKKE som kamp — så et rum med kun en fælde får
+    ingen 'Start kamp fra dette rum'-knap (fælder-som-kampdeltagere er en separat
+    opgave). Bruges som template-filter `has_combatants` i _block.html."""
+    return any(e.type in _STAT_TYPES for e in _room_rosters(room))
+
+
 def _monster_source(ref, adv):
     """Resolv et roster-id til combatant-kildedata (navn/init/hp) via adventure-
     lokalt statblok → bestiar → fallback (ukendt = rå id, 0 init, ingen hp)."""

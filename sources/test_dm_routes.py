@@ -558,8 +558,11 @@ def test_play_shows_room_start_buttons_for_rooms_with_monsters(midsommer_client)
     assert 'name="room" value="mordekains-kammer"' in html
     assert "⚔ Start kamp fra dette rum" in html
     # Skeletreste-rum har hverken monstre eller fælder (kun beskrivelse) →
-    # intet roster-block → ingen start-knap for det rum.
+    # ingen start-knap for det rum.
     assert 'value="skeletreste-rum"' not in html
+    # Indgang har KUN en fælde (@faelde), ingen væsener → ingen start-knap
+    # (fælde-kun-rum gater knappen fra; fælder-i-kamp er en separat opgave).
+    assert 'value="indgang"' not in html
 
 
 # ── Bestiarie-fane ──────────────────────────────────────────────────────────

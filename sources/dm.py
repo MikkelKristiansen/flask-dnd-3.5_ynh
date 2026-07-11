@@ -67,6 +67,13 @@ def _entities_filter(text: str, docs: dict | None = None) -> Markup:
     return Markup("").join(out)
 
 
+@dm_bp.app_template_filter("has_combatants")
+def _has_combatants_filter(room) -> bool:
+    """Template-filter: har rummet et væsen (monster/npc) at kæmpe mod? Gater
+    'Start kamp fra dette rum'-knappen, så fælde-kun-rum ikke får den."""
+    return dm_scene.room_has_combatants(room)
+
+
 @dm_bp.route("/")
 def index():
     return render_template("dm/index.html",
