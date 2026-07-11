@@ -349,6 +349,7 @@ def board(adventure, map_slug):
         board=dm_board.board_view(setup, adv, db, audience="dm"),
         palette=dm_scene._board_palette(adv), token_style=dm_board.token_style(),
         traps=[{"id": t["id"], "name": t["name"]} for t in db.get_all_traps()],
+        doors=[{"id": d["id"], "name": d["name"]} for d in db.get_all_doors()],
         back_session=back)
 
 
@@ -366,6 +367,7 @@ def bestiary_view(adventure):
     return render_template("dm/bestiary.html", title=adv.title,
                            adventure=adventure, entries=dm_scene._bestiary_entries(adv),
                            traps=dm_scene._trap_entries(adv, adventure),
+                           doors=dm_scene._door_entries(adv, adventure),
                            back_session=back)
 
 

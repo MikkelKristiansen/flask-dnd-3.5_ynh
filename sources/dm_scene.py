@@ -6,6 +6,7 @@ import dm_party
 import dm_rolls
 import dm_session as ds
 import dm_setups
+import doors as doors_module
 import traps as traps_module
 import character as char_module
 from paths import CHARACTERS_DIR
@@ -14,6 +15,7 @@ from paths import CHARACTERS_DIR
 # filtrere roster-poster ned til væsener — samme sæt som dm.py's filter).
 _STAT_TYPES = {"monster", "npc"}
 _TRAP_TYPE = "faelde"
+_DOOR_TYPES = {"dør", "door"}
 
 
 def _character_slugs() -> list[str]:
@@ -278,6 +280,53 @@ def _trap_entries(adv, adv_ref):
         else:
             entries.append({"missing": True, "ident": ident, "count": count[ident]})
     entries.sort(key=lambda x: (x.get("t", {}).get("name") or x.get("ident") or "").lower())
+    return entries
+
+
+def _door_entries(adv, adv_ref):
+    """Dør-statblokke for alle døre eventyret bruger, så DM'en kan browse dem i
+    bestiarie-fanen ligesom fælder. @dør[id]/@door[id] kan optræde inline i prosa
+    — der er intet dør-roster-felt (døre er ikke kampdeltagere) — udvidet med
+    ref-bundne dør-markører (kind=door) på eventyrets kort-opstillinger. En
+    uopslåelig ref markeres `missing`, så DM'en ser hullet frem for en tavs
+    udeladelse. Tallet er antal forekomster. Sorteret efter navn."""
+    order, count = [], {}
+
+    def bump(ident, n=1):
+        ident = (ident or "").strip()
+        if not ident:
+            return
+        if ident not in count:
+            order.append(ident)
+            count[ident] = 0
+        count[ident] += n
+
+    for scene in adv.scenes:
+        for b in _walk_blocks(scene.blocks):
+            kind = getattr(b, "kind", None)
+            if kind == "roster":
+                for e in b.entries:
+                    if e.type in _DOOR_TYPES:
+                        bump(e.id, int(getattr(e, "count", 1) or 1))
+            elif kind in ("prose", "readaloud"):
+                for e in getattr(b, "entities", []):
+                    if e.type in _DOOR_TYPES:
+                        bump(e.id)
+            elif kind == "embed" and b.entity.type in _DOOR_TYPES:
+                bump(b.entity.id)
+
+    for t in dm_setups.all_tokens(adv_ref):
+        if t.get("kind") == "door" and t.get("ref"):
+            bump(t["ref"])
+
+    entries = []
+    for ident in order:
+        row = db.get_door(ident)
+        if row:
+            entries.append({"d": doors_module.door_view(row), "count": count[ident]})
+        else:
+            entries.append({"missing": True, "ident": ident, "count": count[ident]})
+    entries.sort(key=lambda x: (x.get("d", {}).get("name") or x.get("ident") or "").lower())
     return entries
 
 

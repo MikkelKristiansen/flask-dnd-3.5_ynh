@@ -590,6 +590,22 @@ def test_bestiary_includes_board_trap_markers_and_marks_unknown(client):
     assert "findes ikke i kataloget" in html          # uopslåelig ref → markeret som hul
 
 
+def test_bestiary_lists_adventure_doors(client):
+    html = client.get("/dm/bestiary/Test").get_data(as_text=True)
+    assert "🚪 Døre" in html
+    assert "Jerndør" in html                  # @dør[iron-door] i prosaen → opløst statblok
+    assert "Hardness" in html                 # dør-statblokkens felter
+
+
+def test_bestiary_includes_board_door_markers_and_marks_unknown(client):
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {}, "tokens": [
+        {"kind": "door", "col": 1, "row": 1, "ref": "ukendt-dor"}]})
+    html = client.get("/dm/bestiary/Test").get_data(as_text=True)
+    assert "ukendt-dor" in html                       # ref-bundet bræt-markør samlet op
+    assert "findes ikke i kataloget" in html          # uopslåelig ref → markeret som hul
+
+
 def test_bestiary_back_link_to_session(client):
     slug = _new(client, name="Kamp")
     html = client.get(f"/dm/bestiary/Test?from={slug}").get_data(as_text=True)
@@ -658,3 +674,12 @@ def test_statblock_endpoint_unknown_door_is_graceful(client):
     r = client.get("/dm/api/statblock/Test/door/findes-ikke")
     assert r.status_code == 200                        # ingen 500 — pæn "ingen data"
     assert "findes-ikke" in r.get_data(as_text=True)
+
+
+def test_board_binds_door_marker_to_statblock(client):
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 50}, "tokens": [
+        {"kind": "door", "col": 1, "row": 1, "ref": "iron-door", "note": "knirker"}]})
+    html = client.get("/dm/board/Test/testkort").get_data(as_text=True)
+    assert 'data-mref="iron-door"' in html              # markøren bærer sin dør-ref
+    assert '"id": "iron-door"' in html                  # dør-katalog sendt til editoren (JS-config)

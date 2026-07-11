@@ -17,7 +17,7 @@
 window.DmBoardEditor = (function () {
   "use strict";
 
-  var model, palette, style, traps, saveUrl, portraitBase;
+  var model, palette, style, traps, doors, saveUrl, portraitBase;
   var board, panel, statusEl, detailEl, editing = false, selected = -1;
 
   function init(cfg) {
@@ -25,6 +25,7 @@ window.DmBoardEditor = (function () {
     palette = cfg.palette || { pcs: [], creatures: [], markers: [] };
     style = cfg.style || { colors: [], icons: {} };
     traps = cfg.traps || [];
+    doors = cfg.doors || [];
     saveUrl = cfg.saveUrl;
     portraitBase = cfg.portraitBase;
 
@@ -241,6 +242,15 @@ window.DmBoardEditor = (function () {
       var opts = [{ value: "", label: "— ingen (kun note) —" }].concat(
         traps.map(function (tr) { return { value: tr.id, label: tr.name }; }));
       detailEl.appendChild(dropdown("Fælde", t.ref, opts, function (v) {
+        t.ref = v; select(selected);
+      }));
+    }
+    if (t.kind === "door" && doors.length) {
+      // Bind dør-markøren til en dør i kataloget → klik på brættet åbner
+      // dens statblok. Tom værdi = ubundet (kun note).
+      var doorOpts = [{ value: "", label: "— ingen (kun note) —" }].concat(
+        doors.map(function (d) { return { value: d.id, label: d.name }; }));
+      detailEl.appendChild(dropdown("Dør", t.ref, doorOpts, function (v) {
         t.ref = v; select(selected);
       }));
     }

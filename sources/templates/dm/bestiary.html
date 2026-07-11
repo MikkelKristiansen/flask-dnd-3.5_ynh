@@ -78,5 +78,27 @@ h1{color:var(--accent);font-size:1.3rem;}
 {% else %}
 <p class="bx-empty">Ingen fælder nævnt i dette eventyr endnu.</p>
 {% endif %}
+
+<h2 class="bx-h2">🚪 Døre</h2>
+{% if doors %}
+<div class="bx-grid">
+  {% for entry in doors %}
+  <div class="bx-card">
+    {% if entry.count %}<span class="bx-count">{{ entry.count }}× i eventyret</span>{% endif %}
+    {% if entry.d %}
+      {% with d=entry.d %}{% include "dm/_door.html" %}{% endwith %}
+    {% else %}
+      <div class="sb">
+        <div class="sb-head"><span class="sb-name">🚪 {{ entry.ident }}</span>
+          <span class="sb-origin">ukendt</span></div>
+        <div class="sb-note">Dør-id findes ikke i kataloget (data/doors.yaml).</div>
+      </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="bx-empty">Ingen døre nævnt i dette eventyr endnu.</p>
+{% endif %}
 </body>
 </html>
