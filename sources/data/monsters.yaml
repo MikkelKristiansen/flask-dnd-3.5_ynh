@@ -418,3 +418,597 @@
   skills: '[{"name": "Hide", "total": 5}, {"name": "Move Silently", "total": 5}, {"name": "Open Lock", "total": 5}, {"name": "Disable Device", "total": 5}, {"name": "Search", "total": 5}, {"name": "Tumble", "total": 5}, {"name": "Listen", "total": 3}, {"name": "Spot", "total": 3}]'
   feats: '["Weapon Finesse", "Alertness"]'
   source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Rogue 1 bygget efter SRD's rogue-klasse (godt Ref-save, snigangreb +1d6, fælde-opdagelse) med en dex/int-tung nonelite-array-fordeling (Dex 13/Int 12/Con 11/Str 10/Wis 9/Cha 8 — egen fordeling, da SRD kun viser Str-primær-fordelingen for warrior-racer). Udstyr: læderrustning + kårde (Weapon Finesse, jf. SRD equipment.md: 'You can use the Weapon Finesse feat to apply your Dexterity modifier... to attack rolls with a rapier') + kortbue. Rogue får (8+Int-mod)x4 + 4 menneske-bonus-point = 40 skill-point ved niveau 1, langt mere end kan vises i en kompakt statblok — kun 8 repræsentative færdigheder (maks 4 ranks hver, jf. niveau-1-loftet) er listet i stedet for at udtømme alle point."
+
+- id: ogre
+  name: Ogre
+  size: large
+  type: giant
+  cr: "3"
+  alignment: "Sædvanligvis kaotisk ond"
+  hd: "4d8+11 (29 hp)"
+  hp_max: 29
+  ac: 16
+  ac_touch: 8
+  ac_flat: 16
+  ac_note: "-1 størrelse, -1 Dex, +5 naturlig, +3 hudrustning"
+  init: -1
+  speed: "40 ft. (30 ft. i hudrustning)"
+  bab: 3
+  grapple: 12
+  str: 21
+  dex: 8
+  con: 15
+  int: 6
+  wis: 10
+  cha: 7
+  save_fort: 6
+  save_ref: 0
+  save_will: 1
+  attacks: '[{"name": "Krigskølle", "bonus": "+8", "damage": "2d6+7", "notes": "nærkamp, tohåndet"}, {"name": "Kastespyd", "bonus": "+1", "damage": "2d6+5", "notes": "kastet"}]'
+  full_attack: "Krigskølle +8 (2d6+7) eller kastespyd +1 (2d6+5)"
+  special_attacks: ~
+  special_qualities: "Lavlys-syn"
+  skills: '[{"name": "Climb", "total": 5}, {"name": "Listen", "total": 2}, {"name": "Spot", "total": 2}]'
+  feats: '["Toughness", "Weapon Focus (greatclub)"]'
+  source_note: "SRD: Ogre"
+
+- id: ghoul
+  name: Ghoul
+  size: medium
+  type: undead
+  cr: "1"
+  alignment: "Altid kaotisk ond"
+  hd: "2d12 (13 hp)"
+  hp_max: 13
+  ac: 14
+  ac_touch: 12
+  ac_flat: 12
+  ac_note: "+2 Dex, +2 naturlig"
+  init: 2
+  speed: "30 ft."
+  bab: 1
+  grapple: 2
+  str: 13
+  dex: 15
+  con: ~
+  int: 13
+  wis: 14
+  cha: 12
+  save_fort: 0
+  save_ref: 2
+  save_will: 5
+  attacks: '[{"name": "Bid", "bonus": "+2", "damage": "1d6+1", "notes": "nærkamp, plus lammelse"}, {"name": "Klo", "bonus": "+0", "damage": "1d3", "notes": "nærkamp, plus lammelse"}]'
+  full_attack: "Bid +2 (1d6+1 plus lammelse) og 2 klør +0 (1d3 plus lammelse)"
+  special_attacks: "Lammelse (berøring ved bid eller klo, Udholdenhed DC 12, lammet 1d4+1 runder; alver er immune), ghoul-feber (bid, Udholdenhed DC 12, inkubationstid 1 dag, skade 1d3 Con og 1d3 Dex)"
+  special_qualities: "Udøde-træk, +2 modstand mod fortrængning"
+  skills: '[{"name": "Balance", "total": 6}, {"name": "Climb", "total": 5}, {"name": "Hide", "total": 6}, {"name": "Jump", "total": 6}, {"name": "Move Silently", "total": 6}, {"name": "Spot", "total": 7}]'
+  feats: '["Multiattack"]'
+  source_note: "SRD: Ghoul"
+
+- id: ghast
+  name: Ghast
+  size: medium
+  type: undead
+  cr: "3"
+  alignment: "Altid kaotisk ond"
+  hd: "4d12+3 (29 hp)"
+  hp_max: 29
+  ac: 17
+  ac_touch: 13
+  ac_flat: 14
+  ac_note: "+3 Dex, +4 naturlig"
+  init: 3
+  speed: "30 ft."
+  bab: 2
+  grapple: 5
+  str: 17
+  dex: 17
+  con: ~
+  int: 13
+  wis: 14
+  cha: 16
+  save_fort: 1
+  save_ref: 4
+  save_will: 6
+  attacks: '[{"name": "Bid", "bonus": "+5", "damage": "1d8+1", "notes": "nærkamp, plus lammelse"}, {"name": "Klo", "bonus": "+3", "damage": "1d4+1", "notes": "nærkamp, plus lammelse"}]'
+  full_attack: "Bid +5 (1d8+1 plus lammelse) og 2 klør +3 (1d4+1 plus lammelse)"
+  special_attacks: "Stank (kvalme-effekt inden for 3 m, Udholdenhed DC 15 — DC beregnet via standardformlen, ikke uafhængigt bekræftet), lammelse (berøring ved bid eller klo, Udholdenhed DC 15, lammet 1d4+1 runder — virker også på alver, i modsætning til almindelige ghouls), ghoul-feber (bid, Udholdenhed DC 12, inkubationstid 1 dag, skade 1d3 Con og 1d3 Dex)"
+  special_qualities: "Udøde-træk, +2 modstand mod fortrængning"
+  skills: '[{"name": "Balance", "total": 7}, {"name": "Climb", "total": 9}, {"name": "Hide", "total": 8}, {"name": "Jump", "total": 9}, {"name": "Move Silently", "total": 8}, {"name": "Search", "total": 8}, {"name": "Spot", "total": 8}]'
+  feats: '["Multiattack", "Toughness"]'
+  source_note: "SRD: Ghast"
+
+- id: wight
+  name: Wight
+  size: medium
+  type: undead
+  cr: "3"
+  alignment: "Altid lovlig ond"
+  hd: "4d12 (26 hp)"
+  hp_max: 26
+  ac: 15
+  ac_touch: 11
+  ac_flat: 14
+  ac_note: "+1 Dex, +4 naturlig"
+  init: 1
+  speed: "30 ft."
+  bab: 2
+  grapple: 3
+  str: 12
+  dex: 12
+  con: ~
+  int: 11
+  wis: 13
+  cha: 15
+  save_fort: 1
+  save_ref: 2
+  save_will: 5
+  attacks: '[{"name": "Slag", "bonus": "+3", "damage": "1d4+1", "notes": "nærkamp, plus energitab"}]'
+  full_attack: "Slag +3 (1d4+1 plus energitab)"
+  special_attacks: "Energitab (levende væsener ramt af slag-angrebet får ét permanent negativt niveau, Udholdenhed DC 14 for at undgå; wighten helbreder 5 hp hvis offeret rammes), skab afkom (humanoide ofre der dør af energitab bliver selv til en wight inden for 1d4 runder)"
+  special_qualities: "Udøde-træk"
+  skills: '[{"name": "Hide", "total": 8}, {"name": "Listen", "total": 7}, {"name": "Move Silently", "total": 16}, {"name": "Spot", "total": 8}]'
+  feats: '["Blind-Fight"]'
+  source_note: "SRD: Wight (Move Silently +16 = 7 ranks + 1 Dex + 8 racial bonus — uafhængigt bekræftet)"
+
+- id: shadow
+  name: Skygge
+  size: medium
+  type: undead (incorporeal)
+  cr: "3"
+  alignment: "Altid kaotisk ond"
+  hd: "3d12 (19 hp)"
+  hp_max: 19
+  ac: 13
+  ac_touch: 13
+  ac_flat: 11
+  ac_note: "+2 Dex, +1 afvisning"
+  init: 2
+  speed: "30 ft., flyvning 40 ft. (god)"
+  bab: 1
+  grapple: ~
+  str: ~
+  dex: 14
+  con: ~
+  int: 6
+  wis: 12
+  cha: 13
+  save_fort: 1
+  save_ref: 3
+  save_will: 4
+  attacks: '[{"name": "Kropsløs berøring", "bonus": "+3", "damage": "1d6", "notes": "nærkamp, midlertidig Styrke-skade"}]'
+  full_attack: "Kropsløs berøring +3 (1d6 midlertidig Styrke-skade)"
+  special_attacks: "Styrke-skade (1d6 midlertidig Styrke ved berøring), skab afkom (et humanoid dræbt af skyggens Styrke-skade bliver selv en skygge)"
+  special_qualities: "Udøde-træk, kropsløs (kan kun rammes af magiske våben eller andre kropsløse angreb; kan bevæge sig gennem faste objekter), +2 modstand mod fortrængning"
+  skills: '[{"name": "Hide", "total": 8}, {"name": "Listen", "total": 7}, {"name": "Search", "total": 4}, {"name": "Spot", "total": 7}]'
+  feats: '["Alertness", "Dodge"]'
+  source_note: "SRD: Shadow (Str er ikke trykt for denne skabning — deraf str: ~ og grapple: ~, jf. brief)"
+
+- id: worg
+  name: Worg
+  size: medium
+  type: magical beast
+  cr: "2"
+  alignment: "Sædvanligvis neutral ond"
+  hd: "4d10+8 (30 hp)"
+  hp_max: 30
+  ac: 14
+  ac_touch: 12
+  ac_flat: 12
+  ac_note: "+2 Dex, +2 naturlig"
+  init: 2
+  speed: "50 ft."
+  bab: 4
+  grapple: 7
+  str: 17
+  dex: 15
+  con: 15
+  int: 6
+  wis: 14
+  cha: 10
+  save_fort: 6
+  save_ref: 6
+  save_will: 3
+  attacks: '[{"name": "Bid", "bonus": "+7", "damage": "1d6+4", "notes": "nærkamp"}]'
+  full_attack: "Bid +7 (1d6+4)"
+  special_attacks: "Fælde (bid-angreb kan udløse et gratis væltnings-forsøg uden berøringsangreb eller frihedsslag til modstanderen; mislykkes forsøget, kan modstanderen ikke vælte worgen tilbage)"
+  special_qualities: "Mørkesyn 18 m, lavlys-syn, lugtesans"
+  skills: '[{"name": "Hide", "total": 7}, {"name": "Listen", "total": 6}, {"name": "Move Silently", "total": 6}, {"name": "Spot", "total": 6}, {"name": "Survival", "total": 2}]'
+  feats: '["Alertness", "Track"]'
+  source_note: "SRD: Worg"
+
+- id: dire-wolf
+  name: Rædselsulv
+  size: large
+  type: animal
+  cr: "3"
+  alignment: "Altid neutral"
+  hd: "6d8+18 (45 hp)"
+  hp_max: 45
+  ac: 14
+  ac_touch: 11
+  ac_flat: 12
+  ac_note: "-1 størrelse, +2 Dex, +3 naturlig"
+  init: 2
+  speed: "50 ft."
+  bab: 4
+  grapple: 15
+  str: 25
+  dex: 15
+  con: 17
+  int: 2
+  wis: 12
+  cha: 10
+  save_fort: 8
+  save_ref: 7
+  save_will: 6
+  attacks: '[{"name": "Bid", "bonus": "+11", "damage": "1d8+10", "notes": "nærkamp"}]'
+  full_attack: "Bid +11 (1d8+10)"
+  special_attacks: "Fælde (bid-angreb kan udløse et gratis væltnings-forsøg uden berøringsangreb eller frihedsslag til modstanderen)"
+  special_qualities: "Lavlys-syn, lugtesans"
+  skills: '[{"name": "Hide", "total": 0}, {"name": "Listen", "total": 7}, {"name": "Move Silently", "total": 4}, {"name": "Spot", "total": 7}, {"name": "Survival", "total": 2}]'
+  feats: '["Alertness", "Run", "Track", "Weapon Focus (bite)"]'
+  source_note: "SRD: Dire Wolf. NB: alle tre grundsave (Fort/Ref/Vilje) bruger den 'gode' progression — en dokumenteret undtagelse fra almindelige dyrs svage Vilje-save, som gælder for alle dire-dyr; bekræftet via uafhængig kilde (ikke blot beregnet)."
+
+- id: monstrous-spider-medium
+  name: Monstrøs edderkop (mellem)
+  size: medium
+  type: vermin
+  cr: "1"
+  alignment: "Altid neutral"
+  hd: "2d8+2 (11 hp)"
+  hp_max: 11
+  ac: 14
+  ac_touch: 13
+  ac_flat: 11
+  ac_note: "+3 Dex, +1 naturlig"
+  init: 3
+  speed: "30 ft., klatring 20 ft."
+  bab: 1
+  grapple: 1
+  str: 11
+  dex: 17
+  con: 12
+  int: ~
+  wis: 10
+  cha: 2
+  save_fort: 4
+  save_ref: 3
+  save_will: 0
+  attacks: '[{"name": "Bid", "bonus": "+4", "damage": "1d6", "notes": "nærkamp, plus gift"}]'
+  full_attack: "Bid +4 (1d6 plus gift)"
+  special_attacks: "Gift (bid, Udholdenhed DC 14, indledende og sekundær skade 1d4 Styrke), spind (kan spinde web 8 gange dagligt, rækkevidde 15 m, indhyllede skabninger skal bestå Undvigekunst DC 32 eller Styrke DC 38 for at slippe fri)"
+  special_qualities: "Væsen-træk (immun over for sindspåvirkende effekter mm.), mørkesyn 18 m, rystesans 18 m"
+  skills: '[{"name": "Climb", "total": 11}, {"name": "Hide", "total": 7}, {"name": "Jump", "total": 0}, {"name": "Spot", "total": 4}]'
+  feats: '["Weapon Finesse (bite)"]'
+  source_note: "SRD: Medium Monstrous Spider"
+
+- id: giant-centipede-medium
+  name: Kæmpe-tusindben (mellem)
+  size: medium
+  type: vermin
+  cr: "1/2"
+  alignment: "Altid neutral"
+  hd: "1d8 (4 hp)"
+  hp_max: 4
+  ac: 14
+  ac_touch: 12
+  ac_flat: 12
+  ac_note: "+2 Dex, +2 naturlig"
+  init: 2
+  speed: "40 ft., klatring 40 ft."
+  bab: 0
+  grapple: -1
+  str: 9
+  dex: 15
+  con: 10
+  int: ~
+  wis: 10
+  cha: 2
+  save_fort: 2
+  save_ref: 2
+  save_will: 0
+  attacks: '[{"name": "Bid", "bonus": "+2", "damage": "1d6-1", "notes": "nærkamp, plus gift"}]'
+  full_attack: "Bid +2 (1d6-1 plus gift)"
+  special_attacks: "Gift (bid, Udholdenhed DC 13, indledende og sekundær skade 1d3 Dex)"
+  special_qualities: "Væsen-træk, mørkesyn 18 m"
+  skills: '[{"name": "Climb", "total": 10}, {"name": "Hide", "total": 10}, {"name": "Spot", "total": 4}]'
+  feats: '["Weapon Finesse (bite)"]'
+  source_note: "SRD: Medium Monstrous Centipede"
+
+- id: stirge
+  name: Stirge
+  size: tiny
+  type: magical beast
+  cr: "1/2"
+  alignment: "Altid neutral"
+  hd: "1d10 (5 hp)"
+  hp_max: 5
+  ac: 16
+  ac_touch: 16
+  ac_flat: 12
+  ac_note: "+2 størrelse, +4 Dex"
+  init: 4
+  speed: "10 ft., flyvning 40 ft. (middel)"
+  bab: 1
+  grapple: -11
+  str: 3
+  dex: 19
+  con: 10
+  int: 1
+  wis: 12
+  cha: 6
+  save_fort: 2
+  save_ref: 6
+  save_will: 1
+  attacks: '[{"name": "Berøring", "bonus": "+7", "damage": "—", "notes": "nærkamp; ved succes hægter stirgen sig fast (se særlige angreb)"}]'
+  full_attack: "Berøring +7 (fasthægtning)"
+  special_attacks: "Fasthægtning (ved succesfuldt berøringsangreb hægter stirgen sig fast; mister derefter sin AC-bonus for dække, men rammer automatisk hver runde uden nyt angrebsslag), blodsugning (1d4 midlertidig Constitution-skade hver runde den er fasthægtet; falder fra, mæt, når den har suget 4 eller flere point)"
+  special_qualities: "Mørkesyn 18 m, lavlys-syn"
+  skills: '[{"name": "Hide", "total": 14}, {"name": "Listen", "total": 4}, {"name": "Spot", "total": 4}]'
+  feats: '["Weapon Finesse"]'
+  source_note: "SRD: Stirge"
+
+- id: gelatinous-cube
+  name: Gelatinekube
+  size: large
+  type: ooze
+  cr: "3"
+  alignment: "Altid neutral"
+  hd: "4d10+32 (54 hp)"
+  hp_max: 54
+  ac: 4
+  ac_touch: 4
+  ac_flat: 4
+  ac_note: "-1 størrelse, -5 Dex"
+  init: -5
+  speed: "15 ft."
+  bab: 3
+  grapple: 7
+  str: 10
+  dex: 1
+  con: 26
+  int: ~
+  wis: 1
+  cha: 1
+  save_fort: 9
+  save_ref: -4
+  save_will: -4
+  attacks: '[{"name": "Slag", "bonus": "+2", "damage": "1d6 plus 1d6 syre", "notes": "nærkamp"}]'
+  full_attack: "Slag +2 (1d6 plus 1d6 syre)"
+  special_attacks: "Opsluging (kan opsluge Large eller mindre skabninger som en standardhandling), lammelse (berørings-/opslugningsangreb, Udholdenhed DC 20, lammet 3d6 runder), syre (skader udstyr og de fleste organiske/uorganiske materialer over tid, undtagen sten og metal)"
+  special_qualities: "Gennemsigtig (Spot DC 15 for at opdage kuben før man støder ind i den), immun over for elektricitet, ooze-træk"
+  skills: ~
+  feats: ~
+  source_note: "SRD: Gelatinous Cube (flat-footed AC = 4, samme som normal AC, da en negativ Dex-straf ikke fjernes ved flat-footed — én kilde angav fejlagtigt 'flat-footed 9', korrigeret via uafhængig kilde + regel-konsistens)"
+
+- id: rust-monster
+  name: Rustmonster
+  size: medium
+  type: aberration
+  cr: "3"
+  alignment: "Altid neutral"
+  hd: "5d8+5 (27 hp)"
+  hp_max: 27
+  ac: 18
+  ac_touch: 13
+  ac_flat: 15
+  ac_note: "+3 Dex, +5 naturlig"
+  init: 3
+  speed: "40 ft."
+  bab: 3
+  grapple: 3
+  str: 10
+  dex: 17
+  con: 13
+  int: 2
+  wis: 13
+  cha: 8
+  save_fort: 2
+  save_ref: 4
+  save_will: 5
+  attacks: '[{"name": "Følehorn", "bonus": "+3", "damage": "rust", "notes": "nærkamp, berøring, opløser ikke-magisk metal øjeblikkeligt"}, {"name": "Bid", "bonus": "-2", "damage": "1d3", "notes": "nærkamp, sekundært"}]'
+  full_attack: "Følehorns-berøring +3 (rust) og bid -2 (1d3)"
+  special_attacks: "Rust (et vellykket berøringsangreb med følehornene får ikke-magisk metal til at ruste væk til støv med det samme; magisk metalrustning/-våben skal bestå et Undvigelses-slag DC 20 eller opløses; ethvert metalvåben der rammer rustmonsteret i nærkamp korroderer også øjeblikkeligt — kun ikke-metalliske våben er sikre at bruge mod det)"
+  special_qualities: ~
+  skills: '[{"name": "Listen", "total": 7}, {"name": "Spot", "total": 7}]'
+  feats: '["Alertness", "Track"]'
+  source_note: "SRD: Rust Monster"
+
+- id: choker
+  name: Kvæler
+  size: small
+  type: aberration
+  cr: "2"
+  alignment: "Sædvanligvis kaotisk ond"
+  hd: "3d8+3 (16 hp)"
+  hp_max: 16
+  ac: 17
+  ac_touch: 13
+  ac_flat: 15
+  ac_note: "+1 størrelse, +2 Dex, +4 naturlig"
+  init: 6
+  speed: "20 ft., klatring 10 ft."
+  bab: 2
+  grapple: 5
+  str: 16
+  dex: 14
+  con: 13
+  int: 4
+  wis: 13
+  cha: 7
+  save_fort: 2
+  save_ref: 5
+  save_will: 4
+  attacks: '[{"name": "Tentakel", "bonus": "+6", "damage": "1d3+3", "notes": "nærkamp"}]'
+  full_attack: "2 tentakler +6 (1d3+3 hver)"
+  special_attacks: "Forbedret greb (kræver ikke et almindeligt grebs-forsøg mod modstandere op til Large størrelse), kvæl 1d3+3"
+  special_qualities: "Kvikhed (kan tage en ekstra partiel handling hver runde, som ved hastværk), mørkesyn 18 m"
+  skills: '[{"name": "Climb", "total": 16}, {"name": "Hide", "total": 10}, {"name": "Move Silently", "total": 4}]'
+  feats: '["Improved Initiative", "Lightning Reflexes", "Stealthy"]'
+  source_note: "SRD: Choker (init +6 = +2 Dex + 4 Improved Initiative; Ref-save +5 inkluderer Lightning Reflexes-feat; grapple +5 er højere end grundformlen BAB+Str+størrelse=+1 skulle give — chokerens lange tentakler giver formentlig en trykt racial bonus på grebs-tjek, jf. dens evne til at gribe modstandere en størrelse større)"
+
+- id: ettercap
+  name: Ettercap
+  size: medium
+  type: aberration
+  cr: "3"
+  alignment: "Sædvanligvis neutral ond"
+  hd: "5d8+5 (27 hp)"
+  hp_max: 27
+  ac: 14
+  ac_touch: 13
+  ac_flat: 11
+  ac_note: "+3 Dex, +1 naturlig"
+  init: 3
+  speed: "30 ft., klatring 30 ft."
+  bab: 3
+  grapple: 5
+  str: 14
+  dex: 17
+  con: 13
+  int: 6
+  wis: 15
+  cha: 8
+  save_fort: 4
+  save_ref: 4
+  save_will: 6
+  attacks: '[{"name": "Bid", "bonus": "+5", "damage": "1d8+2", "notes": "nærkamp, plus gift"}, {"name": "Klo", "bonus": "+3", "damage": "1d3+1", "notes": "nærkamp, sekundært"}]'
+  full_attack: "Bid +5 (1d8+2 plus gift) og 2 klør +3 (1d3+1)"
+  special_attacks: "Spind (kan spinde web ligesom en monstrøs edderkop), gift (bid, Udholdenhed DC 13, indledende og sekundær skade 1d6 midlertidig Dex)"
+  special_qualities: ~
+  skills: '[{"name": "Climb", "total": 10}, {"name": "Craft (trapmaking)", "total": 4}, {"name": "Hide", "total": 9}, {"name": "Listen", "total": 4}, {"name": "Spot", "total": 8}]'
+  feats: '["Great Fortitude", "Multiattack"]'
+  source_note: "SRD: Ettercap (CR 3). Alle øvrige tal verificeret mod olimot/srd-v3.5-md: Dex 17, Wis 15, saves Fort +4/Ref +4/Will +6 (Fort inkl. Great Fortitude), init +3, AC 14."
+
+- id: lizardfolk
+  name: Øglefolk
+  size: medium
+  type: humanoid (reptilian)
+  cr: "1"
+  alignment: "Sædvanligvis neutral"
+  hd: "2d8+2 (11 hp)"
+  hp_max: 11
+  ac: 15
+  ac_touch: 10
+  ac_flat: 15
+  ac_note: "+5 naturlig (17/10/17 med tungt stålskjold: +5 naturlig, +2 skjold)"
+  init: 0
+  speed: "30 ft."
+  bab: 1
+  grapple: 2
+  str: 13
+  dex: 10
+  con: 13
+  int: 9
+  wis: 10
+  cha: 10
+  save_fort: 1
+  save_ref: 3
+  save_will: 0
+  attacks: '[{"name": "Klo", "bonus": "+2", "damage": "1d4+1", "notes": "nærkamp, primært (i stedet for kølle)"}, {"name": "Bid", "bonus": "+0", "damage": "1d4", "notes": "nærkamp, sekundært"}, {"name": "Kølle", "bonus": "+2", "damage": "1d10+1", "notes": "nærkamp, våben"}, {"name": "Kastespyd", "bonus": "+1", "damage": "1d6+1", "notes": "kastet"}]'
+  full_attack: "2 klør +2 (1d4+1) og bid +0 (1d4); eller kølle +2 (1d10+1) og bid +0 (1d4); eller kastespyd +1 (1d6+1)"
+  special_attacks: ~
+  special_qualities: "Kan holde vejret længe (hold breath)"
+  skills: '[{"name": "Balance", "total": 4}, {"name": "Jump", "total": 5}, {"name": "Swim", "total": 2}]'
+  feats: '["Multiattack"]'
+  source_note: "SRD: Lizardfolk"
+
+- id: troglodyte
+  name: Troglodyt
+  size: medium
+  type: humanoid (reptilian)
+  cr: "1"
+  alignment: "Sædvanligvis kaotisk ond"
+  hd: "2d8+4 (13 hp)"
+  hp_max: 13
+  ac: 15
+  ac_touch: 9
+  ac_flat: 15
+  ac_note: "-1 Dex, +6 naturlig"
+  init: -1
+  speed: "30 ft."
+  bab: 1
+  grapple: 1
+  str: 10
+  dex: 9
+  con: 14
+  int: 8
+  wis: 10
+  cha: 10
+  save_fort: 5
+  save_ref: -1
+  save_will: 0
+  attacks: '[{"name": "Kølle", "bonus": "+1", "damage": "1d6", "notes": "nærkamp, våben"}, {"name": "Klo", "bonus": "+1", "damage": "1d4", "notes": "nærkamp, primært (i stedet for kølle)"}, {"name": "Bid", "bonus": "-1", "damage": "1d4", "notes": "nærkamp, sekundært"}, {"name": "Kastespyd", "bonus": "+1", "damage": "1d6", "notes": "kastet"}]'
+  full_attack: "Kølle +1 (1d6) og bid -1 (1d4); eller 2 klør +1 (1d4) og bid -1 (1d4); eller kastespyd +1 (1d6)"
+  special_attacks: "Stank (kvalme-effekt inden for 9 m, Udholdenhed DC 13)"
+  special_qualities: "Farveskiftende hud (+4 bonus til Hide under jorden)"
+  skills: '[{"name": "Hide", "total": 5}, {"name": "Listen", "total": 3}]'
+  feats: '["Multiattack", "Weapon Focus (javelin)"]'
+  source_note: "SRD: Troglodyte. NB: Fort-save +5 er højere end grundformlen (humanoid = svag Fort-progression + Con-mod +2 ≈ +2) skulle tilsige. To uafhængige kilder bekræfter dog samstemmende Fort +5/Ref -1/Vilje +0 — mekanismen bag de ekstra +3 er uklar (muligvis en racial bonus der ikke fremgik af kilderne). FLAGGET til verificering mod den trykte bog. Klo-angrebsbonus (+1 som primært, i stedet for kølle) er rekonstrueret fra en intern uoverensstemmelse i kilden (som viste både '-1' og '+1' for klo i to forskellige angrebs-rækker) — brugt formel-konsistent værdi."
+
+- id: darkmantle
+  name: Mørkekappe
+  size: small
+  type: magical beast
+  cr: "1"
+  alignment: "Altid neutral"
+  hd: "1d10+1 (6 hp)"
+  hp_max: 6
+  ac: 17
+  ac_touch: 11
+  ac_flat: 17
+  ac_note: "+1 størrelse, +6 naturlig"
+  init: 4
+  speed: "20 ft., flyvning 30 ft. (dårlig)"
+  bab: 1
+  grapple: 0
+  str: 16
+  dex: 10
+  con: 13
+  int: 2
+  wis: 10
+  cha: 10
+  save_fort: 3
+  save_ref: 2
+  save_will: 0
+  attacks: '[{"name": "Slag", "bonus": "+5", "damage": "1d4+4", "notes": "nærkamp"}]'
+  full_attack: "Slag +5 (1d4+4)"
+  special_attacks: "Mørke (1/dag, som spellet mørke kastet af en 5.-niveau troldmand), forbedret greb, kvæl 1d4+4"
+  special_qualities: "Blindsyn 27 m"
+  skills: '[{"name": "Hide", "total": 10}, {"name": "Listen", "total": 5}, {"name": "Spot", "total": 5}]'
+  feats: '["Improved Initiative"]'
+  source_note: "SRD: Darkmantle (kvæl-skade transkriberet som 1d4+4 — samme som slag-skaden, hvilket er standard for constrict. Én kilde viste '4d4+4', hvilket ligner en OCR-fejl for '1d4+4'; brugt den formel-konsistente værdi, FLAGGET til dobbelttjek)"
+
+- id: dretch
+  name: Dretch
+  size: small
+  type: outsider (demon)
+  cr: "2"
+  alignment: "Altid kaotisk ond"
+  hd: "2d8+4 (13 hp)"
+  hp_max: 13
+  ac: 16
+  ac_touch: 11
+  ac_flat: 16
+  ac_note: "+1 størrelse, +5 naturlig"
+  init: 0
+  speed: "20 ft."
+  bab: 2
+  grapple: -1
+  str: 12
+  dex: 10
+  con: 14
+  int: 5
+  wis: 11
+  cha: 11
+  save_fort: 5
+  save_ref: 3
+  save_will: 3
+  attacks: '[{"name": "Klo", "bonus": "+4", "damage": "1d6+1", "notes": "nærkamp"}, {"name": "Bid", "bonus": "+2", "damage": "1d4", "notes": "nærkamp, sekundært"}]'
+  full_attack: "2 klør +4 (1d6+1) og bid +2 (1d4)"
+  special_attacks: "Trylleformellignende evner (vilje: mørke; 1/dag: skræk DC 12, stinkende sky DC 13, telekinese; kasterniveau = HD), tilkald tanar'ri (1/dag, 35% chance for at tilkalde endnu en dretch)"
+  special_qualities: "Skadesreduktion 5/kolde jern eller god, immun over for elektricitet og gift, resistens mod syre 10, kulde 10 og ild 10, mørkesyn 18 m, telepati 30 m"
+  skills: '[{"name": "Hide", "total": 9}, {"name": "Listen", "total": 5}, {"name": "Move Silently", "total": 5}, {"name": "Search", "total": 2}, {"name": "Spot", "total": 5}, {"name": "Survival", "total": 0}]'
+  feats: '["Multiattack"]'
+  source_note: "SRD: Dretch"
