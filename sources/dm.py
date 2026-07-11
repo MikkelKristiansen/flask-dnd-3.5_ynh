@@ -16,16 +16,14 @@ from flask import (Blueprint, abort, redirect, render_template, request,
 from markupsafe import Markup, escape
 
 import bestiary
-import character as char_module
 import db
 import dm_board
 import dm_media
 import dm_party
-import dm_rolls
+import dm_scene
 import dm_session as ds
 import dm_setups
 import traps as traps_module
-from paths import CHARACTERS_DIR
 
 # Entity-typer der slås op som statblok (klikbare → inspector).
 # _STAT_TYPES = væsener (→ bestiary.monster_view); _TRAP_TYPE = fælder (→ traps.trap_view).
@@ -69,23 +67,12 @@ def _entities_filter(text: str, docs: dict | None = None) -> Markup:
     return Markup("").join(out)
 
 
-def _doc_titles(adventure) -> dict:
-    """{"type:id": titel} for eventyrets dokumenter — fodrer entities-filteret."""
-    return {f"{d.type}:{d.id}": d.title for d in adventure.documents.values()}
-
-
-def _character_slugs() -> list[str]:
-    if not CHARACTERS_DIR.exists():
-        return []
-    return sorted(p.stem for p in CHARACTERS_DIR.glob("*.yaml"))
-
-
 @dm_bp.route("/")
 def index():
     return render_template("dm/index.html",
                            sessions=ds.list_sessions(),
                            adventures=ds.list_adventures(),
-                           characters=_character_slugs(),
+                           characters=dm_scene._character_slugs(),
                            adv_error=request.args.get("adv_error"))
 
 
@@ -183,88 +170,6 @@ def delete_media(adventure, filename):
 import dm_encounter
 
 
-def _scene_rosters(scene):
-    """Alle roster-poster i en scene (top-niveau + i rum)."""
-    entries = []
-    for b in getattr(scene, "blocks", []):
-        if getattr(b, "kind", None) == "roster":
-            entries.extend(b.entries)
-        elif getattr(b, "kind", None) == "room":
-            for rb in b.blocks:
-                if getattr(rb, "kind", None) == "roster":
-                    entries.extend(rb.entries)
-    return entries
-
-
-def _monster_source(ref, adv):
-    """Resolv et roster-id til combatant-kildedata (navn/init/hp) via adventure-
-    lokalt statblok → bestiar → fallback (ukendt = rå id, 0 init, ingen hp)."""
-    stats = adv.statblock(ref) or db.get_monster(ref)
-    if stats:
-        v = bestiary.monster_view(stats)
-        return {"name": v["name"], "init_mod": v["init"], "hp_max": v["hp_max"],
-                "kind": "monster"}
-    return {"name": ref, "init_mod": 0, "hp_max": None, "kind": "monster"}
-
-
-def _encounter_sources(session, adv):
-    """Byg combatant-kilder for den aktive scene: monstre fra rosteret + party-PC'er
-    + PC'ernes ledsagere (animal companion / familiar / mount)."""
-    scene = next((s for s in adv.scenes if s.id == session.active_scene),
-                 adv.scenes[0] if adv.scenes else None)
-    sources = []
-    if scene:
-        for e in _scene_rosters(scene):
-            src = _monster_source(e.id, adv)
-            sources.append({"ref": e.id, "count": e.count, **src})
-    for pc in dm_party.party_view(session.party, db):
-        if pc.get("broken"):
-            continue
-        sources.append({"ref": pc["slug"], "count": 1, "name": pc["name"],
-                        "kind": "pc", "init_mod": pc["init"], "hp_max": pc["hp_max"]})
-    # Ledsagere er egne combatants (egen initiativ/HP) — auto-rulles som monstre.
-    # `owner` bæres med, så brættet kan stille ledsageren op ved siden af sin PC.
-    for comp in dm_party.party_companions(session.party, db):
-        sources.append({"ref": comp["ref"], "count": 1, "name": comp["name"],
-                        "kind": comp["kind"], "init_mod": comp["init_mod"],
-                        "hp_max": comp["hp_max"], "owner": comp["owner"]})
-    return sources
-
-
-def _encounter_statblocks(session, ordered):
-    """To ting i ét gennemløb (deler statblok-opslaget, så eventyret kun loades én gang):
-
-    1. Returnér statblokke pr. DISTINKT monstertype (Goblin A/B deler ét reference-
-       kort) i tur-rækkefølge, så DM'en har monster-stats permanent foran sig.
-    2. Hæft `rolls` PR. INSTANS på hver monster-combatant (in-place) — de klikbare
-       til-hit/skade/save-udtryk med combatantens aktive conditions foldet ind
-       (dm_rolls). Så Goblin A (shaken) ruller lavere end Goblin B.
-
-    Reference-data resolves live (adventure-lokalt → bestiar), ikke gemt i sessionen.
-    PC'er udelades (de står i party-panelet og ruller på egne ark)."""
-    try:
-        adv = ds.load_adventure(session.adventure)
-    except FileNotFoundError:
-        adv = None
-    views: dict[str, dict] = {}                 # ref → monster_view (delt opslag)
-    out, seen = [], set()
-    for c in ordered:
-        if c["kind"] == "pc":
-            continue
-        ref = c["ref"]
-        if ref not in views:
-            row = (adv.statblock(ref) if adv else None) or db.get_monster(ref)
-            views[ref] = bestiary.monster_view(row) if row else None
-        m = views[ref]
-        if not m:
-            continue
-        c["rolls"] = dm_rolls.combatant_rolls(m, c.get("conditions") or [], db)
-        if ref not in seen:                     # ét reference-kort pr. type
-            seen.add(ref)
-            out.append(m)
-    return out
-
-
 def _tracker_html(session):
     """Render tracker-fragmentet for sessionens encounter (eller start-knap)."""
     enc = session.encounter
@@ -275,7 +180,7 @@ def _tracker_html(session):
         order = enc.get("turn_order", [])
         if order:
             current_id = order[min(enc.get("turn_index", 0), len(order) - 1)]
-        statblocks = _encounter_statblocks(session, ordered)
+        statblocks = dm_scene._encounter_statblocks(session, ordered)
     return render_template("dm/_tracker.html", enc=enc, ordered=ordered,
                            current_id=current_id, slug=session.slug,
                            statblocks=statblocks,
@@ -289,25 +194,15 @@ def _load_or_404(slug):
         abort(404)
 
 
-def _active_map_slug(adv, session):
-    """Kort-slug for sessionens aktive scene (første @kort-embed), ellers None."""
-    scene = next((s for s in adv.scenes if s.id == session.active_scene),
-                 adv.scenes[0] if adv.scenes else None)
-    for b in (scene.blocks if scene else []):
-        if getattr(b, "kind", None) == "embed" and b.entity.type == "kort":
-            return b.entity.id
-    return None
-
-
 @dm_bp.route("/api/encounter/<slug>/start", methods=["POST"])
 def encounter_start(slug):
     session = _load_or_404(slug)
     adv = ds.load_adventure(session.adventure)
-    combs = dm_encounter.build_combatants(_encounter_sources(session, adv))
+    combs = dm_encounter.build_combatants(dm_scene._encounter_sources(session, adv))
     # Auto-rul initiativ for monstre; PC'er efterlades blanke (DM taster spillernes rul).
     dm_encounter.roll_initiative([c for c in combs if c["kind"] != "pc"])
     # Seed startpositioner fra kortets opstilling (hvis scenen har et kort).
-    map_slug = _active_map_slug(adv, session)
+    map_slug = dm_scene._active_map_slug(adv, session)
     tokens = dm_setups.load_setup(session.adventure, map_slug)["tokens"] if map_slug else []
     session = ds.begin_encounter(slug, combs, tokens)
     return _tracker_html(session)
@@ -406,78 +301,6 @@ def api_statblock(adventure, etype, ident):
     return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
 
 
-def _board_palette(adv):
-    """Kandidater DM'en kan trække ind på brættet: eventyrets egne monstre/NPC'er
-    (unikke refs fra alle scene-rosters, navn resolvet) + alle PC'er + de faste
-    markør-typer. Ren udledning til opstillings-editoren."""
-    creatures, seen = [], set()
-    for scene in adv.scenes:
-        for e in _scene_rosters(scene):
-            # Kun væsener som træk-tokens; roster-fælder (@faelde) placeres via
-            # den faste markør-palette (ref-binding er en senere fase).
-            if e.type not in ("monster", "npc"):
-                continue
-            key = (e.type, e.id)
-            if key in seen:
-                continue
-            seen.add(key)
-            row = adv.statblock(e.id) or db.get_monster(e.id)
-            name = bestiary.monster_view(row)["name"] if row else e.id
-            creatures.append({"kind": e.type, "ref": e.id, "name": name})
-    pcs = []
-    for slug in _character_slugs():
-        try:
-            name = char_module.load_character(str(CHARACTERS_DIR / f"{slug}.yaml")).name
-        except Exception:
-            name = slug
-        pcs.append({"kind": "pc", "ref": slug, "name": name or slug})
-    markers = [{"kind": "trap", "name": "Fælde"}, {"kind": "door", "name": "Dør"},
-               {"kind": "treasure", "name": "Skat"}, {"kind": "note", "name": "Note"}]
-    return {"creatures": creatures, "pcs": pcs, "markers": markers}
-
-
-def _bestiary_entries(adv):
-    """Statblokke for alle unikke monstre/NPC'er i eventyrets scene-rosters.
-
-    Samme opslag som _board_palette (adventure-lokalt statblok → delt bestiar),
-    men resolvet til det fulde monster_view + antal forekomster på tværs af
-    scener. En uopslåelig ref markeres `missing`, så DM'en ser hullet frem for
-    en tavs udeladelse. Sorteret efter navn."""
-    order, agg = [], {}
-    for scene in adv.scenes:
-        for e in _scene_rosters(scene):
-            if e.type not in _STAT_TYPES:
-                continue
-            key = (e.type, e.id)
-            if key not in agg:
-                order.append(key)
-                agg[key] = {"type": e.type, "id": e.id, "count": 0}
-            agg[key]["count"] += int(getattr(e, "count", 1) or 1)
-    entries = []
-    for key in order:
-        info = agg[key]
-        local = adv.statblock(info["id"])
-        row = local or db.get_monster(info["id"])
-        if row:
-            entries.append({"m": bestiary.monster_view(row),
-                            "origin": "Eventyr" if local else "Bestiar",
-                            "count": info["count"]})
-        else:
-            entries.append({"missing": True, "etype": info["type"],
-                            "ident": info["id"], "count": info["count"]})
-    entries.sort(key=lambda x: (x.get("m", {}).get("name") or x.get("ident") or "").lower())
-    return entries
-
-
-def _map_src(adv, map_slug):
-    """Billed-src for et kort (fra dets '## Kort:'-def i eventyret)."""
-    doc = adv.documents.get(("kort", map_slug))
-    if not doc:
-        return None, map_slug
-    img = next((b for b in doc.blocks if getattr(b, "kind", None) == "image"), None)
-    return (img.src if img else None), doc.title
-
-
 @dm_bp.route("/board/<adventure>/<map_slug>")
 def board(adventure, map_slug):
     """Vis et korts startopstilling (grid + tokens) med grid-kalibrering og
@@ -486,7 +309,7 @@ def board(adventure, map_slug):
     if adventure not in ds.list_adventures():
         abort(404)
     adv = ds.load_adventure(adventure)
-    src, title = _map_src(adv, map_slug)
+    src, title = dm_scene._map_src(adv, map_slug)
     setup = dm_setups.load_setup(adventure, map_slug)
     # ?from=<session> → tilbage-link til den kamp man kom fra (validér den findes).
     back = request.args.get("from")
@@ -496,7 +319,7 @@ def board(adventure, map_slug):
         "dm/board.html", title=title,
         map_url=url_for("dm.media", adventure=adventure, filename=src) if src else None,
         board=dm_board.board_view(setup, adv, db, audience="dm"),
-        palette=_board_palette(adv), token_style=dm_board.token_style(),
+        palette=dm_scene._board_palette(adv), token_style=dm_board.token_style(),
         traps=[{"id": t["id"], "name": t["name"]} for t in db.get_all_traps()],
         back_session=back)
 
@@ -513,7 +336,7 @@ def bestiary_view(adventure):
     if back and not any(s["slug"] == back for s in ds.list_sessions()):
         back = None
     return render_template("dm/bestiary.html", title=adv.title,
-                           adventure=adventure, entries=_bestiary_entries(adv),
+                           adventure=adventure, entries=dm_scene._bestiary_entries(adv),
                            back_session=back)
 
 
@@ -550,14 +373,6 @@ def media(adventure, filename):
     return send_from_directory(ds.adventure_dir(adventure), filename)
 
 
-def _current_combatant_id(enc):
-    """Id på combatanten hvis tur det er (eller None hvis ingen aktiv kamp)."""
-    order = enc.get("turn_order", [])
-    if enc.get("active") and order:
-        return order[min(int(enc.get("turn_index", 0)), len(order) - 1)]
-    return None
-
-
 def _scene_board_maps(session, adventure):
     """Bræt-data pr. @kort-embed i sessionens aktive scene. Primær-kortet (første
     @kort) viser LIVE kamp-positioner når en kamp er i gang, ellers den forfattede
@@ -565,7 +380,7 @@ def _scene_board_maps(session, adventure):
     active = next((sc for sc in adventure.scenes if sc.id == session.active_scene),
                   adventure.scenes[0] if adventure.scenes else None)
     enc = session.encounter
-    current_id = _current_combatant_id(enc)
+    current_id = dm_scene._current_combatant_id(enc)
     board_maps, map_slug = {}, None
     for b in (active.blocks if active else []):
         if getattr(b, "kind", None) != "embed" or b.entity.type != "kort":
@@ -575,7 +390,7 @@ def _scene_board_maps(session, adventure):
             map_slug = mslug
         if mslug in board_maps:
             continue
-        src, title = _map_src(adventure, mslug)
+        src, title = dm_scene._map_src(adventure, mslug)
         setup = dm_setups.load_setup(session.adventure, mslug)
         combat = bool(enc.get("active")) and mslug == map_slug   # kun primær-kortet
         board = (dm_board.combat_board_view(setup, enc, current_id) if combat
@@ -606,5 +421,5 @@ def play(slug):
                            adventure=adventure, active=active, party=party,
                            adv_ref=session.adventure, map_slug=map_slug,
                            board_maps=board_maps,
-                           doc_titles=_doc_titles(adventure),
+                           doc_titles=dm_scene._doc_titles(adventure),
                            tracker_html=_tracker_html(session))
