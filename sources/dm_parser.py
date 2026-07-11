@@ -211,15 +211,20 @@ def _parse_blocks(lines: list[str]) -> list:
 
 def _parse_room(title: str, body: list[str]) -> Room:
     """Rum = kompakte '* **Felt:** indhold'-punkter (Monstre/Fælder → roster,
-    resten → labeled prosa)."""
+    Kort → embed, resten → labeled prosa)."""
     blocks = []
     for ln in body:
         m = _FIELD_RE.match(ln.strip())
         if not m:
             continue
         label, content = m.group(1).strip(), m.group(2).strip()
-        if label.lower() in ("monstre", "fælder", "faelder"):
+        low = label.lower()
+        if low in ("monstre", "fælder", "faelder"):
             blocks.append(Roster(entries=_roster_entries(content), label=label))
+        elif low == "kort":
+            ents = _entities(content)
+            if ents:
+                blocks.append(Embed(entity=ents[0]))
         else:
             blocks.append(Prose(text=content, label=label,
                                 entities=_entities(content)))

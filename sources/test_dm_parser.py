@@ -109,6 +109,20 @@ def test_room_fields():
     assert besk.label == "Beskrivelse"
 
 
+def test_room_own_map_becomes_embed():
+    # Et rum kan have sit eget '* **Kort:** @kort[slug]' — behandles som et
+    # Embed-block, ligesom scenens '@kort'-embed.
+    adv = P.parse_adventure(
+        "# En scene\n\n"
+        "## Rum: Skattekammer\n"
+        "* **Kort:** @kort[indgang]\n"
+        "* **Monstre:** 1x @monster[kriger]\n"
+    )
+    rum = next(b for b in adv.scenes[0].blocks if b.kind == "room")
+    emb = _only(rum.blocks, "embed")
+    assert emb.entity.type == "kort" and emb.entity.id == "indgang"
+
+
 # ── dokumenter / resolve ─────────────────────────────────────────────────────
 def test_documents_collected():
     docs = _adv().documents
