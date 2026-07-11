@@ -335,6 +335,12 @@ a{color:var(--accent);}
       openStat('faelde/' + el.dataset.mref);
       return;
     }
+    // En dør-markør bundet til en dør i kataloget → åbn dens statblok (samme
+    // opslag som @dør i prosaen). Ubundet → fald tilbage på noten.
+    if (el.dataset.mkind === 'door' && el.dataset.mref) {
+      openStat('door/' + el.dataset.mref);
+      return;
+    }
     title.textContent = MARKER_LABEL[el.dataset.mkind] || '📌 Markør';
     var p = document.createElement('p');
     var note = el.dataset.mnote || '';

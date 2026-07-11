@@ -11,7 +11,7 @@ party: [tjorn]
 # Første scene
 > Læses højt.
 
-Almindelig DM-note med @npc[bram] og handout @brev[testbrev]. En @monster[goblin] lurer, ledet af @npc[testskurk]. En @faelde[basic-arrow-trap] i gulvet.
+Almindelig DM-note med @npc[bram] og handout @brev[testbrev]. En @monster[goblin] lurer, ledet af @npc[testskurk]. En @faelde[basic-arrow-trap] i gulvet. Bag den knirker en @dør[iron-door].
 
 ![Oversigt](media/oversigt.png)
 
@@ -635,3 +635,26 @@ def test_board_binds_trap_marker_to_statblock(client):
     html = client.get("/dm/board/Test/testkort").get_data(as_text=True)
     assert 'data-mref="basic-arrow-trap"' in html      # markøren bærer sin fælde-ref
     assert "Basic Arrow Trap" in html                   # fælde-katalog sendt til editoren
+
+
+# ── Døre (@dør/@door → statblok-inspector) ───────────────────────────────────
+def test_dor_reference_is_clickable_statblok(client):
+    slug = _new(client, name="Dør")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    # @dør[...] rendres som klikbar ent-stat, med KANONISK ascii data-stat ("door"),
+    # selvom forfatteren skrev dansk "dør".
+    assert 'ent-stat" data-stat="door/iron-door"' in html
+
+
+def test_statblock_endpoint_resolves_door(client):
+    html = client.get("/dm/api/statblock/Test/door/iron-door").get_data(as_text=True)
+    assert "Jerndør" in html
+    assert "Dør" in html                              # origin-badge
+    assert "Hardness" in html and "10" in html
+    assert "Break DC" in html
+
+
+def test_statblock_endpoint_unknown_door_is_graceful(client):
+    r = client.get("/dm/api/statblock/Test/door/findes-ikke")
+    assert r.status_code == 200                        # ingen 500 — pæn "ingen data"
+    assert "findes-ikke" in r.get_data(as_text=True)

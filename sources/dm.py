@@ -23,13 +23,16 @@ import dm_party
 import dm_scene
 import dm_session as ds
 import dm_setups
+import doors as doors_module
 import traps as traps_module
 
 # Entity-typer der slås op som statblok (klikbare → inspector).
 # _STAT_TYPES = væsener (→ bestiary.monster_view); _TRAP_TYPE = fælder (→ traps.trap_view).
+# _DOOR_TYPES = dør-stavevarianter (dansk/ascii) → kanonisk "door" (db.get_door).
 # Øvrige dokument-lokale typer (kort/brev/gaade) håndteres som handouts (lightbox).
 _STAT_TYPES = {"monster", "npc"}
 _TRAP_TYPE = "faelde"
+_DOOR_TYPES = {"dør", "door"}
 
 dm_bp = Blueprint("dm", __name__, url_prefix="/dm")
 
@@ -59,6 +62,10 @@ def _entities_filter(text: str, docs: dict | None = None) -> Markup:
             out.append(Markup(
                 '<a class="ent ent-{} ent-stat" data-stat="{}/{}">{}</a>').format(
                     typ, typ, ident, ident))
+        elif typ in _DOOR_TYPES:                          # dør/door → statblok-fetch (kanonisk "door")
+            out.append(Markup(
+                '<a class="ent ent-{} ent-stat" data-stat="door/{}">{}</a>').format(
+                    typ, ident, ident))
         else:
             out.append(Markup('<span class="ent ent-{}">{}</span>').format(
                 typ, ident))
@@ -302,6 +309,11 @@ def api_statblock(adventure, etype, ident):
         row = db.get_trap(ident)
         if row:
             return render_template("dm/_trap.html", t=traps_module.trap_view(row))
+        return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
+    if etype == "door":                                 # dør → delt dør-katalog
+        row = db.get_door(ident)
+        if row:
+            return render_template("dm/_door.html", d=doors_module.door_view(row))
         return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
     stats = adv.statblock(ident)
     if stats:

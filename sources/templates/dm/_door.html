@@ -1,0 +1,23 @@
+{# Dør-statblok til inspector-panelet (lightbox). Genbruger .sb-*-stilene fra
+   den delte static/dm-statblock.css — samme look som monster/PC/fælde-statblokke. #}
+<div class="sb">
+  <div class="sb-head">
+    <span class="sb-name">🚪 {{ d.name }}</span>
+    <span class="sb-origin">Dør</span>
+  </div>
+  <div class="sb-sub">
+    {%- if d.material %}{{ d.material }}{% endif -%}
+    {%- if d.thickness %} · {{ d.thickness }}{% endif -%}
+  </div>
+
+  <div class="sb-grid">
+    {% if d.hardness is not none %}<div><span class="sb-k">Hardness</span> {{ d.hardness }}</div>{% endif %}
+    {% if d.hp is not none %}<div><span class="sb-k">HP</span> {{ d.hp }}</div>{% endif %}
+    {% if d.break_dc %}<div><span class="sb-k">Break DC</span> {{ d.break_dc }}</div>{% endif %}
+    {% if d.open_lock_dc is not none %}<div><span class="sb-k">Open Lock DC</span> {{ d.open_lock_dc }}</div>{% endif %}
+    {% if d.search_dc is not none %}<div><span class="sb-k">Search DC</span> {{ d.search_dc }}</div>{% endif %}
+  </div>
+
+  {% if d.note %}<div class="sb-note">{{ d.note }}</div>{% endif %}
+  {% if d.source_note %}<div class="sb-src">{{ d.source_note }}</div>{% endif %}
+</div>
