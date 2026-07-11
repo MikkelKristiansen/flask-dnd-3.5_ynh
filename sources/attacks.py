@@ -357,6 +357,24 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
     return attacks + off_attacks
 
 
+def _str_damage_bonus(attack: Attack, ability_scores: AbilityScores) -> tuple[int, bool]:
+    """Str-bidraget til skade for ét angreb. Returnerer (bonus, capped).
+
+    En Str-STRAF (negativ modifier) multipliceres ALDRIG (Rules Compendium:
+    straffe ganges ikke) — derfor skaleres kun en Str-*bonus* af tohånds ×1.5 /
+    off-hånds ×0.5. Str 9 (−1) på et tohåndsvåben giver altså −1, ikke −2.
+    Derefter: regular bue = kun straf (str_penalty_only), og mighty-loft (str_cap).
+    """
+    mod = ability_scores.modifier("str")
+    str_bonus = mod if mod < 0 else math.floor(mod * attack.str_damage_mult)
+    if attack.str_penalty_only:
+        str_bonus = min(str_bonus, 0)   # regular bue: kun straf, aldrig bonus
+    capped = attack.str_cap is not None and str_bonus > attack.str_cap
+    if capped:
+        str_bonus = attack.str_cap      # composite mighty +N: loft på Str-bonus
+    return str_bonus, capped
+
+
 def attack_total(attack: Attack, ability_scores: AbilityScores,
                  bab: int, size: str, extra_bonus: int = 0,
                  extra_damage: int = 0, has_finesse: bool = False) -> dict:
@@ -381,11 +399,7 @@ def attack_total(attack: Attack, ability_scores: AbilityScores,
     if attack.fixed_damage:
         damage = attack.fixed_damage
     else:
-        str_bonus = math.floor(ability_scores.modifier("str") * attack.str_damage_mult)
-        if attack.str_penalty_only:
-            str_bonus = min(str_bonus, 0)   # regular bue: kun straf, aldrig bonus
-        if attack.str_cap is not None:
-            str_bonus = min(str_bonus, attack.str_cap)   # composite mighty +N: loft på bonus (straf < cap → uændret)
+        str_bonus, _ = _str_damage_bonus(attack, ability_scores)
         total_bonus = str_bonus + attack.damage_bonus + extra_damage
         if total_bonus == 0:
             damage = attack.base_damage
@@ -445,12 +459,7 @@ def attack_damage_breakdown(attack: Attack, ability_scores: AbilityScores,
                 "parts": [{"label": "kilde (fast)", "die": attack.fixed_damage}]}
 
     parts = [{"label": "terning", "die": attack.base_damage}]
-    str_bonus = math.floor(ability_scores.modifier("str") * attack.str_damage_mult)
-    if attack.str_penalty_only:
-        str_bonus = min(str_bonus, 0)   # regular bue: kun straf, aldrig bonus
-    capped = attack.str_cap is not None and str_bonus > attack.str_cap
-    if capped:
-        str_bonus = attack.str_cap      # composite mighty +N: loft på Str-bonus
+    str_bonus, capped = _str_damage_bonus(attack, ability_scores)
     if str_bonus != 0:
         # Vis multiplikatoren når den ikke er 1 (tohånds ×1.5, off-hånd ×0.5), så
         # spilleren kan se hvorfor Str-bidraget afviger fra sin rå modifier.
