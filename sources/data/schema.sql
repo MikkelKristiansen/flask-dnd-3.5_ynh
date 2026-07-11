@@ -273,6 +273,7 @@ CREATE TABLE monsters (
 -- traps.md gemmes direkte som skalarer (ingen JSON, ingen beregning): en fælde
 -- er statisk. En fælde er ENTEN angrebs- (attack) ELLER save-baseret; det ikke-
 -- brugte felt er NULL. Vises via traps.trap_view i _trap.html-inspectoren.
+DROP TABLE IF EXISTS traps;
 CREATE TABLE traps (
     id          TEXT PRIMARY KEY,
     name        TEXT NOT NULL,
