@@ -35,7 +35,16 @@
 {% elif b.kind == 'subheading' %}
   <div class="subhead">{{ b.text }}</div>
 {% elif b.kind == 'room' %}
+  {% set _room = b %}
   {% set _blocks = b.blocks %}
+  {% set _has_roster = _blocks | selectattr('kind', 'equalto', 'roster') | list | length > 0 %}
   <div class="room"><h3>🚪 {{ b.title }}</h3>
-    {% for b in _blocks %}{% include "dm/_block.html" %}{% endfor %}</div>
+    {% for b in _blocks %}{% include "dm/_block.html" %}{% endfor %}
+    {% if _has_roster and session and not session.encounter.active %}
+    <form class="enc-f room-start" action="{{ url_for('dm.encounter_start', slug=session.slug) }}" method="post">
+      <input type="hidden" name="room" value="{{ _room.id }}">
+      <button type="submit">⚔ Start kamp fra dette rum</button>
+    </form>
+    {% endif %}
+  </div>
 {% endif %}

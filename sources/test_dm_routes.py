@@ -550,6 +550,18 @@ def test_encounter_start_without_room_includes_all_rooms(midsommer_client):
     assert enc["room"] is None
 
 
+def test_play_shows_room_start_buttons_for_rooms_with_monsters(midsommer_client):
+    slug = _new(midsommer_client, name="Kælder3", adventure="Midsommer", party=["tjorn"])
+    html = midsommer_client.get(f"/dm/play/{slug}?scene=kaelderen").get_data(as_text=True)
+    assert 'class="enc-f room-start"' in html
+    assert 'name="room" value="opbevaringsrum"' in html
+    assert 'name="room" value="mordekains-kammer"' in html
+    assert "⚔ Start kamp fra dette rum" in html
+    # Skeletreste-rum har hverken monstre eller fælder (kun beskrivelse) →
+    # intet roster-block → ingen start-knap for det rum.
+    assert 'value="skeletreste-rum"' not in html
+
+
 # ── Bestiarie-fane ──────────────────────────────────────────────────────────
 def test_bestiary_lists_adventure_monsters(client):
     html = client.get("/dm/bestiary/Test").get_data(as_text=True)
