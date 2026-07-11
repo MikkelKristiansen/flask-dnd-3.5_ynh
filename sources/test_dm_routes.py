@@ -509,6 +509,47 @@ def test_encounter_condition_toggle_and_end(enc_client):
     assert ds.load_session(slug).encounter == {}
 
 
+# ── Rum-scopet kamp (Midsommer/Kælderen har flere rum m/ egne rostre) ───────
+import shutil
+from pathlib import Path as _Path
+
+
+@pytest.fixture
+def midsommer_client(client, monkeypatch):
+    """Kopiér det rigtige Midsommer-eventyr ind i den hermetiske ADVENTURES_DIR,
+    så rum-scopet kamp kan testes mod dets Kælderen-scene (flere rum m/ egne
+    rostre: Opbevaringsrum = tyv+kriger, Mordekains kammer = mordekain+skelet)."""
+    src = _Path(__file__).parent / "adventures" / "Midsommer"
+    shutil.copytree(src, ds.ADVENTURES_DIR / "Midsommer")
+    import dm_party
+    monkeypatch.setattr(dm_party, "CHARACTERS_DIR", _Path("defaults"))
+    return client
+
+
+def test_encounter_start_room_scoped_excludes_other_rooms(midsommer_client):
+    slug = _new(midsommer_client, name="Kælder", adventure="Midsommer", party=["tjorn"])
+    midsommer_client.get(f"/dm/play/{slug}?scene=kaelderen")   # naviger til Kælderen
+    midsommer_client.post(f"/dm/api/encounter/{slug}/start",
+                          data={"room": "opbevaringsrum"})
+    enc = ds.load_session(slug).encounter
+    refs = {c["ref"] for c in enc["combatants"]}
+    assert {"tyv", "kriger"} <= refs
+    assert "mordekain" not in refs and "skelet" not in refs
+    assert enc["room"] == "opbevaringsrum"
+
+
+def test_encounter_start_without_room_includes_all_rooms(midsommer_client):
+    # Bagudkompatibilitet: den gamle scene-brede "Start kamp" (ingen room-felt)
+    # samler stadig ALLE rums monstre i én kamp.
+    slug = _new(midsommer_client, name="Kælder2", adventure="Midsommer", party=["tjorn"])
+    midsommer_client.get(f"/dm/play/{slug}?scene=kaelderen")
+    midsommer_client.post(f"/dm/api/encounter/{slug}/start")
+    enc = ds.load_session(slug).encounter
+    refs = {c["ref"] for c in enc["combatants"]}
+    assert {"tyv", "kriger", "mordekain", "skelet"} <= refs
+    assert enc["room"] is None
+
+
 # ── Bestiarie-fane ──────────────────────────────────────────────────────────
 def test_bestiary_lists_adventure_monsters(client):
     html = client.get("/dm/bestiary/Test").get_data(as_text=True)

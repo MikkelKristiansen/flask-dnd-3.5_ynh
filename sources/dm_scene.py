@@ -37,6 +37,20 @@ def _scene_rosters(scene):
     return entries
 
 
+def _room_rosters(room):
+    """Alle roster-poster i ét rum (kun rummets eget, ikke søskende-rum)."""
+    return [e for b in getattr(room, "blocks", [])
+            if getattr(b, "kind", None) == "roster" for e in b.entries]
+
+
+def _find_room(scene, room_id):
+    """Find rummet med `room_id` i scenen (None hvis det ikke findes)."""
+    for b in getattr(scene, "blocks", []):
+        if getattr(b, "kind", None) == "room" and b.id == room_id:
+            return b
+    return None
+
+
 def _monster_source(ref, adv):
     """Resolv et roster-id til combatant-kildedata (navn/init/hp) via adventure-
     lokalt statblok → bestiar → fallback (ukendt = rå id, 0 init, ingen hp)."""
@@ -48,14 +62,17 @@ def _monster_source(ref, adv):
     return {"name": ref, "init_mod": 0, "hp_max": None, "kind": "monster"}
 
 
-def _encounter_sources(session, adv):
+def _encounter_sources(session, adv, room_id=None):
     """Byg combatant-kilder for den aktive scene: monstre fra rosteret + party-PC'er
-    + PC'ernes ledsagere (animal companion / familiar / mount)."""
+    + PC'ernes ledsagere (animal companion / familiar / mount). `room_id` sat →
+    kun DET rums monstre (rum-scopet kamp); party/ledsagere er altid med."""
     scene = next((s for s in adv.scenes if s.id == session.active_scene),
                  adv.scenes[0] if adv.scenes else None)
     sources = []
     if scene:
-        for e in _scene_rosters(scene):
+        monster_entries = (_room_rosters(_find_room(scene, room_id))
+                           if room_id else _scene_rosters(scene))
+        for e in monster_entries:
             src = _monster_source(e.id, adv)
             sources.append({"ref": e.id, "count": e.count, **src})
     for pc in dm_party.party_view(session.party, db):
@@ -106,10 +123,19 @@ def _encounter_statblocks(session, ordered):
     return out
 
 
-def _active_map_slug(adv, session):
-    """Kort-slug for sessionens aktive scene (første @kort-embed), ellers None."""
+def _active_map_slug(adv, session, room_id=None):
+    """Kort-slug for sessionens aktive scene (første @kort-embed), ellers None.
+    `room_id` sat → rummets EGET @kort-embed i stedet (INGEN fallback til
+    scenens kort — scenekortet er hele dungeonen; et rum uden eget kort får
+    bare intet bræt)."""
     scene = next((s for s in adv.scenes if s.id == session.active_scene),
                  adv.scenes[0] if adv.scenes else None)
+    if room_id:
+        room = _find_room(scene, room_id) if scene else None
+        for b in (room.blocks if room else []):
+            if getattr(b, "kind", None) == "embed" and b.entity.type == "kort":
+                return b.entity.id
+        return None
     for b in (scene.blocks if scene else []):
         if getattr(b, "kind", None) == "embed" and b.entity.type == "kort":
             return b.entity.id

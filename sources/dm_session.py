@@ -228,11 +228,14 @@ def _find_combatant(session: CampaignSession, cid: str) -> dict | None:
 
 
 def begin_encounter(slug: str, combatants: list[dict],
-                    setup_tokens: list[dict] | None = None) -> CampaignSession:
+                    setup_tokens: list[dict] | None = None,
+                    room: str | None = None) -> CampaignSession:
     """Start en kamp fra allerede byggede+initiativ-rullede combatants (bygges i
     routen ud fra scenens roster + party). Sætter tur-rækkefølge, runde 1, tur 0.
     `setup_tokens` (kortets opstilling) → hver combatant får sin startposition
-    fra den matchende token, så brættet viser hvor alle står ved kamp-start."""
+    fra den matchende token, så brættet viser hvor alle står ved kamp-start.
+    `room` (rum-id) bæres med, så brættet ved hvilket rums kort der er kampens
+    live-kort (None = gammel scene-bred kamp, uændret)."""
     session = load_session(slug)
     if setup_tokens:
         dm_encounter.seed_positions(combatants, setup_tokens)
@@ -242,6 +245,7 @@ def begin_encounter(slug: str, combatants: list[dict],
         "turn_order": dm_encounter.turn_order(combatants),
         "combatants": combatants,
         "active": True,
+        "room": room,
     }
     save_session(session)
     return session

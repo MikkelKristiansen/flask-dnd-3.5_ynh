@@ -162,6 +162,20 @@ def test_set_hp_and_toggle_condition_persist(env):
     assert c["conditions"] == []
 
 
+def test_begin_encounter_stores_room(env):
+    s = S.create_session("K", "Test-Eventyr", ["tjorn"])
+    S.begin_encounter(s.slug, _combatants(), room="opbevaringsrum")
+    enc = S.load_session(s.slug).encounter
+    assert enc["room"] == "opbevaringsrum"
+
+
+def test_begin_encounter_room_defaults_to_none(env):
+    s = S.create_session("K", "Test-Eventyr", ["tjorn"])
+    S.begin_encounter(s.slug, _combatants())
+    enc = S.load_session(s.slug).encounter
+    assert enc["room"] is None
+
+
 def test_end_encounter_clears(env):
     s = S.create_session("K", "Test-Eventyr", ["tjorn"])
     S.begin_encounter(s.slug, _combatants())
@@ -190,3 +204,38 @@ def test_set_combatant_position_persists_and_is_live_only(env):
     S.end_encounter(s.slug)
     S.set_combatant_position(s.slug, "kriger-a", 1, 1)
     assert S.load_session(s.slug).encounter == {}
+
+
+# ── Rum-scopet kamp (dm_scene._encounter_sources m/ room_id) ────────────────
+import os
+
+import dm_parser as P
+import dm_scene
+
+MIDSOMMER = os.path.join(os.path.dirname(__file__),
+                         "adventures", "Midsommer", "adventure.md")
+
+
+def _midsommer():
+    with open(MIDSOMMER, encoding="utf-8") as f:
+        return P.parse_adventure(f.read())
+
+
+def _kaelderen_session():
+    return S.CampaignSession(slug="k", adventure="Midsommer", party=[],
+                             active_scene="kaelderen")
+
+
+def test_encounter_sources_room_scoped_to_opbevaringsrum():
+    adv = _midsommer()
+    sources = dm_scene._encounter_sources(_kaelderen_session(), adv, "opbevaringsrum")
+    refs = {s["ref"] for s in sources}
+    assert refs == {"tyv", "kriger"}                    # kun opbevaringsrummets monstre
+
+
+def test_encounter_sources_without_room_includes_whole_scene():
+    adv = _midsommer()
+    sources = dm_scene._encounter_sources(_kaelderen_session(), adv)
+    refs = {s["ref"] for s in sources}
+    # bagudkompatibelt: alle rums monstre + fælder-roster er med (gammel scene-kamp)
+    assert {"tyv", "kriger", "mordekain", "skelet"} <= refs

@@ -198,13 +198,22 @@ def _load_or_404(slug):
 def encounter_start(slug):
     session = _load_or_404(slug)
     adv = ds.load_adventure(session.adventure)
-    combs = dm_encounter.build_combatants(dm_scene._encounter_sources(session, adv))
+    # Rum-scopet kamp: ?room=<id> → kun dét rums monstre. Valider mod den
+    # aktive scene, ellers falder vi tilbage til den gamle scene-brede kamp.
+    room_id = request.form.get("room") or None
+    if room_id:
+        active_scene = next((s for s in adv.scenes if s.id == session.active_scene),
+                            adv.scenes[0] if adv.scenes else None)
+        if not dm_scene._find_room(active_scene, room_id):
+            room_id = None
+    combs = dm_encounter.build_combatants(
+        dm_scene._encounter_sources(session, adv, room_id))
     # Auto-rul initiativ for monstre; PC'er efterlades blanke (DM taster spillernes rul).
     dm_encounter.roll_initiative([c for c in combs if c["kind"] != "pc"])
-    # Seed startpositioner fra kortets opstilling (hvis scenen har et kort).
-    map_slug = dm_scene._active_map_slug(adv, session)
+    # Seed startpositioner fra kortets opstilling (hvis scenen/rummet har et kort).
+    map_slug = dm_scene._active_map_slug(adv, session, room_id)
     tokens = dm_setups.load_setup(session.adventure, map_slug)["tokens"] if map_slug else []
-    session = ds.begin_encounter(slug, combs, tokens)
+    session = ds.begin_encounter(slug, combs, tokens, room=room_id)
     return _tracker_html(session)
 
 
@@ -374,17 +383,28 @@ def media(adventure, filename):
 
 
 def _scene_board_maps(session, adventure):
-    """Bræt-data pr. @kort-embed i sessionens aktive scene. Primær-kortet (første
-    @kort) viser LIVE kamp-positioner når en kamp er i gang, ellers den forfattede
-    opstilling. Returnerer (board_maps, primær-map-slug)."""
+    """Bræt-data pr. @kort-embed i sessionens aktive scene, PLUS i hvert af
+    scenens rum. Kamp-primær-kortet (det aktive rums kort hvis en rum-kamp er
+    i gang, ellers scenens første kort) viser LIVE kamp-positioner; resten
+    viser den forfattede opstilling. Returnerer (board_maps, primær-map-slug)."""
     active = next((sc for sc in adventure.scenes if sc.id == session.active_scene),
                   adventure.scenes[0] if adventure.scenes else None)
     enc = session.encounter
     current_id = dm_scene._current_combatant_id(enc)
-    board_maps, map_slug = {}, None
+    room_id = enc.get("room") if enc.get("active") else None
+    combat_slug = (dm_scene._active_map_slug(adventure, session, room_id)
+                  if enc.get("active") else None)
+
+    # Saml embeds fra scenens top-blokke OG fra hvert rums under-blokke.
+    embeds = [b for b in (active.blocks if active else [])
+             if getattr(b, "kind", None) == "embed" and b.entity.type == "kort"]
     for b in (active.blocks if active else []):
-        if getattr(b, "kind", None) != "embed" or b.entity.type != "kort":
-            continue
+        if getattr(b, "kind", None) == "room":
+            embeds.extend(rb for rb in b.blocks
+                          if getattr(rb, "kind", None) == "embed" and rb.entity.type == "kort")
+
+    board_maps, map_slug = {}, None
+    for b in embeds:
         mslug = b.entity.id
         if map_slug is None:
             map_slug = mslug
@@ -392,13 +412,15 @@ def _scene_board_maps(session, adventure):
             continue
         src, title = dm_scene._map_src(adventure, mslug)
         setup = dm_setups.load_setup(session.adventure, mslug)
-        combat = bool(enc.get("active")) and mslug == map_slug   # kun primær-kortet
+        combat = bool(enc.get("active")) and mslug == combat_slug
         board = (dm_board.combat_board_view(setup, enc, current_id) if combat
                  else dm_board.board_view(setup, adventure, db, audience="dm"))
         board_maps[mslug] = {
             "map_url": url_for("dm.media", adventure=session.adventure,
                                filename=src) if src else None,
             "board": board, "title": title, "combat": combat, "map_slug": mslug}
+    if combat_slug and combat_slug in board_maps:
+        map_slug = combat_slug
     return board_maps, map_slug
 
 
