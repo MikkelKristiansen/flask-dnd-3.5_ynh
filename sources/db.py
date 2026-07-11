@@ -226,6 +226,22 @@ def get_all_traps() -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def get_door(door_id: str) -> dict | None:
+    """Én dør fra det delte dør-katalog (doors). Ingen JSON-felter — rene
+    skalarer, så rækken bruges som den er (door_view former den til visning)."""
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM doors WHERE id = ?", (door_id,)
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def get_all_doors() -> list[dict]:
+    with _connect() as conn:
+        rows = conn.execute("SELECT * FROM doors ORDER BY name").fetchall()
+    return [dict(r) for r in rows]
+
+
 def _effect_row(row) -> dict:
     """Konverter en effects-række til dict og afkod JSON-felterne (modifiers/riders/affects)."""
     rec = dict(row)

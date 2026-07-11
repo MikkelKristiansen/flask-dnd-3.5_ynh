@@ -1,0 +1,69 @@
+# doors — DM-døre (SRD v3.5 "Table: Doors", OGL v1.0a). Kilden til sandheden.
+#
+# TRYKT statblok: samme mønster som traps.yaml — de trykte SRD-tal transkriberes
+# direkte som skalarer, intet beregnes. break_dc er "fastklemt / låst" som trykt
+# streng (nogle døre har kun én værdi).
+#
+# Felt-noter (matcher schema.sql-tabellen `doors`):
+#   material      wood | stone | iron | …
+#   thickness     trykt, fx "1 in.", "4 in.".
+#   hardness/hp   heltal.
+#   break_dc      trykt Break DC-linje.
+#   open_lock_dc  Open Lock-DC hvis låst (heltal); NULL for ulåste døre.
+#   search_dc     find hemmelig dør (heltal); NULL for almindelige døre.
+
+- id: simple-wooden-door
+  name: Simpel trædør
+  material: wood
+  thickness: "1 in."
+  hardness: 5
+  hp: 10
+  break_dc: "13 (fastklemt) / 15 (låst)"
+  source_note: "SRD: Doors (simple wooden)"
+
+- id: good-wooden-door
+  name: God trædør
+  material: wood
+  thickness: "1½ in."
+  hardness: 5
+  hp: 15
+  break_dc: "16 (fastklemt) / 18 (låst)"
+  source_note: "SRD: Doors (good wooden)"
+
+- id: strong-wooden-door
+  name: Kraftig trædør
+  material: wood
+  thickness: "2 in."
+  hardness: 5
+  hp: 20
+  break_dc: "23 (fastklemt) / 25 (låst)"
+  source_note: "SRD: Doors (strong wooden)"
+
+- id: stone-door
+  name: Stendør
+  material: stone
+  thickness: "4 in."
+  hardness: 8
+  hp: 60
+  break_dc: "28"
+  source_note: "SRD: Doors (stone)"
+
+- id: iron-door
+  name: Jerndør
+  material: iron
+  thickness: "2 in."
+  hardness: 10
+  hp: 60
+  break_dc: "28"
+  source_note: "SRD: Doors (iron)"
+
+- id: locked-iron-door
+  name: Låst jerndør (god lås)
+  material: iron
+  thickness: "2 in."
+  hardness: 10
+  hp: 60
+  break_dc: "28"
+  open_lock_dc: 30
+  note: "God lås (Open Lock DC 30). SRD-lås-DC'er: simpel 20, gennemsnit 25, god 30, mesterlig 40."
+  source_note: "SRD: Doors + Locks"

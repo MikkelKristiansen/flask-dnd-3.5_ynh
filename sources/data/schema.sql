@@ -291,6 +291,23 @@ CREATE TABLE traps (
     source_note TEXT                              -- fx "SRD: Basic Arrow Trap"
 );
 
+-- Døre (SRD v3.5 "Table: Doors"). TRYKT statblok — samme mønster som traps:
+-- ingen beregning, bare skalarer. Vises via doors.door_view i _door.html.
+DROP TABLE IF EXISTS doors;
+CREATE TABLE doors (
+    id           TEXT PRIMARY KEY,
+    name         TEXT NOT NULL,
+    material     TEXT,                            -- wood | stone | iron | …
+    thickness    TEXT,                             -- trykt, fx "1 in.", "4 in."
+    hardness     INTEGER,
+    hp           INTEGER,
+    break_dc     TEXT,                             -- trykt, fx "13 (stuck) / 15 (locked)"
+    open_lock_dc INTEGER,                          -- Open Lock-DC hvis låst; NULL ellers
+    search_dc    INTEGER,                          -- find hemmelig dør; NULL ellers
+    note         TEXT,
+    source_note  TEXT
+);
+
 -- Mekaniske effekter: buffs & tilstande oversat til modifiers, så de ændrer de
 -- faktiske tal (ability scores kaskaderer; direkte bonusser lægges på pr. tal).
 -- modifiers/riders gemmes som JSON-tekst og afkodes i db._effect_row.

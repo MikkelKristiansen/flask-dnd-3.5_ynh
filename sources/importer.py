@@ -44,6 +44,7 @@ TABLES = [
     "animals",
     "monsters",
     "traps",
+    "doors",
     "effects",
     "special_abilities",
 ]
