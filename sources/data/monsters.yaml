@@ -1012,3 +1012,531 @@
   skills: '[{"name": "Hide", "total": 9}, {"name": "Listen", "total": 5}, {"name": "Move Silently", "total": 5}, {"name": "Search", "total": 2}, {"name": "Spot", "total": 5}, {"name": "Survival", "total": 0}]'
   feats: '["Multiattack"]'
   source_note: "SRD: Dretch"
+
+- id: brown-bear
+  name: Brun bjørn
+  size: large
+  type: animal
+  cr: "4"
+  alignment: "Altid neutral"
+  hd: "6d8+24 (51 hp)"
+  hp_max: 51
+  ac: 15
+  ac_touch: 10
+  ac_flat: 14
+  ac_note: "-1 størrelse, +1 Dex, +5 naturlig"
+  init: 1
+  speed: "40 ft."
+  bab: 4
+  grapple: 16
+  str: 27
+  dex: 13
+  con: 19
+  int: 2
+  wis: 12
+  cha: 6
+  save_fort: 9
+  save_ref: 6
+  save_will: 3
+  attacks: '[{"name": "Klo", "bonus": "+11", "damage": "1d8+8", "notes": "nærkamp"}, {"name": "Bid", "bonus": "+6", "damage": "2d6+4", "notes": "nærkamp, sekundært"}]'
+  full_attack: "2 klør +11 (1d8+8) og bid +6 (2d6+4)"
+  special_attacks: "Forbedret greb (ved et vellykket klo-angreb kan bjørnen forsøge et greb som en fri handling uden berøringsangreb)"
+  special_qualities: "Lavlys-syn, lugtesans"
+  skills: '[{"name": "Listen", "total": 4}, {"name": "Spot", "total": 7}, {"name": "Swim", "total": 12}]'
+  feats: '["Endurance", "Run", "Track"]'
+  source_note: "SRD: Bear, Brown"
+
+- id: black-bear
+  name: Sort bjørn
+  size: medium
+  type: animal
+  cr: "2"
+  alignment: "Altid neutral"
+  hd: "3d8+6 (19 hp)"
+  hp_max: 19
+  ac: 13
+  ac_touch: 11
+  ac_flat: 12
+  ac_note: "+1 Dex, +2 naturlig"
+  init: 1
+  speed: "40 ft."
+  bab: 2
+  grapple: 6
+  str: 19
+  dex: 13
+  con: 15
+  int: 2
+  wis: 12
+  cha: 6
+  save_fort: 5
+  save_ref: 4
+  save_will: 2
+  attacks: '[{"name": "Klo", "bonus": "+6", "damage": "1d4+4", "notes": "nærkamp"}, {"name": "Bid", "bonus": "+1", "damage": "1d6+2", "notes": "nærkamp, sekundært"}]'
+  full_attack: "2 klør +6 (1d4+4) og bid +1 (1d6+2)"
+  special_attacks: ~
+  special_qualities: "Lavlys-syn, lugtesans"
+  skills: '[{"name": "Climb", "total": 4}, {"name": "Listen", "total": 4}, {"name": "Spot", "total": 4}, {"name": "Swim", "total": 8}]'
+  feats: '["Endurance", "Run"]'
+  source_note: "SRD: Bear, Black"
+
+- id: boar
+  name: Vildsvin
+  size: medium
+  type: animal
+  cr: "2"
+  alignment: "Altid neutral"
+  hd: "3d8+12 (25 hp)"
+  hp_max: 25
+  ac: 16
+  ac_touch: 10
+  ac_flat: 16
+  ac_note: "+6 naturlig"
+  init: 0
+  speed: "40 ft."
+  bab: 2
+  grapple: 4
+  str: 15
+  dex: 10
+  con: 17
+  int: 2
+  wis: 13
+  cha: 4
+  save_fort: 6
+  save_ref: 3
+  save_will: 2
+  attacks: '[{"name": "Stød", "bonus": "+4", "damage": "1d8+3", "notes": "nærkamp"}]'
+  full_attack: "Stød +4 (1d8+3)"
+  special_attacks: "Ihærdighed (vildsvinet kæmper videre uden straf, selv når det er invalideret eller døende)"
+  special_qualities: "Lavlys-syn, lugtesans"
+  skills: '[{"name": "Listen", "total": 7}, {"name": "Spot", "total": 5}]'
+  feats: '["Alertness", "Toughness"]'
+  source_note: "SRD: Boar"
+
+- id: cheetah
+  name: Gepard
+  size: medium
+  type: animal
+  cr: "2"
+  alignment: "Altid neutral"
+  hd: "3d8+6 (19 hp)"
+  hp_max: 19
+  ac: 15
+  ac_touch: 14
+  ac_flat: 11
+  ac_note: "+4 Dex, +1 naturlig"
+  init: 4
+  speed: "50 ft."
+  bab: 2
+  grapple: 5
+  str: 16
+  dex: 19
+  con: 15
+  int: 2
+  wis: 12
+  cha: 6
+  save_fort: 5
+  save_ref: 7
+  save_will: 2
+  attacks: '[{"name": "Bid", "bonus": "+6", "damage": "1d6+3", "notes": "nærkamp"}, {"name": "Klo", "bonus": "+1", "damage": "1d2+1", "notes": "nærkamp, sekundært"}]'
+  full_attack: "Bid +6 (1d6+3) og 2 klør +1 (1d2+1)"
+  special_attacks: "Fælde (klo- eller bidangreb kan udløse et gratis væltnings-forsøg, +3 på tjekket, uden berøringsangreb eller frihedsslag til modstanderen)"
+  special_qualities: "Lavlys-syn, lugtesans, spurt (én gang i timen kan geparden bevæge sig ti gange sin normale fart, 500 ft., når den lader an)"
+  skills: '[{"name": "Hide", "total": 6}, {"name": "Listen", "total": 4}, {"name": "Move Silently", "total": 6}, {"name": "Spot", "total": 4}]'
+  feats: '["Alertness", "Weapon Finesse"]'
+  source_note: "SRD: Cheetah"
+
+- id: leopard
+  name: Leopard
+  size: medium
+  type: animal
+  cr: "2"
+  alignment: "Altid neutral"
+  hd: "3d8+6 (19 hp)"
+  hp_max: 19
+  ac: 15
+  ac_touch: 14
+  ac_flat: 11
+  ac_note: "+4 Dex, +1 naturlig"
+  init: 4
+  speed: "40 ft., klatring 20 ft."
+  bab: 2
+  grapple: 5
+  str: 16
+  dex: 19
+  con: 15
+  int: 2
+  wis: 12
+  cha: 6
+  save_fort: 5
+  save_ref: 7
+  save_will: 2
+  attacks: '[{"name": "Bid", "bonus": "+6", "damage": "1d6+3", "notes": "nærkamp"}, {"name": "Klo", "bonus": "+1", "damage": "1d3+1", "notes": "nærkamp, sekundært"}]'
+  full_attack: "Bid +6 (1d6+3) og 2 klør +1 (1d3+1)"
+  special_attacks: "Forbedret greb (ved et vellykket bidangreb kan leoparden forsøge et greb som en fri handling uden berøringsangreb; ved sejr i grebet opnås et hold, og leoparden kan udføre river), storm (ved et ladet angreb kan leoparden udføre et fuldt angreb inkl. to river-angreb), river 1d3+1 (angrebsbonus +6)"
+  special_qualities: "Lavlys-syn, lugtesans"
+  skills: '[{"name": "Balance", "total": 12}, {"name": "Climb", "total": 11}, {"name": "Hide", "total": 8}, {"name": "Jump", "total": 11}, {"name": "Listen", "total": 6}, {"name": "Move Silently", "total": 8}, {"name": "Spot", "total": 6}]'
+  feats: '["Alertness", "Weapon Finesse"]'
+  source_note: "SRD: Leopard"
+
+- id: lion
+  name: Løve
+  size: large
+  type: animal
+  cr: "3"
+  alignment: "Altid neutral"
+  hd: "5d8+10 (32 hp)"
+  hp_max: 32
+  ac: 15
+  ac_touch: 12
+  ac_flat: 12
+  ac_note: "-1 størrelse, +3 Dex, +3 naturlig"
+  init: 3
+  speed: "40 ft."
+  bab: 3
+  grapple: 12
+  str: 21
+  dex: 17
+  con: 15
+  int: 2
+  wis: 12
+  cha: 6
+  save_fort: 6
+  save_ref: 7
+  save_will: 2
+  attacks: '[{"name": "Klo", "bonus": "+7", "damage": "1d4+5", "notes": "nærkamp"}, {"name": "Bid", "bonus": "+2", "damage": "1d8+2", "notes": "nærkamp, sekundært"}]'
+  full_attack: "2 klør +7 (1d4+5) og bid +2 (1d8+2)"
+  special_attacks: "Storm (ved et ladet angreb kan løven udføre et fuldt angreb inkl. to river-angreb), forbedret greb (ved et vellykket bidangreb kan løven forsøge et greb som en fri handling uden berøringsangreb; ved sejr opnås et hold, og løven kan udføre river), river 1d4+2 (angrebsbonus +7)"
+  special_qualities: "Lavlys-syn, lugtesans"
+  skills: '[{"name": "Balance", "total": 7}, {"name": "Hide", "total": 3}, {"name": "Listen", "total": 5}, {"name": "Move Silently", "total": 11}, {"name": "Spot", "total": 5}]'
+  feats: '["Alertness", "Run"]'
+  source_note: "SRD: Lion"
+
+- id: crocodile
+  name: Krokodille
+  size: medium
+  type: animal
+  cr: "2"
+  alignment: "Altid neutral"
+  hd: "3d8+9 (22 hp)"
+  hp_max: 22
+  ac: 15
+  ac_touch: 11
+  ac_flat: 14
+  ac_note: "+1 Dex, +4 naturlig"
+  init: 1
+  speed: "20 ft., svømme 30 ft."
+  bab: 2
+  grapple: 6
+  str: 19
+  dex: 12
+  con: 17
+  int: 1
+  wis: 12
+  cha: 2
+  save_fort: 6
+  save_ref: 4
+  save_will: 2
+  attacks: '[{"name": "Bid", "bonus": "+6", "damage": "1d8+6", "notes": "nærkamp"}, {"name": "Haleslag", "bonus": "+6", "damage": "1d12+6", "notes": "nærkamp"}]'
+  full_attack: "Bid +6 (1d8+6) eller haleslag +6 (1d12+6)"
+  special_attacks: "Forbedret greb (ved et vellykket bidangreb kan krokodillen forsøge et greb som en fri handling uden berøringsangreb; ved sejr i grebet får den et fast bid og trækker byttet ned i dybt vand)"
+  special_qualities: "Kan holde vejret længe (hold breath), lavlys-syn"
+  skills: '[{"name": "Hide", "total": 7}, {"name": "Listen", "total": 4}, {"name": "Spot", "total": 4}, {"name": "Swim", "total": 12}]'
+  feats: '["Alertness", "Skill Focus (Hide)"]'
+  source_note: "SRD: Crocodile"
+
+- id: giant-crocodile
+  name: Kæmpe-krokodille
+  size: huge
+  type: animal
+  cr: "4"
+  alignment: "Altid neutral"
+  hd: "7d8+28 (59 hp)"
+  hp_max: 59
+  ac: 16
+  ac_touch: 9
+  ac_flat: 15
+  ac_note: "-2 størrelse, +1 Dex, +7 naturlig"
+  init: 1
+  speed: "20 ft., svømme 30 ft."
+  bab: 5
+  grapple: 21
+  str: 27
+  dex: 12
+  con: 19
+  int: 1
+  wis: 12
+  cha: 2
+  save_fort: 9
+  save_ref: 6
+  save_will: 3
+  attacks: '[{"name": "Bid", "bonus": "+11", "damage": "2d8+12", "notes": "nærkamp"}, {"name": "Haleslag", "bonus": "+11", "damage": "1d12+12", "notes": "nærkamp"}]'
+  full_attack: "Bid +11 (2d8+12) eller haleslag +11 (1d12+12)"
+  special_attacks: "Forbedret greb (som almindelig krokodille — se ovenfor)"
+  special_qualities: "Kan holde vejret længe (hold breath), lavlys-syn"
+  skills: '[{"name": "Hide", "total": 1}, {"name": "Listen", "total": 5}, {"name": "Spot", "total": 5}, {"name": "Swim", "total": 16}]'
+  feats: '["Alertness", "Endurance", "Skill Focus (Hide)"]'
+  source_note: "SRD: Crocodile, Giant"
+
+- id: eagle
+  name: Ørn
+  size: small
+  type: animal
+  cr: "1/2"
+  alignment: "Altid neutral"
+  hd: "1d8+1 (5 hp)"
+  hp_max: 5
+  ac: 14
+  ac_touch: 13
+  ac_flat: 12
+  ac_note: "+1 størrelse, +2 Dex, +1 naturlig"
+  init: 2
+  speed: "10 ft., flyve 80 ft. (gennemsnitlig)"
+  bab: 0
+  grapple: -4
+  str: 10
+  dex: 15
+  con: 12
+  int: 2
+  wis: 14
+  cha: 6
+  save_fort: 3
+  save_ref: 4
+  save_will: 2
+  attacks: '[{"name": "Klo", "bonus": "+3", "damage": "1d4", "notes": "nærkamp"}, {"name": "Bid", "bonus": "-2", "damage": "1d4", "notes": "nærkamp, sekundært"}]'
+  full_attack: "2 klør +3 (1d4) og bid -2 (1d4)"
+  special_attacks: ~
+  special_qualities: "Lavlys-syn"
+  skills: '[{"name": "Listen", "total": 2}, {"name": "Spot", "total": 14}]'
+  feats: '["Weapon Finesse"]'
+  source_note: "SRD: Eagle"
+
+- id: hawk
+  name: Høg
+  size: tiny
+  type: animal
+  cr: "1/3"
+  alignment: "Altid neutral"
+  hd: "1d8 (4 hp)"
+  hp_max: 4
+  ac: 17
+  ac_touch: 15
+  ac_flat: 14
+  ac_note: "+2 størrelse, +3 Dex, +2 naturlig"
+  init: 3
+  speed: "10 ft., flyve 60 ft. (gennemsnitlig)"
+  bab: 0
+  grapple: -10
+  str: 6
+  dex: 17
+  con: 10
+  int: 2
+  wis: 14
+  cha: 6
+  save_fort: 2
+  save_ref: 5
+  save_will: 2
+  attacks: '[{"name": "Klo", "bonus": "+5", "damage": "1d4-2", "notes": "nærkamp"}]'
+  full_attack: "Klo +5 (1d4-2)"
+  special_attacks: ~
+  special_qualities: "Lavlys-syn"
+  skills: '[{"name": "Listen", "total": 2}, {"name": "Spot", "total": 14}]'
+  feats: '["Weapon Finesse"]'
+  source_note: "SRD: Hawk"
+
+- id: constrictor-snake
+  name: Kvælerslange
+  size: medium
+  type: animal
+  cr: "2"
+  alignment: "Altid neutral"
+  hd: "3d8+6 (19 hp)"
+  hp_max: 19
+  ac: 15
+  ac_touch: 13
+  ac_flat: 12
+  ac_note: "+3 Dex, +2 naturlig"
+  init: 3
+  speed: "20 ft., klatring 20 ft., svømme 20 ft."
+  bab: 2
+  grapple: 5
+  str: 17
+  dex: 17
+  con: 13
+  int: 1
+  wis: 12
+  cha: 2
+  save_fort: 4
+  save_ref: 6
+  save_will: 2
+  attacks: '[{"name": "Bid", "bonus": "+5", "damage": "1d3+4", "notes": "nærkamp"}]'
+  full_attack: "Bid +5 (1d3+4)"
+  special_attacks: "Kvæl 1d3+4, forbedret greb (ved et vellykket bidangreb kan slangen forsøge et greb som en fri handling uden berøringsangreb; ved sejr opnås et hold, og slangen kan kvæle)"
+  special_qualities: "Lugtesans"
+  skills: '[{"name": "Balance", "total": 11}, {"name": "Climb", "total": 14}, {"name": "Hide", "total": 10}, {"name": "Listen", "total": 7}, {"name": "Spot", "total": 7}, {"name": "Swim", "total": 11}]'
+  feats: '["Alertness", "Toughness"]'
+  source_note: "SRD: Snake, Constrictor (Medium)"
+
+- id: viper-snake
+  name: Hugorm (mellem)
+  size: medium
+  type: animal
+  cr: "1"
+  alignment: "Altid neutral"
+  hd: "2d8 (9 hp)"
+  hp_max: 9
+  ac: 16
+  ac_touch: 13
+  ac_flat: 13
+  ac_note: "+3 Dex, +3 naturlig"
+  init: 3
+  speed: "20 ft., klatring 20 ft., svømme 20 ft."
+  bab: 1
+  grapple: 0
+  str: 8
+  dex: 17
+  con: 11
+  int: 1
+  wis: 12
+  cha: 2
+  save_fort: 3
+  save_ref: 6
+  save_will: 1
+  attacks: '[{"name": "Bid", "bonus": "+4", "damage": "1d4-1", "notes": "nærkamp, plus gift"}]'
+  full_attack: "Bid +4 (1d4-1 plus gift)"
+  special_attacks: "Gift (bid, Udholdenhed DC 11, indledende og sekundær skade 1d6 Con)"
+  special_qualities: "Lugtesans"
+  skills: '[{"name": "Balance", "total": 11}, {"name": "Climb", "total": 11}, {"name": "Hide", "total": 12}, {"name": "Listen", "total": 5}, {"name": "Spot", "total": 5}, {"name": "Swim", "total": 7}]'
+  feats: '["Weapon Finesse"]'
+  source_note: "SRD: Snake, Viper (Medium)"
+
+- id: shark
+  name: Haj (stor)
+  size: large
+  type: animal (aquatic)
+  cr: "2"
+  alignment: "Altid neutral"
+  hd: "7d8+7 (38 hp)"
+  hp_max: 38
+  ac: 15
+  ac_touch: 11
+  ac_flat: 13
+  ac_note: "-1 størrelse, +2 Dex, +4 naturlig"
+  init: 6
+  speed: "svømme 60 ft."
+  bab: 5
+  grapple: 12
+  str: 17
+  dex: 15
+  con: 13
+  int: 1
+  wis: 12
+  cha: 2
+  save_fort: 8
+  save_ref: 7
+  save_will: 3
+  attacks: '[{"name": "Bid", "bonus": "+7", "damage": "1d8+4", "notes": "nærkamp"}]'
+  full_attack: "Bid +7 (1d8+4)"
+  special_attacks: ~
+  special_qualities: "Blindsans (kan lokalisere skabninger under vand inden for 9 m; virker kun mens hajen selv er under vand), skarp lugtesans (kan opfatte skabninger på lugt inden for 54 m og spore blod i vandet på op til 1,6 km afstand)"
+  skills: '[{"name": "Listen", "total": 8}, {"name": "Spot", "total": 7}, {"name": "Swim", "total": 11}]'
+  feats: '["Alertness", "Great Fortitude", "Improved Initiative"]'
+  source_note: "SRD: Shark, Large"
+
+- id: rhinoceros
+  name: Næsehorn
+  size: large
+  type: animal
+  cr: "4"
+  alignment: "Altid neutral"
+  hd: "8d8+40 (76 hp)"
+  hp_max: 76
+  ac: 16
+  ac_touch: 9
+  ac_flat: 16
+  ac_note: "-1 størrelse, +7 naturlig"
+  init: 0
+  speed: "30 ft."
+  bab: 6
+  grapple: 18
+  str: 26
+  dex: 10
+  con: 21
+  int: 2
+  wis: 13
+  cha: 2
+  save_fort: 11
+  save_ref: 6
+  save_will: 3
+  attacks: '[{"name": "Stød", "bonus": "+13", "damage": "2d6+12", "notes": "nærkamp"}]'
+  full_attack: "Stød +13 (2d6+12)"
+  special_attacks: "Voldsomt stormløb (næsehornet gør 4d6+24 skade, når det lader an)"
+  special_qualities: "Lavlys-syn"
+  skills: '[{"name": "Listen", "total": 14}, {"name": "Spot", "total": 3}]'
+  feats: '["Alertness", "Endurance", "Improved Natural Attack (Gore)"]'
+  source_note: "SRD: Rhinoceros"
+
+- id: bison
+  name: Bison
+  size: large
+  type: animal
+  cr: "2"
+  alignment: "Altid neutral"
+  hd: "5d8+15 (37 hp)"
+  hp_max: 37
+  ac: 13
+  ac_touch: 9
+  ac_flat: 13
+  ac_note: "-1 størrelse, +4 naturlig"
+  init: 0
+  speed: "40 ft."
+  bab: 3
+  grapple: 13
+  str: 22
+  dex: 10
+  con: 16
+  int: 2
+  wis: 11
+  cha: 4
+  save_fort: 7
+  save_ref: 4
+  save_will: 1
+  attacks: '[{"name": "Stød", "bonus": "+8", "damage": "1d8+9", "notes": "nærkamp"}]'
+  full_attack: "Stød +8 (1d8+9)"
+  special_attacks: "Stampede (en skræmt bisonflok flygter samlet væk fra faren og tramper alt af Large størrelse eller mindre ned undervejs; 1d12 skade pr. fem bisonokser i flokken, Undvigelse DC 18 halverer skaden; DC'en er Styrke-baseret)"
+  special_qualities: "Lavlys-syn, lugtesans"
+  skills: '[{"name": "Listen", "total": 7}, {"name": "Spot", "total": 5}]'
+  feats: '["Alertness", "Endurance"]'
+  source_note: "SRD: Bison"
+
+- id: giant-scorpion
+  name: Kæmpe-skorpion (stor)
+  size: large
+  type: vermin
+  cr: "3"
+  alignment: "Altid neutral"
+  hd: "5d8+10 (32 hp)"
+  hp_max: 32
+  ac: 16
+  ac_touch: 9
+  ac_flat: 16
+  ac_note: "-1 størrelse, +7 naturlig"
+  init: 0
+  speed: "50 ft."
+  bab: 3
+  grapple: 11
+  str: 19
+  dex: 10
+  con: 14
+  int: ~
+  wis: 10
+  cha: 2
+  save_fort: 6
+  save_ref: 1
+  save_will: 1
+  attacks: '[{"name": "Klo", "bonus": "+6", "damage": "1d6+4", "notes": "nærkamp"}, {"name": "Stik", "bonus": "+1", "damage": "1d6+2", "notes": "nærkamp, sekundært, plus gift"}]'
+  full_attack: "2 klør +6 (1d6+4) og stik +1 (1d6+2 plus gift)"
+  special_attacks: "Kvæl 1d6+4 (automatisk klo-skade ved vundet grebs-tjek), forbedret greb (ved et vellykket klo-angreb kan skorpionen forsøge et greb som en fri handling; bruger enten Styrke- eller Dex-modifikatoren, alt efter hvad der er bedst), gift (stik, Udholdenhed DC 14, indledende og sekundær skade 1d4 Con)"
+  special_qualities: "Væsen-træk (immun over for sindspåvirkende effekter mm.), mørkesyn 18 m, rystesans 18 m"
+  skills: '[{"name": "Climb", "total": 8}, {"name": "Hide", "total": 0}, {"name": "Spot", "total": 4}]'
+  feats: ~
+  source_note: "SRD: Monstrous Scorpion (Large) — monsters-vermin.md"
