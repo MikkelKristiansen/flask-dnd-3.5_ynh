@@ -1540,3 +1540,408 @@
   skills: '[{"name": "Climb", "total": 8}, {"name": "Hide", "total": 0}, {"name": "Spot", "total": 4}]'
   feats: ~
   source_note: "SRD: Monstrous Scorpion (Large) — monsters-vermin.md"
+
+# NPC-arketype-batch (indholds-udvidelse Fase A, batch 3): 12 menneske-NPC'er.
+# Ligesom kriger/tyv er disse KONSTRUEREDE (ingen trykt SRD-statblok) — bygget
+# direkte fra NPC-/PC-klassetabellerne i basic-rules-and-legal/npc-classes.md
+# og character-classes-i.md/character-classes-ii.md. Se hver source_note for
+# det fulde byg (array, klassetabel-tal, HP/AC-udregning), så tallene kan
+# efterregnes. NPC-klasser bruger nonelite array (13/12/11/10/9/8); PC-klasser
+# (Fighter/Rogue/Ranger) bruger elite array (15/14/13/12/10/8) — fordelt efter
+# rolle i hvert enkelt tilfælde.
+
+- id: vagt
+  name: Byvagt (menneske, niveau 2)
+  size: medium
+  type: humanoid
+  cr: "1"
+  alignment: "Lovlig neutral"
+  hd: "2d8+2 (11 hp)"
+  hp_max: 11
+  ac: 16
+  ac_touch: 10
+  ac_flat: 16
+  ac_note: "+4 kædeskjorte, +2 tungt stålskjold"
+  init: 0
+  speed: "30 ft."
+  bab: 2
+  grapple: 3
+  str: 13
+  dex: 11
+  con: 12
+  int: 10
+  wis: 9
+  cha: 8
+  save_fort: 4
+  save_ref: 0
+  save_will: -1
+  attacks: '[{"name": "Langsværd", "bonus": "+4", "damage": "1d8+1", "crit": "19-20", "notes": "nærkamp, sværd+skjold"}, {"name": "Langspyd", "bonus": "+3", "damage": "1d8+1", "crit": "x3", "notes": "nærkamp, to-håndet, reach 10 ft, skjold lægges"}]'
+  full_attack: "Langsværd +4 (1d8+1/19-20) eller langspyd +3 (1d8+1/x3, reach 10 ft)"
+  special_attacks: ~
+  special_qualities: ~
+  skills: '[{"name": "Climb", "total": 6}, {"name": "Intimidate", "total": 4}, {"name": "Ride", "total": 4}]'
+  feats: '["Alertness", "Weapon Focus (Longsword)"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Warrior 2 efter Table: The Warrior (BAB +2, Fort +3, Ref +0, Will +0 ved niveau 2). Nonelite-array som kriger (Str 13/Dex 11/Con 12/Int 10/Wis 9/Cha 8). HP = gennemsnit 2d8 (4,5/terning, i alt 9) + Con-mod×2 (+2) = 11. AC 16 = 10 + kædeskjorte (+4) + tungt stålskjold (+2) + 0 Dex. To udstyrs-konfigurationer vises som alternative angreb (som kriger): langsværd+skjold (hovedvalg, Weapon Focus giver +1) eller to-håndet langspyd (reach, ingen skjold-bonus mens spyddet føres; skade = 1d8 + afrundet ned 1,5×Str-mod). Warrior får 2+Int-mod skill-point/niveau; mennesket lægger 4 bonus-point til ved niveau 1 (i alt 14 point ved niveau 2, fordelt præcist på de tre viste class-skills). Feats: ét niveau-1-feat (Alertness) + menneskets bonus-feat (Weapon Focus)."
+
+- id: bandit
+  name: Landevejsrøver (menneske, niveau 1)
+  size: medium
+  type: humanoid
+  cr: "1/2"
+  alignment: "Kaotisk ond"
+  hd: "1d8 plus Toughness (7 hp)"
+  hp_max: 7
+  ac: 14
+  ac_touch: 11
+  ac_flat: 13
+  ac_note: "+3 forstærket læderrustning, +1 Dex"
+  init: 1
+  speed: "30 ft."
+  bab: 1
+  grapple: 2
+  str: 12
+  dex: 13
+  con: 11
+  int: 10
+  wis: 9
+  cha: 8
+  save_fort: 2
+  save_ref: 1
+  save_will: -1
+  attacks: '[{"name": "Kårde", "bonus": "+2", "damage": "1d6+1", "crit": "18-20", "notes": "nærkamp, Weapon Finesse (Dex i stedet for Str)"}, {"name": "Let armbrøst", "bonus": "+2", "damage": "1d8", "crit": "19-20", "notes": "afstand"}]'
+  full_attack: "Kårde +2 (1d6+1/18-20) eller let armbrøst +2 (1d8/19-20)"
+  special_attacks: ~
+  special_qualities: ~
+  skills: '[{"name": "Intimidate", "total": 3}, {"name": "Ride", "total": 5}, {"name": "Climb", "total": 5}]'
+  feats: '["Weapon Finesse", "Toughness"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Warrior 1 efter Table: The Warrior (BAB +1, Fort +2, Ref +0, Will +0). Nonelite-array, dex-tung fordeling til en kårde-/armbrøst-røver (Dex 13/Str 12/Con 11/Int 10/Wis 9/Cha 8). HP = gennemsnit 1d8 (4,5 → 4) + Con-mod (0) + Toughness (+3) = 7. AC 14 = 10 + forstærket læderrustning (+3) + 1 Dex. Kården bruger Weapon Finesse (Dex til angreb, jf. equipment.md's rapier-undtagelse), skade er stadig Str-baseret. Let armbrøst får ikke Str-bonus til skade (crossbows: ranged_str none). Warrior 2+Int-mod skill-point/niveau × (2+4 human-bonus) = 12 point, fordelt præcist på de tre viste class-skills. Feats: Weapon Finesse (niveau-1) + Toughness (menneskets bonus-feat)."
+
+- id: boelle
+  name: Bølle (menneske, niveau 2)
+  size: medium
+  type: humanoid
+  cr: "1"
+  alignment: "Kaotisk neutral"
+  hd: "2d8+2 (11 hp)"
+  hp_max: 11
+  ac: 12
+  ac_touch: 10
+  ac_flat: 12
+  ac_note: "+2 læderrustning"
+  init: 0
+  speed: "30 ft."
+  bab: 2
+  grapple: 3
+  str: 13
+  dex: 11
+  con: 12
+  int: 10
+  wis: 9
+  cha: 8
+  save_fort: 4
+  save_ref: 0
+  save_will: -1
+  attacks: '[{"name": "Storkølle", "bonus": "+3", "damage": "1d10+1", "crit": "x2", "notes": "nærkamp, to-håndet, Power Attack tilgængelig"}]'
+  full_attack: ~
+  special_attacks: ~
+  special_qualities: ~
+  skills: '[{"name": "Intimidate", "total": 4}, {"name": "Climb", "total": 6}, {"name": "Jump", "total": 5}]'
+  feats: '["Power Attack", "Cleave"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Warrior 2 efter Table: The Warrior (BAB +2, Fort +3, Ref +0, Will +0). Samme nonelite-fordeling som kriger/vagt (Str 13/Dex 11/Con 12/Int 10/Wis 9/Cha 8) — Str-primær brutal nærkæmper. HP = gennemsnit 2d8 (9) + Con-mod×2 (+2) = 11. AC 12 = 10 + læderrustning (+2), intet skjold (to-håndet kølle). Storkølle-skade = 1d10 + afrundet ned 1,5×Str-mod (1) = 1d10+1; grundbonus viser IKKE Power Attacks byttehandel (angreb↔skade er en spiller-/DM-vælgbar toggle, ikke bagt ind i standardtallet). Power Attack kræver Str 13 (opfyldt), Cleave kræver Power Attack (opfyldt). Warrior 2+Int-mod skill-point/niveau + 4 human-bonus = 14 point, fordelt præcist på de tre viste class-skills. Feats: Power Attack (niveau-1) + Cleave (menneskets bonus-feat)."
+
+- id: lejesvend
+  name: Lejesvend (menneske, niveau 2)
+  size: medium
+  type: humanoid
+  cr: "2"
+  alignment: "Neutral"
+  hd: "2d10+4 plus Toughness (18 hp)"
+  hp_max: 18
+  ac: 18
+  ac_touch: 11
+  ac_flat: 17
+  ac_note: "+5 brystplade, +2 tungt stålskjold, +1 Dex"
+  init: 1
+  speed: "20 ft."
+  bab: 2
+  grapple: 4
+  str: 15
+  dex: 13
+  con: 14
+  int: 12
+  wis: 10
+  cha: 8
+  save_fort: 5
+  save_ref: 1
+  save_will: 0
+  attacks: '[{"name": "Langsværd", "bonus": "+5", "damage": "1d8+2", "crit": "19-20", "notes": "nærkamp, sværd+skjold"}, {"name": "Komposit-langbue", "bonus": "+3", "damage": "1d8+2", "crit": "x3", "notes": "afstand, kræver at skjoldet lægges; buen er ratet til Str-mod"}]'
+  full_attack: "Langsværd +5 (1d8+2/19-20) eller komposit-langbue +3 (1d8+2/x3)"
+  special_attacks: ~
+  special_qualities: ~
+  skills: '[{"name": "Climb", "total": 7}, {"name": "Ride", "total": 6}, {"name": "Intimidate", "total": 4}]'
+  feats: '["Toughness", "Point Blank Shot", "Weapon Focus (Longsword)", "Power Attack"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Fighter 2 (elite-array) efter Table: The Fighter (BAB +2, Fort +3, Ref +0, Will +0). Elite-array Str 15/Dex 13/Con 14/Int 12/Wis 10/Cha 8 (kamp-primær med god overlevelse). HP = gennemsnit 2d10 (11) + Con-mod×2 (+4) + Toughness (+3) = 18. AC 18 = 10 + brystplade (+5, medium rustning → 20 ft. fart) + tungt stålskjold (+2) + 1 Dex (breastplate max-dex 3, ingen begrænsning). Fighter får bonus-feat ved niveau 1 og 2 — brief angav disse to som Weapon Focus (Longsword) og Power Attack; normalt niveau-1-feat = Toughness, menneskets bonus-feat = Point Blank Shot (buen). Komposit-langbue antages ratet til fuld Str-mod (+2). To udstyrs-konfigurationer (sværd+skjold vs. bue) som alternative angreb, jf. kriger-mønsteret. Fighter 2+Int-mod skill-point/niveau + 4 human-bonus ≈ 19 point, fordelt (delvist) på de tre viste class-skills."
+
+- id: veteran
+  name: Veteran (menneske, niveau 4)
+  size: medium
+  type: humanoid
+  cr: "4"
+  alignment: "Neutral"
+  hd: "4d10+8 (30 hp)"
+  hp_max: 30
+  ac: 19
+  ac_touch: 11
+  ac_flat: 18
+  ac_note: "+6 båndrustning, +2 tungt stålskjold, +1 Dex"
+  init: 5
+  speed: "20 ft."
+  bab: 4
+  grapple: 6
+  str: 15
+  dex: 13
+  con: 14
+  int: 12
+  wis: 10
+  cha: 8
+  save_fort: 6
+  save_ref: 2
+  save_will: 1
+  attacks: '[{"name": "Langsværd", "bonus": "+7", "damage": "1d8+4", "crit": "19-20", "notes": "nærkamp, sværd+skjold"}]'
+  full_attack: ~
+  special_attacks: ~
+  special_qualities: ~
+  skills: '[{"name": "Climb", "total": 9}, {"name": "Ride", "total": 7}, {"name": "Intimidate", "total": 5}]'
+  feats: '["Alertness", "Improved Initiative", "Weapon Focus (Longsword)", "Power Attack", "Cleave", "Weapon Specialization (Longsword)"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Fighter 4 (elite-array, samme som lejesvend: Str 15/Dex 13/Con 14/Int 12/Wis 10/Cha 8) efter Table: The Fighter (BAB +4, Fort +4, Ref +1, Will +1). HP = gennemsnit 4d10 (22) + Con-mod×4 (+8) = 30. AC 19 = 10 + båndrustning/banded mail (+6, tung rustning → 20 ft. fart) + tungt stålskjold (+2) + 1 Dex (banded mail max-dex 1, lige akkurat inden for grænsen). Angreb = BAB 4 + Str-mod 2 + Weapon Focus 1 = +7; skade = 1d8 + Str-mod 2 + Weapon Specialization 2 = 1d8+4 (kun ét angreb, BAB 4 giver ikke endnu en iterativ). Fighter-bonusfeats ved niveau 1/2/4 = Weapon Focus/Power Attack/Weapon Specialization (som brief angav, Weapon Specialization kræver fighter-niveau 4, opfyldt); normale feats ved niveau 1 og 3 + menneskets bonus-feat = Alertness, Cleave, Improved Initiative (init-feltet inkluderer +4 herfra). Fighter 2+Int-mod skill-point/niveau ×4 niveauer + 4 human-bonus ≈ 25 point, fordelt (delvist) på de tre viste class-skills."
+
+- id: bueskytte
+  name: Bueskytte (menneske, niveau 3)
+  size: medium
+  type: humanoid
+  cr: "2"
+  alignment: "Neutral"
+  hd: "3d8+3 (16 hp)"
+  hp_max: 16
+  ac: 13
+  ac_touch: 11
+  ac_flat: 12
+  ac_note: "+2 læderrustning, +1 Dex"
+  init: 1
+  speed: "30 ft."
+  bab: 3
+  grapple: 3
+  str: 11
+  dex: 13
+  con: 12
+  int: 10
+  wis: 9
+  cha: 8
+  save_fort: 4
+  save_ref: 2
+  save_will: 0
+  attacks: '[{"name": "Langbue", "bonus": "+5", "damage": "1d8", "crit": "x3", "notes": "afstand, +1 yderligere inden for 30 fod (Point Blank Shot)"}, {"name": "Kortsværd", "bonus": "+3", "damage": "1d6", "crit": "19-20", "notes": "nærkamp"}]'
+  full_attack: "Langbue +5 (1d8/x3) eller kortsværd +3 (1d6/19-20)"
+  special_attacks: ~
+  special_qualities: ~
+  skills: '[{"name": "Climb", "total": 6}, {"name": "Jump", "total": 6}, {"name": "Ride", "total": 5}]'
+  feats: '["Point Blank Shot", "Precise Shot", "Weapon Focus (Longbow)"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Warrior 3 efter Table: The Warrior (BAB +3, Fort +3, Ref +1, Will +1). Nonelite-array med Dex 13 som brief kræver (Dex 13/Con 12/Str 11/Int 10/Wis 9/Cha 8). HP = gennemsnit 3d8 (13,5 → 13) + Con-mod×3 (+3) = 16. AC 13 = 10 + læderrustning (+2) + 1 Dex. Langbue får ikke Str-bonus (ranged_str: penalty_only, og Str-mod er 0 så ingen effekt). Angrebsbonus = BAB + Dex-mod + Weapon Focus; Point Blank Shot (+1 inden for 30 fod) er situationsbestemt og derfor IKKE bagt ind i grundtallet, kun noteret. Feats ved niveau 1 og 3 = Point Blank Shot + Precise Shot (som brief angav); menneskets bonus-feat = Weapon Focus (Longbow). Warrior 2+Int-mod skill-point/niveau ×3 niveauer + 4 human-bonus = 16 point, fordelt præcist på de tre viste class-skills (alle warrior class-skills)."
+
+- id: spejder
+  name: Spejder (menneske, niveau 2)
+  size: medium
+  type: humanoid
+  cr: "2"
+  alignment: "Neutral god"
+  hd: "2d8+4 (13 hp)"
+  hp_max: 13
+  ac: 15
+  ac_touch: 12
+  ac_flat: 13
+  ac_note: "+3 forstærket læderrustning, +2 Dex"
+  init: 2
+  speed: "30 ft."
+  bab: 2
+  grapple: 3
+  str: 13
+  dex: 15
+  con: 14
+  int: 10
+  wis: 12
+  cha: 8
+  save_fort: 5
+  save_ref: 5
+  save_will: 1
+  attacks: '[{"name": "Kortbue", "bonus": "+4", "damage": "1d6", "crit": "x3", "notes": "afstand, +1 yderligere inden for 30 fod (Point Blank Shot)"}, {"name": "Kortsværd (primær)", "bonus": "+0", "damage": "1d6+1", "crit": "19-20", "notes": "nærkamp, to-våben, Weapon Finesse (Dex i stedet for Str)"}, {"name": "Kortsværd (sekundær)", "bonus": "+2", "damage": "1d6", "crit": "19-20", "notes": "nærkamp, off-hand, halv Str-bonus, Weapon Finesse"}]'
+  full_attack: "Kortbue +4 (1d6/x3) eller to kortsværd (to-våben, Weapon Finesse): primær +0 (1d6+1/19-20) og sekundær +2 (1d6/19-20)"
+  special_attacks: "Favoriseret fjende: humanoid (ork) +2 skade/Bluff/Listen/Sense Motive/Spot/Survival mod orker (DM kan frit omvælge fjendetype)"
+  special_qualities: "Track (bonus-feat), Wild Empathy, kampstil to-våben (som at have Two-Weapon Fighting, kun i let/ingen rustning)"
+  skills: '[{"name": "Survival", "total": 6}, {"name": "Hide", "total": 7}, {"name": "Move Silently", "total": 7}]'
+  feats: '["Point Blank Shot", "Weapon Finesse"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Ranger 2 (elite-array) efter Table: The Ranger (BAB +2, Fort +3, Ref +3, Will +0 — ingen spells før niveau 4, som brief angav). Elite-array Str 13/Dex 15/Con 14/Wis 12/Int 10/Cha 8 (Dex-primær bueskytte/to-våben). HP = gennemsnit 2d8 (9) + Con-mod×2 (+4) = 13. AC 15 = 10 + forstærket læderrustning (+3) + 2 Dex. Favoriseret fjende og Track er niveau-1 class-features (gratis, ikke feat-slots); kampstil (to-våben, valgt ved niveau 2) giver gratis Two-Weapon Fighting-effekt, KUN i let/ingen rustning — derfor er studded leather (let) valgt frem for tungere rustning. To-våben-bonusser: primær hånd -4, off-hand (let våben) -2, jf. PHB's Two-Weapon Fighting Penalties-tabel; off-hand skade er halv Str-mod (afrundet ned, her 0). Weapon Finesse (menneskets bonus-feat) gør begge kortsværd Dex-baserede på angrebsrullen; skaden er stadig Str-baseret. Point Blank Shot = niveau-1-feat. Ranger 6+Int-mod skill-point/niveau ×2 niveauer + 4 human-bonus = 34 point, fordelt (delvist) på tre repræsentative færdigheder."
+
+- id: snigmorder
+  name: Snigmorder (menneske, niveau 3)
+  size: medium
+  type: humanoid
+  cr: "3"
+  alignment: "Kaotisk ond"
+  hd: "3d6+3 (13 hp)"
+  hp_max: 13
+  ac: 14
+  ac_touch: 12
+  ac_flat: 12
+  ac_note: "+2 læderrustning, +2 Dex"
+  init: 6
+  speed: "30 ft."
+  bab: 2
+  grapple: 3
+  str: 12
+  dex: 15
+  con: 13
+  int: 14
+  wis: 10
+  cha: 8
+  save_fort: 2
+  save_ref: 5
+  save_will: 1
+  attacks: '[{"name": "Kårde", "bonus": "+5", "damage": "1d6+1", "crit": "18-20", "notes": "nærkamp, Weapon Finesse + Weapon Focus, plus 2d6 snigangreb"}, {"name": "Daggert", "bonus": "+4", "damage": "1d4+1", "crit": "19-20", "notes": "nærkamp eller kastet (10 ft), Weapon Finesse, plus 2d6 snigangreb"}, {"name": "Hånd-armbrøst", "bonus": "+4", "damage": "1d4", "crit": "19-20", "notes": "afstand, plus 2d6 snigangreb"}]'
+  full_attack: "Kårde +5 (1d6+1/18-20) eller daggert +4 (1d4+1/19-20) eller hånd-armbrøst +4 (1d4/19-20) — alle med +2d6 snigangreb hvis betingelsen er opfyldt"
+  special_attacks: "Snigangreb +2d6 (mod fjender uden Dex-bonus til AC, eller ved flankering)"
+  special_qualities: "Evasion, fælde-opdagelse (trapfinding), trap sense +1"
+  skills: '[{"name": "Hide", "total": 8}, {"name": "Move Silently", "total": 8}, {"name": "Open Lock", "total": 8}, {"name": "Disable Device", "total": 8}, {"name": "Search", "total": 8}, {"name": "Listen", "total": 4}, {"name": "Spot", "total": 4}]'
+  feats: '["Weapon Finesse", "Weapon Focus (Rapier)", "Improved Initiative"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Rogue 3 (elite-array) efter Table: The Rogue (BAB +2, Fort +1, Ref +3, Will +1; Sneak attack +2d6, trap sense +1 ved niveau 3, som brief angav). Elite-array Dex 15/Int 14/Con 13/Str 12/Wis 10/Cha 8 (Dex+Int-primær, Int giver store skill-point-mængder). HP = gennemsnit 3d6 (10,5 → 10) + Con-mod×3 (+3) = 13. AC 14 = 10 + læderrustning (+2) + 2 Dex. Weapon Finesse (universelt for alle lette våben + kårde, ikke våben-specifik) giver Dex til angreb på alle tre våben; hånd-armbrøst kræver ingen Exotic-feat da rogue er klasse-proficient med den (jf. rogue's Weapon and Armor Proficiency). Weapon Focus (Rapier) lægger kun +1 til kården. Snigangreb kræver flankering/denied Dex — vises som fast tillæg, ikke altid aktivt. Init inkluderer Improved Initiative (+4). Rogue 8+Int-mod skill-point/niveau ×3 niveauer + 4 human-bonus ≈ 64 point — kun 7 repræsentative færdigheder listet (som tyv), langt fra udtømt."
+
+- id: adept
+  name: Landsby-adept (menneske, niveau 3)
+  size: medium
+  type: humanoid
+  cr: "2"
+  alignment: "Neutral"
+  hd: "3d6 plus Toughness (13 hp)"
+  hp_max: 13
+  ac: 9
+  ac_touch: 9
+  ac_flat: 9
+  ac_note: "-1 Dex"
+  init: -1
+  speed: "30 ft."
+  bab: 1
+  grapple: 0
+  str: 8
+  dex: 9
+  con: 11
+  int: 12
+  wis: 13
+  cha: 10
+  save_fort: 1
+  save_ref: 0
+  save_will: 4
+  attacks: '[{"name": "Kæppestav", "bonus": "+0", "damage": "1d6-1", "crit": "x2", "notes": "nærkamp"}, {"name": "Let armbrøst", "bonus": "+0", "damage": "1d8", "crit": "19-20", "notes": "afstand"}]'
+  full_attack: "Kæppestav +0 (1d6-1) eller let armbrøst +0 (1d8/19-20)"
+  special_attacks: ~
+  special_qualities: "Adept-besværgelser (forbereder dagligt, CL 3, DC 10+niveau+1 Wis-mod): 0. niveau (3/dag) — light, guidance, cure minor wounds; 1. niveau (3/dag, inkl. 1 bonusspell fra Wis 13) — cure light wounds, sleep"
+  skills: '[{"name": "Heal", "total": 7}, {"name": "Knowledge (religion)", "total": 7}, {"name": "Spellcraft", "total": 7}]'
+  feats: '["Combat Casting", "Toughness", "Alertness"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Adept 3 (nonelite, Wis 13 som brief kræver) efter Table: The Adept (npc-classes.md) — BAB +1, Fort +1, Ref +1, Will +3, spells/dag 3/2 ved niveau 3. Array Wis 13/Int 12/Con 11/Cha 10/Dex 9/Str 8. HP = gennemsnit 3d6 (10,5 → 10) + Con-mod×3 (0) + Toughness (+3) = 13. AC 9 = 10 - 1 Dex (ingen rustning; adepter er ikke rustnings-proficiente). 1. niveau-slots = 2 base + 1 bonus (Wis-mod +1 giver bonusspell for niveau 1, jf. Bonus Spells-tabellen; ingen bonus på 0. niveau). DC = 10 + niveau + Wis-mod (1). Kæppestav og let armbrøst er svage angreb (Str -1 hhv. Dex -1) — adepten er ikke en kæmper. Adept 2+Int-mod skill-point/niveau ×3 niveauer + 4 human-bonus ≈ 22 point, fordelt præcist på de tre viste class-skills. Feats: Combat Casting (niveau-1) + Toughness (niveau-3) + Alertness (menneskets bonus-feat)."
+
+- id: kultist
+  name: Kultist (menneske, niveau 1)
+  size: medium
+  type: humanoid
+  cr: "1/2"
+  alignment: "Kaotisk ond"
+  hd: "1d6 plus Toughness (6 hp)"
+  hp_max: 6
+  ac: 9
+  ac_touch: 9
+  ac_flat: 9
+  ac_note: "-1 Dex"
+  init: -1
+  speed: "30 ft."
+  bab: 0
+  grapple: -1
+  str: 8
+  dex: 9
+  con: 10
+  int: 12
+  wis: 13
+  cha: 10
+  save_fort: 0
+  save_ref: -1
+  save_will: 3
+  attacks: '[{"name": "Daggert", "bonus": "-1", "damage": "1d4-1", "crit": "19-20", "notes": "nærkamp eller kastet (10 ft)"}]'
+  full_attack: ~
+  special_attacks: ~
+  special_qualities: "Adept-besværgelser (forbereder dagligt, CL 1, DC 10+niveau+1 Wis-mod): 0. niveau (3/dag) — touch of fatigue, guidance; 1. niveau (2/dag, inkl. 1 bonusspell fra Wis 13) — cause fear"
+  skills: '[{"name": "Knowledge (religion)", "total": 5}, {"name": "Concentration", "total": 4}, {"name": "Spellcraft", "total": 5}]'
+  feats: '["Toughness", "Combat Casting"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Adept 1 (nonelite) efter Table: The Adept — BAB +0, Fort +0, Ref +0, Will +2, spells/dag 3/1 ved niveau 1. Samme array-mønster som landsby-adepten (Wis 13/Int 12/Con 10/Cha 10/Dex 9/Str 8). HP = gennemsnit 1d6 (3,5 → 3) + Con-mod (0) + Toughness (+3) = 6. AC 9 = 10 - 1 Dex (ingen rustning; mørk kappe er kosmetisk). 1. niveau-slots = 1 base + 1 bonus (Wis-mod +1) = 2. Brief angav kun 0.-niveau-spells (touch of fatigue, guidance) for kultisten — 1. niveau-valget (cause fear) er MIT tilføjede valg for at udfylde den strukturelt påkrævede slot, ikke brief-specificeret; flagget i rapporten. DC = 10 + niveau + Wis-mod (1). Adept 2+Int-mod skill-point/niveau + 4 human-bonus = 16 point, fordelt præcist på de tre viste class-skills. Feats: Toughness (niveau-1) + Combat Casting (menneskets bonus-feat)."
+
+- id: adelsmand
+  name: Adelsmand (menneske, niveau 2)
+  size: medium
+  type: humanoid
+  cr: "1"
+  alignment: "Lovlig neutral"
+  hd: "2d8 (9 hp)"
+  hp_max: 9
+  ac: 10
+  ac_touch: 10
+  ac_flat: 10
+  ac_note: "ingen rustningsbonus (fine klæder er kosmetiske)"
+  init: 0
+  speed: "30 ft."
+  bab: 1
+  grapple: 0
+  str: 8
+  dex: 11
+  con: 10
+  int: 12
+  wis: 9
+  cha: 13
+  save_fort: 0
+  save_ref: 0
+  save_will: 2
+  attacks: '[{"name": "Masterwork kårde", "bonus": "+2", "damage": "1d6-1", "crit": "18-20", "notes": "nærkamp, Weapon Finesse + masterwork"}, {"name": "Let armbrøst", "bonus": "+1", "damage": "1d8", "crit": "19-20", "notes": "afstand"}]'
+  full_attack: "Masterwork kårde +2 (1d6-1/18-20) eller let armbrøst +1 (1d8/19-20)"
+  special_attacks: ~
+  special_qualities: ~
+  skills: '[{"name": "Diplomacy", "total": 9}, {"name": "Bluff", "total": 6}, {"name": "Knowledge (local)", "total": 6}]'
+  feats: '["Weapon Finesse", "Skill Focus (Diplomacy)"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Aristocrat 2 (nonelite, Cha 13 som brief kræver) efter Table: The Aristocrat (npc-classes.md) — BAB +1, Fort +0, Ref +0, Will +3. Array Cha 13/Int 12/Dex 11/Con 10/Wis 9/Str 8. HP = gennemsnit 2d8 (9) + Con-mod×2 (0) = 9. AC 10 = ingen rustning (fine klæder giver ingen AC-bonus). Kården er masterwork (+1 angreb, ikke skade) og bruges med Weapon Finesse (Dex 0 er kun marginalt bedre end Str -1, men adelsmanden er ikke bygget som kriger). Diplomacy-total = 5 ranks + 1 Cha-mod + 3 Skill Focus = 9. Aristocrat 4+Int-mod skill-point/niveau ×2 niveauer + 4 human-bonus ≈ 29 point, fordelt (delvist) på tre repræsentative færdigheder. Feats: Weapon Finesse (niveau-1) + Skill Focus (Diplomacy) (menneskets bonus-feat)."
+
+- id: militsmand
+  name: Militsmand (menneske, niveau 1)
+  size: medium
+  type: humanoid
+  cr: "1/6"
+  alignment: "Neutral"
+  hd: "1d4+1 plus Toughness (6 hp)"
+  hp_max: 6
+  ac: 10
+  ac_touch: 10
+  ac_flat: 10
+  ac_note: "ingen rustningsbonus (læderforklæde er arbejdstøj)"
+  init: 0
+  speed: "30 ft."
+  bab: 0
+  grapple: 1
+  str: 13
+  dex: 10
+  con: 12
+  int: 9
+  wis: 11
+  cha: 8
+  save_fort: 1
+  save_ref: 0
+  save_will: 0
+  attacks: '[{"name": "Høtyv (spyd)", "bonus": "+1", "damage": "1d8+1", "crit": "x3", "notes": "nærkamp, to-håndet"}]'
+  full_attack: ~
+  special_attacks: ~
+  special_qualities: ~
+  skills: '[{"name": "Climb", "total": 5}, {"name": "Profession (Farmer)", "total": 2}, {"name": "Listen", "total": 2}]'
+  feats: '["Toughness", "Alertness"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Commoner 1 (nonelite) efter Table: The Commoner (npc-classes.md) — BAB +0, Fort +0, Ref +0, Will +0. Array Str 13/Con 12/Wis 11/Dex 10/Int 9/Cha 8 (bondekarl, ikke kamptrænet). HP = gennemsnit 1d4 (2,5 → 2) + Con-mod (+1) + Toughness (+3) = 6. AC 10 = ingen rustning (læderforklæde er arbejdstøj, ingen AC-bonus). Commoner er kun proficient med ÉT simpelt våben (jf. class feature) — her valgt spyd/høtyv; køllen nævnt i brief er en ren fluff-reskin af samme våben, ikke et ekstra angreb. Skade = 1d8 + afrundet ned 1,5×Str-mod (1) for to-håndet brug. Commoner 2+Int-mod (her kun 1, Int-mod -1) skill-point/niveau ×4 + 4 human-bonus = 8 point, fordelt præcist på de tre viste skills (Commoner class-skills). Feats: Toughness (niveau-1) + Alertness (menneskets bonus-feat). CR 1/6 gør militsmanden bevidst triviel — en almindelig bonde med en høtyv, ikke en soldat."
