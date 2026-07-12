@@ -1945,3 +1945,213 @@
   skills: '[{"name": "Climb", "total": 5}, {"name": "Profession (Farmer)", "total": 2}, {"name": "Listen", "total": 2}]'
   feats: '["Toughness", "Alertness"]'
   source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Commoner 1 (nonelite) efter Table: The Commoner (npc-classes.md) — BAB +0, Fort +0, Ref +0, Will +0. Array Str 13/Con 12/Wis 11/Dex 10/Int 9/Cha 8 (bondekarl, ikke kamptrænet). HP = gennemsnit 1d4 (2,5 → 2) + Con-mod (+1) + Toughness (+3) = 6. AC 10 = ingen rustning (læderforklæde er arbejdstøj, ingen AC-bonus). Commoner er kun proficient med ÉT simpelt våben (jf. class feature) — her valgt spyd/høtyv; køllen nævnt i brief er en ren fluff-reskin af samme våben, ikke et ekstra angreb. Skade = 1d8 + afrundet ned 1,5×Str-mod (1) for to-håndet brug. Commoner 2+Int-mod (her kun 1, Int-mod -1) skill-point/niveau ×4 + 4 human-bonus = 8 point, fordelt præcist på de tre viste skills (Commoner class-skills). Feats: Toughness (niveau-1) + Alertness (menneskets bonus-feat). CR 1/6 gør militsmanden bevidst triviel — en almindelig bonde med en høtyv, ikke en soldat."
+
+# Caster-batch (indholds-udvidelse Fase A, batch 4): 6 menneske-NPC-castere.
+# KONSTRUEREDE (ingen trykt SRD-statblok) — bygget fra PC-caster-klassernes
+# tabeller i basic-rules-and-legal/character-classes-i.md (Bard/Cleric/Druid) og
+# character-classes-ii.md (Sorcerer/Wizard). Modsat NPC-klasse-arketyperne
+# (Warrior/Adept/…) bruger disse elite array (15/14/13/12/10/8) + ability-increase
+# ved character-niveau 4 lagt på caste-abilityen. Besværgelserne står i
+# special_qualities (som adepterne) med slots/dag, CL og save-DC beregnet fra
+# klassetabel + bonusspells. Se hver source_note for det fulde byg, så tallene
+# kan efterregnes. Repræsentativt udvalg: forberedt arcane (Wizard), spontan
+# arcane (Sorcerer/Bard), forberedt divine m/domæner (Cleric) og m/vildskabsform
+# (Druid) — plus en niveau-1 lærling som lav-CR-kontrast.
+
+- id: magikerlaerling
+  name: Magikerlærling (menneske, niveau 1)
+  size: medium
+  type: humanoid
+  cr: "1"
+  alignment: "Enhver"
+  hd: "1d4+1 plus Toughness (6 hp)"
+  hp_max: 6
+  ac: 12
+  ac_touch: 12
+  ac_flat: 10
+  ac_note: "+2 Dex (ingen rustning — arcane spell failure)"
+  init: 2
+  speed: "30 ft."
+  bab: 0
+  grapple: -1
+  str: 8
+  dex: 14
+  con: 13
+  int: 15
+  wis: 12
+  cha: 10
+  save_fort: 1
+  save_ref: 2
+  save_will: 3
+  attacks: '[{"name": "Kæppestav", "bonus": "-1", "damage": "1d6-1", "crit": "x2", "notes": "nærkamp, to-håndet"}, {"name": "Daggert", "bonus": "-1", "damage": "1d4-1", "crit": "19-20", "notes": "nærkamp eller kastet (10 ft)"}]'
+  full_attack: ~
+  special_attacks: ~
+  special_qualities: "Troldmands-besværgelser (forbereder dagligt fra grimoire, arcane, CL 1, DC 10+niveau+2 Int): 0. niveau (3/dag) — detect magic, ray of frost, mage hand; 1. niveau (1+1 bonusspell fra Int 15 = 2/dag) — magic missile, mage armor. Fortrolig (familiar, fx kat eller ugle). Scribe Scroll (item-creation)."
+  skills: '[{"name": "Concentration", "total": 5}, {"name": "Spellcraft", "total": 6}, {"name": "Knowledge (arcana)", "total": 6}, {"name": "Decipher Script", "total": 5}]'
+  feats: '["Spell Focus (Evocation)", "Toughness", "Scribe Scroll"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Wizard 1 (elite array 15/14/13/12/10/8 fordelt Int-primært: Int 15/Dex 14/Con 13/Wis 12/Cha 10/Str 8) efter Table: The Wizard (character-classes-ii.md) — BAB +0, Fort +0, Ref +0, Will +2, spells/dag 3/1 ved niveau 1. HP = gennemsnit 1d4 (2,5 → 2) + Con-mod (+1) + Toughness (+3) = 6. AC 12 = 10 + 2 Dex (troldmænd bærer ingen rustning pga. arcane spell failure). 1.-niveau-slots = 1 base + 1 bonusspell (Int-mod +2 giver bonus for spell-niveau 1, jf. Bonus Spells-tabellen); ingen bonus på 0. niveau. DC = 10 + spell-niveau + Int-mod (2). Feats: Wizard får Scribe Scroll gratis ved niveau 1 (item-creation, tæller ikke mod de valgte); Spell Focus (Evocation) er niveau-1-featen og Toughness menneskets bonus-feat. Skill-point = (2 + Int-mod 2) × 4 + 4 human = 20, hvoraf fire class-skills vises (maks 4 ranks ved niveau 1). CR-VURDERING: sat til 1 efter DMG-konventionen character level = CR for PC-klasse-NPC'er, men en niveau-1-magiker med kun to 1.-niveau-slots er i praksis skrøbelig — flag hvis du vil nedjustere til 1/2 i tabellen."
+
+- id: troldmand
+  name: Troldmand (menneske, niveau 5)
+  size: medium
+  type: humanoid
+  cr: "5"
+  alignment: "Enhver"
+  hd: "5d4+5 (17 hp)"
+  hp_max: 17
+  ac: 12
+  ac_touch: 12
+  ac_flat: 10
+  ac_note: "+2 Dex (ingen rustning; kaster mage armor → AC 16)"
+  init: 6
+  speed: "30 ft."
+  bab: 2
+  grapple: 1
+  str: 8
+  dex: 14
+  con: 13
+  int: 16
+  wis: 12
+  cha: 10
+  save_fort: 2
+  save_ref: 3
+  save_will: 5
+  attacks: '[{"name": "Kæppestav", "bonus": "+1", "damage": "1d6-1", "crit": "x2", "notes": "nærkamp, to-håndet"}, {"name": "Daggert", "bonus": "+1", "damage": "1d4-1", "crit": "19-20", "notes": "nærkamp eller kastet (10 ft)"}]'
+  full_attack: ~
+  special_attacks: ~
+  special_qualities: "Troldmands-besværgelser (forbereder dagligt fra grimoire, arcane, CL 5, DC 10+niveau+3 Int; +2 yderligere mod evocation via Spell Focus + Greater Spell Focus): 0. niveau (4/dag) — detect magic, read magic, ray of frost, mage hand; 1. niveau (3+1=4/dag) — magic missile (DC 16), mage armor, shield, expeditious retreat; 2. niveau (2+1=3/dag) — scorching ray (DC 17), invisibility, mirror image; 3. niveau (1+1=2/dag) — fireball (DC 18), fly. Fortrolig (familiar). Scribe Scroll; Empower Spell tilgængelig."
+  skills: '[{"name": "Concentration", "total": 9}, {"name": "Spellcraft", "total": 11}, {"name": "Knowledge (arcana)", "total": 11}, {"name": "Knowledge (the planes)", "total": 7}, {"name": "Decipher Script", "total": 7}]'
+  feats: '["Spell Focus (Evocation)", "Combat Casting", "Improved Initiative", "Greater Spell Focus (Evocation)", "Empower Spell", "Scribe Scroll"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Wizard 5 efter Table: The Wizard (character-classes-ii.md) — BAB +2, Fort +1, Ref +1, Will +4, spells/dag 4/3/2/1. Elite array Int-primært; +1 ability-increase ved character-niveau 4 lagt på Int (15 → 16). Array: Int 16/Dex 14/Con 13/Wis 12/Cha 10/Str 8. HP = gennemsnit 5d4 (12,5 → 12) + Con-mod×5 (+5) = 17 (ingen Toughness — d4-caster er bevidst skrøbelig). AC 12 = 10 + 2 Dex (ingen rustning; kaster typisk mage armor for AC 16). Init +6 = Dex +2 + Improved Initiative. Bonusspells: Int-mod +3 giver +1 slot på spell-niveau 1, 2 og 3. DC = 10 + spell-niveau + Int-mod (3), +2 mere for evocation-spells (Spell Focus + Greater Spell Focus) → magic missile DC 16, scorching ray DC 17, fireball DC 18. Feats: L1 Spell Focus (Evocation), human bonus Combat Casting, L3 Improved Initiative, L5 Greater Spell Focus (Evocation) + Wizard-bonusfeat L5 Empower Spell; Scribe Scroll gratis L1. Skill-point = (2 + Int 3) × (4 + 4 niveauer) + 4 human = 44, fordelt på fem viste class-skills (maks 8 ranks ved niveau 5)."
+
+- id: besvaerger
+  name: Besværger (menneske, niveau 5)
+  size: medium
+  type: humanoid
+  cr: "5"
+  alignment: "Enhver"
+  hd: "5d4+5 plus Toughness (20 hp)"
+  hp_max: 20
+  ac: 12
+  ac_touch: 12
+  ac_flat: 10
+  ac_note: "+2 Dex (ingen rustning; kaster mage armor → AC 16)"
+  init: 2
+  speed: "30 ft."
+  bab: 2
+  grapple: 1
+  str: 8
+  dex: 14
+  con: 13
+  int: 12
+  wis: 10
+  cha: 16
+  save_fort: 2
+  save_ref: 3
+  save_will: 4
+  attacks: '[{"name": "Daggert", "bonus": "+1", "damage": "1d4-1", "crit": "19-20", "notes": "nærkamp eller kastet (10 ft)"}, {"name": "Let armbrøst", "bonus": "+4", "damage": "1d8", "crit": "19-20", "notes": "afstand"}]'
+  full_attack: ~
+  special_attacks: ~
+  special_qualities: "Heksemester-besværgelser (spontant, arcane, Cha-baseret, CL 5, DC 10+niveau+3 Cha). Kendte: 0. niveau (6) — detect magic, ray of frost, read magic, prestidigitation, light, mage hand; 1. niveau (4) — magic missile (DC 15 evoc.), mage armor, shield, charm person; 2. niveau (2) — scorching ray (DC 16 evoc.), invisibility. Slots/dag: 0=6, 1.=7, 2.=5 (inkl. Cha-bonusspells). Fortrolig (familiar); Empower Spell tilgængelig."
+  skills: '[{"name": "Concentration", "total": 9}, {"name": "Spellcraft", "total": 9}, {"name": "Bluff", "total": 11}, {"name": "Knowledge (arcana)", "total": 6}]'
+  feats: '["Combat Casting", "Toughness", "Spell Focus (Evocation)", "Empower Spell"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Sorcerer 5 efter Table: The Sorcerer (character-classes-ii.md) — BAB +2, Fort +1, Ref +1, Will +4, spells/dag 6/6/4 og spells known 6/4/2 ved niveau 5. Spontan caster (forbereder ikke; kaster frit fra kendte spells). Elite array Cha-primært; +1 ability-increase ved character-niveau 4 lagt på Cha (15 → 16). Array: Cha 16/Dex 14/Con 13/Int 12/Wis 10/Str 8. HP = gennemsnit 5d4 (12,5 → 12) + Con-mod×5 (+5) + Toughness (+3) = 20. AC 12 = 10 + 2 Dex (ingen rustning; kaster mage armor for AC 16). Slots/dag = tabellens base 6/6/4 + Cha-bonusspells (Cha-mod +3 giver +1 på spell-niveau 1 og 2) = 6/7/5; spells known påvirkes IKKE af Cha. DC = 10 + spell-niveau + Cha-mod (3), +1 for evocation (Spell Focus) → magic missile DC 15, scorching ray DC 16. Feats: L1 Combat Casting, human bonus Toughness, L3 Spell Focus (Evocation), L5 Empower Spell (Sorcerer har ingen bonusfeats). Skill-point = (2 + Int 1) × (4 + 4 niveauer) + 4 human = 28, fordelt på fire class-skills."
+
+- id: praest
+  name: Præst (menneske, niveau 5)
+  size: medium
+  type: humanoid
+  cr: "5"
+  alignment: "Lovlig god"
+  hd: "5d8+5 plus Toughness (30 hp)"
+  hp_max: 30
+  ac: 15
+  ac_touch: 9
+  ac_flat: 15
+  ac_note: "+4 skælbrynje (scale mail), +2 tungt stålskjold, -1 Dex"
+  init: -1
+  speed: "20 ft."
+  bab: 3
+  grapple: 5
+  str: 14
+  dex: 8
+  con: 13
+  int: 10
+  wis: 16
+  cha: 12
+  save_fort: 5
+  save_ref: 0
+  save_will: 7
+  attacks: '[{"name": "Langsværd", "bonus": "+6", "damage": "1d8+2", "crit": "19-20", "notes": "nærkamp, Weapon Focus (fra Krig-domæne)"}, {"name": "Let armbrøst", "bonus": "+2", "damage": "1d8", "crit": "19-20", "notes": "afstand"}]'
+  full_attack: "Langsværd +6 (1d8+2/19-20)"
+  special_attacks: "Uddrive udøde (turn undead) 4/dag (3 + Cha-mod)"
+  special_qualities: "Domæner: Krig (War) — gratis Weapon Focus + kyndighed i domæne-våbnet langsværd; Godhed (Good) — kaster spells med good-deskriptor ved +1 CL. Præste-besværgelser (forbereder dagligt, divine, CL 5, DC 10+niveau+3 Wis): 0. niveau (5/dag) — detect magic, guidance, light, resistance, virtue; 1. niveau (3 base +1 Wis-bonus +1 domæne) — bless, cure light wounds, shield of faith [domæne: magic weapon]; 2. niveau (2+1 +1 domæne) — hold person (DC 15), cure moderate wounds [domæne: spiritual weapon]; 3. niveau (1+1 +1 domæne) — dispel magic [domæne: magic vestment]. Spontan omdannelse af forberedte slots til cure-besværgelser."
+  skills: '[{"name": "Concentration", "total": 9}, {"name": "Heal", "total": 8}, {"name": "Knowledge (religion)", "total": 5}, {"name": "Spellcraft", "total": 2}]'
+  feats: '["Combat Casting", "Toughness", "Extend Spell", "Extra Turning", "Weapon Focus (langsværd)"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Cleric 5 efter Table: The Cleric (character-classes-i.md) — BAB +3, Fort +4, Ref +1, Will +4, spells/dag 5/3+1/2+1/1+1 (hvor +1 pr. niveau er domæne-slottet, jf. tabellens fodnote). Elite array Wis-primært, men Str 14 så præsten kan svinge et våben; +1 ability-increase ved character-niveau 4 lagt på Wis (15 → 16). Array: Wis 16/Str 14/Con 13/Cha 12/Int 10/Dex 8. HP = gennemsnit 5d8 (22,5 → 22) + Con-mod×5 (+5) + Toughness (+3) = 30. AC 15 = 10 + 4 skælbrynje + 2 tungt stålskjold - 1 Dex; touch 9, flat-footed 15 (Dex-straf gælder også flad-fanget). Speed 20 ft (mellemtung rustning). Grapple = BAB 3 + Str 2 = +5. Langsværd-angreb = BAB 3 + Str 2 + Weapon Focus 1 (fra Krig-domænet) = +6. Turn undead = 3 + Cha-mod (1) = 4/dag. Slots/dag = base + Wis-bonusspells (Wis-mod +3 giver +1 på spell-niveau 1, 2, 3) + ét domæne-slot pr. niveau. Domæne-spells valgt fra Krig (magic weapon / spiritual weapon / magic vestment). DC = 10 + spell-niveau + Wis-mod (3). Feats: L1 Combat Casting, human bonus Toughness, L3 Extend Spell, L5 Extra Turning; Weapon Focus (langsværd) er Krig-domænets granted power (gratis) og listet for fuldstændighed. Domæne-VALG (Krig + Godhed) er MIT valg for en militant tempelpræst — ikke brief-specificeret; en helbreder-præst ville i stedet tage fx Helbredelse + Beskyttelse. Skill-point = (2 + Int 0) × (4 + 4 niveauer) + 4 human = 20."
+
+- id: druide
+  name: Druide (menneske, niveau 5)
+  size: medium
+  type: humanoid
+  cr: "5"
+  alignment: "Neutral"
+  hd: "5d8+10 plus Toughness (35 hp)"
+  hp_max: 35
+  ac: 15
+  ac_touch: 11
+  ac_flat: 14
+  ac_note: "+2 læderrustning, +2 tungt træskjold, +1 Dex"
+  init: 5
+  speed: "30 ft."
+  bab: 3
+  grapple: 4
+  str: 12
+  dex: 13
+  con: 14
+  int: 10
+  wis: 16
+  cha: 8
+  save_fort: 6
+  save_ref: 2
+  save_will: 7
+  attacks: '[{"name": "Krumsabel", "bonus": "+4", "damage": "1d6+1", "crit": "18-20", "notes": "nærkamp"}, {"name": "Slynge", "bonus": "+4", "damage": "1d4", "crit": "x2", "notes": "afstand"}]'
+  full_attack: ~
+  special_attacks: ~
+  special_qualities: "Dyrekammerat (animal companion, fx ulv — forbedret af druide-niveau); naturkundskab (nature sense: +2 Knowledge nature & Survival); vild-empati (wild empathy 1d20+4); skovgang (woodland stride); sporløs (trackless step); modstår naturens lokken (resist nature's lure: +4 mod fe-væseners forheksninger); vildskabsform (wild shape 1/dag, Lille–Mellemstor dyr). Druide-besværgelser (forbereder dagligt, divine, CL 5, DC 10+niveau+3 Wis): 0. niveau (5/dag) — create water, detect magic, guidance, light, resistance; 1. niveau (3+1 Wis-bonus) — entangle (DC 14), produce flame, cure light wounds, faerie fire; 2. niveau (2+1) — barkskin, flaming sphere (DC 15), resist energy; 3. niveau (1+1) — call lightning (DC 16), cure moderate wounds."
+  skills: '[{"name": "Survival", "total": 13}, {"name": "Concentration", "total": 10}, {"name": "Knowledge (nature)", "total": 10}, {"name": "Spot", "total": 7}, {"name": "Handle Animal", "total": 3}]'
+  feats: '["Combat Casting", "Toughness", "Improved Initiative", "Natural Spell"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Druid 5 efter Table: The Druid (character-classes-i.md) — BAB +3, Fort +4, Ref +1, Will +4, spells/dag 5/3/2/1, og Special-kolonnen t.o.m. niveau 5: animal companion, nature sense, wild empathy (L1), woodland stride (L2), trackless step (L3), resist nature's lure (L4), wild shape 1/dag (L5 — bliver 2/dag først ved L6). Elite array Wis-primært; +1 ability-increase ved character-niveau 4 lagt på Wis (15 → 16). Array: Wis 16/Con 14/Dex 13/Str 12/Int 10/Cha 8. HP = gennemsnit 5d8 (22,5 → 22) + Con-mod×5 (+10) + Toughness (+3) = 35. AC 15 = 10 + 2 læder + 2 tungt træskjold + 1 Dex (druider bruger kun ikke-metalliske rustninger/skjolde). Init +5 = Dex +1 + Improved Initiative. Wild empathy = 1d20 + druide-niveau 5 + Cha-mod (-1) = +4. Slots/dag = base + Wis-bonusspells (Wis-mod +3 giver +1 på spell-niveau 1, 2, 3); druiden har INGEN domæner. DC = 10 + spell-niveau + Wis-mod (3). Feats: L1 Combat Casting, human bonus Toughness, L3 Improved Initiative, L5 Natural Spell (lader druiden kaste i vildskabsform — kræver wild shape, kvalificeret ved L5). Skill-point = (4 + Int 0) × (4 + 4 niveauer) + 4 human = 36; Survival/Knowledge (nature) inkl. +2 fra nature sense. Dyrekammeratet er ikke statblokket her — brug en ulv (eller andet CR-passende dyr) opgraderet ad Animal Companion-tabellen."
+
+- id: barde
+  name: Barde (menneske, niveau 4)
+  size: medium
+  type: humanoid
+  cr: "4"
+  alignment: "Enhver"
+  hd: "4d6+4 plus Toughness (21 hp)"
+  hp_max: 21
+  ac: 15
+  ac_touch: 12
+  ac_flat: 13
+  ac_note: "+3 forstærket læder (studded leather), +2 Dex"
+  init: 2
+  speed: "30 ft."
+  bab: 3
+  grapple: 3
+  str: 10
+  dex: 14
+  con: 13
+  int: 12
+  wis: 8
+  cha: 16
+  save_fort: 2
+  save_ref: 6
+  save_will: 3
+  attacks: '[{"name": "Kårde", "bonus": "+5", "damage": "1d6", "crit": "18-20", "notes": "nærkamp, Weapon Finesse (Dex i stedet for Str)"}, {"name": "Kortbue", "bonus": "+5", "damage": "1d6", "crit": "x3", "notes": "afstand"}]'
+  full_attack: ~
+  special_attacks: ~
+  special_qualities: "Bardisk musik 4/dag (modmelodi/countersong, betage/fascinate, tapperhed +1/inspire courage, dygtiggørelse/inspire competence). Bardisk viden (bardic knowledge +5). Barde-besværgelser (spontant, arcane, Cha-baseret, CL 4, DC 10+niveau+3 Cha). Kendte: 0. niveau (6) — detect magic, light, mage hand, prestidigitation, read magic, ghost sound; 1. niveau (3) — cure light wounds, charm person (DC 14), grease; 2. niveau (2) — invisibility, sound burst (DC 15). Slots/dag: 0=3, 1.=3, 2.=1 (inkl. Cha-bonusspells)."
+  skills: '[{"name": "Perform (sang)", "total": 10}, {"name": "Diplomacy", "total": 10}, {"name": "Bluff", "total": 10}, {"name": "Knowledge (arcana)", "total": 8}, {"name": "Tumble", "total": 9}]'
+  feats: '["Weapon Finesse", "Toughness", "Skill Focus (Perform)"]'
+  source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Bard 4 efter Table: The Bard (character-classes-i.md) — BAB +3, Fort +1, Ref +4, Will +4, spells/dag 3/2/0 og spells known 6/3/2, samt Special-kolonnen: bardic music + bardic knowledge + countersong + fascinate + inspire courage +1 (L1), inspire competence (L3). Spontan caster (kaster frit fra kendte spells; ingen 2.-niveau-slot fra tabellen, kun via Cha-bonus). Elite array Cha-primært; +1 ability-increase ved character-niveau 4 lagt på Cha (15 → 16). Array: Cha 16/Dex 14/Con 13/Int 12/Str 10/Wis 8. HP = gennemsnit 4d6 (14) + Con-mod×4 (+4) + Toughness (+3) = 21. AC 15 = 10 + 3 forstærket læder + 2 Dex (barder kaster uhindret i let rustning). Kårde bruges med Weapon Finesse (angreb = BAB 3 + Dex 2 = +5; skade er stadig Str 0). Bardisk musik = 1/dag pr. bard-niveau = 4/dag. Bardic knowledge = +bard-niveau 4 + Int-mod 1 = +5. Slots/dag = base 3/2/0 + Cha-bonusspells (Cha-mod +3 giver +1 på spell-niveau 1 og 2) = 3/3/1; spells known påvirkes IKKE af Cha (2.-niveau-known kræver dog Cha høj nok til bonusspell, hvilket Cha 16 opfylder). DC = 10 + spell-niveau + Cha-mod (3). Feats: L1 Weapon Finesse, human bonus Toughness, L3 Skill Focus (Perform). Skill-point = (6 + Int 1) × (4 + 3 niveauer) + 4 human = 53, fordelt på fem viste class-skills (maks 7 ranks ved niveau 4)."
