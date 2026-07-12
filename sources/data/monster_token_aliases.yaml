@@ -1,0 +1,16 @@
+# Alias-map for monster billed-tokens: catalog-id → filnavn-slug.
+#
+# Bruges KUN når udklippets filnavn afviger fra monsterets eget id/slug. Den
+# almindelige vej kræver INGEN entry her: hedder monsteret 'goblin' i
+# data/monsters.yaml og filen 'goblin.png', så matcher det automatisk.
+#
+# Læg en linje ind når navnene ikke passer — fx et dansk catalog-id mod et
+# engelsk Paizo-pawn-navn, en forkortelse eller en OCR-variant:
+#
+#   troldmand: human-wizard        # dansk id → engelsk pawn-filnavn
+#   demon-babau: babau             # kortere filnavn end catalog-navnet
+#
+# Nøgle og værdi slugges automatisk (lowercase, mellemrum/komma → bindestreg),
+# så du kan skrive dem sådan-cirka. Ændringer kræver app-genstart.
+#
+# (Tom som standard — ingen aliaser nødvendige før et navn faktisk afviger.)

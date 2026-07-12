@@ -30,6 +30,24 @@
  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:inherit;}
 .tok-mark{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
  font-size:1.35em;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));}
+/* Billed-standee: fuld figur der "står op" på en flad base (monstre/ledsagere med
+   et token-billede). --base farver foden: neutral mørk for fjender, grøn for
+   allierede ledsagere — så ven/fjende stadig aflæses med ét blik. Figuren rager
+   naturligt op over ternet som en fysisk pawn; .board har overflow:visible. */
+.tok-standee{position:absolute;inset:0;--base:#2b2622;}
+.tok-standee::after{content:'';position:absolute;left:50%;bottom:0;
+ transform:translateX(-50%);width:78%;height:20%;border-radius:50%;
+ background:radial-gradient(ellipse at 50% 35%, rgba(255,255,255,.22),
+   var(--base) 62%, rgba(0,0,0,.55));
+ border:1px solid rgba(0,0,0,.5);box-shadow:0 1px 2px rgba(0,0,0,.5);}
+.tok-fig{position:absolute;left:50%;bottom:7%;transform:translateX(-50%);
+ width:auto;height:132%;max-width:130%;object-fit:contain;
+ filter:drop-shadow(0 2px 2px rgba(0,0,0,.55));pointer-events:none;}
+/* Instans-label i hjørnet, så den ikke dækker figuren. */
+.tok-corner{position:absolute;top:-6%;left:-6%;z-index:3;width:44%;height:44%;
+ border-radius:50%;background:rgba(20,16,12,.92);color:#ede7d5;
+ border:1.5px solid rgba(255,255,255,.7);display:flex;align-items:center;
+ justify-content:center;font-weight:bold;font-size:.7em;line-height:1;}
 /* Markør-tokens er klikbare for detalje (undtagen i editoren, hvor de trækkes). */
 .tok[data-marker]{cursor:pointer;}
 .editing .tok[data-marker]{cursor:move;}

@@ -23,6 +23,10 @@ sources/adventures/*/media/
 # Egne tanker og ideer
 overvejelser-og-briefs/
 
+# Monster billed-tokens (udklippede Paizo Pawns, privat brug) — copyright, ALDRIG
+# i repoet. Ligger i data_dir på serveren; lokalt (run-local) i sources/monster_tokens/.
+monster_tokens/
+
 # Lokal test-tilstand lavet af run-local.sh (kopi af defaults/ + DM-sessioner)
 sources/.local-characters/
 sources/.local-sessions/

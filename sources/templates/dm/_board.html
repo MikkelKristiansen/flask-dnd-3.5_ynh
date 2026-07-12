@@ -10,16 +10,24 @@
   <div class="board-grid"></div>
   {% for t in board.tokens %}
   {% set is_marker = t.kind in ('trap', 'door', 'treasure', 'note') %}
-  <div class="tok tok-{{ t.kind }}{{ ' tok-hidden' if t.hidden }}{{ ' tok-active' if t.active }}{{ ' tok-dead' if t.dead }}"
-       data-col="{{ t.col }}" data-row="{{ t.row }}"{% if t.cid %} data-cid="{{ t.cid }}"{% endif %}
+  <div class="tok tok-{{ t.kind }}{{ ' tok-standee-cell' if t.token }}{{ ' tok-hidden' if t.hidden }}{{ ' tok-active' if t.active }}{{ ' tok-dead' if t.dead }}"
+       data-col="{{ t.col }}" data-row="{{ t.row }}"{% if t.cells and t.cells > 1 %} data-cells="{{ t.cells }}"{% endif %}{% if t.cid %} data-cid="{{ t.cid }}"{% endif %}
        {%- if is_marker %} data-marker="1" data-mkind="{{ t.kind }}" data-mname="{{ t.name }}" data-mnote="{{ t.note }}" data-mref="{{ t.ref }}"{% endif %} title="{{ t.name }}">
     {% if t.kind == 'pc' %}
       <span class="tok-lbl">{{ t.label }}</span>
       <img class="tok-por" src="{{ url_for('portrait', slug=t.portrait) }}" alt="" onerror="this.remove()">
     {% elif is_marker %}
       <span class="tok-mark">{{ t.icon }}</span>
+    {% elif t.token %}
+      {# Billed-standee: fuld figur på en rund base (monster/npc + ledsagere med
+         billede). Instans-label i hjørnet, så figuren ikke dækkes. Mangler filen
+         (race efter server-tjek), fjernes img'et og basen+labelen står tilbage. #}
+      <span class="tok-standee"{% if t.base %} style="--base:{{ t.base }}"{% endif %}>
+        <img class="tok-fig" src="{{ url_for('monster_token', slug=t.token) }}" alt="" onerror="this.remove()">
+      </span>
+      <span class="tok-corner">{{ t.label }}</span>
     {% else %}
-      {# Alle væsen-skiver: monster/npc + ledsagere (companion/familiar/mount). #}
+      {# Alle væsen-skiver uden billede: monster/npc + ledsagere (companion/familiar/mount). #}
       <span class="tok-disc" style="background:{{ t.color }}">{{ t.label }}</span>
     {% endif %}
     {% if t.hp %}<span class="tok-hp">{{ t.hp }}</span>{% endif %}
@@ -55,14 +63,18 @@
       var hy = (tokPx / ch) * 50;         // halv token-højde, % af brættets højde
       board.querySelectorAll('.tok').forEach(function (tok) {
         var col = +tok.dataset.col || 0, row = +tok.dataset.row || 0;
-        var L = (gx + (col + 0.5) * cell) / Wn * 100, T = (gy + (row + 0.5) * cell) / Hn * 100;
+        // Store væsener (large/huge/…) dækker n×n tern, forankret med øverste-venstre
+        // tern på (col,row); centrum ligger derfor n/2 tern inde. Medium → n=1 (uændret).
+        var n = +tok.dataset.cells || 1;
+        var L = (gx + (col + n / 2) * cell) / Wn * 100, T = (gy + (row + n / 2) * cell) / Hn * 100;
+        var hxn = hx * n, hyn = hy * n;     // halv token-størrelse skalerer med n
         // Render-clamp: hold token fuldt inde i brættet, så en token på en celle
         // uden for kortet (fx seedet fra en opstilling der rakte ud over kortet)
         // stadig kan ses og gribes ved kanten i stedet for at blive klippet væk.
-        tok.style.left = Math.min(100 - hx, Math.max(hx, L)) + '%';
-        tok.style.top = Math.min(100 - hy, Math.max(hy, T)) + '%';
-        if (cell > 0) tok.style.width = (frac * 100) + '%';
-        tok.style.fontSize = Math.max(8, tokPx * 0.42) + 'px';
+        tok.style.left = Math.min(100 - hxn, Math.max(hxn, L)) + '%';
+        tok.style.top = Math.min(100 - hyn, Math.max(hyn, T)) + '%';
+        if (cell > 0) tok.style.width = (frac * n * 100) + '%';
+        tok.style.fontSize = Math.max(8, tokPx * n * 0.42) + 'px';
       });
     };
     if (img.complete) board.__layout(); else img.addEventListener('load', board.__layout);

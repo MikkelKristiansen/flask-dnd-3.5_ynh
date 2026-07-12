@@ -15,6 +15,13 @@ CHARACTERS_DIR = Path(os.environ.get("DND_CHARACTERS_DIR",
 PORTRAITS_DIR = CHARACTERS_DIR.parent / "portraits"
 PORTRAIT_EXTS = ("jpg", "jpeg", "png", "webp")
 
+# Monster billed-tokens (udklippede Paizo Pawns, privat brug) ligger ligesom
+# portrætter i data-mappen (monster_tokens/<slug>.png), ALDRIG i git. Kun
+# transparent PNG — figuren skal kunne "stå op" på en base uden firkantet
+# baggrund. Konvention: filnavn = monster-slug (samme _safe_slug som portrætter).
+MONSTER_TOKENS_DIR = CHARACTERS_DIR.parent / "monster_tokens"
+MONSTER_TOKEN_EXTS = ("png",)
+
 # DM-modul. Eventyr er brugerdata (tekst + uploadede kort/handout-billeder), på
 # linje med karakterfiler og portrætter → data-mappen ved siden af characters/,
 # så de overlever upgrades og backup'es. Hvert eventyr er en egen mappe:

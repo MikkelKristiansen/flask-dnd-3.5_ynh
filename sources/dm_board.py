@@ -22,13 +22,37 @@ def token_style() -> dict:
     return {"colors": list(_COLORS), "icons": dict(_MARKER_ICON)}
 
 
+# Størrelse → antal grid-tern pr. side (matcher pawn-basernes fysiske footprint).
+# Alt medium og mindre står på ét tern; store væsener skalerer op.
+_SIZE_CELLS = {"fine": 1, "diminutive": 1, "tiny": 1, "small": 1, "medium": 1,
+               "large": 2, "huge": 3, "gargantuan": 4, "colossal": 6}
+
+
+def _size_cells(size) -> int:
+    """Antal tern (pr. side) et væsen af denne størrelse optager. Ukendt → 1."""
+    return _SIZE_CELLS.get(str(size or "medium").strip().lower(), 1)
+
+
 def _creature_name(ref, adv, db):
     row = (adv.statblock(ref) if adv else None) or (db.get_monster(ref) if db else None)
     return row["name"] if row else ref
 
 
-def board_view(setup: dict, adv=None, db=None, audience: str = "dm") -> dict:
-    """Bræt-model: {grid, tokens:[…]}. audience='player' skjuler hidden-tokens."""
+def _creature_size(ref, adv, db):
+    """Størrelses-strengen for et ref (adventure-lokalt statblok → bestiar), til at
+    skalere store væseners tokens i opstillingen (kamp-brættet bruger combatantens
+    egen medbragte size i stedet)."""
+    row = (adv.statblock(ref) if adv else None) or (db.get_monster(ref) if db else None)
+    return row.get("size") if row else None
+
+
+def board_view(setup: dict, adv=None, db=None, audience: str = "dm",
+               token_lookup=None) -> dict:
+    """Bræt-model: {grid, tokens:[…]}. audience='player' skjuler hidden-tokens.
+
+    token_lookup(ref)->slug|None injiceres af kalderen (monster_tokens.token_lookup)
+    og afgør om et monster tegnes som billed-standee eller bogstav-skive — så
+    view-modellen selv forbliver I/O-fri."""
     color_of, palette_i = {}, 0
     tokens = []
     for t in setup.get("tokens", []):
@@ -48,10 +72,15 @@ def board_view(setup: dict, adv=None, db=None, audience: str = "dm") -> dict:
         elif kind in ("monster", "npc"):
             name = _creature_name(ref, adv, db)
             lbl = t.get("label", "")
-            if ref not in color_of:
-                color_of[ref] = _COLORS[palette_i % len(_COLORS)]
-                palette_i += 1
-            tv["color"] = color_of[ref]
+            tv["cells"] = _size_cells(_creature_size(ref, adv, db))
+            slug = token_lookup(ref) if token_lookup else None
+            if slug:
+                tv["token"] = slug                     # → billed-standee
+            else:
+                if ref not in color_of:
+                    color_of[ref] = _COLORS[palette_i % len(_COLORS)]
+                    palette_i += 1
+                tv["color"] = color_of[ref]            # → bogstav-skive (som hidtil)
             tv["label"] = (lbl or name[:1]).upper()
             tv["name"] = f"{name} {lbl}".strip()
         else:                                          # markør
@@ -78,7 +107,8 @@ def _instance_letter(c: dict) -> str:
     return (c.get("name") or ref)[:1].upper()
 
 
-def combat_board_view(setup: dict, encounter: dict, current_id: str | None = None) -> dict:
+def combat_board_view(setup: dict, encounter: dict, current_id: str | None = None,
+                      token_lookup=None) -> dict:
     """Kamp-bræt: markører fra den forfattede opstilling + væsener fra encounterens
     combatants på deres LIVE positioner (col/row sat ved seed/flyt), beriget med
     HP, død-flag og aktiv-tur-markering. Combatants uden position udelades (de
@@ -102,14 +132,23 @@ def combat_board_view(setup: dict, encounter: dict, current_id: str | None = Non
         if kind == "pc":
             tv["portrait"] = ref
             tv["label"] = (c.get("name") or ref)[:2].upper()
-        elif kind in _COMPANION_KINDS:
-            tv["color"] = _COMPANION_COLOR
-            tv["label"] = _instance_letter(c)
         else:
-            if ref not in color_of:
-                color_of[ref] = _COLORS[palette_i % len(_COLORS)]
-                palette_i += 1
-            tv["color"] = color_of[ref]
+            # Væsen-token (monster/npc/ledsager): billed-standee hvis der findes et
+            # billede, ellers bogstav-skive. Størrelse skalerer store væsener.
+            tv["cells"] = _size_cells(c.get("size"))
             tv["label"] = _instance_letter(c)
+            is_comp = kind in _COMPANION_KINDS
+            slug = token_lookup(ref) if token_lookup else None
+            if slug:
+                tv["token"] = slug
+                if is_comp:
+                    tv["base"] = _COMPANION_COLOR      # grøn fod = allieret standee
+            elif is_comp:
+                tv["color"] = _COMPANION_COLOR         # grøn skive (som hidtil)
+            else:
+                if ref not in color_of:
+                    color_of[ref] = _COLORS[palette_i % len(_COLORS)]
+                    palette_i += 1
+                tv["color"] = color_of[ref]
         tokens.append(tv)
     return {"grid": dict(setup.get("grid") or {}), "tokens": tokens}

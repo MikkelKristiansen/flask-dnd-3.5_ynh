@@ -71,7 +71,7 @@ def _monster_source(ref, adv):
     if stats:
         v = bestiary.monster_view(stats)
         return {"name": v["name"], "init_mod": v["init"], "hp_max": v["hp_max"],
-                "kind": "monster"}
+                "kind": "monster", "size": v.get("size")}
     return {"name": ref, "init_mod": 0, "hp_max": None, "kind": "monster"}
 
 
