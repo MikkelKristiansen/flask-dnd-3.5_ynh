@@ -48,6 +48,10 @@
 (require 'flymake)
 (require 'json)
 
+;; Db-browseren lever i sin egen fil (klart adskilt ansvar) og requirer DENNE
+;; fil for db-path-helperen — autoload for at undgå cirkulær require.
+(autoload 'dnd-browse "dnd-browse" "Browse referencebanken i srd35.db." t)
+
 ;; yasnippet er valgfrit — deklarér symbolerne så byte-compile forbliver rent,
 ;; uden at gøre pakken til en hård afhængighed.
 (defvar yas-snippet-dirs)
@@ -451,6 +455,7 @@ Indeholder undermappen `dnd-adventure-mode/' (scene/rum/roster/statblok/ra/…).
     (define-key map (kbd "C-c C-d m") #'dnd-insert-monster)
     (define-key map (kbd "C-c C-d r") #'dnd-refresh-data)
     (define-key map (kbd "C-c C-d .") #'dnd-goto-definition)
+    (define-key map (kbd "C-c C-d b") #'dnd-browse)
     map)
   "Keymap for `dnd-adventure-mode'.")
 
