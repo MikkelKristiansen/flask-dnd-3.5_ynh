@@ -24,7 +24,9 @@ import dm_party
 import dm_scene
 import dm_session as ds
 import dm_setups
+import catalog
 import doors as doors_module
+import magic_gear
 import traps as traps_module
 
 # Entity-typer der slås op som statblok (klikbare → inspector).
@@ -34,6 +36,7 @@ import traps as traps_module
 _STAT_TYPES = {"monster", "npc"}
 _TRAP_TYPE = "faelde"
 _DOOR_TYPES = {"dør", "door"}
+_MAGIC_TYPE = "magisk"                                # @magisk[base+bonus] → magic_gear-overlay
 
 dm_bp = Blueprint("dm", __name__, url_prefix="/dm")
 
@@ -59,7 +62,7 @@ def _entities_filter(text: str, docs: dict | None = None) -> Markup:
             out.append(Markup(
                 '<a class="ent ent-{} ent-link" data-doc="{}">{}</a>').format(
                     typ, key, docs[key]))
-        elif typ in _STAT_TYPES or typ == _TRAP_TYPE:     # monster/npc/fælde → statblok-fetch
+        elif typ in _STAT_TYPES or typ == _TRAP_TYPE or typ == _MAGIC_TYPE:  # monster/npc/fælde/magisk → statblok-fetch
             out.append(Markup(
                 '<a class="ent ent-{} ent-stat" data-stat="{}/{}">{}</a>').format(
                     typ, typ, ident, ident))
@@ -298,6 +301,40 @@ def encounter_move(slug):
     return ("", 204)
 
 
+def _parse_magic_ident(ident: str) -> tuple[str | None, int | None]:
+    """'longsword+1' → ('longsword', 1). Uden '+N'-suffiks eller ikke-tal → (None, None).
+    Base-id'er kan selv have bindestreger (heavy-steel-shield) men aldrig '+', så vi
+    splitter på det sidste '+'."""
+    base, sep, raw = ident.rpartition("+")
+    if not sep or not raw.isdigit():
+        return None, None
+    return base, int(raw)
+
+
+def _magic_gear_view(base_id: str, bonus: int) -> dict | None:
+    """Slå base-våben/-rustning op i kataloget og påfør enhancement-overlay
+    (magic_gear, ren motor). Returnér visnings-dict til _magic.html, eller None
+    hvis basen ikke findes / bonussen er ugyldig (magic_gear rejser ValueError)."""
+    try:
+        w = db.get_weapon(base_id)
+        if w:
+            ov = magic_gear.enhance_weapon(w, bonus)
+            ov["kind_label"] = "Magisk våben"
+            ov["detail"] = {"dmg": w.get("dmg_m"), "crit": w.get("critical"),
+                            "type": w.get("damage_type")}
+            ov["price_str"] = catalog.format_cost(ov["total_cost_cp"])
+            return ov
+        a = db.get_armor(base_id)
+        if a:
+            ov = magic_gear.enhance_armor(a, bonus)
+            ov["kind_label"] = "Magisk skjold" if a.get("type") == "shield" else "Magisk rustning"
+            ov["price_str"] = catalog.format_cost(ov["total_cost_cp"])
+            return ov
+    except ValueError:
+        return None
+    return None
+
+
 @dm_bp.route("/api/statblock/<adventure>/<etype>/<ident>")
 def api_statblock(adventure, etype, ident):
     """Slå en klikket entity op og returnér dens statblok som HTML-fragment til
@@ -315,6 +352,12 @@ def api_statblock(adventure, etype, ident):
         row = db.get_door(ident)
         if row:
             return render_template("dm/_door.html", d=doors_module.door_view(row))
+        return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
+    if etype == _MAGIC_TYPE:                            # magisk[base+bonus] → enhancement-overlay
+        base_id, bonus = _parse_magic_ident(ident)
+        view = _magic_gear_view(base_id, bonus) if base_id else None
+        if view:
+            return render_template("dm/_magic.html", it=view)
         return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
     stats = adv.statblock(ident)
     if stats:

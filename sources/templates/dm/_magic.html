@@ -1,0 +1,21 @@
+{# Magisk-genstand-statblok til inspector-panelet (lightbox). Genbruger .sb-*-
+   stilene fra den delte static/dm-statblock.css — samme look som fælde/dør/monster.
+   Kilde: magic_gear-overlay (enhancement) oven på et base-våben/-rustning. #}
+<div class="sb">
+  <div class="sb-head">
+    <span class="sb-name">✨ {{ it.name }}</span>
+    <span class="sb-origin">{{ it.kind_label }}</span>
+  </div>
+  <div class="sb-sub">
+    Enhancement +{{ it.enhancement }} · caster level {{ it.caster_level }}
+    {%- if it.masterwork %} · masterwork{% endif -%}
+  </div>
+
+  <div class="sb-grid">
+    {% if it.attack_bonus is defined %}<div><span class="sb-k">Angreb / skade</span> +{{ it.attack_bonus }} / +{{ it.damage_bonus }}</div>{% endif %}
+    {% if it.detail is defined and it.detail.dmg %}<div><span class="sb-k">Grundskade</span> {{ it.detail.dmg }}{% if it.detail.crit %} ({{ it.detail.crit }}){% endif %}{% if it.detail.type %}, {{ it.detail.type }}{% endif %}</div>{% endif %}
+    {% if it.ac_bonus is defined %}<div><span class="sb-k">AC</span> +{{ it.ac_bonus }} (enhancement)</div>{% endif %}
+    {% if it.acp_reduction %}<div><span class="sb-k">Rustningstjek</span> −{{ it.acp_reduction }} (masterwork)</div>{% endif %}
+    <div><span class="sb-k">Pris</span> {{ it.price_str }}</div>
+  </div>
+</div>

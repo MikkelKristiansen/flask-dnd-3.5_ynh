@@ -243,6 +243,24 @@ def test_statblock_endpoint_unknown_adventure_404(client):
     assert client.get("/dm/api/statblock/Nope/monster/goblin").status_code == 404
 
 
+def test_statblock_endpoint_magic_weapon(client):
+    # @magisk[longsword+1] → base-våben (srd35.db) + enhancement-overlay
+    html = client.get("/dm/api/statblock/Test/magisk/longsword+1").get_data(as_text=True)
+    assert "+1 Longsword" in html and "Magisk våben" in html
+    assert "2315 gp" in html                   # SRD-pris: 15 + masterwork 300 + 2.000
+
+
+def test_statblock_endpoint_magic_unknown_base_graceful(client):
+    html = client.get("/dm/api/statblock/Test/magisk/findes-ej+1").get_data(as_text=True)
+    assert "Ingen statblok endnu" in html
+
+
+def test_statblock_endpoint_magic_invalid_bonus_graceful(client):
+    # bonus uden for 1-5 → magic_gear rejser ValueError → fanges → graceful
+    html = client.get("/dm/api/statblock/Test/magisk/longsword+9").get_data(as_text=True)
+    assert "Ingen statblok endnu" in html
+
+
 # ── Encounter-tracker (R3 commit 3) ──────────────────────────────────────────
 from pathlib import Path
 
