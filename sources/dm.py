@@ -19,6 +19,7 @@ import bestiary
 import db
 import dm_board
 import dm_media
+import monster_tokens
 import dm_party
 import dm_scene
 import dm_session as ds
@@ -346,7 +347,8 @@ def board(adventure, map_slug):
     return render_template(
         "dm/board.html", title=title,
         map_url=url_for("dm.media", adventure=adventure, filename=src) if src else None,
-        board=dm_board.board_view(setup, adv, db, audience="dm"),
+        board=dm_board.board_view(setup, adv, db, audience="dm",
+                                  token_lookup=monster_tokens.token_lookup),
         palette=dm_scene._board_palette(adv), token_style=dm_board.token_style(),
         traps=[{"id": t["id"], "name": t["name"]} for t in db.get_all_traps()],
         doors=[{"id": d["id"], "name": d["name"]} for d in db.get_all_doors()],
@@ -435,8 +437,10 @@ def _scene_board_maps(session, adventure):
         src, title = dm_scene._map_src(adventure, mslug)
         setup = dm_setups.load_setup(session.adventure, mslug)
         combat = bool(enc.get("active")) and mslug == combat_slug
-        board = (dm_board.combat_board_view(setup, enc, current_id) if combat
-                 else dm_board.board_view(setup, adventure, db, audience="dm"))
+        board = (dm_board.combat_board_view(setup, enc, current_id,
+                                            token_lookup=monster_tokens.token_lookup) if combat
+                 else dm_board.board_view(setup, adventure, db, audience="dm",
+                                          token_lookup=monster_tokens.token_lookup))
         board_maps[mslug] = {
             "map_url": url_for("dm.media", adventure=session.adventure,
                                filename=src) if src else None,

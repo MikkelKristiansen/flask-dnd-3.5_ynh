@@ -60,6 +60,10 @@ def build_combatants(sources: list[dict]) -> list[dict]:
                 "current_hp": s.get("hp_max"),
                 "conditions": [],
             }
+            # size bæres med (hvis kilden kender den), så brættet kan skalere store
+            # væseners tokens uden et nyt statblok-opslag. Default medium ved visning.
+            if s.get("size"):
+                combatant["size"] = s["size"]
             # Ledsagere bærer deres ejer-PC med (slug), så de kan seedes ved siden
             # af ejeren på brættet. Kun companions har feltet.
             if s.get("owner"):

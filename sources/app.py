@@ -17,8 +17,9 @@ import effects
 import refdata
 
 from character_view import build_character_view, _race_weapon_prof_ids
-from paths import CHARACTERS_DIR, PORTRAITS_DIR, PORTRAIT_EXTS, _safe_slug
+from paths import CHARACTERS_DIR, PORTRAITS_DIR, PORTRAIT_EXTS, MONSTER_TOKENS_DIR, _safe_slug
 from portraits import _portrait_path, _validate_portrait, _write_portrait
+import monster_tokens
 from creation import GEN_CLASSES, _gen_context, build_character_data
 
 
@@ -307,6 +308,16 @@ def portrait(slug):
     if path is None:
         abort(404)
     return send_from_directory(str(PORTRAITS_DIR), path.name)
+
+@app.route("/dm/monster_token/<slug>")
+def monster_token(slug):
+    """Server et monster-billed-token fra data-mappen (monster_tokens/<slug>.png).
+    Samme mønster som /portrait: sikker sti-opslag i monster_tokens.py, 404 hvis
+    filen mangler (→ brættet falder tilbage til bogstav-token)."""
+    path = monster_tokens.token_path(slug)
+    if path is None:
+        abort(404)
+    return send_from_directory(str(MONSTER_TOKENS_DIR), path.name)
 
 @app.route("/api/portrait", methods=["POST"])
 def api_portrait():
