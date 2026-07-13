@@ -58,3 +58,445 @@
   price: "1,200 gp"
   note: "200-ft. max range, target determined randomly from those in its path."
   source_note: "SRD: Spear Trap"
+
+# CR 1-3 batch (34 nye, Sonnet-transskription fra traps.md linje 163-241)
+
+- id: deeper-pit-trap
+  name: Deeper Pit Trap
+  cr: "1"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  save: "DC 15 Reflex save avoids"
+  effect: "20 ft. deep (2d6, fall)"
+  search_dc: 20
+  disable_dc: 23
+  price: "1,300 gp"
+  note: "hidden switch bypass (Search DC 25); multiple targets (first target in each of two adjacent 5-ft. squares)"
+  source_note: "SRD: Deeper Pit Trap"
+
+- id: fusillade-of-darts
+  name: Fusillade of Darts
+  cr: "1"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  attack: "+10 ranged (1d4+1, dart)"
+  search_dc: 14
+  disable_dc: 20
+  price: "500 gp"
+  note: "multiple targets (fires 1d4 darts at each target in two adjacent 5-ft. squares)"
+  source_note: "SRD: Fusillade of Darts"
+
+- id: poison-dart-trap
+  name: Poison Dart Trap
+  cr: "1"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  attack: "+8 ranged (1d4 plus poison, dart)"
+  search_dc: 20
+  disable_dc: 18
+  price: "700 gp"
+  note: "poison (bloodroot, DC 12 Fortitude save resists, 0/1d4 Con plus 1d3 Wis)"
+  source_note: "SRD: Poison Dart Trap"
+
+- id: poison-needle-trap-cr1
+  name: Poison Needle Trap (CR 1)
+  cr: "1"
+  trap_type: mechanical
+  trigger: touch
+  reset: manual
+  attack: "+8 ranged (1 plus greenblood oil poison)"
+  search_dc: 22
+  disable_dc: 20
+  price: "1,300 gp"
+  source_note: "SRD: Poison Needle Trap"
+
+- id: portcullis-trap
+  name: Portcullis Trap
+  cr: "1"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  attack: "+10 melee (3d6)"
+  search_dc: 20
+  disable_dc: 20
+  price: "1,400 gp"
+  note: "Damage applies only to those underneath the portcullis. Portcullis blocks passageway."
+  source_note: "SRD: Portcullis Trap"
+
+- id: razor-wire-across-hallway
+  name: Razor-Wire across Hallway
+  cr: "1"
+  trap_type: mechanical
+  trigger: location
+  reset: "no reset"
+  attack: "+10 melee (2d6, wire)"
+  search_dc: 22
+  disable_dc: 15
+  price: "400 gp"
+  note: "multiple targets (first target in each of two adjacent 5-ft. squares)"
+  source_note: "SRD: Razor-Wire across Hallway"
+
+- id: rolling-rock-trap
+  name: Rolling Rock Trap
+  cr: "1"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  attack: "+10 melee (2d6, rock)"
+  search_dc: 20
+  disable_dc: 22
+  price: "1,400 gp"
+  source_note: "SRD: Rolling Rock Trap"
+
+- id: scything-blade-trap
+  name: Scything Blade Trap
+  cr: "1"
+  trap_type: mechanical
+  trigger: location
+  reset: automatic
+  attack: "+8 melee (1d8/×3)"
+  search_dc: 21
+  disable_dc: 20
+  price: "1,700 gp"
+  source_note: "SRD: Scything Blade Trap"
+
+- id: swinging-block-trap
+  name: Swinging Block Trap
+  cr: "1"
+  trap_type: mechanical
+  trigger: touch
+  reset: manual
+  attack: "+5 melee (4d6, stone block)"
+  search_dc: 20
+  disable_dc: 20
+  price: "500 gp"
+  source_note: "SRD: Swinging Block Trap"
+
+- id: wall-blade-trap
+  name: Wall Blade Trap
+  cr: "1"
+  trap_type: mechanical
+  trigger: touch
+  reset: automatic
+  attack: "+10 melee (2d4/×4, scythe)"
+  search_dc: 22
+  disable_dc: 22
+  price: "2,500 gp"
+  note: "hidden switch bypass (Search DC 25)"
+  source_note: "SRD: Wall Blade Trap"
+
+- id: box-of-brown-mold
+  name: Box of Brown Mold
+  cr: "2"
+  trap_type: mechanical
+  trigger: touch (opening the box)
+  reset: automatic
+  effect: "5-ft. cold aura (3d6, cold nonlethal)"
+  search_dc: 22
+  disable_dc: 16
+  price: "3,000 gp"
+  source_note: "SRD: Box of Brown Mold"
+
+- id: bricks-from-ceiling
+  name: Bricks from Ceiling
+  cr: "2"
+  trap_type: mechanical
+  trigger: touch
+  reset: repair
+  attack: "+12 melee (2d6, bricks)"
+  search_dc: 20
+  disable_dc: 20
+  price: "2,400 gp"
+  note: "multiple targets (all targets in two adjacent 5-ft. squares)"
+  source_note: "SRD: Bricks from Ceiling"
+
+- id: burning-hands-trap-cr2
+  name: Burning Hands Trap (CR 2)
+  cr: "2"
+  trap_type: magic device
+  trigger: proximity (alarm)
+  reset: automatic
+  save: "DC 11 Reflex save half damage"
+  effect: "burning hands (1st-level wizard, 1d4 fire)"
+  search_dc: 26
+  disable_dc: 26
+  price: "500 gp, 40 XP"
+  source_note: "SRD: Burning Hands Trap"
+
+- id: camouflaged-pit-trap-cr2
+  name: Camouflaged Pit Trap (CR 2)
+  cr: "2"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  save: "DC 20 Reflex save avoids"
+  effect: "20 ft. deep (2d6, fall)"
+  search_dc: 24
+  disable_dc: 19
+  price: "3,400 gp"
+  note: "multiple targets (first target in each of two adjacent 5-ft. squares)"
+  source_note: "SRD: Camouflaged Pit Trap"
+
+- id: inflict-light-wounds-trap
+  name: Inflict Light Wounds Trap
+  cr: "2"
+  trap_type: magic device
+  trigger: touch
+  reset: automatic
+  save: "DC 11 Will save half damage"
+  effect: "inflict light wounds (1st-level cleric, 1d8+1)"
+  search_dc: 26
+  disable_dc: 26
+  price: "500 gp, 40 XP"
+  source_note: "SRD: Inflict Light Wounds Trap"
+
+- id: javelin-trap
+  name: Javelin Trap
+  cr: "2"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  attack: "+16 ranged (1d6+4, javelin)"
+  search_dc: 20
+  disable_dc: 18
+  price: "4,800 gp"
+  source_note: "SRD: Javelin Trap"
+
+- id: large-net-trap
+  name: Large Net Trap
+  cr: "2"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  attack: "+5 melee (see note)"
+  search_dc: 20
+  disable_dc: 25
+  price: "3,000 gp"
+  note: "Characters in 10-ft. square are grappled by net (Str 18) if they fail a DC 14 Reflex save."
+  source_note: "SRD: Large Net Trap"
+
+- id: pit-trap-cr2
+  name: Pit Trap (CR 2)
+  cr: "2"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  save: "DC 20 Reflex save avoids"
+  effect: "40 ft. deep (4d6, fall)"
+  search_dc: 20
+  disable_dc: 20
+  price: "2,000 gp"
+  source_note: "SRD: Pit Trap"
+
+- id: poison-needle-trap-cr2
+  name: Poison Needle Trap (CR 2)
+  cr: "2"
+  trap_type: mechanical
+  trigger: touch
+  reset: repair
+  attack: "+17 melee (1 plus poison, needle)"
+  search_dc: 22
+  disable_dc: 17
+  price: "4,720 gp"
+  note: "lock bypass (Open Lock DC 30); poison (blue whinnis, DC 14 Fortitude save resists (poison only), 1 Con/unconsciousness)"
+  source_note: "SRD: Poison Needle Trap"
+
+- id: spiked-pit-trap-cr2
+  name: Spiked Pit Trap (CR 2)
+  cr: "2"
+  trap_type: mechanical
+  trigger: location
+  reset: automatic
+  attack: "+10 melee (1d4 spikes per target for 1d4+2 each)"
+  save: "DC 20 Reflex save avoids"
+  effect: "20 ft. deep (2d6, fall)"
+  search_dc: 18
+  disable_dc: 15
+  price: "1,600 gp"
+  note: "pit spikes; multiple targets (first target in each of two adjacent 5-ft. squares)"
+  source_note: "SRD: Spiked Pit Trap"
+
+- id: tripping-chain
+  name: Tripping Chain
+  cr: "2"
+  trap_type: mechanical
+  trigger: location
+  reset: automatic
+  attack: "+15 melee touch (trip); +15 melee (2d4+2, spiked chain)"
+  search_dc: 15
+  disable_dc: 18
+  price: "3,800 gp"
+  note: "multiple traps (tripping and melee attack); this trap is really one CR 1 trap that trips and a second CR 1 trap that attacks with a spiked chain. If the tripping attack succeeds, a +4 bonus applies to the spiked chain attack because the opponent is prone."
+  source_note: "SRD: Tripping Chain"
+
+- id: well-camouflaged-pit-trap
+  name: Well-Camouflaged Pit Trap
+  cr: "2"
+  trap_type: mechanical
+  trigger: location
+  reset: repair
+  save: "DC 20 Reflex save avoids"
+  effect: "10 ft. deep (1d6, fall)"
+  search_dc: 27
+  disable_dc: 20
+  price: "4,400 gp"
+  source_note: "SRD: Well-Camouflaged Pit Trap"
+
+- id: burning-hands-trap-cr3
+  name: Burning Hands Trap (CR 3)
+  cr: "3"
+  trap_type: magic device
+  trigger: proximity (alarm)
+  reset: automatic
+  save: "DC 11 Reflex save half damage"
+  effect: "burning hands (5th-level wizard, 5d4 fire)"
+  search_dc: 26
+  disable_dc: 26
+  price: "2,500 gp, 200 XP"
+  source_note: "SRD: Burning Hands Trap"
+
+- id: camouflaged-pit-trap-cr3
+  name: Camouflaged Pit Trap (CR 3)
+  cr: "3"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  save: "DC 20 Reflex save avoids"
+  effect: "30 ft. deep (3d6, fall)"
+  search_dc: 24
+  disable_dc: 18
+  price: "4,800 gp"
+  note: "multiple targets (first target in each of two adjacent squares)"
+  source_note: "SRD: Camouflaged Pit Trap"
+
+- id: ceiling-pendulum
+  name: Ceiling Pendulum
+  cr: "3"
+  trap_type: mechanical
+  trigger: timed
+  reset: automatic
+  attack: "+15 melee (1d12+8/×3, greataxe)"
+  search_dc: 15
+  disable_dc: 27
+  price: "14,100 gp"
+  source_note: "SRD: Ceiling Pendulum"
+
+- id: fire-trap
+  name: Fire Trap
+  cr: "3"
+  trap_type: spell
+  trigger: spell
+  reset: no reset
+  save: "DC 13 Reflex save half damage"
+  effect: "fire trap (3rd-level druid, 1d4+3 fire)"
+  search_dc: 27
+  disable_dc: 27
+  price: "85 gp (hire NPC spellcaster)"
+  source_note: "SRD: Fire Trap"
+
+- id: extended-bane-trap
+  name: Extended Bane Trap
+  cr: "3"
+  trap_type: magic device
+  trigger: proximity (detect good)
+  reset: automatic
+  save: "DC 13 Will save negates"
+  effect: "extended bane (3rd-level cleric)"
+  search_dc: 27
+  disable_dc: 27
+  price: "3,500 gp, 280 XP"
+  source_note: "SRD: Extended Bane Trap"
+
+- id: ghoul-touch-trap
+  name: Ghoul Touch Trap
+  cr: "3"
+  trap_type: magic device
+  trigger: touch
+  reset: automatic
+  save: "DC 13 Fortitude save negates"
+  effect: "ghoul touch (3rd-level wizard)"
+  search_dc: 27
+  disable_dc: 27
+  price: "3,000 gp, 240 XP"
+  source_note: "SRD: Ghoul Touch Trap"
+
+- id: hail-of-needles
+  name: Hail of Needles
+  cr: "3"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  attack: "+20 ranged (2d4)"
+  search_dc: 22
+  disable_dc: 22
+  price: "5,400 gp"
+  source_note: "SRD: Hail of Needles"
+
+- id: acid-arrow-trap
+  name: Acid Arrow Trap
+  cr: "3"
+  trap_type: magic device
+  trigger: proximity (alarm)
+  reset: automatic
+  attack: "+2 ranged touch"
+  effect: "acid arrow (3rd-level wizard, 2d4 acid/round for 2 rounds)"
+  search_dc: 27
+  disable_dc: 27
+  price: "3,000 gp, 240 XP"
+  source_note: "SRD: Acid Arrow Trap"
+
+- id: pit-trap-cr3
+  name: Pit Trap (CR 3)
+  cr: "3"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  save: "DC 20 Reflex save avoids"
+  effect: "60 ft. deep (6d6, fall)"
+  search_dc: 20
+  disable_dc: 20
+  price: "3,000 gp"
+  source_note: "SRD: Pit Trap"
+
+- id: poisoned-arrow-trap
+  name: Poisoned Arrow Trap
+  cr: "3"
+  trap_type: mechanical
+  trigger: touch
+  reset: manual
+  attack: "+12 ranged (1d8 plus poison, arrow)"
+  search_dc: 19
+  disable_dc: 15
+  price: "2,900 gp"
+  note: "lock bypass (Open Lock DC 30); poison (Large monstrous scorpion venom, DC 14 Fortitude save resists, 1d4 Con/1d4 Con)"
+  source_note: "SRD: Poisoned Arrow Trap"
+
+- id: spiked-pit-trap-cr3
+  name: Spiked Pit Trap (CR 3)
+  cr: "3"
+  trap_type: mechanical
+  trigger: location
+  reset: manual
+  attack: "+10 melee (1d4 spikes per target for 1d4+2 each)"
+  save: "DC 20 Reflex save avoids"
+  effect: "20 ft. deep (2d6, fall)"
+  search_dc: 21
+  disable_dc: 20
+  price: "3,600 gp"
+  note: "pit spikes; multiple targets (first target in each of two adjacent 5-ft. squares)"
+  source_note: "SRD: Spiked Pit Trap"
+
+- id: stone-blocks-from-ceiling
+  name: Stone Blocks from Ceiling
+  cr: "3"
+  trap_type: mechanical
+  trigger: location
+  reset: repair
+  attack: "+10 melee (4d6, stone blocks)"
+  search_dc: 25
+  disable_dc: 20
+  price: "5,400 gp"
+  source_note: "SRD: Stone Blocks from Ceiling"
