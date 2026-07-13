@@ -71,7 +71,7 @@ class InventoryItem:
     mighty: int | None = None   # composite bue: mighty +N-rating (loft på Str-bonus til skade); None = generisk/uden loft
     double: bool = False        # dobbeltvåben (fx quarterstaff) brugt som to våben → primær + off-hånds-ende (light)
     masterwork: bool = False    # rustning/skjold: mesterværk → ACP forbedres med +1 (mod 0)
-    enhancement: int = 0        # rustning/skjold: magisk +N til AC (≥1 medfører masterwork)
+    enhancement: int = 0        # magisk +N: rustning/skjold→AC (≥1 medfører masterwork); våben→skade (til-hit via bonus)
     house_rule: bool = False    # DM tillader trods manglende proficiency/druid-forbud → ingen straf/advarsel
 
 

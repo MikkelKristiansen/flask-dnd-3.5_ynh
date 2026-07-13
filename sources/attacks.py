@@ -244,6 +244,11 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
         # Skade-side: Weapon Specialization (+2, ikke Str-skaleret) — matches mod
         # samme våbennavn som til-hit-delene ovenfor.
         dmg_parts = weapon_specialization_parts(feats, w["name"])
+        # Magisk enhancement på våbnet → +N til skade (SRD). Til-hit-delen kommer via
+        # item.bonus ("masterwork/magi") ovenfor, så her lægges KUN skade-siden på —
+        # rent additivt: ikke-magiske våben (enhancement=0) er uændrede.
+        if item.enhancement:
+            dmg_parts.append({"label": "magi (enh.)", "value": item.enhancement})
         # Composite bue med mighty +N-rating: loft på Str-bonussen til skade (SRD).
         # Kun composite-buer har et loft; øvrige våben ignorerer item.mighty.
         str_cap = item.mighty if (w.get("ranged_str") == "composite"
