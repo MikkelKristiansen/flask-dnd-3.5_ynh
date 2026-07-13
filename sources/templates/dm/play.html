@@ -363,6 +363,21 @@ a{color:var(--accent);}
     if (e.key === 'Escape' && !lb.hidden) close();
   });
 
+  // Giv-loot-formularen bor i det fetch'ede magisk-item-fragment → delegeret submit.
+  document.addEventListener('submit', function (e) {
+    var form = e.target.closest('.give-loot');
+    if (!form) return;
+    e.preventDefault();
+    var res = form.querySelector('.give-result');
+    fetch(ROOT + '/dm/api/give-loot', {
+      method: 'POST',
+      body: new URLSearchParams({
+        char: form.char.value, base_ref: form.dataset.base, bonus: form.dataset.bonus })
+    }).then(function (r) { return r.text(); })
+      .then(function (t) { res.hidden = false; res.textContent = t; })
+      .catch(function () { res.hidden = false; res.textContent = 'Kunne ikke give loot.'; });
+  });
+
   // Kamp-brættet holdes synkront med trackeren: efter enhver kamp-handling
   // (start/tur/HP/afslut) refetches bræt-fragmentet og #board-slot swappes, så
   // positioner, HP og aktiv-tur-ring følger med. Server = sandhedskilde.

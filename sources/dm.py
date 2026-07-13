@@ -16,6 +16,7 @@ from flask import (Blueprint, abort, redirect, render_template, request,
 from markupsafe import Markup, escape
 
 import bestiary
+import character as char_module
 import db
 import dm_board
 import dm_media
@@ -320,6 +321,7 @@ def _magic_gear_view(base_id: str, bonus: int) -> dict | None:
         if w:
             ov = magic_gear.enhance_weapon(w, bonus)
             ov["kind_label"] = "Magisk våben"
+            ov["base_ref"] = f"weapons/{base_id}"
             ov["detail"] = {"dmg": w.get("dmg_m"), "crit": w.get("critical"),
                             "type": w.get("damage_type")}
             ov["price_str"] = catalog.format_cost(ov["total_cost_cp"])
@@ -328,6 +330,7 @@ def _magic_gear_view(base_id: str, bonus: int) -> dict | None:
         if a:
             ov = magic_gear.enhance_armor(a, bonus)
             ov["kind_label"] = "Magisk skjold" if a.get("type") == "shield" else "Magisk rustning"
+            ov["base_ref"] = f"armor/{base_id}"
             ov["price_str"] = catalog.format_cost(ov["total_cost_cp"])
             return ov
     except ValueError:
@@ -357,7 +360,9 @@ def api_statblock(adventure, etype, ident):
         base_id, bonus = _parse_magic_ident(ident)
         view = _magic_gear_view(base_id, bonus) if base_id else None
         if view:
-            return render_template("dm/_magic.html", it=view)
+            chars = [{"slug": p["slug"], "name": p["name"]}
+                     for p in dm_party.party_view(dm_scene._character_slugs(), db)]
+            return render_template("dm/_magic.html", it=view, bonus=bonus, chars=chars)
         return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
     stats = adv.statblock(ident)
     if stats:
@@ -371,6 +376,38 @@ def api_statblock(adventure, etype, ident):
     if pcs and not pcs[0].get("broken"):
         return render_template("dm/_statblock.html", pc=pcs[0])
     return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
+
+
+@dm_bp.route("/api/give-loot", methods=["POST"])
+def api_give_loot():
+    """Trin 2: DM lægger et magisk item i en spillers rygsæk. Genbruger den
+    eksisterende inventar-save-vej (load_character → append InventoryItem →
+    save_character); feltmapningen 'magisk item → InventoryItem' bor i magic_gear."""
+    from app import _char_path
+    slug = (request.form.get("char") or "").strip()
+    base_ref = (request.form.get("base_ref") or "").strip()
+    try:
+        bonus = int(request.form.get("bonus") or "")
+    except ValueError:
+        return "Ugyldig bonus", 400
+    table, _, oid = base_ref.partition("/")
+    base = (db.get_weapon(oid) if table == "weapons"
+            else db.get_armor(oid) if table == "armor" else None)
+    if not base:
+        return "Ukendt base-genstand", 404
+    try:
+        kwargs = magic_gear.as_inventory_item(base_ref, bonus)
+    except ValueError:
+        return "Ugyldigt magisk item", 400
+    if slug not in dm_scene._character_slugs():
+        return "Ukendt karakter", 404
+    kwargs["name"] = f"+{bonus} {base['name']}"
+    path = _char_path(slug)
+    char = char_module.load_character(str(path))
+    inventory = list(char.inventory)
+    inventory.append(char_module.InventoryItem(**kwargs))
+    char_module.save_character(str(path), {"inventory": inventory})
+    return f"✓ {kwargs['name']} lagt i {char.name or slug}s rygsæk"
 
 
 @dm_bp.route("/board/<adventure>/<map_slug>")

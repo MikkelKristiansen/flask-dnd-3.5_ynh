@@ -67,6 +67,25 @@ def enhance_weapon(weapon: dict, bonus: int) -> dict:
     }
 
 
+def as_inventory_item(base_ref: str, bonus: int) -> dict:
+    """Magisk item (base-ref + enhancement) → InventoryItem-kwargs (uden display-navn;
+    kalderen sætter '+N <navn>' fra den opslåede base).
+
+    Ren: afgør kun feltmapningen ud fra tabellen i ref. Rustning/skjold bruger
+    `enhancement` (→ AC + navn via items.py). Våben bærer `enhancement` som mærkat OG
+    `bonus` (til-hit); +N SKADE i angrebs-rækken er endnu ikke wired (trin 2 MVP). Loot
+    lander i rygsækken — spilleren udstyrer det selv.
+    """
+    _check_bonus(bonus)
+    table = base_ref.partition("/")[0]
+    if table not in ("weapons", "armor"):
+        raise ValueError(f"kun weapons/armor kan gøres magiske, fik {base_ref!r}")
+    kwargs = {"ref": base_ref, "enhancement": bonus, "state": "backpack"}
+    if table == "weapons":
+        kwargs["bonus"] = bonus                # til-hit; +N skade wires senere
+    return kwargs
+
+
 def enhance_armor(armor: dict, bonus: int) -> dict:
     """Base-rustning eller -skjold + enhancement → overlay-felter.
 

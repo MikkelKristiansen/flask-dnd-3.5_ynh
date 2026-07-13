@@ -65,3 +65,25 @@ def test_invalid_bonus_raises(bonus):
 def test_unknown_kind_raises():
     with pytest.raises(ValueError):
         mg.added_cost_cp("potions", 1)
+
+
+def test_as_inventory_item_weapon():
+    kw = mg.as_inventory_item("weapons/longsword", 1)
+    assert kw == {"ref": "weapons/longsword", "enhancement": 1,
+                  "state": "backpack", "bonus": 1}
+
+
+def test_as_inventory_item_armor_has_no_to_hit_bonus():
+    kw = mg.as_inventory_item("armor/full-plate", 2)
+    assert kw == {"ref": "armor/full-plate", "enhancement": 2, "state": "backpack"}
+    assert "bonus" not in kw                     # rustning: enhancement→AC, ingen til-hit
+
+
+def test_as_inventory_item_rejects_non_gear():
+    with pytest.raises(ValueError):
+        mg.as_inventory_item("items/torch", 1)
+
+
+def test_as_inventory_item_rejects_bad_bonus():
+    with pytest.raises(ValueError):
+        mg.as_inventory_item("weapons/longsword", 0)

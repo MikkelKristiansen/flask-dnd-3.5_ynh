@@ -261,6 +261,42 @@ def test_statblock_endpoint_magic_invalid_bonus_graceful(client):
     assert "Ingen statblok endnu" in html
 
 
+# ── Giv loot til spiller (trin 2) ────────────────────────────────────────────
+def test_give_loot_unknown_base_404(client):
+    r = client.post("/dm/api/give-loot",
+                    data={"char": "tjorn", "base_ref": "weapons/findes-ej", "bonus": "1"})
+    assert r.status_code == 404
+
+
+def test_give_loot_invalid_bonus_400(client):
+    # base findes, men bonus 9 er ugyldig → 400 (ingen skrivning)
+    r = client.post("/dm/api/give-loot",
+                    data={"char": "tjorn", "base_ref": "weapons/longsword", "bonus": "9"})
+    assert r.status_code == 400
+
+
+def test_give_loot_adds_item_to_character(client, tmp_path, monkeypatch):
+    # Isoleret: kopiér fixtur-karakteren til tmp og patch CHARACTERS_DIR, så
+    # rigtige spillerdata ALDRIG røres.
+    import shutil
+    import app as app_module
+    import dm_scene
+    import character as char_module
+    chars = tmp_path / "characters"
+    chars.mkdir()
+    shutil.copy("defaults/tjorn.yaml", chars / "tjorn.yaml")
+    monkeypatch.setattr(app_module, "CHARACTERS_DIR", chars)
+    monkeypatch.setattr(dm_scene, "CHARACTERS_DIR", chars)
+
+    r = client.post("/dm/api/give-loot",
+                    data={"char": "tjorn", "base_ref": "weapons/longsword", "bonus": "1"})
+    assert r.status_code == 200 and "+1 Longsword" in r.get_data(as_text=True)
+
+    inv = char_module.load_character(str(chars / "tjorn.yaml")).inventory
+    assert any(i.ref == "weapons/longsword" and i.enhancement == 1 and i.bonus == 1
+               for i in inv)
+
+
 # ── Encounter-tracker (R3 commit 3) ──────────────────────────────────────────
 from pathlib import Path
 

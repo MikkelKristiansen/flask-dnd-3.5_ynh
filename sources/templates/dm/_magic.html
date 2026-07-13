@@ -18,4 +18,16 @@
     {% if it.acp_reduction %}<div><span class="sb-k">Rustningstjek</span> −{{ it.acp_reduction }} (masterwork)</div>{% endif %}
     <div><span class="sb-k">Pris</span> {{ it.price_str }}</div>
   </div>
+
+  {% if chars %}
+  <form class="give-loot" data-base="{{ it.base_ref }}" data-bonus="{{ bonus }}">
+    <label class="sb-k">🎁 Giv til spiller
+      <select name="char">
+        {% for c in chars %}<option value="{{ c.slug }}">{{ c.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <button type="submit">Læg i rygsæk</button>
+    <span class="give-result" role="status" hidden></span>
+  </form>
+  {% endif %}
 </div>
