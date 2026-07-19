@@ -93,6 +93,7 @@ def seed_positions(combatants: list[dict], tokens: list[dict]) -> None:
                     if (t.get("label") or "").strip().lower() == letter), None) or toks[0]
         toks.remove(tok)
         c["col"], c["row"] = int(tok.get("col", 0)), int(tok.get("row", 0))
+    _seed_untokened_pcs(combatants)
     _seed_companions(combatants)
 
 
@@ -108,6 +109,35 @@ def _free_cell_near(col: int, row: int, occupied: set) -> tuple | None:
                 if cell[0] >= 0 and cell[1] >= 0 and cell not in occupied:
                     return cell
     return None
+
+
+def _seed_untokened_pcs(combatants: list[dict]) -> None:
+    """Placér party-PC'er der IKKE fik en opstillings-token på brættet ved kampstart.
+
+    Man vælger spillere til/fra pr. session, og et kort kan være stillet op FØR en ny
+    spiller/karakter kom til. Uden dette ville en sådan PC (og hans ledsager) forsvinde
+    lydløst fra brættet, selvom han står i trackeren. Ankeret er en allerede opstillet
+    party-brik (ellers hjørnet (0,0), hvis ingen PC er stillet op); flere un-tokened
+    PC'er kæder ud fra hinanden, og tokens deler aldrig celle.
+
+    Kører FØR _seed_companions, så en familiar kan seedes ved siden af den nyplacerede
+    ejer. Ledsagere (kind != 'pc', har `owner`) røres IKKE her — det gør _seed_companions.
+    DM/spiller kan trække alle brikker på plads bagefter.
+    """
+    occupied = {(c["col"], c["row"]) for c in combatants
+                if c.get("col") is not None and c.get("row") is not None}
+    positioned = [c for c in combatants
+                  if c.get("kind") == "pc" and c.get("col") is not None]
+    anchor = ((int(positioned[0]["col"]), int(positioned[0]["row"]))
+              if positioned else (0, 0))
+    for c in combatants:
+        if c.get("kind") != "pc" or c.get("col") is not None:
+            continue
+        cell = anchor if anchor not in occupied else _free_cell_near(*anchor, occupied)
+        if cell:
+            c["col"], c["row"] = cell
+            occupied.add(cell)
+            anchor = cell            # næste un-tokened PC lander ved siden af den forrige
 
 
 def _seed_companions(combatants: list[dict]) -> None:

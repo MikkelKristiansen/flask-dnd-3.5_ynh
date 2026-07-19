@@ -125,11 +125,60 @@ def test_companion_seeded_next_to_owner():
     assert (varg["col"], varg["row"]) != (5, 5)    # deler ikke ejerens celle
 
 
-def test_companion_off_board_when_owner_unplaced():
+def test_untokened_owner_is_placed_so_companion_follows():
+    # Ny adfærd: ingen tokens → PC-ejeren auto-placeres, så companion seedes ved siden af.
+    # (Tidligere blev ejeren uden for brættet, og companion røg med ud.)
     combs = _party_with_companion()
-    E.seed_positions(combs, [])                    # ingen stiller nogen op
+    E.seed_positions(combs, [])
+    tj = next(c for c in combs if c["id"] == "tjorn")
     varg = next(c for c in combs if c["id"] == "tjorn-companion")
-    assert varg.get("col") is None                 # ingen ejer-position → uden for brættet
+    assert tj.get("col") is not None               # un-tokened PC auto-placeret
+    assert varg.get("col") is not None             # companion fulgte med
+
+
+# ── Un-tokened PC'er auto-placeres (nye/fravalgte spillere forsvinder ikke) ───
+def _two_pcs_and_familiar():
+    return E.build_combatants([
+        {"name": "Tjørn", "count": 1, "ref": "tjorn", "kind": "pc",
+         "init_mod": 0, "hp_max": 24},
+        {"name": "Zhartain", "count": 1, "ref": "zhartain", "kind": "pc",
+         "init_mod": 0, "hp_max": 31},
+        {"name": "Scabbers", "count": 1, "ref": "zhartain-companion", "kind": "familiar",
+         "init_mod": 2, "hp_max": 15, "owner": "zhartain"},
+    ])
+
+
+def test_untokened_pc_and_familiar_both_placed():
+    # Reproduktion af fejlen: Tjørn har token, Zhartain ikke → begge + Scabbers på brættet.
+    combs = _two_pcs_and_familiar()
+    E.seed_positions(combs, [{"kind": "pc", "ref": "tjorn", "col": 5, "row": 5}])
+    by = {c["id"]: c for c in combs}
+    assert (by["tjorn"]["col"], by["tjorn"]["row"]) == (5, 5)     # tokened → uændret
+    assert by["zhartain"].get("col") is not None                 # un-tokened PC placeret
+    assert by["zhartain-companion"].get("col") is not None        # familiar fulgte ejeren
+    cells = {(by[i]["col"], by[i]["row"])
+             for i in ("tjorn", "zhartain", "zhartain-companion")}
+    assert len(cells) == 3                                         # ingen deler celle
+
+
+def test_tokened_pc_keeps_its_position():
+    # Additivt: en PC MED token røres ikke af auto-placeringen.
+    combs = _two_pcs_and_familiar()
+    E.seed_positions(combs, [
+        {"kind": "pc", "ref": "tjorn", "col": 2, "row": 8},
+        {"kind": "pc", "ref": "zhartain", "col": 3, "row": 8}])
+    by = {c["id"]: c for c in combs}
+    assert (by["tjorn"]["col"], by["tjorn"]["row"]) == (2, 8)
+    assert (by["zhartain"]["col"], by["zhartain"]["row"]) == (3, 8)
+
+
+def test_monster_without_token_stays_off_board():
+    # Kun PC'er auto-placeres; et monster uden token forbliver uden for brættet.
+    combs = E.build_combatants([
+        {"name": "Ulv", "count": 1, "ref": "ulv", "kind": "monster",
+         "init_mod": 0, "hp_max": 13}])
+    E.seed_positions(combs, [])
+    assert combs[0].get("col") is None
 
 
 def test_free_cell_near_prefers_adjacent_then_expands():
