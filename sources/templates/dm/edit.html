@@ -17,6 +17,11 @@ h1{color:var(--accent);font-size:1.4rem;}
 .meta{color:var(--muted);font-size:.82rem;margin-bottom:.6rem;}
 .flash{background:#33402b;color:var(--ok);border:1px solid var(--ok);border-radius:6px;
  padding:.4rem .7rem;margin-bottom:.6rem;font-size:.9rem;}
+.restore{background:#40382b;color:#e6c98a;border:1px solid #b58a3c;border-radius:6px;
+ padding:.4rem .7rem;margin-bottom:.6rem;font-size:.88rem;display:flex;gap:.6rem;align-items:center;}
+.restore button{background:var(--card);border:1px solid var(--border);color:var(--text);
+ font-family:inherit;font-size:.8rem;padding:.2rem .6rem;border-radius:5px;cursor:pointer;}
+.restore .r-yes{border-color:var(--ok);color:var(--ok);}
 textarea{width:100%;height:70vh;background:#322c25;color:var(--text);border:1px solid var(--border);
  border-radius:8px;padding:.8rem 1rem;font-family:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace;
  font-size:.9rem;line-height:1.5;resize:vertical;tab-size:2;white-space:pre-wrap;overflow-wrap:break-word;}
@@ -39,13 +44,22 @@ textarea{width:100%;height:70vh;background:#322c25;color:var(--text);border:1px 
 {% if saved %}<div class="flash">Gemt ✓ — ændringerne slår igennem i play/bræt ved næste indlæsning.</div>{% endif %}
 <p class="meta">Redigerer <code>adventure.md</code> direkte. Sidst parset: {{ summary.scenes }} scener · {{ summary.docs }} dokumenter.</p>
 
+<div id="restore" class="restore" hidden>
+  <span>💾 Der ligger en ikke-gemt kladde fra sidst.</span>
+  <button type="button" class="r-yes">Gendan</button>
+  <button type="button" class="r-no">Kassér</button>
+</div>
+
 <form method="post">
-  <textarea name="source" spellcheck="false" autofocus>{{ source }}</textarea>
+  <textarea name="source" spellcheck="false" autofocus
+            data-ref="{{ ref }}" data-saved="{{ '1' if saved else '0' }}">{{ source }}</textarea>
   <div class="bar">
     <button type="submit" class="btn">Gem</button>
-    <span class="hint">Scener = <code># Titel</code> · read-aloud = <code>&gt; **Læs højt:** …</code> ·
+    <span class="hint">Ctrl/Cmd-S gemmer · Scener = <code># Titel</code> · read-aloud = <code>&gt; **Læs højt:** …</code> ·
       billeder = <code>![alt](media/fil.png)</code> · entiteter = <code>@monster[id]</code></span>
   </div>
 </form>
+
+<script src="{{ url_for('static', filename='dm-editor.js') }}"></script>
 </body>
 </html>

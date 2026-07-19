@@ -350,6 +350,15 @@ def test_monster_token_delete(client, tmp_path, monkeypatch):
     assert not (d / "ogre.png").exists()
 
 
+# ── Editor-brugervenlighed (Fase A) ──────────────────────────────────────────
+def test_edit_page_wires_editor_script_and_draft(client):
+    html = client.get("/dm/adventures/Test/edit").get_data(as_text=True)
+    assert "dm-editor.js" in html                 # brugervenligheds-JS indlæst
+    assert 'id="restore"' in html                 # kladde-gendannelses-banner
+    assert 'data-ref="Test"' in html              # localStorage-nøgle pr. eventyr
+    assert "Ctrl/Cmd-S" in html                   # gem-genvej annonceret
+
+
 # ── Encounter-tracker (R3 commit 3) ──────────────────────────────────────────
 from pathlib import Path
 
