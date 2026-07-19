@@ -360,6 +360,16 @@ def test_edit_page_wires_editor_script_and_draft(client):
     assert "codemirror.min.js" in html            # Fase B: CM5 self-hosted
     assert "simple.min.js" in html
     assert "codemirror.min.css" in html
+    # Fase C: indsæt-værktøjslinje + billed-vælger
+    assert 'data-insert="scene"' in html and 'data-insert="readaloud"' in html
+    assert 'id="img-insert"' in html
+
+
+def test_edit_media_picker_lists_uploaded_images(client):
+    # Billed-vælgeren fodres af eventyrets media-mappe (samme kilde som billed-siden).
+    (ds.ADVENTURES_DIR / "Test" / "media" / "kort.png").write_bytes(_PNG_1x1)
+    html = client.get("/dm/adventures/Test/edit").get_data(as_text=True)
+    assert '<option value="kort.png">kort.png</option>' in html
 
 
 # ── Encounter-tracker (R3 commit 3) ──────────────────────────────────────────

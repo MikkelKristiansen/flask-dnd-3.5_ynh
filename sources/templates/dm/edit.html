@@ -45,6 +45,11 @@ textarea{width:100%;height:70vh;background:#322c25;color:var(--text);border:1px 
 .cm-image{color:#d9a066;}                      /* billeder */
 .cm-strong{color:#ede7d5;font-weight:bold;}
 .cm-em{color:#c9c2b0;font-style:italic;}
+/* Fase C: indsæt-værktøjslinje */
+.toolbar{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-bottom:.5rem;}
+.toolbar button,.toolbar select{background:var(--card);border:1px solid var(--border);
+ color:var(--text);font-family:inherit;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;cursor:pointer;}
+.toolbar button:hover,.toolbar select:hover{border-color:var(--accent);}
 </style>
 </head>
 <body>
@@ -63,6 +68,18 @@ textarea{width:100%;height:70vh;background:#322c25;color:var(--text);border:1px 
   <span>💾 Der ligger en ikke-gemt kladde fra sidst.</span>
   <button type="button" class="r-yes">Gendan</button>
   <button type="button" class="r-no">Kassér</button>
+</div>
+
+<div class="toolbar">
+  <button type="button" data-insert="scene">＋ Scene</button>
+  <button type="button" data-insert="readaloud">＋ Læs højt</button>
+  <button type="button" data-insert="statblock">＋ Statblok</button>
+  <button type="button" data-insert="monster">＋ @monster</button>
+  <button type="button" data-insert="npc">＋ @npc</button>
+  <select id="img-insert" aria-label="Indsæt billede">
+    <option value="">🖼 Indsæt billede…</option>
+    {% for m in media %}<option value="{{ m }}">{{ m }}</option>{% endfor %}
+  </select>
 </div>
 
 <form method="post">

@@ -153,6 +153,7 @@ def edit_adventure(adventure):
     return render_template("dm/edit.html", ref=adventure,
                            source=ds.read_adventure_source(adventure),
                            summary={"scenes": len(adv.scenes), "docs": len(adv.documents)},
+                           media=dm_media.list_media(ds.adventure_dir(adventure)),
                            saved=request.args.get("saved"))
 
 

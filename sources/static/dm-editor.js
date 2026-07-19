@@ -74,6 +74,28 @@
   // Eksponér adapteren så Fase B/C kan bygge videre uden at duplikere logik.
   window.DmEditor = { editor: ed, ref: ref };
 
+  // --- Fase C: indsæt-værktøjslinje + billed-vælger ---------------------------
+  // Knapper indsætter fast-tekst-skeletter ved markøren; billed-dropdownen
+  // indsætter en media-reference. Alt går gennem adapter.insert (virker i både
+  // CodeMirror og textarea-fallback).
+  var SNIPPETS = {
+    scene: "\n# Scene-titel\n\n",
+    readaloud: "> **Læs højt:** \n",
+    statblock: "\n## Statblok: Navn\n```\nhp: \nac: \nsaves: \nattacks: \n```\n",
+    monster: "@monster[id]",
+    npc: "@npc[id]"
+  };
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-insert]");
+    if (!b) return;
+    e.preventDefault();
+    if (SNIPPETS[b.dataset.insert]) ed.insert(SNIPPETS[b.dataset.insert]);
+  });
+  var imgSel = document.getElementById("img-insert");
+  if (imgSel) imgSel.addEventListener("change", function () {
+    if (imgSel.value) { ed.insert("![](media/" + imgSel.value + ")"); imgSel.selectedIndex = 0; }
+  });
+
   function fireChange() { markDirty(); }
   function markDirty() {
     dirty = ed.getValue() !== serverSource;
