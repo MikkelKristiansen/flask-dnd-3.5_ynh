@@ -11,7 +11,7 @@ statblokke + billed-/entity-opslag kommer i R1 commit 4.
 """
 import re
 
-from flask import (Blueprint, abort, redirect, render_template, request,
+from flask import (Blueprint, abort, jsonify, redirect, render_template, request,
                    send_from_directory, url_for)
 from markupsafe import Markup, escape
 
@@ -154,7 +154,22 @@ def edit_adventure(adventure):
                            source=ds.read_adventure_source(adventure),
                            summary={"scenes": len(adv.scenes), "docs": len(adv.documents)},
                            media=dm_media.list_media(ds.adventure_dir(adventure)),
+                           entity_api=url_for("dm.entity_ids"),
                            saved=request.args.get("saved"))
+
+
+@dm_bp.route("/api/entity-ids")
+def entity_ids():
+    """Id+navn til editor-autocomplete (@monster/@faelde/@dør). type-param mapper
+    til det delte katalog; ukendt type → tom liste. Dokument-lokale typer
+    (npc/brev/kort) hentes IKKE her — de completes fra selve teksten i klienten."""
+    getters = {"monster": db.get_all_monsters,
+               "faelde": db.get_all_traps,
+               "door": db.get_all_doors}
+    g = getters.get(request.args.get("type", ""))
+    if not g:
+        return jsonify([])
+    return jsonify([{"id": r["id"], "name": r.get("name") or r["id"]} for r in g()])
 
 
 @dm_bp.route("/adventures/<adventure>/media", methods=["POST"])
