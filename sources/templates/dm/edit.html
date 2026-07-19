@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ ref }} — rediger tekst</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/codemirror/codemirror.min.css') }}">
 <style>
 :root{--bg:#403932;--surface:#4a4139;--card:#554c43;--accent:#DAC597;
 --text:#ede7d5;--muted:#a5a195;--border:#6b5f53;--ok:#9ccf7a;}
@@ -30,6 +31,20 @@ textarea{width:100%;height:70vh;background:#322c25;color:var(--text);border:1px 
  padding:.45rem 1.1rem;border-radius:6px;cursor:pointer;font-size:.95rem;}
 .hint{color:var(--muted);font-size:.8rem;}
 .hint code{background:#322c25;padding:.05rem .3rem;border-radius:4px;}
+/* CodeMirror (Fase B): dark-parchment + vores token-farver (vinder over vendor-css) */
+.CodeMirror{height:70vh;border:1px solid var(--border);border-radius:8px;background:#322c25;
+ color:var(--text);font-family:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace;
+ font-size:.9rem;line-height:1.5;}
+.CodeMirror-gutters{background:#2b2620;border-right:1px solid var(--border);}
+.CodeMirror-linenumber{color:#6b5f53;}
+.CodeMirror-cursor{border-left-color:#ede7d5;}
+.CodeMirror-selected{background:#4a4139 !important;}
+.cm-header{color:#e6c98a;font-weight:bold;}   /* scener/overskrifter */
+.cm-quote{color:#9ccf7a;font-style:italic;}   /* read-aloud/handouts */
+.cm-entity{color:#8fc7e0;}                     /* @type[id] */
+.cm-image{color:#d9a066;}                      /* billeder */
+.cm-strong{color:#ede7d5;font-weight:bold;}
+.cm-em{color:#c9c2b0;font-style:italic;}
 </style>
 </head>
 <body>
@@ -60,6 +75,8 @@ textarea{width:100%;height:70vh;background:#322c25;color:var(--text);border:1px 
   </div>
 </form>
 
+<script src="{{ url_for('static', filename='vendor/codemirror/codemirror.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/codemirror/simple.min.js') }}"></script>
 <script src="{{ url_for('static', filename='dm-editor.js') }}"></script>
 </body>
 </html>

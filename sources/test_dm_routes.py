@@ -357,6 +357,9 @@ def test_edit_page_wires_editor_script_and_draft(client):
     assert 'id="restore"' in html                 # kladde-gendannelses-banner
     assert 'data-ref="Test"' in html              # localStorage-nøgle pr. eventyr
     assert "Ctrl/Cmd-S" in html                   # gem-genvej annonceret
+    assert "codemirror.min.js" in html            # Fase B: CM5 self-hosted
+    assert "simple.min.js" in html
+    assert "codemirror.min.css" in html
 
 
 # ── Encounter-tracker (R3 commit 3) ──────────────────────────────────────────

@@ -14,13 +14,49 @@
   var justSaved = ta.dataset.saved === "1";
   var KEY = "dnd-adv-draft:" + ref;
 
-  // --- Editor-adapter (textarea-udgave; Fase B leverer en CodeMirror-udgave) ---
+  // --- Fase B: syntaks-highlighting via CodeMirror 5 SimpleMode ---------------
+  // Vores egen mode oven på CM: farver scener, read-aloud, @entiteter, billeder.
+  // sol=true anchorer overskrift/blockquote til linjestart (så '>' midt i prosa
+  // ikke fejl-farves). Er CM/simple ikke loadet, springes mode-def over.
+  function defineAdventureMode() {
+    if (!window.CodeMirror || !CodeMirror.defineSimpleMode ||
+        CodeMirror.modes["dnd-adventure"]) return;
+    CodeMirror.defineSimpleMode("dnd-adventure", {
+      start: [
+        { regex: /#{1,6}\s.*/, token: "header", sol: true },      // scener/overskrifter
+        { regex: /\s*>.*/, token: "quote", sol: true },           // read-aloud/handouts
+        { regex: /!\[[^\]]*\]\([^)]*\)/, token: "image" },        // billeder
+        { regex: /@[A-Za-zÆØÅæøå]+\[[^\]]*\]/, token: "entity" }, // @type[id]
+        { regex: /\*\*[^*]+\*\*/, token: "strong" },
+        { regex: /\*[^*]+\*/, token: "em" },
+        { regex: /./, token: null }                               // fremdrift
+      ]
+    });
+  }
+
+  // --- Editor-adapter: CodeMirror hvis tilgængelig, ellers ren textarea -------
   function initEditor(el) {
-    return {
+    defineAdventureMode();
+    if (window.CodeMirror && CodeMirror.modes["dnd-adventure"]) {
+      var cm = CodeMirror.fromTextArea(el, {
+        mode: "dnd-adventure", lineNumbers: true, lineWrapping: true, tabSize: 2
+      });
+      cm.setSize(null, "70vh");
+      cm.focus();
+      return {
+        getValue: function () { return cm.getValue(); },
+        setValue: function (v) { cm.setValue(v); },
+        onChange: function (fn) { cm.on("change", fn); },
+        save: function () { cm.save(); },              // CM → underliggende textarea
+        insert: function (text) { cm.replaceSelection(text); cm.focus(); },
+        cm: cm
+      };
+    }
+    return {                                            // fallback (Fase A-adfærd)
       getValue: function () { return el.value; },
       setValue: function (v) { el.value = v; },
       onChange: function (fn) { el.addEventListener("input", fn); },
-      save: function () {},                 // textarea er allerede live; intet at synce
+      save: function () {},
       insert: function (text) {
         var s = el.selectionStart, e = el.selectionEnd;
         el.value = el.value.slice(0, s) + text + el.value.slice(e);
