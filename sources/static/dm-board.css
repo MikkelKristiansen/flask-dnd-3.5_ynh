@@ -20,6 +20,11 @@
                   linear-gradient(to bottom, rgba(0,0,0,.30) 1px, transparent 1px);}
 .tok{position:absolute;transform:translate(-50%,-50%);width:5%;aspect-ratio:1;
  display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:10px;}
+/* Trækbare kamp-combatants: touch-action:none så browseren IKKE opfatter trækket
+   som scroll/pan på tablet (ellers er de "svære at flytte"). Spejler opsætnings-
+   editorens .editing .tok-regel. Kun combatant-tokens (data-cid) trækkes i kamp;
+   markører uden data-cid beholder normal tap. */
+.board-fig[data-combat="1"] .tok[data-cid]{touch-action:none;cursor:move;}
 /* Portrættet klipper sig selv rundt (border-radius) i stedet for at token'en har
    overflow:hidden — ellers beskæres HP-badgen på PC-tokens (den skal hænge frit
    nedenunder ligesom på monster-skiverne). */
