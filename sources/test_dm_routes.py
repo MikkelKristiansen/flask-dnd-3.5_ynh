@@ -297,6 +297,59 @@ def test_give_loot_adds_item_to_character(client, tmp_path, monkeypatch):
                for i in inv)
 
 
+# ── Monster-token-upload (browser-UI, v2) ────────────────────────────────────
+import base64 as _b64
+import io as _io
+
+_PNG_1x1 = _b64.b64decode(
+    b"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk"
+    b"+M8AAAMBAQBQm4CQAAAAAElFTkSuQmCC")
+
+
+def _patch_tokens_dir(monkeypatch, tmp_path):
+    import monster_tokens
+    d = tmp_path / "monster_tokens"
+    monkeypatch.setattr(monster_tokens, "MONSTER_TOKENS_DIR", d)
+    return d
+
+
+def test_monster_tokens_page_empty(client, tmp_path, monkeypatch):
+    _patch_tokens_dir(monkeypatch, tmp_path)
+    html = client.get("/dm/monster-tokens").get_data(as_text=True)
+    assert "Monster-tokens" in html and "Ingen tokens endnu" in html
+
+
+def test_monster_token_upload_saves_by_slug_and_lists(client, tmp_path, monkeypatch):
+    import monster_tokens
+    d = _patch_tokens_dir(monkeypatch, tmp_path)
+    r = client.post("/dm/monster-tokens/upload",
+                    data={"images": (_io.BytesIO(_PNG_1x1), "Goblin.png")},
+                    content_type="multipart/form-data")
+    assert r.status_code == 302
+    assert (d / "goblin.png").exists()                 # filnavn → slug (lowercase)
+    assert "goblin" in monster_tokens.list_tokens()
+    assert "goblin" in client.get("/dm/monster-tokens").get_data(as_text=True)
+
+
+def test_monster_token_upload_rejects_non_png(client, tmp_path, monkeypatch):
+    d = _patch_tokens_dir(monkeypatch, tmp_path)
+    jpg = b"\xff\xd8\xff\xe0\x00\x10JFIF" + b"\x00" * 20   # gyldigt billede, men JPG
+    r = client.post("/dm/monster-tokens/upload",
+                    data={"images": (_io.BytesIO(jpg), "goblin.jpg")},
+                    content_type="multipart/form-data")
+    assert r.status_code == 302
+    assert not (d / "goblin.png").exists()             # ikke-PNG gemmes ikke
+
+
+def test_monster_token_delete(client, tmp_path, monkeypatch):
+    d = _patch_tokens_dir(monkeypatch, tmp_path)
+    d.mkdir(parents=True)
+    (d / "ogre.png").write_bytes(_PNG_1x1)
+    r = client.post("/dm/monster-tokens/ogre/delete")
+    assert r.status_code == 302
+    assert not (d / "ogre.png").exists()
+
+
 # ── Encounter-tracker (R3 commit 3) ──────────────────────────────────────────
 from pathlib import Path
 

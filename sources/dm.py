@@ -185,6 +185,42 @@ def delete_media(adventure, filename):
     return redirect(url_for("dm.adventure", adventure=adventure))
 
 
+# ── Monster-tokens (billed-standees, browser-upload) ─────────────────────────
+@dm_bp.route("/monster-tokens")
+def monster_tokens_page():
+    """Administrér monster-billed-tokens i browseren: se, upload, slet — erstatter
+    scp. Filnavnet bliver token-slug (goblin.png → 'goblin'); brættet viser standeen
+    for de monstre hvis slug matcher."""
+    return render_template("dm/monster_tokens.html",
+                           tokens=monster_tokens.list_tokens(),
+                           uploaded=request.args.get("uploaded"),
+                           error=request.args.get("error"))
+
+
+@dm_bp.route("/monster-tokens/upload", methods=["POST"])
+def upload_monster_tokens():
+    names, errors = [], []
+    for f in request.files.getlist("images"):
+        if not f or not f.filename:
+            continue
+        try:
+            names.append(monster_tokens.save_token(f))
+        except ValueError as e:
+            errors.append(f"{f.filename}: {e}")
+    q = {}
+    if names:
+        q["uploaded"] = ", ".join(names)
+    if errors:
+        q["error"] = " · ".join(errors)
+    return redirect(url_for("dm.monster_tokens_page", **q))
+
+
+@dm_bp.route("/monster-tokens/<slug>/delete", methods=["POST"])
+def delete_monster_token(slug):
+    monster_tokens.delete_token(slug)
+    return redirect(url_for("dm.monster_tokens_page"))
+
+
 # ── Encounter-tracker (R3) ───────────────────────────────────────────────────
 import dm_encounter
 
