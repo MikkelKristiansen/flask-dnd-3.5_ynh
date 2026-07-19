@@ -429,6 +429,31 @@ function showSkillTooltip(sid, el) {
 // dagens slots pr. niveau er brugt. "Kast" tæller en slot op/ned; loftet
 // håndhæves server-side. Lær/glem reloader for at gentegne listen.
 
+// Ledige slots på et niveau, aflæst fra pulje-tælleren "ledig/total".
+function knownFree(level) {
+  const el = document.getElementById("known-slots-" + level);
+  const m = el && /^(\d+)\s*\/\s*(\d+)/.exec(el.textContent.trim());
+  return m ? parseInt(m[1], 10) : 0;
+}
+
+// Kast et KENDT spell (spontan caster): rul skade/DC OG forbrug én pulje-slot.
+// Kombinerer castSpell's rulle-visning med castKnown's pulje-forbrug — spontane
+// castere har ikke faste slot-indekser, så vi tæller i puljen i stedet.
+function castKnownSpell(level, rollExpr, label) {
+  if (knownFree(level) <= 0) {
+    alert("Ingen slots tilbage på level " + level + "!");
+    return;
+  }
+  if (rollExpr) {
+    quickRoll(rollExpr, label, 1);
+  } else {                                   // save-spell uden skade (fx Sleep): vis DC-linjen
+    document.getElementById("dice-expr").value = "";
+    document.getElementById("dice-result").innerHTML =
+      `<span style="color:var(--muted);font-size:.72rem">${escHtml(label)}</span>`;
+  }
+  castKnown(level, 1);                        // forbrug én slot + opdatér tælleren
+}
+
 function castKnown(level, delta) {
   fetch(BASE + "/api/cast_known", {
     method: "POST",

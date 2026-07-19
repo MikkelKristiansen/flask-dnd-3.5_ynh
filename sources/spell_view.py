@@ -209,7 +209,13 @@ def build_spell_view(char, db) -> dict:
                 school = (spell or {}).get("school", "")
                 dc = char_module.spell_save_dc(
                     lvl, cast_mod, char_module.spell_focus_bonus(char.feats, school))
-                rows.append({"id": sid, "spell": spell, "dc": dc})
+                # ⚡ Kast-data til øjeblikkelige angrebs-/heal-spells (Magic Missile,
+                # Fireball, Cure …) — samme som forberedte castere får, så en spontan
+                # caster kan rulle det enkelte spell og forbruge én pulje-slot. Utility/
+                # varigheds-spells giver None (ingen knap; de er en separat opgave).
+                cast = (char_module.spell_cast_info(sid, char.level, db)
+                        or char_module.spell_heal_cast_info(sid, char.level, db))
+                rows.append({"id": sid, "spell": spell, "dc": dc, "cast": cast})
             known_data[lvl] = rows
 
     # Kategori E (område/save-spells på "I brug"): skade-formel + save-DC til bordet.

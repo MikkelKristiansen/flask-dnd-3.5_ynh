@@ -44,7 +44,14 @@
           {% if entry.spell %}<span class="spell-school">&nbsp;·&nbsp;{{ entry.spell.school }}</span>{% endif %}
           <span style="color:var(--accent);font-size:.72rem;margin-left:.35rem" title="Save-DC modstandere skal slå">DC {{ entry.dc }}</span>
         </span>
+        <span style="display:flex;gap:.4rem;align-items:center">
+        {% if entry.cast %}
+        <button class="summon-cast-btn spell-cast-btn{% if entry.cast.kind == 'heal' %} heal-cast-btn{% endif %}"
+                onclick='event.stopPropagation();castKnownSpell({{ lvl }},{{ entry.cast.roll_expr|tojson }},{{ entry.cast.roll_label|tojson }})'
+                title="{{ entry.cast.title }}">{{ entry.cast.button_label }}</button>
+        {% endif %}
         <button onclick="event.stopPropagation();forgetKnown({{ lvl }},'{{ entry.id }}')" title="Glem dette spell" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:.9rem">✕</button>
+        </span>
       </div>
       {% endfor %}
       {% endfor %}

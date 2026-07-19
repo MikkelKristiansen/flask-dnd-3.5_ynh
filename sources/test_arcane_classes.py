@@ -123,6 +123,19 @@ def test_cast_ability_sorcerer_is_cha():
     assert refdata.class_data("sorcerer").get("cast_ability") == "cha"
 
 
+def test_sorcerer_known_damage_spell_gets_cast_data(tmp_path):
+    """Spontan caster: en kendt øjeblikkelig skade-spell (Magic Missile) får
+    ⚡ Kast-rulle-data i known_data — så den kan kastes individuelt (rul + pulje-slot),
+    ikke kun tælle på en pulje-counter."""
+    import spell_view
+    path = _make_char(tmp_path, "sorccast", "Sorcerer", level=1, cha=16)
+    char = char_module.load_character(str(path))
+    char.spells_known = {1: ["magic_missile"]}
+    view = spell_view.build_spell_view(char, db_module)
+    mm = next(r for r in view["known_data"][1] if r["id"] == "magic_missile")
+    assert mm["cast"] and mm["cast"].get("roll_expr")     # rulle-udtryk til stede
+
+
 def test_cast_ability_wizard_is_int():
     assert refdata.class_data("wizard").get("cast_ability") == "int"
 
