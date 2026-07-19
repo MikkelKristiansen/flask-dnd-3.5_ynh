@@ -1,11 +1,16 @@
 {# Encounter-tracker-fragment. Erstattes i #tracker ved hver handling (fetch-swap).
    Alle handlinger er <form class="enc-f"> som JS'en opsnapper og POST'er. #}
 {% if not enc or not enc.active %}
+  {% if scene_relevant %}
   <form class="enc-f enc-start" action="{{ url_for('dm.encounter_start', slug=slug) }}" method="post">
     <button type="submit">⚔ Start kamp fra denne scene</button>
   </form>
   <div class="enc-hint">Bygger combatants af scenens monstre + party + ledsagere.
     Monstre og ledsagere får auto-rullet initiativ; du taster spillernes egne rul.</div>
+  {% else %}
+  <div class="enc-hint">Ingen kamp-elementer i denne scene (monstre, fælder eller kort)
+    — ikke noget at starte en kamp om.</div>
+  {% endif %}
 {% else %}
   <div class="enc-top">
     <span class="enc-round">Runde {{ enc.round }}</span>

@@ -64,6 +64,19 @@ def room_has_combatants(room) -> bool:
     return any(e.type in _STAT_TYPES for e in _room_rosters(room))
 
 
+def scene_is_combat_relevant(scene) -> bool:
+    """True hvis scenen har noget at kæmpe om / interagere med på kamp-brættet:
+    væsener (monster/npc), fælder, ELLER et kort. En ren fortælle-scene (kun prosa/
+    oplæsning) får ingen 'Start kamp fra denne scene'-knap — party alene tæller ikke.
+    (Rum-knappen gates separat af room_has_combatants.)"""
+    if scene is None:
+        return False
+    if any(e.type in _STAT_TYPES or e.type == _TRAP_TYPE for e in _scene_rosters(scene)):
+        return True
+    return any(getattr(b, "kind", None) == "embed" and b.entity.type == "kort"
+               for b in getattr(scene, "blocks", []))
+
+
 def _monster_source(ref, adv):
     """Resolv et roster-id til combatant-kildedata (navn/init/hp) via adventure-
     lokalt statblok → bestiar → fallback (ukendt = rå id, 0 init, ingen hp)."""

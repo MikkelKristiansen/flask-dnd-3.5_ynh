@@ -252,9 +252,18 @@ def _tracker_html(session):
         if order:
             current_id = order[min(enc.get("turn_index", 0), len(order) - 1)]
         statblocks = dm_scene._encounter_statblocks(session, ordered)
+    # Gate 'Start kamp fra denne scene': kun hvis den aktive scene har væsener/
+    # fælder/kort (ikke en ren fortælle-scene). Springes over under aktiv kamp
+    # (så vi ikke re-parser eventyret ved hver tracker-swap).
+    scene_relevant = False
+    if not enc.get("active"):
+        adv = ds.load_adventure(session.adventure)
+        scene = next((s for s in adv.scenes if s.id == session.active_scene),
+                     adv.scenes[0] if adv.scenes else None)
+        scene_relevant = dm_scene.scene_is_combat_relevant(scene)
     return render_template("dm/_tracker.html", enc=enc, ordered=ordered,
                            current_id=current_id, slug=session.slug,
-                           statblocks=statblocks,
+                           statblocks=statblocks, scene_relevant=scene_relevant,
                            all_conditions=db.get_all_conditions())
 
 

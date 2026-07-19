@@ -389,6 +389,34 @@ def test_edit_page_wires_autocomplete(client):
     assert "data-entity-api" in html
 
 
+# ── "Start kamp fra denne scene" kun på relevante scener ─────────────────────
+def test_start_button_hidden_on_narrative_scene(client):
+    ref = "Fortael"
+    (ds.ADVENTURES_DIR / ref).mkdir()
+    (ds.ADVENTURES_DIR / ref / "adventure.md").write_text(
+        "---\ntitle: Fortael\n---\n# Kro-scene\nBare hyggesnak, ingen kamp.\n",
+        encoding="utf-8")
+    slug = _new(client, name="F", adventure=ref)
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "Start kamp fra denne scene" not in html      # gated væk
+    assert "Ingen kamp-elementer" in html                # forklarende hint i stedet
+
+
+def test_start_button_shown_on_combat_scene(client):
+    slug = _new(client, name="K")                        # MINI: monster + fælde i scenen
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "Start kamp fra denne scene" in html
+
+
+def test_scene_combat_relevance_helper():
+    import dm_parser
+    import dm_scene
+    def scene0(body):
+        return dm_parser.parse_adventure("---\ntitle: x\n---\n" + body).scenes[0]
+    assert dm_scene.scene_is_combat_relevant(scene0("# S\nBare prosa.\n")) is False
+    assert dm_scene.scene_is_combat_relevant(scene0("# S\nEn bro.\n\n@kort[bro]\n")) is True
+
+
 # ── Encounter-tracker (R3 commit 3) ──────────────────────────────────────────
 from pathlib import Path
 
