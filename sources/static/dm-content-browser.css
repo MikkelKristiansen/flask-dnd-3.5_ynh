@@ -1,0 +1,19 @@
+/* Opslagsværk-panel — delt af editoren (toggle-panel) og /dm/opslag (standalone).
+   Bruger tema-vars (--surface/--border/--accent/--text/--muted/--card) som begge
+   sider definerer i deres :root. */
+.browse-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.6rem;margin-bottom:.6rem;}
+.browse-panel[hidden]{display:none;}
+.br-tabs{display:flex;gap:.3rem;margin-bottom:.4rem;}
+.br-tab{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:.78rem;padding:.25rem .7rem;border-radius:6px;cursor:pointer;}
+.br-tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.br-search{width:100%;background:#322c25;color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.35rem .6rem;font-family:inherit;font-size:.85rem;margin-bottom:.4rem;}
+.br-list{max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:.1rem;}
+.br-row{display:flex;align-items:center;gap:.5rem;padding:.2rem .3rem;border-radius:5px;}
+.br-row:hover{background:var(--card);}
+.br-name{flex:1;text-align:left;background:transparent;border:none;color:var(--text);font-family:inherit;font-size:.85rem;cursor:pointer;padding:0;}
+.br-name:hover{color:var(--accent);}
+.br-cr{color:var(--accent);font-size:.72rem;white-space:nowrap;}
+.br-ins{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:.9rem;width:1.7rem;height:1.7rem;border-radius:5px;cursor:pointer;flex:none;}
+.br-ins:hover{border-color:var(--accent);color:var(--accent);}
+.br-preview{background:#2b2620;border:1px solid var(--border);border-radius:6px;padding:.5rem;margin:.1rem 0 .4rem;}
+.br-empty{color:var(--muted);font-style:italic;padding:.4rem;}

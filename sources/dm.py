@@ -175,6 +175,33 @@ def entity_ids():
                     for r in g()])
 
 
+@dm_bp.route("/api/catalog-statblock/<etype>/<ident>")
+def api_catalog_statblock(etype, ident):
+    """Statblok for en katalog-post UDEN eventyr-kontekst (opslagsværket, begge lag).
+    Rammer kun det delte katalog (db) — ingen adventure-lokale opslag."""
+    if etype == _TRAP_TYPE:
+        row = db.get_trap(ident)
+        if row:
+            return render_template("dm/_trap.html", t=traps_module.trap_view(row))
+    elif etype == "door":
+        row = db.get_door(ident)
+        if row:
+            return render_template("dm/_door.html", d=doors_module.door_view(row))
+    else:
+        row = db.get_monster(ident)
+        if row:
+            return render_template("dm/_statblock.html",
+                                   m=bestiary.monster_view(row), origin="Bestiar")
+    return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
+
+
+@dm_bp.route("/opslag")
+def opslag():
+    """Selvstændigt opslagsværk: browse hele kataloget (monstre/fælder/døre) uden et
+    åbent eventyr. Genbruger opslagsværk-panelet + JS'en fra editoren (uden indsæt)."""
+    return render_template("dm/opslag.html", entity_api=url_for("dm.entity_ids"))
+
+
 @dm_bp.route("/adventures/<adventure>/media", methods=["POST"])
 def upload_media(adventure):
     if adventure not in ds.list_adventures():

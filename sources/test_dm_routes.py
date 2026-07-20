@@ -395,6 +395,23 @@ def test_edit_page_wires_content_browser(client):
     assert "dm-content-browser.js" in html                 # opslagsværk-JS indlæst
     assert 'id="browse-panel"' in html and 'id="browse-toggle"' in html
     assert "dm-statblock.css" in html                      # statblok-styling til preview
+    assert "dm-content-browser.css" in html                # delt browse-css
+
+
+def test_catalog_statblock_endpoint(client):
+    assert "Goblin" in client.get("/dm/api/catalog-statblock/monster/goblin").get_data(as_text=True)
+    assert "Basic Arrow Trap" in client.get(
+        "/dm/api/catalog-statblock/faelde/basic-arrow-trap").get_data(as_text=True)
+    assert "Ingen statblok endnu" in client.get(
+        "/dm/api/catalog-statblock/monster/findes-ej").get_data(as_text=True)
+
+
+def test_opslag_standalone_page(client):
+    html = client.get("/dm/opslag").get_data(as_text=True)
+    assert "Opslagsværk" in html
+    assert 'id="browse-panel"' in html and "dm-content-browser.js" in html
+    assert "data-entity-api" in html
+    assert "browse-toggle" not in html                     # standalone: intet toggle
 
 
 # ── "Start kamp fra denne scene" kun på relevante scener ─────────────────────
