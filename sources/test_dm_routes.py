@@ -377,6 +377,7 @@ def test_entity_ids_endpoint(client):
     mons = client.get("/dm/api/entity-ids?type=monster").get_json()
     assert isinstance(mons, list) and mons and all("id" in m for m in mons)
     assert any(m["id"] == "goblin" for m in mons)                      # fra srd35.db
+    assert all("cr" in m for m in mons)                                # cr til opslagsværkets filter
     traps = client.get("/dm/api/entity-ids?type=faelde").get_json()
     assert any(t["id"] == "basic-arrow-trap" for t in traps)
     assert client.get("/dm/api/entity-ids?type=door").get_json()       # 6 SRD-døre
@@ -387,6 +388,13 @@ def test_edit_page_wires_autocomplete(client):
     html = client.get("/dm/adventures/Test/edit").get_data(as_text=True)
     assert "show-hint.min.js" in html and "dm-editor-hint.js" in html
     assert "data-entity-api" in html
+
+
+def test_edit_page_wires_content_browser(client):
+    html = client.get("/dm/adventures/Test/edit").get_data(as_text=True)
+    assert "dm-content-browser.js" in html                 # opslagsværk-JS indlæst
+    assert 'id="browse-panel"' in html and 'id="browse-toggle"' in html
+    assert "dm-statblock.css" in html                      # statblok-styling til preview
 
 
 # ── "Start kamp fra denne scene" kun på relevante scener ─────────────────────

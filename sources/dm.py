@@ -169,7 +169,10 @@ def entity_ids():
     g = getters.get(request.args.get("type", ""))
     if not g:
         return jsonify([])
-    return jsonify([{"id": r["id"], "name": r.get("name") or r["id"]} for r in g()])
+    # cr tages med når den findes (monstre/fælder) — bruges af opslagsværkets filter/
+    # visning; autocomplete ignorerer den. Døre har ingen cr → None.
+    return jsonify([{"id": r["id"], "name": r.get("name") or r["id"], "cr": r.get("cr")}
+                    for r in g()])
 
 
 @dm_bp.route("/adventures/<adventure>/media", methods=["POST"])
