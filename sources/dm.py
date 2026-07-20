@@ -11,8 +11,7 @@ statblokke + billed-/entity-opslag kommer i R1 commit 4.
 """
 import re
 
-from flask import (Blueprint, abort, redirect, render_template, request,
-                   send_from_directory, url_for)
+from flask import Blueprint, abort, redirect, render_template, request, url_for
 from markupsafe import Markup, escape
 
 import bestiary
@@ -156,71 +155,6 @@ def edit_adventure(adventure):
                            media=dm_media.list_media(ds.adventure_dir(adventure)),
                            entity_api=url_for("dm.entity_ids"),
                            saved=request.args.get("saved"))
-
-
-@dm_bp.route("/adventures/<adventure>/media", methods=["POST"])
-def upload_media(adventure):
-    if adventure not in ds.list_adventures():
-        abort(404)
-    adv_dir = ds.adventure_dir(adventure)
-    names, errors = [], []
-    for f in request.files.getlist("images"):
-        if not f or not f.filename:
-            continue
-        try:
-            names.append(dm_media.save_media(adv_dir, f))
-        except ValueError as e:
-            errors.append(f"{f.filename}: {e}")
-    q = {}
-    if names:
-        q["uploaded"] = ", ".join(names)
-    if errors:
-        q["error"] = " · ".join(errors)
-    return redirect(url_for("dm.adventure", adventure=adventure, **q))
-
-
-@dm_bp.route("/adventures/<adventure>/media/<filename>/delete", methods=["POST"])
-def delete_media(adventure, filename):
-    if adventure not in ds.list_adventures():
-        abort(404)
-    dm_media.delete_media(ds.adventure_dir(adventure), filename)
-    return redirect(url_for("dm.adventure", adventure=adventure))
-
-
-# ── Monster-tokens (billed-standees, browser-upload) ─────────────────────────
-@dm_bp.route("/monster-tokens")
-def monster_tokens_page():
-    """Administrér monster-billed-tokens i browseren: se, upload, slet — erstatter
-    scp. Filnavnet bliver token-slug (goblin.png → 'goblin'); brættet viser standeen
-    for de monstre hvis slug matcher."""
-    return render_template("dm/monster_tokens.html",
-                           tokens=monster_tokens.list_tokens(),
-                           uploaded=request.args.get("uploaded"),
-                           error=request.args.get("error"))
-
-
-@dm_bp.route("/monster-tokens/upload", methods=["POST"])
-def upload_monster_tokens():
-    names, errors = [], []
-    for f in request.files.getlist("images"):
-        if not f or not f.filename:
-            continue
-        try:
-            names.append(monster_tokens.save_token(f))
-        except ValueError as e:
-            errors.append(f"{f.filename}: {e}")
-    q = {}
-    if names:
-        q["uploaded"] = ", ".join(names)
-    if errors:
-        q["error"] = " · ".join(errors)
-    return redirect(url_for("dm.monster_tokens_page", **q))
-
-
-@dm_bp.route("/monster-tokens/<slug>/delete", methods=["POST"])
-def delete_monster_token(slug):
-    monster_tokens.delete_token(slug)
-    return redirect(url_for("dm.monster_tokens_page"))
 
 
 # ── Encounter-tracker (R3): delte helpers her; ruterne i dm_routes_encounter.py ─
@@ -439,14 +373,6 @@ def board_tokens(adventure, map_slug):
     return ("", 204)
 
 
-@dm_bp.route("/media/<adventure>/<path:filename>")
-def media(adventure, filename):
-    """Servér et eventyrs billeder fra `adventures/<eventyr>/media/…`.
-    `adventure` saniteres til ét mappe-segment; send_from_directory afviser
-    desuden sti-traversal i `filename`."""
-    return send_from_directory(ds.adventure_dir(adventure), filename)
-
-
 def _scene_board_maps(session, adventure):
     """Bræt-data pr. @kort-embed i sessionens aktive scene, PLUS i hvert af
     scenens rum. Kamp-primær-kortet (det aktive rums kort hvis en rum-kamp er
@@ -520,3 +446,4 @@ def play(slug):
 # helpers ovenfor er defineret når submodulet gør `from dm import …`).
 import dm_routes_encounter  # noqa: E402,F401  (side-effekt: registrerer encounter-ruter)
 import dm_routes_content    # noqa: E402,F401  (side-effekt: registrerer katalog/opslags-ruter)
+import dm_routes_media      # noqa: E402,F401  (side-effekt: registrerer media/token-ruter)
