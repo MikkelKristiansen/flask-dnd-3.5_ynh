@@ -109,6 +109,13 @@ def test_play_unknown_slug_404(client):
     assert client.get("/dm/play/findes-ikke").status_code == 404
 
 
+def test_play_loads_extracted_js(client):
+    slug = _new(client, name="Js")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "dm-play.js" in html          # inline-JS udspaltet til egen fil
+    assert 'id="dm-cfg"' in html          # konfig-elementet JS'en læser root/adv fra
+
+
 def test_party_sidebar_shows_statblock(client, monkeypatch):
     import dm_party
     monkeypatch.setattr(dm_party, "CHARACTERS_DIR", __import__("pathlib").Path("defaults"))
