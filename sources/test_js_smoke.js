@@ -22,6 +22,7 @@ const FILES = [
   "character-combat.js",
   "character-spells.js",
   "character-tooltips.js",
+  "character-prep-modal.js",
   "character-companion.js",
   "character-progression.js",
   "character-inventory.js",
@@ -31,7 +32,8 @@ const FILES = [
 const REQUIRED = [
   "showSpellTooltip", "hideSpellTooltip", "showSlaTooltip", "renderBreakdownTooltip",
   "showSkillBreakdown", "showAttackBreakdown", "showSkillTooltip", "truncDesc",
-  "castSpell", "castKnownSpell", "openSummonPicker", "openPrepModal",
+  "castSpell", "castKnownSpell", "openSummonPicker",
+  "openPrepModal", "renderPrepModal", "savePrepared", "closePrepIfOutside",
 ];
 
 // --- Mock server-data (window.DND) ---
