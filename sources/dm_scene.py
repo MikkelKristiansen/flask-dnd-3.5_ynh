@@ -177,10 +177,14 @@ def _map_src(adv, map_slug):
     return (img.src if img else None), doc.title
 
 
-def _board_palette(adv):
+def _board_palette(adv, party=None):
     """Kandidater DM'en kan trække ind på brættet: eventyrets egne monstre/NPC'er
-    (unikke refs fra alle scene-rosters, navn resolvet) + alle PC'er + de faste
-    markør-typer. Ren udledning til opstillings-editoren."""
+    (unikke refs fra alle scene-rosters, navn resolvet) + PC'er + de faste
+    markør-typer. Ren udledning til opstillings-editoren.
+
+    `party` (liste af slugs) sat → vis kun DE PC'er (brættet åbnet fra en session,
+    så man kun placerer faktiske party-medlemmer). None → alle karakterer (brættet
+    åbnet uden session-kontekst)."""
     creatures, seen = [], set()
     for scene in adv.scenes:
         for e in _scene_rosters(scene):
@@ -195,8 +199,9 @@ def _board_palette(adv):
             row = adv.statblock(e.id) or db.get_monster(e.id)
             name = bestiary.monster_view(row)["name"] if row else e.id
             creatures.append({"kind": e.type, "ref": e.id, "name": name})
+    pc_slugs = list(party) if party is not None else _character_slugs()
     pcs = []
-    for slug in _character_slugs():
+    for slug in pc_slugs:
         try:
             name = char_module.load_character(str(CHARACTERS_DIR / f"{slug}.yaml")).name
         except Exception:

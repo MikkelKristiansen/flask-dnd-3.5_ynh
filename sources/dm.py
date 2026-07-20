@@ -481,16 +481,22 @@ def board(adventure, map_slug):
     adv = ds.load_adventure(adventure)
     src, title = dm_scene._map_src(adv, map_slug)
     setup = dm_setups.load_setup(adventure, map_slug)
-    # ?from=<session> → tilbage-link til den kamp man kom fra (validér den findes).
+    # ?from=<session> → tilbage-link + session-kontekst: paletten viser da KUN
+    # sessionens party (ikke alle karakterer), så man kun placerer party-medlemmer.
     back = request.args.get("from")
-    if back and not any(s["slug"] == back for s in ds.list_sessions()):
-        back = None
+    session = None
+    if back:
+        try:
+            session = ds.load_session(back)
+        except FileNotFoundError:
+            back = None
     return render_template(
         "dm/board.html", title=title,
         map_url=url_for("dm.media", adventure=adventure, filename=src) if src else None,
         board=dm_board.board_view(setup, adv, db, audience="dm",
                                   token_lookup=monster_tokens.token_lookup),
-        palette=dm_scene._board_palette(adv), token_style=dm_board.token_style(),
+        palette=dm_scene._board_palette(adv, party=session.party if session else None),
+        token_style=dm_board.token_style(),
         traps=[{"id": t["id"], "name": t["name"]} for t in db.get_all_traps()],
         doors=[{"id": d["id"], "name": d["name"]} for d in db.get_all_doors()],
         back_session=back)

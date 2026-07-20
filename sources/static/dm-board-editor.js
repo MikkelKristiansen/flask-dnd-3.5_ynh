@@ -99,6 +99,14 @@ window.DmBoardEditor = (function () {
   // ── Tilføj / omdøb / fjern ────────────────────────────────────────────────
   function addToken(kind, ref) {
     if (grid().cell <= 0) { flash("Kalibrér grid først"); return; }
+    // En PC er én entitet — afvis dublet-tokens; markér den eksisterende i stedet.
+    if (kind === "pc") {
+      for (var i = 0; i < model.length; i++) {
+        if (model[i].kind === "pc" && model[i].ref === ref) {
+          flash("Spilleren er allerede på brættet"); select(i); paint(); return;
+        }
+      }
+    }
     var c = centerCell();
     model.push(normalise({ kind: kind, ref: ref, col: c.col, row: c.row }));
     relabel(kind, ref);

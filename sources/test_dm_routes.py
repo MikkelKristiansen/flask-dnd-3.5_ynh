@@ -417,6 +417,22 @@ def test_scene_combat_relevance_helper():
     assert dm_scene.scene_is_combat_relevant(scene0("# S\nEn bro.\n\n@kort[bro]\n")) is True
 
 
+# ── Bræt-palette: kun party når åbnet fra en session ─────────────────────────
+def test_board_palette_shows_only_party_when_given():
+    import dm_parser, dm_scene
+    adv = dm_parser.parse_adventure("---\ntitle: x\n---\n# S\nProsa.\n")
+    pcs = dm_scene._board_palette(adv, party=["tjorn", "zhartain"])["pcs"]
+    assert [p["ref"] for p in pcs] == ["tjorn", "zhartain"]     # kun party, i rækkefølge
+    assert all(p["kind"] == "pc" for p in pcs)
+
+
+def test_board_from_session_shows_party_in_palette(client):
+    slug = _new(client, name="Bs", party=["tjorn"])
+    r = client.get(f"/dm/board/Test/testkort?from={slug}")
+    assert r.status_code == 200
+    assert '"ref": "tjorn"' in r.get_data(as_text=True)         # party-PC i palette-JSON
+
+
 # ── Encounter-tracker (R3 commit 3) ──────────────────────────────────────────
 from pathlib import Path
 
