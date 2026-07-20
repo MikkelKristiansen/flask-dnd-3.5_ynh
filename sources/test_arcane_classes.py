@@ -140,6 +140,15 @@ def test_cast_ability_wizard_is_int():
     assert refdata.class_data("wizard").get("cast_ability") == "int"
 
 
+def test_create_page_wires_extracted_js(client):
+    # create.html's inline-JS er udspaltet til static/create.js; server-data via window.GEN.
+    r = client.get("/create")
+    assert r.status_code == 200
+    html = r.get_data(as_text=True)
+    assert "create.js" in html and "window.GEN" in html and "RACES:" in html
+    assert "races_json" not in html            # ingen rå Jinja-variabelnavn lækket
+
+
 def test_sorcerer_high_cha_gets_bonus_slots():
     """Sorcerer CHA 20 (mod +5) ved level 1 → bonus på lvl 1-5."""
     data = db_module.get_class_level("sorcerer", 1)
