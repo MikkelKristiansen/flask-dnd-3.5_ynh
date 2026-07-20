@@ -21,6 +21,7 @@ const FILES = [
   "character-core.js",
   "character-combat.js",
   "character-spells.js",
+  "character-tooltips.js",
   "character-companion.js",
   "character-progression.js",
   "character-inventory.js",
