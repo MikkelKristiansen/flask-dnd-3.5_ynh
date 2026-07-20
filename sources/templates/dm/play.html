@@ -270,10 +270,27 @@ a{color:var(--accent);}
       <div class="pc-line">Init {{ '%+d'|format(pc.init) }} · {{ pc.speed }}ft</div>
       {% if pc.conditions %}<div class="pc-cond">⚑ {{ pc.conditions|join(', ') }}</div>{% endif %}
       {% endif %}
+      <form method="post" action="{{ url_for('dm.edit_party', slug=session.slug) }}"
+            style="margin-top:.35rem" onsubmit="return confirm('Fjern {{ pc.slug }} fra party?');">
+        <input type="hidden" name="action" value="remove">
+        <input type="hidden" name="pc" value="{{ pc.slug }}">
+        <button type="submit" title="Fjern fra sessionens party"
+                style="background:transparent;border:1px solid var(--border);color:var(--muted);font-size:.7rem;padding:.15rem .5rem;border-radius:5px;cursor:pointer">✕ Fjern</button>
+      </form>
     </div>
     {% else %}
     <div class="note">Intet party valgt.</div>
     {% endfor %}
+    {% if available_pcs %}
+    <form method="post" action="{{ url_for('dm.edit_party', slug=session.slug) }}"
+          style="display:flex;gap:.4rem;margin-top:.6rem">
+      <select name="pc" style="flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:.2rem">
+        {% for s in available_pcs %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+      </select>
+      <input type="hidden" name="action" value="add">
+      <button type="submit" style="background:var(--accent);color:#000;border:none;font-family:inherit;font-size:.75rem;padding:.2rem .6rem;border-radius:5px;cursor:pointer">+ Tilføj</button>
+    </form>
+    {% endif %}
   </aside>
 </div>
 

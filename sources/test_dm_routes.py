@@ -433,6 +433,30 @@ def test_board_from_session_shows_party_in_palette(client):
     assert '"ref": "tjorn"' in r.get_data(as_text=True)         # party-PC i palette-JSON
 
 
+# ── Redigér session-party (Lag 2) ────────────────────────────────────────────
+def test_edit_party_remove(client):
+    slug = _new(client, name="Pr", party=["tjorn", "zhartain"])
+    r = client.post(f"/dm/api/party/{slug}", data={"action": "remove", "pc": "tjorn"})
+    assert r.status_code == 302
+    assert ds.load_session(slug).party == ["zhartain"]         # slår igennem i sessionen
+
+
+def test_edit_party_add(client, tmp_path, monkeypatch):
+    import dm_scene
+    chars = tmp_path / "chars"
+    chars.mkdir()
+    (chars / "tjorn.yaml").write_text("x")
+    (chars / "bram.yaml").write_text("x")
+    monkeypatch.setattr(dm_scene, "CHARACTERS_DIR", chars)
+    slug = _new(client, name="Pa", party=["tjorn"])
+    r = client.post(f"/dm/api/party/{slug}", data={"action": "add", "pc": "bram"})
+    assert r.status_code == 302
+    assert set(ds.load_session(slug).party) == {"tjorn", "bram"}
+    # ukendt karakter tilføjes ikke
+    client.post(f"/dm/api/party/{slug}", data={"action": "add", "pc": "findes-ej"})
+    assert "findes-ej" not in ds.load_session(slug).party
+
+
 # ── Encounter-tracker (R3 commit 3) ──────────────────────────────────────────
 from pathlib import Path
 

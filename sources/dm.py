@@ -274,6 +274,24 @@ def _load_or_404(slug):
         abort(404)
 
 
+@dm_bp.route("/api/party/<slug>", methods=["POST"])
+def edit_party(slug):
+    """Rediger en kørende sessions party (Lag 2): tilføj/fjern en spiller. Det er
+    HER 'hvem er med' bor — ændringen slår igennem i party-panelet og i næste
+    'Start kamp' (opstillings-brættet placerer kun positioner)."""
+    session = _load_or_404(slug)
+    action = request.form.get("action")
+    pc = (request.form.get("pc") or "").strip()
+    party = list(session.party)
+    if action == "add" and pc in dm_scene._character_slugs() and pc not in party:
+        party.append(pc)
+    elif action == "remove" and pc in party:
+        party.remove(pc)
+    session.party = party
+    ds.save_session(session)
+    return redirect(url_for("dm.play", slug=slug))
+
+
 @dm_bp.route("/api/encounter/<slug>/start", methods=["POST"])
 def encounter_start(slug):
     session = _load_or_404(slug)
@@ -611,8 +629,10 @@ def play(slug):
     active = next((sc for sc in adventure.scenes if sc.id == session.active_scene),
                   adventure.scenes[0] if adventure.scenes else None)
     party = dm_party.party_view(session.party, db)
+    available_pcs = [s for s in dm_scene._character_slugs() if s not in session.party]
     board_maps, map_slug = _scene_board_maps(session, adventure)
     return render_template("dm/play.html", session=session,
+                           available_pcs=available_pcs,
                            adventure=adventure, active=active, party=party,
                            adv_ref=session.adventure, map_slug=map_slug,
                            board_maps=board_maps,
