@@ -11,7 +11,7 @@ statblokke + billed-/entity-opslag kommer i R1 commit 4.
 """
 import re
 
-from flask import (Blueprint, abort, jsonify, redirect, render_template, request,
+from flask import (Blueprint, abort, redirect, render_template, request,
                    send_from_directory, url_for)
 from markupsafe import Markup, escape
 
@@ -156,50 +156,6 @@ def edit_adventure(adventure):
                            media=dm_media.list_media(ds.adventure_dir(adventure)),
                            entity_api=url_for("dm.entity_ids"),
                            saved=request.args.get("saved"))
-
-
-@dm_bp.route("/api/entity-ids")
-def entity_ids():
-    """Id+navn til editor-autocomplete (@monster/@faelde/@dør). type-param mapper
-    til det delte katalog; ukendt type → tom liste. Dokument-lokale typer
-    (npc/brev/kort) hentes IKKE her — de completes fra selve teksten i klienten."""
-    getters = {"monster": db.get_all_monsters,
-               "faelde": db.get_all_traps,
-               "door": db.get_all_doors}
-    g = getters.get(request.args.get("type", ""))
-    if not g:
-        return jsonify([])
-    # cr tages med når den findes (monstre/fælder) — bruges af opslagsværkets filter/
-    # visning; autocomplete ignorerer den. Døre har ingen cr → None.
-    return jsonify([{"id": r["id"], "name": r.get("name") or r["id"], "cr": r.get("cr")}
-                    for r in g()])
-
-
-@dm_bp.route("/api/catalog-statblock/<etype>/<ident>")
-def api_catalog_statblock(etype, ident):
-    """Statblok for en katalog-post UDEN eventyr-kontekst (opslagsværket, begge lag).
-    Rammer kun det delte katalog (db) — ingen adventure-lokale opslag."""
-    if etype == _TRAP_TYPE:
-        row = db.get_trap(ident)
-        if row:
-            return render_template("dm/_trap.html", t=traps_module.trap_view(row))
-    elif etype == "door":
-        row = db.get_door(ident)
-        if row:
-            return render_template("dm/_door.html", d=doors_module.door_view(row))
-    else:
-        row = db.get_monster(ident)
-        if row:
-            return render_template("dm/_statblock.html",
-                                   m=bestiary.monster_view(row), origin="Bestiar")
-    return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
-
-
-@dm_bp.route("/opslag")
-def opslag():
-    """Selvstændigt opslagsværk: browse hele kataloget (monstre/fælder/døre) uden et
-    åbent eventyr. Genbruger opslagsværk-panelet + JS'en fra editoren (uden indsæt)."""
-    return render_template("dm/opslag.html", entity_api=url_for("dm.entity_ids"))
 
 
 @dm_bp.route("/adventures/<adventure>/media", methods=["POST"])
@@ -458,24 +414,6 @@ def board(adventure, map_slug):
         back_session=back)
 
 
-@dm_bp.route("/bestiary/<adventure>")
-def bestiary_view(adventure):
-    """Bestiarie-fane: alle monstre/NPC'er i ét eventyr som statblokke, så DM'en
-    kan slå væsener op uden for en scene. ?from=<session> giver et tilbage-link
-    til kampen. (Navngivet *_view for ikke at skygge for `bestiary`-modulet.)"""
-    if adventure not in ds.list_adventures():
-        abort(404)
-    adv = ds.load_adventure(adventure)
-    back = request.args.get("from")
-    if back and not any(s["slug"] == back for s in ds.list_sessions()):
-        back = None
-    return render_template("dm/bestiary.html", title=adv.title,
-                           adventure=adventure, entries=dm_scene._bestiary_entries(adv),
-                           traps=dm_scene._trap_entries(adv, adventure),
-                           doors=dm_scene._door_entries(adv, adventure),
-                           back_session=back)
-
-
 @dm_bp.route("/board/<adventure>/<map_slug>/grid", methods=["POST"])
 def board_grid(adventure, map_slug):
     """Gem grid-kalibreringen (cellestørrelse + offset) for et kort."""
@@ -581,3 +519,4 @@ def play(slug):
 # Registrér udspaltede rute-grupper på dm_bp (importeres i BUNDEN, så alle delte
 # helpers ovenfor er defineret når submodulet gør `from dm import …`).
 import dm_routes_encounter  # noqa: E402,F401  (side-effekt: registrerer encounter-ruter)
+import dm_routes_content    # noqa: E402,F401  (side-effekt: registrerer katalog/opslags-ruter)
