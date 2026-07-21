@@ -45,7 +45,11 @@
           <span style="color:var(--accent);font-size:.72rem;margin-left:.35rem" title="Save-DC modstandere skal slå">DC {{ entry.dc }}</span>
         </span>
         <span style="display:flex;gap:.4rem;align-items:center">
-        {% if entry.cast %}
+        {% if entry.activate %}
+        <button class="summon-cast-btn"
+                onclick='event.stopPropagation();castKnownDuration({{ lvl }},{{ entry.id|tojson }},{{ (entry.spell.name if entry.spell else entry.id)|tojson }})'
+                title="Aktivér som varighedseffekt (forbruger én slot)">✨ Kast</button>
+        {% elif entry.cast %}
         <button class="summon-cast-btn spell-cast-btn{% if entry.cast.kind == 'heal' %} heal-cast-btn{% endif %}"
                 onclick='event.stopPropagation();castKnownSpell({{ lvl }},{{ entry.cast.roll_expr|tojson }},{{ entry.cast.roll_label|tojson }})'
                 title="{{ entry.cast.title }}">{{ entry.cast.button_label }}</button>
@@ -58,6 +62,23 @@
       {% if not known_data %}
       <p style="color:var(--muted);font-style:italic;margin-top:.5rem">Ingen kendte spells endnu — gå til <strong>Lær nye</strong>.</p>
       {% endif %}
+    </div>
+
+    {# ── Aktive effekter (spontan): instanser oprettet af ✨ Kast på et varigheds- ── #}
+    {# ── spell. Hver instans er uafhængig (uid) — samme spell kan stå flere gange.   #}
+    <div class="section" id="known-active-section"{% if not known_active %} style="display:none"{% endif %}>
+      <div class="section-title">Aktive effekter <span style="color:var(--muted);font-size:.7rem;font-style:italic">(spontane varigheds-spells i brug)</span></div>
+      <div id="known-active-list">
+        {% for inst in known_active %}
+        <div class="spell-row" data-uid="{{ inst.uid }}">
+          <span>
+            <span class="spell-name">{{ inst.label }}</span>
+            {% if inst.duration_text %}<span class="spell-school">&nbsp;·&nbsp;{{ inst.duration_text }}</span>{% endif %}
+          </span>
+          <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.85rem" title="Afslut effekten" onclick="deactivateKnown({{ inst.uid|tojson }})">✕</button>
+        </div>
+        {% endfor %}
+      </div>
     </div>
     {% else %}
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1.2rem;text-align:center">

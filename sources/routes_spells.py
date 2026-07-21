@@ -9,6 +9,7 @@ from flask import Blueprint, jsonify, request
 import character as char_module
 import db
 import refdata
+import spells_known_active
 from route_helpers import _find_summon
 
 spells_bp = Blueprint("spells", __name__)
@@ -138,6 +139,43 @@ def api_cast_known():
     used[level] = max(0, min(total, used.get(level, 0) + delta))
     char_module.save_character(str(path), {"spells_known_used": used})
     return jsonify({"ok": True, "level": level, "used": used[level], "total": total})
+
+@spells_bp.route("/api/known_active", methods=["POST"])
+def api_known_active():
+    """Spontane castere: opret/fjern en aktiv spell-INSTANS (varigheds-/vedvarende
+    spell). Pulje-slotten forbruges separat via /api/cast_known — dette endpoint
+    styrer kun instans-listen, nøglet på uid i stedet for level-index.
+
+    action="activate" (level, spell_id) → tilføj instans m/ varigheds-snapshot.
+    action="deactivate" (uid)          → fjern instansen (slotten refunderes ikke).
+    """
+    from app import _char_path
+    data     = request.get_json()
+    slug     = data.get("char")
+    action   = data.get("action")
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char = char_module.load_character(str(path))
+    instances = [dict(i) for i in char.spells_known_active]
+
+    if action == "activate":
+        level    = int(data.get("level"))
+        spell_id = str(data.get("spell_id", ""))
+        if not spell_id:
+            return jsonify({"error": "no spell"}), 400
+        instances.append(
+            spells_known_active.make_instance(char, spell_id, level, db))
+    elif action == "deactivate":
+        uid = str(data.get("uid", ""))
+        instances = [i for i in instances if str(i.get("uid")) != uid]
+    else:
+        return jsonify({"error": "bad action"}), 400
+
+    char.spells_known_active = instances
+    char_module.save_character(str(path), {"spells_known_active": instances})
+    return jsonify({"ok": True,
+                    "known_active": spells_known_active.derive_known_active(char, db)})
 
 @spells_bp.route("/api/spell_duration", methods=["POST"])
 def api_spell_duration():

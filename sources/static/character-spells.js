@@ -363,6 +363,44 @@ function castKnownSpell(level, rollExpr, label) {
   castKnown(level, 1);                        // forbrug én slot + opdatér tælleren
 }
 
+// Aktivér et KENDT varigheds-/vedvarende spell (spontan caster): forbrug én
+// pulje-slot OG opret en uafhængig aktiv instans. Modstykket til castKnownSpell
+// for spells der VARER VED (Mage Armor, Fly) i stedet for at rulles én gang.
+// Kaldene kædes, så begge gemninger er færdige før reload (ellers race på filen).
+function castKnownDuration(level, spellId, label) {
+  if (knownFree(level) <= 0) {
+    alert("Ingen slots tilbage på level " + level + "!");
+    return;
+  }
+  fetch(BASE + "/api/cast_known", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, level, delta: 1})
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (!d.ok) return null;
+    return fetch(BASE + "/api/known_active", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({char: CHAR, action: "activate", level, spell_id: spellId})
+    });
+  })
+  .then(r => r && r.json())
+  .then(d => { if (d && d.ok) location.reload(); });
+}
+
+// Afslut en aktiv spontan instans (uid). Slotten refunderes ikke — spellet er kastet.
+function deactivateKnown(uid) {
+  fetch(BASE + "/api/known_active", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "deactivate", uid})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) location.reload(); });
+}
+
 function castKnown(level, delta) {
   fetch(BASE + "/api/cast_known", {
     method: "POST",

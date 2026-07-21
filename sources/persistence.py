@@ -144,6 +144,37 @@ def load_character(path: str) -> Character:
         except (ValueError, TypeError, KeyError):
             pass
 
+    spells_known_active: list[dict] = []
+    for inst in (data.get("spells_known_active") or []):
+        try:
+            row = {
+                "uid": str(inst["uid"]),
+                "level": int(inst["level"]),
+                "spell_id": str(inst["spell_id"]),
+                "kind": str(inst.get("kind") or "duration"),
+            }
+        except (KeyError, ValueError, TypeError):
+            continue
+        dur = inst.get("duration")
+        if isinstance(dur, dict):
+            try:
+                row["duration"] = {
+                    "left": int(dur["left"]), "max": int(dur["max"]),
+                    "unit": str(dur["unit"])}
+            except (KeyError, ValueError, TypeError):
+                pass
+        if "mode" in inst:
+            try:
+                row["mode"] = int(inst["mode"])
+            except (ValueError, TypeError):
+                pass
+        if "charges" in inst:
+            try:
+                row["charges"] = int(inst["charges"])
+            except (ValueError, TypeError):
+                pass
+        spells_known_active.append(row)
+
     conditions = list(data.get("conditions") or [])
     buffs = list(data.get("buffs") or [])
 
@@ -180,6 +211,7 @@ def load_character(path: str) -> Character:
         spell_charges=spell_charges,
         spell_modes=spell_modes,
         spell_durations=spell_durations,
+        spells_known_active=spells_known_active,
         conditions=conditions,
         buffs=buffs,
         languages=[str(x) for x in (data.get("languages") or [])],
@@ -515,6 +547,25 @@ def save_character(path: str, updates: dict) -> None:
                      "unit": str(v["unit"])}
             for k, v in updates["spell_durations"].items()
         }
+
+    if "spells_known_active" in updates:
+        # Spontane aktive instanser — gemmes som råt (allerede saniteret i
+        # routes_spells før kaldet). Tomme felter droppes for at holde JSON'en ren.
+        out = []
+        for inst in updates["spells_known_active"]:
+            row = {"uid": str(inst["uid"]), "level": int(inst["level"]),
+                   "spell_id": str(inst["spell_id"]),
+                   "kind": str(inst.get("kind") or "duration")}
+            dur = inst.get("duration")
+            if isinstance(dur, dict):
+                row["duration"] = {"left": int(dur["left"]), "max": int(dur["max"]),
+                                   "unit": str(dur["unit"])}
+            if "mode" in inst:
+                row["mode"] = int(inst["mode"])
+            if "charges" in inst:
+                row["charges"] = int(inst["charges"])
+            out.append(row)
+        data["spells_known_active"] = out
 
     if "domain_spells_prepared" in updates:
         data["domain_spells_prepared"] = {

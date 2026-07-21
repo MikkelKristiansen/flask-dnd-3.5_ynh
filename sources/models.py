@@ -103,6 +103,11 @@ class Character:
     spell_charges: dict = field(default_factory=dict)  # ladninger tilbage pr. aktiv spell — {"level-index": antal}
     spell_modes: dict = field(default_factory=dict)  # valgt tilstand pr. aktiv spell m/ mode_group — {"level-index": indeks i gruppen}
     spell_durations: dict = field(default_factory=dict)  # kategori-F nedtæller pr. aktiv utility — {"level-index": {left, max, unit}}
+    # Spontane castere: aktive spell-INSTANSER. De har ingen faste slot-indekser og
+    # kan caste samme kendte spell flere gange fra puljen, så hvert varigheds-/summon-
+    # kast bliver en uafhængig instans nøglet på en stabil uid (ikke level-index).
+    # Hver: {uid, level, spell_id, kind, duration?: {left,max,unit}, mode?: int, charges?: int}
+    spells_known_active: list = field(default_factory=list)
     conditions: list = field(default_factory=list)
     buffs: list = field(default_factory=list)  # aktive positive effekter: {name, note, affects, spell_id?}
     languages: list = field(default_factory=list)  # kendte sprog (automatiske + valgte bonussprog)

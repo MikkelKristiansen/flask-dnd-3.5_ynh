@@ -15,6 +15,7 @@ import re
 import character as char_module
 import creature_template
 import refdata
+import spells_known_active
 
 
 def build_spell_view(char, db) -> dict:
@@ -213,9 +214,17 @@ def build_spell_view(char, db) -> dict:
                 # Fireball, Cure …) — samme som forberedte castere får, så en spontan
                 # caster kan rulle det enkelte spell og forbruge én pulje-slot. Utility/
                 # varigheds-spells giver None (ingen knap; de er en separat opgave).
-                cast = (char_module.spell_cast_info(sid, char.level, db)
-                        or char_module.spell_heal_cast_info(sid, char.level, db))
-                rows.append({"id": sid, "spell": spell, "dc": dc, "cast": cast})
+                # Varigheds-/vedvarende spells aktiveres som en instans (✨ Kast)
+                # i stedet for at rulles én gang — samme kriterie som prepared-
+                # loopets three_state. De må ikke ALSO få en øjeblikkelig ⚡-knap.
+                activate = spells_known_active.spell_is_activatable(
+                    sid, spell, char.level, db)
+                cast = None
+                if not activate:
+                    cast = (char_module.spell_cast_info(sid, char.level, db)
+                            or char_module.spell_heal_cast_info(sid, char.level, db))
+                rows.append({"id": sid, "spell": spell, "dc": dc,
+                             "cast": cast, "activate": activate})
             known_data[lvl] = rows
 
     # Kategori E (område/save-spells på "I brug"): skade-formel + save-DC til bordet.
@@ -325,6 +334,7 @@ def build_spell_view(char, db) -> dict:
         "cast_ability": cast_ability,
         "cast_mod": cast_mod,
         "known_data": known_data,
+        "known_active": spells_known_active.derive_known_active(char, db),
         "spell_effects": spell_effects,
         "spell_utilities": spell_utilities,
     }
