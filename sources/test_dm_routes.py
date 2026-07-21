@@ -647,6 +647,21 @@ def test_door_hp_tracker_during_combat(enc_client):
     assert r["current"] == 60
 
 
+def test_door_hp_badge_on_board(enc_client):
+    # En dør-markør DM'en har skadet får en HP-badge på kamp-brættet (skive 2).
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 80}, "tokens": [
+        {"kind": "door", "ref": "iron-door", "col": 3, "row": 2},
+        {"kind": "monster", "ref": "goblin", "label": "A", "col": 1, "row": 1}]})
+    slug, _ = _start(enc_client)
+    before = enc_client.get(f"/dm/api/encounter/{slug}/board").get_data(as_text=True)
+    assert "tok-door" in before and "60" not in before.split("tok-door")[1][:120]  # urørt: ingen badge
+    enc_client.post(f"/dm/api/encounter/{slug}/door_hp",
+                    data={"ref": "iron-door", "col": "3", "row": "2", "delta": "-15"})
+    after = enc_client.get(f"/dm/api/encounter/{slug}/board").get_data(as_text=True)
+    assert "tok-hp" in after and "45/60" in after       # dør-token m/ HP-badge
+
+
 def test_door_static_when_no_combat(client):
     slug = _new(client, name="DS")                     # ingen aktiv kamp
     frag = client.get(f"/dm/api/encounter/{slug}/door/iron-door?col=3&row=2").get_data(as_text=True)

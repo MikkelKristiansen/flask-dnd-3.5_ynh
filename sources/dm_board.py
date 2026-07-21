@@ -117,6 +117,17 @@ def combat_board_view(setup: dict, encounter: dict, current_id: str | None = Non
     som board_view — bare med ekstra kamp-felter (cid/hp/active/dead)."""
     tokens = [_marker_token(t) for t in setup.get("tokens", [])
               if t.get("kind") not in ("pc", "monster", "npc")]
+    # Dør-markører der spores (object_hp) får en HP-badge på brættet (genbruger
+    # .tok-hp-badgen). Nøglen SKAL matche dm_routes_encounter._door_hp_key
+    # (ref:col:row). Kun døre DM'en har interageret med har en entry → badge dér.
+    object_hp = encounter.get("object_hp") or {}
+    for t in tokens:
+        if t["kind"] == "door":
+            entry = object_hp.get(f"{t['ref']}:{t['col']}:{t['row']}")
+            if entry:
+                cur, mx = entry.get("current"), entry.get("max")
+                t["hp"] = f"{cur}/{mx}" if mx is not None else str(cur)
+                t["dead"] = cur is not None and cur <= 0     # 0 HP → smadret-markering
     color_of, palette_i = {}, 0
     for c in encounter.get("combatants", []):
         if c.get("col") is None or c.get("row") is None:
