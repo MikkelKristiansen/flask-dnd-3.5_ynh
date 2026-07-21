@@ -134,6 +134,32 @@ function castSummon() {
   const chosen = (summonCatalog[level] || [])[parseInt(document.getElementById("summon-modal-creature").value)] || {};
   const creature = chosen.id;
   const template = chosen.template || null;
+
+  // Spontan caster (known): forbrug først én pulje-slot, opret så væsenet. Kædet
+  // så begge gemninger er færdige før reload (som castKnownDuration).
+  if (mode === "known") {
+    const spellId = document.getElementById("summon-modal-spell").value;
+    fetch(BASE + "/api/cast_known", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({char: CHAR, level, delta: 1})
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) return null;
+      return fetch(BASE + "/api/summon", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({char: CHAR, mode: "known", level, spell_id: spellId, creature, template})
+      });
+    })
+    .then(r => r && r.json())
+    .then(d => {
+      if (!d) return;
+      if (d.error) { alert("Kunne ikke tilkalde: " + d.error); return; }
+      location.reload();
+    });
+    return;
+  }
+
   // Antal bestemmes/rulles server-side ud fra sporet — klienten sender det ikke.
   fetch(BASE + "/api/summon", {
     method: "POST",
@@ -146,6 +172,30 @@ function castSummon() {
     // Fanen er server-renderet → reload viser den nye summon-fane + spell "I brug".
     location.reload();
   });
+}
+
+// Spontan caster: tilkald et KENDT summon-spell (Summon Monster). Åbner samme
+// picker som forberedte castere, men i "known"-mode — pulje-slotten forbruges ved
+// bekræftelse (castSummon), ikke et forberedt slot.
+function castKnownSummon(level, spellId, label) {
+  if (knownFree(level) <= 0) {
+    alert("Ingen slots tilbage på level " + level + "!");
+    return;
+  }
+  document.getElementById("summon-modal-spell").value = spellId;
+  openSummonPicker(level, 0, "known", label);
+}
+
+// Afskedig et spontant summonet væsen. Slotten refunderes ikke — spellet er kastet.
+function dismissSummon(level, index) {
+  if (!confirm("Afskedig væsenet?")) return;
+  fetch(BASE + "/api/summon_dismiss", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, spell_level: level, spell_index: index})
+  })
+  .then(r => r.json())
+  .then(d => { if (d.ok) location.reload(); });
 }
 
 

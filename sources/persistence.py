@@ -462,6 +462,8 @@ def _serialize_summon(s: dict) -> dict:
         out["template"] = str(s["template"])
     if s.get("augment"):
         out["augment"] = True
+    if s.get("spontaneous"):       # spontant summonet (sorcerer/bard) → afsked-knap
+        out["spontaneous"] = True
     if s.get("name"):
         out["name"] = str(s["name"])
     if s.get("buffs"):

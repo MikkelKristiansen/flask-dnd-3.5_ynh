@@ -17,9 +17,13 @@
   {% endif %}
 
   <div class="section">
-    <div class="section-title">{{ sp.name }}{% if sp.name != sp.creature_name %} — {{ sp.creature_name }}{% endif %}
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap">
+      <span>{{ sp.name }}{% if sp.name != sp.creature_name %} — {{ sp.creature_name }}{% endif %}
       <span style="color:var(--muted);font-size:.7rem;font-style:italic;text-transform:none">
-        {{ sp.size|capitalize }}, {{ sp.total_hd }} HD · SNA {{ ['','I','II','III','IV','V','VI','VII','VIII','IX'][sp.spell_level] }}{% if sp.augment %} · ⚡ Augment Summoning{% endif %}</span>
+        {{ sp.size|capitalize }}, {{ sp.total_hd }} HD · SNA {{ ['','I','II','III','IV','V','VI','VII','VIII','IX'][sp.spell_level] }}{% if sp.augment %} · ⚡ Augment Summoning{% endif %}</span></span>
+      {% if sp.spontaneous %}
+      <button onclick="dismissSummon({{ sp.spell_level }},{{ sp.spell_index }})" title="Afskedig væsenet" style="background:var(--card);border:1px solid var(--border);color:var(--text);font-size:.72rem;padding:.2rem .55rem;border-radius:4px;cursor:pointer;white-space:nowrap;text-transform:none">✕ Afskedig</button>
+      {% endif %}
     </div>
     {% if sp.rounds_max is not none %}
     {# Varighed: 1 runde/casterniveau, fast ved kast. − pr. runde, ⟲ nulstiller. #}

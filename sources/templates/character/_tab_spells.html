@@ -45,7 +45,11 @@
           <span style="color:var(--accent);font-size:.72rem;margin-left:.35rem" title="Save-DC modstandere skal slå">DC {{ entry.dc }}</span>
         </span>
         <span style="display:flex;gap:.4rem;align-items:center">
-        {% if entry.activate %}
+        {% if entry.is_summon %}
+        <button class="summon-cast-btn"
+                onclick='event.stopPropagation();castKnownSummon({{ lvl }},{{ entry.id|tojson }},{{ (entry.spell.name if entry.spell else entry.id)|tojson }})'
+                title="Tilkald væsen (forbruger én slot)">🐾 Kast</button>
+        {% elif entry.activate %}
         <button class="summon-cast-btn"
                 onclick='event.stopPropagation();castKnownDuration({{ lvl }},{{ entry.id|tojson }},{{ (entry.spell.name if entry.spell else entry.id)|tojson }})'
                 title="Aktivér som varighedseffekt (forbruger én slot)">✨ Kast</button>

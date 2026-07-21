@@ -18,6 +18,39 @@ import refdata
 import spells_known_active
 
 
+def _build_summon_catalog(spells_by_level: dict, can_sacrifice: bool, db) -> dict:
+    """Summon-picker-katalog {niveau: [{id, template, name, count, …}]} ud fra en
+    {niveau: [spell_ids]}-kilde. Delt af forberedte (spells_prepared) og spontane
+    (spells_known) castere. Væsnerne kommer fra spellenes summon-familier (SNA/SM),
+    plus SNA hvis klassen kan ofre. Dedup på (id, skabelon), stærkeste spor først."""
+    catalog: dict[int, list] = {}
+    for lvl, spell_ids in spells_by_level.items():
+        families = {refdata.summon_family(sid) for sid in spell_ids}
+        families.discard(None)
+        if can_sacrifice:
+            families.add("sna")          # offer kan lave SNA på ethvert niveau
+        entries = []
+        seen: set = set()
+        for fam in families:
+            for tier in refdata.summon_tiers(fam, lvl):
+                for e in tier["entries"]:
+                    key = (e["base"], e["template"])
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    base_name = (db.get_animal(e["base"]) or {}).get("name", e["base"])
+                    entries.append({
+                        "id": e["base"], "template": e["template"],
+                        "name": creature_template.display_name(base_name, e["template"]),
+                        "count": tier["count"],
+                        "tier_level": tier["list_level"],
+                        "offset": tier["offset"],
+                    })
+        if entries:
+            catalog[lvl] = entries
+    return catalog
+
+
 def build_spell_view(char, db) -> dict:
     """Byg alle spell-relaterede template-kwargs for karakterarket."""
     ab = char.ability_scores
@@ -89,36 +122,12 @@ def build_spell_view(char, db) -> dict:
 
     # Summon-picker-katalog: {niveau: [{id, template, name}]}. Væsnerne kommer fra
     # de summon-familier casteren faktisk har på niveauet: SNA og/eller SM (udledt
-    # af de forberedte spells' familie), plus SNA hvis klassen kan ofre (druide).
-    # Summon Monster-væsner bærer en celestial/fiendish-skabelon → vist i navnet.
-    summon_catalog: dict[int, list] = {}
-    for lvl, spell_ids in char.spells_prepared.items():
-        families = {refdata.summon_family(sid) for sid in spell_ids}
-        families.discard(None)
-        if can_sacrifice:
-            families.add("sna")          # offer kan lave SNA på ethvert niveau
-        # Sporene (niveau-N-listen + evt. lavere lister for 1d3 / 1d4+1 af samme slags)
-        # slås sammen; hvert væsen bærer sit spor (antal + hvilken liste det kom fra).
-        # Dedup på (id, skabelon), stærkeste spor først (offset 0 vises før 1/2).
-        entries = []
-        seen: set = set()
-        for fam in families:
-            for tier in refdata.summon_tiers(fam, lvl):
-                for e in tier["entries"]:
-                    key = (e["base"], e["template"])
-                    if key in seen:
-                        continue
-                    seen.add(key)
-                    base_name = (db.get_animal(e["base"]) or {}).get("name", e["base"])
-                    entries.append({
-                        "id": e["base"], "template": e["template"],
-                        "name": creature_template.display_name(base_name, e["template"]),
-                        "count": tier["count"],
-                        "tier_level": tier["list_level"],
-                        "offset": tier["offset"],
-                    })
-        if entries:
-            summon_catalog[lvl] = entries
+    # af spellenes familie), plus SNA hvis klassen kan ofre (druide). Forberedte
+    # castere bygger fra spells_prepared; spontane (sorcerer/bard) fra spells_known
+    # — samme picker, samme motor (skive 3).
+    summon_source = (char.spells_known if cast_type == "spontaneous"
+                     else char.spells_prepared)
+    summon_catalog = _build_summon_catalog(summon_source, can_sacrifice, db)
 
     # Spontan cure/inflict (cleric, SRD): ofre en forberedt IKKE-domæne-plads til
     # en cure-spell af samme niveau eller lavere. Retning følger alignment (evil →
@@ -214,17 +223,20 @@ def build_spell_view(char, db) -> dict:
                 # Fireball, Cure …) — samme som forberedte castere får, så en spontan
                 # caster kan rulle det enkelte spell og forbruge én pulje-slot. Utility/
                 # varigheds-spells giver None (ingen knap; de er en separat opgave).
-                # Varigheds-/vedvarende spells aktiveres som en instans (✨ Kast)
-                # i stedet for at rulles én gang — samme kriterie som prepared-
-                # loopets three_state. De må ikke ALSO få en øjeblikkelig ⚡-knap.
-                activate = spells_known_active.spell_is_activatable(
-                    sid, spell, char.level, db)
+                # Summon-spells (Summon Monster) får en 🐾 Kast-knap → åbner
+                # summon-pickeren (skive 3). Varigheds-/vedvarende spells aktiveres
+                # som en instans (✨ Kast) — samme kriterie som prepared-loopets
+                # three_state. Ingen af dem må ALSO få en øjeblikkelig ⚡-knap.
+                is_summon = refdata.summon_family(sid) is not None
+                activate = (not is_summon
+                            and spells_known_active.spell_is_activatable(
+                                sid, spell, char.level, db))
                 cast = None
-                if not activate:
+                if not (activate or is_summon):
                     cast = (char_module.spell_cast_info(sid, char.level, db)
                             or char_module.spell_heal_cast_info(sid, char.level, db))
-                rows.append({"id": sid, "spell": spell, "dc": dc,
-                             "cast": cast, "activate": activate})
+                rows.append({"id": sid, "spell": spell, "dc": dc, "cast": cast,
+                             "activate": activate, "is_summon": is_summon})
             known_data[lvl] = rows
 
     # Kategori E (område/save-spells på "I brug"): skade-formel + save-DC til bordet.

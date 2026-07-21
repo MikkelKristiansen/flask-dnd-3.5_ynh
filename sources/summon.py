@@ -278,6 +278,7 @@ def build_summon(ref: dict, db) -> dict | None:
     stat["augment"] = bool(ref.get("augment"))
     stat["spell_level"] = ref.get("spell_level")
     stat["spell_index"] = ref.get("spell_index")
+    stat["spontaneous"] = bool(ref.get("spontaneous"))   # → afsked-knap på fanen
     # Varighed i runder (1/casterniveau, fast ved kast). None = ikke sporet
     # (gamle summons fra før runde-trackeren) → templaten viser ingen tracker.
     rmax = ref.get("rounds_max")

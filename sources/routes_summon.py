@@ -44,24 +44,40 @@ def api_summon():
     char = char_module.load_character(str(path))
 
     # Validér slot'et efter mode + udled hvilken familie der castes.
-    prepared = char.spells_prepared.get(level, [])
-    if not (0 <= spell_index < len(prepared)):
-        return jsonify({"error": "ugyldigt slot"}), 400
-    sid = prepared[spell_index]
-    family = refdata.summon_family(sid)
-    if mode == "sacrifice":
-        if not refdata.class_data(char.cls).get("spontaneous_summon"):
-            return jsonify({"error": "klassen kan ikke spontant summone"}), 400
-        if family is not None:
-            return jsonify({"error": "brug Kast på selve summon-spellet"}), 400
-        cast_family = "sna"          # offer konverteres altid til SNA (druide)
-    else:  # cast
+    if mode == "known":
+        # Spontan caster (sorcerer/bard): summon-spellet står på den kendte liste,
+        # ikke i et forberedt slot. Pulje-slotten forbruges separat (/api/cast_known
+        # i JS); her opretter vi bare væsenet. Bindes til et SYNTETISK unikt index,
+        # så den genbruger HP-/runde-/render-mekanikken uændret.
+        spell_id = str(data.get("spell_id", ""))
+        if spell_id not in char.spells_known.get(level, []):
+            return jsonify({"error": "ikke et kendt spell"}), 400
+        family = refdata.summon_family(spell_id)
         if family is None:
             return jsonify({"error": "ikke et summon-spell"}), 400
         cast_family = family
-    if spell_index in char.spells_active.get(level, []) or \
-            spell_index in char.spells_used.get(level, []):
-        return jsonify({"error": "spell allerede brugt"}), 400
+        used_idx = {s.get("spell_index") for s in char.summons
+                    if s.get("spell_level") == level}
+        spell_index = max((i for i in used_idx if isinstance(i, int)), default=-1) + 1
+    else:
+        prepared = char.spells_prepared.get(level, [])
+        if not (0 <= spell_index < len(prepared)):
+            return jsonify({"error": "ugyldigt slot"}), 400
+        sid = prepared[spell_index]
+        family = refdata.summon_family(sid)
+        if mode == "sacrifice":
+            if not refdata.class_data(char.cls).get("spontaneous_summon"):
+                return jsonify({"error": "klassen kan ikke spontant summone"}), 400
+            if family is not None:
+                return jsonify({"error": "brug Kast på selve summon-spellet"}), 400
+            cast_family = "sna"          # offer konverteres altid til SNA (druide)
+        else:  # cast
+            if family is None:
+                return jsonify({"error": "ikke et summon-spell"}), 400
+            cast_family = family
+        if spell_index in char.spells_active.get(level, []) or \
+                spell_index in char.spells_used.get(level, []):
+            return jsonify({"error": "spell allerede brugt"}), 400
 
     # Validér + udled antal: væsenet skal ligge i ét af cast-niveauets spor (niveau-N-
     # listen eller en lavere liste for flere svagere væsner). Sporet bestemmer antals-
@@ -78,6 +94,8 @@ def api_summon():
     # Byg statblokken én gang for at få hp_max → fuld HP pr. væsen ved kast.
     ref = {"creature": creature, "template": template, "spell_level": level,
            "spell_index": spell_index, "count": count, "augment": augment}
+    if mode == "known":
+        ref["spontaneous"] = True    # → afsked-knap på fanen (ingen slot at cykle)
     stat = summon_module.build_summon(ref, db)
     if not stat:
         return jsonify({"error": "ugyldigt væsen"}), 400
@@ -93,18 +111,18 @@ def api_summon():
     ref["rounds_max"] = rounds
     ref["rounds_left"] = rounds
 
-    # Sæt summon-spellet "I brug" (samme mekanik som cycleSpell → state=active).
-    spells_active = {k: list(v) for k, v in char.spells_active.items()}
-    spells_used   = {k: list(v) for k, v in char.spells_used.items()}
-    spells_active.setdefault(level, []).append(spell_index)
-
-    # Append summon-ref og gem hele summons-listen + spell-tilstanden.
+    # Append summon-ref og gem. Spontant (known): kun summons-listen — pulje-slotten
+    # forbruges separat via /api/cast_known. Forberedt: sæt også spellet "I brug"
+    # (samme mekanik som cycleSpell → state=active).
     summons = list(char.summons) + [ref]
-    char_module.save_character(str(path), {
-        "summons": summons,
-        "spells_active": spells_active,
-        "spells_used": spells_used,
-    })
+    updates = {"summons": summons}
+    if mode != "known":
+        spells_active = {k: list(v) for k, v in char.spells_active.items()}
+        spells_used   = {k: list(v) for k, v in char.spells_used.items()}
+        spells_active.setdefault(level, []).append(spell_index)
+        updates["spells_active"] = spells_active
+        updates["spells_used"] = spells_used
+    char_module.save_character(str(path), updates)
     return jsonify({"ok": True, "count": count, "count_expr": count_expr})
 
 @summon_bp.route("/api/summon_hp", methods=["POST"])
@@ -172,4 +190,27 @@ def api_summon_rounds():
     ref["rounds_left"] = new
     char_module.save_character(str(path), {"summons": char.summons})
     return jsonify({"rounds_left": new, "rounds_max": rmax})
+
+@summon_bp.route("/api/summon_dismiss", methods=["POST"])
+def api_summon_dismiss():
+    """Afskedig et spontant summonet væsen (fjern ref'en fra summons-listen).
+
+    Forberedte summons fjernes ved at sætte deres slot "free" (via /api/spells);
+    spontane har ingen slot at cykle, så de dismisses direkte her. Slotten er
+    allerede forbrugt fra puljen og refunderes ikke."""
+    from app import _char_path
+    data  = request.get_json()
+    slug  = data.get("char")
+    level = int(data.get("spell_level"))
+    index = int(data.get("spell_index"))
+    path = _char_path(slug)
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char = char_module.load_character(str(path))
+    summons = [s for s in char.summons
+               if not (s.get("spell_level") == level and s.get("spell_index") == index)]
+    if len(summons) == len(char.summons):
+        return jsonify({"error": "no summon"}), 400
+    char_module.save_character(str(path), {"summons": summons})
+    return jsonify({"ok": True})
 
