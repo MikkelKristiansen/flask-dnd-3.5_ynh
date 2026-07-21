@@ -136,3 +136,45 @@ def test_no_abilities_is_backward_compatible():
 def test_as_inventory_item_carries_ability_ids():
     kw = mg.as_inventory_item("weapons/longsword", 1, ["flaming", "keen"])
     assert kw["abilities"] == ["flaming", "keen"]
+
+
+# ── Trin 2: mekaniske effekter (energi-riders + keen crit-fordobling) ───────
+import magic_abilities as ma
+import attacks as atk_mod
+
+
+def test_energy_riders_from_abilities():
+    assert ma.weapon_riders(["flaming"]) == [{"die": "1d6", "type": "Ild"}]
+    assert ma.weapon_riders(["flaming", "frost", "shock"]) == [
+        {"die": "1d6", "type": "Ild"},
+        {"die": "1d6", "type": "Kulde"},
+        {"die": "1d6", "type": "Elektricitet"}]
+    assert ma.weapon_riders([]) == []
+
+
+def test_bursts_wire_base_die():
+    assert ma.weapon_riders(["flaming_burst"]) == [{"die": "1d6", "type": "Ild"}]
+
+
+def test_has_keen():
+    assert ma.has_keen(["keen"]) is True
+    assert ma.has_keen(["flaming"]) is False
+
+
+def test_double_threat_range():
+    assert atk_mod.double_threat_range("19–20/x2") == "17–20/x2"
+    assert atk_mod.double_threat_range("18–20/x2") == "15–20/x2"
+    assert atk_mod.double_threat_range("x2") == "19–20/x2"
+    assert atk_mod.double_threat_range("x3") == "19–20/x3"
+    assert atk_mod.double_threat_range("19-20/x2") == "17–20/x2"   # hyphen tåles
+
+
+def test_double_threat_range_ignores_unparseable():
+    assert atk_mod.double_threat_range("weird") == "weird"
+
+
+def test_keen_gated_to_slashing_piercing():
+    assert atk_mod._is_slashing_or_piercing({"damage_type": "Slashing"}) is True
+    assert atk_mod._is_slashing_or_piercing({"damage_type": "Piercing"}) is True
+    assert atk_mod._is_slashing_or_piercing({"damage_type": "Piercing or slashing"}) is True
+    assert atk_mod._is_slashing_or_piercing({"damage_type": "Bludgeoning"}) is False

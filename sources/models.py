@@ -41,6 +41,7 @@ class Attack:
     bonus_parts: list = field(default_factory=list)  # navngiven opdeling af `bonus` [{label,value}] (til hover)
     damage_bonus: int = 0          # situations-uafhængig skade (Weapon Specialization) — ikke Str-skaleret
     damage_parts: list = field(default_factory=list)  # navngiven opdeling af `damage_bonus` [{label,value}] (til hover)
+    bonus_dice: list = field(default_factory=list)  # ekstra skade-terninger af egen type, rulles separat [{die,type}] (fx våben-ability flaming → +1d6 ild)
     fixed_damage: str = ""         # skade sat af kilden (spell/touch); tilsidesætter base+Str
     crit: str = "x2"
     type: str = ""

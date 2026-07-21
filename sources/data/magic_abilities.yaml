@@ -19,24 +19,28 @@
   slots: [weapon]
   price: {type: bonus, value: 1}
   note: "+1d6 ildskade ved hvert ramning."
+  mechanic: {damage_die: "1d6", damage_type: "Ild"}
   source: "Magic Items II"
 - id: frost
   name: Frost
   slots: [weapon]
   price: {type: bonus, value: 1}
   note: "+1d6 kuldeskade ved hvert ramning."
+  mechanic: {damage_die: "1d6", damage_type: "Kulde"}
   source: "Magic Items II"
 - id: shock
   name: Shock
   slots: [weapon]
   price: {type: bonus, value: 1}
   note: "+1d6 elektricitetsskade ved hvert ramning."
+  mechanic: {damage_die: "1d6", damage_type: "Elektricitet"}
   source: "Magic Items II"
 - id: keen
   name: Keen
   slots: [weapon]
   price: {type: bonus, value: 1}
   note: "Fordobler våbnets trusselsområde (kun stik-/hugvåben). Stacker ikke med Improved Critical."
+  mechanic: {crit: double_threat}
   source: "Magic Items II"
 - id: defending
   name: Defending
@@ -90,19 +94,22 @@
   name: Flaming Burst
   slots: [weapon]
   price: {type: bonus, value: 2}
-  note: "Som Flaming (+1d6 ild), plus ekstra ildskade ved kritisk ramning."
+  note: "Som Flaming (+1d6 ild), plus ekstra ildskade ved kritisk ramning (håndteres manuelt)."
+  mechanic: {damage_die: "1d6", damage_type: "Ild"}
   source: "Magic Items II"
 - id: icy_burst
   name: Icy Burst
   slots: [weapon]
   price: {type: bonus, value: 2}
-  note: "Som Frost (+1d6 kulde), plus ekstra kuldeskade ved kritisk ramning."
+  note: "Som Frost (+1d6 kulde), plus ekstra kuldeskade ved kritisk ramning (håndteres manuelt)."
+  mechanic: {damage_die: "1d6", damage_type: "Kulde"}
   source: "Magic Items II"
 - id: shocking_burst
   name: Shocking Burst
   slots: [weapon]
   price: {type: bonus, value: 2}
-  note: "Som Shock (+1d6 el), plus ekstra elektricitetsskade ved kritisk ramning."
+  note: "Som Shock (+1d6 el), plus ekstra elektricitetsskade ved kritisk ramning (håndteres manuelt)."
+  mechanic: {damage_die: "1d6", damage_type: "Elektricitet"}
   source: "Magic Items II"
 - id: holy
   name: Holy

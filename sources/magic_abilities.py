@@ -41,3 +41,23 @@ def resolve(ids) -> list[dict]:
 def for_slot(slot: str) -> list[dict]:
     """Alle abilities der kan sidde på en given slot (weapon|armor|shield)."""
     return [a for a in _ALL if slot in (a.get("slots") or [])]
+
+
+def weapon_riders(ability_ids) -> list[dict]:
+    """Ekstra skade-TERNINGER fra våben-abilities (flaming → +1d6 ild), som
+    [{die, type}] — samme form som effects.damage_dice, så de kan flettes direkte
+    ind i et angrebs bonus_dice og rulles separat. TRIN 2: kun de rene energi-riders;
+    betingede (holy/bane) og crit-kun-ekstra (burst) er ikke med her."""
+    out = []
+    for a in resolve(ability_ids):
+        mech = a.get("mechanic") or {}
+        if mech.get("damage_die"):
+            out.append({"die": str(mech["damage_die"]),
+                        "type": mech.get("damage_type") or ""})
+    return out
+
+
+def has_keen(ability_ids) -> bool:
+    """Har genstanden keen (fordoblet trusselsområde)?"""
+    return any((a.get("mechanic") or {}).get("crit") == "double_threat"
+               for a in resolve(ability_ids))

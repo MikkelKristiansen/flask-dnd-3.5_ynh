@@ -18,8 +18,10 @@ Kilde: SRD 'Magic Items II (Armor and Weapons)'.
 
 Special abilities (flaming/keen på våben; fortification/resistance på rustning/skjold)
 prissættes som "effektiv bonus" (enhancement + sum af bonus-abilities, cap +10) ELLER
-et fast gp-tillæg. TRIN 1 (bygget): pris + navn. De MEKANISKE effekter (flaming = +1d6
-ild osv.) wires i et senere lag — som +N-skaden gjorde i Fase C.
+et fast gp-tillæg — dét (pris + navn) er denne motors ansvar. De MEKANISKE effekter
+lever et andet sted: energi-riders (flaming → +1d6 ild) og keen (crit-fordobling) wires
+i attacks.py via `magic_abilities.mechanic`-feltet (trin 2). Betingede/komplekse
+abilities (holy/bane/wounding/vorpal …) forbliver rene noter.
 """
 from __future__ import annotations
 

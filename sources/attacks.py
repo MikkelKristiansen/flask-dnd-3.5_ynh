@@ -5,9 +5,32 @@ importerer til gengæld size_mod_attack herfra til armor_class (én-vejs, ingen 
 """
 import dataclasses
 import math
+import re
 
+import magic_abilities
 from models import AbilityScores, Attack, InventoryItem
 from refdata import feat_id, feat_weapon
+
+
+def double_threat_range(crit: str) -> str:
+    """Fordobl et våbens trusselsområde (keen/Improved Critical), SRD.
+
+    "19–20/x2" (område 19-20) → "17–20/x2"; "18–20/x2" → "15–20/x2";
+    "x2" (kun 20) → "19–20/x2". Multiplikatoren (x2/x3/x4) er uændret. Uparsbar
+    tekst → uændret. Bruger low_ny = 2·low − 21 (fordobler områdets størrelse)."""
+    m = re.match(r"\s*(?:(\d+)\s*[–-]\s*20\s*/\s*)?x(\d+)\s*$", crit or "")
+    if not m:
+        return crit
+    low = int(m.group(1)) if m.group(1) else 20
+    mult = m.group(2)
+    new_low = 2 * low - 21
+    return f"{new_low}–20/x{mult}"
+
+
+def _is_slashing_or_piercing(weapon: dict) -> bool:
+    """Keen virker kun på stik-/hugvåben (ikke kølle/bludgeoning), SRD."""
+    dt = (weapon.get("damage_type") or "").lower()
+    return "slash" in dt or "pierc" in dt
 
 
 SIZE_MOD_ATTACK = {   # normal størrelses-modifier: til AC og angrebsrul
@@ -253,6 +276,13 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
         # Kun composite-buer har et loft; øvrige våben ignorerer item.mighty.
         str_cap = item.mighty if (w.get("ranged_str") == "composite"
                                   and item.mighty is not None) else None
+        # Magiske special abilities (Del A trin 2): energi-riders (flaming → +1d6 ild,
+        # rulles separat via bonus_dice) og keen (fordoblet trusselsområde, kun stik/
+        # hug). Rent additivt — våben uden abilities er uændrede.
+        crit = w["critical"] or "x2"
+        bonus_dice = magic_abilities.weapon_riders(item.abilities)
+        if magic_abilities.has_keen(item.abilities) and _is_slashing_or_piercing(w):
+            crit = double_threat_range(crit)
         return Attack(
             name=name,
             kind=kind or ("ranged" if wclass == "ranged" else "melee"),
@@ -262,7 +292,8 @@ def derive_attacks(inventory: list[InventoryItem], db, size: str = "medium",
             bonus_parts=parts,
             damage_bonus=sum(p["value"] for p in dmg_parts),
             damage_parts=dmg_parts,
-            crit=w["critical"] or "x2",
+            bonus_dice=bonus_dice,
+            crit=crit,
             type=w["damage_type"] or "",
             range=f"{w['range_ft']} ft." if (show_range and w["range_ft"]) else "",
             not_proficient=not_prof,
