@@ -8,7 +8,8 @@ import re
 from models import InventoryItem
 
 # tabel-præfiks → db-getter (resolve_item)
-_REF_LOOKUP = {"weapons": "get_weapon", "armor": "get_armor", "items": "get_item"}
+_REF_LOOKUP = {"weapons": "get_weapon", "armor": "get_armor", "items": "get_item",
+               "magic_items": "get_magic_item"}
 # Alkymisk sølv koster efter våbenklasse (SRD: let 20 gp, enhånds 90, tohånds 180).
 _SILVER_DELTA_CP = {"light": 2000, "one-handed": 9000, "two-handed": 18000}
 CARRIED_STATES = {"wielded", "worn", "backpack"}   # tæller med i båret vægt

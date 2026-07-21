@@ -265,6 +265,27 @@ def get_all_effects() -> list[dict]:
     return [_effect_row(r) for r in rows]
 
 
+def _magic_item_row(row) -> dict:
+    """Konverter en magic_items-række til dict og afkod modifiers-JSON."""
+    rec = dict(row)
+    rec["modifiers"] = json.loads(rec["modifiers"] or "[]")
+    return rec
+
+
+def get_magic_item(item_id: str) -> dict | None:
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM magic_items WHERE id = ?", (item_id,)
+        ).fetchone()
+    return _magic_item_row(row) if row else None
+
+
+def get_all_magic_items() -> list[dict]:
+    with _connect() as conn:
+        rows = conn.execute("SELECT * FROM magic_items ORDER BY category, name").fetchall()
+    return [_magic_item_row(r) for r in rows]
+
+
 def get_special_ability(ability_id: str) -> dict | None:
     with _connect() as conn:
         row = conn.execute(

@@ -287,16 +287,46 @@ def collect_active_effects(buffs, conditions, db, scale=None):
     return modifiers, sources
 
 
+def magic_item_modifiers(inventory, db):
+    """Modifiers fra BÅRNE magiske genstande (Cloak of Resistance, Ring of Protection,
+    ability-forstærkere …) → (modifiers, sources), samme form som en buff-kilde.
+
+    Kun items i tilstand 'worn' med ref='magic_items/<id>' bidrager — de bæres for at
+    virke. Genbruger hele modifier-pipelinen (resolve_modifiers → AC/saves/abilities),
+    så et Cloak of Resistance +1 er reelt en 'save_all resistance +1'-buff bundet til
+    en genstand. Stacking (samme type stacker ikke) håndteres nedstrøms.
+    """
+    modifiers: list[dict] = []
+    sources: list[dict] = []
+    for it in inventory or []:
+        if getattr(it, "state", None) != "worn":
+            continue
+        table, _, oid = (it.ref or "").partition("/")
+        if table != "magic_items" or not oid:
+            continue
+        mi = db.get_magic_item(oid)
+        if not mi:
+            continue
+        mods = mi.get("modifiers") or []
+        modifiers.extend(mods)
+        sources.append({"name": mi["name"], "kind": "item",
+                        "modifiers": mods, "riders": []})
+    return modifiers, sources
+
+
 def collect_character_effects(char, db):
     """Aktive effekter for en HOVEDkarakter (med niveau-skalering).
 
     Tynd indpakning om collect_active_effects, der binder karakterens niveau til
-    EFFECT_SCALING — companion bruger samme motor uden skalering.
+    EFFECT_SCALING — companion bruger samme motor uden skalering. Bårne magiske
+    genstande (magic_items) bidrager deres permanente modifiers oveni.
     """
     def scale(sid):
         fn = EFFECT_SCALING.get(sid)
         return fn(char) if fn else None
-    return collect_active_effects(char.buffs, char.conditions, db, scale=scale)
+    mods, sources = collect_active_effects(char.buffs, char.conditions, db, scale=scale)
+    item_mods, item_sources = magic_item_modifiers(char.inventory, db)
+    return mods + item_mods, sources + item_sources
 
 
 def ability_breakdown(sources):

@@ -350,3 +350,23 @@ CREATE TABLE special_abilities (
     rider_count INTEGER,           -- antal ekstra angreb (extra_attacks, fx rake = 2)
     description TEXT               -- SRD/OGL-forklaring
 );
+
+-- Magiske genstande (wondrous items, ringe, rods, forbrugsvarer). Del B: wondrous +
+-- ringe med permanente bonusser modelleres som modifiers (samme JSON-form som
+-- effects) → et BÅRET item (state=worn) bidrager dem til active_modifiers via
+-- effekt-motoren. Forbrugsvarer (B2) bruger spell_id + charges_max.
+DROP TABLE IF EXISTS magic_items;
+CREATE TABLE magic_items (
+    id           TEXT PRIMARY KEY,           -- slug, fx 'cloak_of_resistance_1'
+    name         TEXT NOT NULL,              -- visningsnavn, fx 'Cloak of Resistance +1'
+    category     TEXT NOT NULL,              -- wondrous | ring | rod | potion | scroll | wand
+    slot         TEXT,                       -- krops-slot (neck/ring/hands/...) — SRD 'Body Slot'; NULL = slotløs
+    price_cp     INTEGER,                    -- markedspris i kobber
+    caster_level INTEGER,                    -- CL (til dispel/craft)
+    aura         TEXT,                       -- fx 'Faint abjuration'
+    weight       REAL NOT NULL DEFAULT 0,    -- vægt i pund
+    modifiers    TEXT NOT NULL DEFAULT '[]', -- JSON: liste af modifier-objekter (som effects.modifiers)
+    spell_id     TEXT,                       -- forbrugsvarer (B2): spellet der kastes ved brug
+    charges_max  INTEGER,                    -- forbrugsvarer (B2): fulde ladninger (wand=50, potion/scroll=1)
+    description  TEXT                         -- SRD/OGL-forklaring
+);

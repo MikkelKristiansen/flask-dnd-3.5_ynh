@@ -1,0 +1,271 @@
+# magic_items — selvstændige magiske genstande (SRD v3.5, Magic Items III & V).
+#
+# Del B1 (wondrous/ringe): permanente bonusser modelleret som `modifiers` (samme
+# JSON-form som effects.yaml). Et BÅRET item (state=worn i inventaret) bidrager sine
+# modifiers til active_modifiers via effekt-motoren (effects.magic_item_modifiers),
+# så AC/saves/abilities-pipelinen håndterer stacking automatisk (samme type stacker
+# ikke). Forbrugsvarer (potions/scrolls/wands) kommer i B2 (spell_id + charges_max).
+#
+# price_cp = markedspris i kobber (gp × 100). Modifier-typer der IKKE stacker med
+# hinanden: deflection (Ring of Protection), natural (Amulet of Natural Armor),
+# armor (Bracers of Armor), resistance (Cloak of Resistance), enhancement (ability).
+
+# ── Cloak of Resistance (+N resistance til ALLE saves) ──────────────────────
+- id: cloak_of_resistance_1
+  name: Cloak of Resistance +1
+  category: wondrous
+  slot: shoulders
+  price_cp: 100000
+  caster_level: 5
+  aura: Faint abjuration
+  weight: 1
+  modifiers: '[{"target": "save_all", "type": "resistance", "value": 1}]'
+  description: "En kappe der giver +1 resistance-bonus på alle redningskast."
+- id: cloak_of_resistance_2
+  name: Cloak of Resistance +2
+  category: wondrous
+  slot: shoulders
+  price_cp: 400000
+  caster_level: 6
+  aura: Faint abjuration
+  weight: 1
+  modifiers: '[{"target": "save_all", "type": "resistance", "value": 2}]'
+  description: "En kappe der giver +2 resistance-bonus på alle redningskast."
+- id: cloak_of_resistance_3
+  name: Cloak of Resistance +3
+  category: wondrous
+  slot: shoulders
+  price_cp: 900000
+  caster_level: 9
+  aura: Moderate abjuration
+  weight: 1
+  modifiers: '[{"target": "save_all", "type": "resistance", "value": 3}]'
+  description: "En kappe der giver +3 resistance-bonus på alle redningskast."
+- id: cloak_of_resistance_4
+  name: Cloak of Resistance +4
+  category: wondrous
+  slot: shoulders
+  price_cp: 1600000
+  caster_level: 12
+  aura: Moderate abjuration
+  weight: 1
+  modifiers: '[{"target": "save_all", "type": "resistance", "value": 4}]'
+  description: "En kappe der giver +4 resistance-bonus på alle redningskast."
+- id: cloak_of_resistance_5
+  name: Cloak of Resistance +5
+  category: wondrous
+  slot: shoulders
+  price_cp: 2500000
+  caster_level: 15
+  aura: Strong abjuration
+  weight: 1
+  modifiers: '[{"target": "save_all", "type": "resistance", "value": 5}]'
+  description: "En kappe der giver +5 resistance-bonus på alle redningskast."
+
+# ── Ring of Protection (+N deflection til AC) ───────────────────────────────
+- id: ring_of_protection_1
+  name: Ring of Protection +1
+  category: ring
+  slot: ring
+  price_cp: 200000
+  caster_level: 5
+  aura: Faint abjuration
+  weight: 0
+  modifiers: '[{"target": "ac", "type": "deflection", "value": 1}]'
+  description: "En ring der giver +1 deflection-bonus til AC (også mod berøringsangreb)."
+- id: ring_of_protection_2
+  name: Ring of Protection +2
+  category: ring
+  slot: ring
+  price_cp: 800000
+  caster_level: 10
+  aura: Moderate abjuration
+  weight: 0
+  modifiers: '[{"target": "ac", "type": "deflection", "value": 2}]'
+  description: "En ring der giver +2 deflection-bonus til AC."
+- id: ring_of_protection_3
+  name: Ring of Protection +3
+  category: ring
+  slot: ring
+  price_cp: 1800000
+  caster_level: 15
+  aura: Strong abjuration
+  weight: 0
+  modifiers: '[{"target": "ac", "type": "deflection", "value": 3}]'
+  description: "En ring der giver +3 deflection-bonus til AC."
+
+# ── Amulet of Natural Armor (+N natural til AC) ─────────────────────────────
+- id: amulet_of_natural_armor_1
+  name: Amulet of Natural Armor +1
+  category: wondrous
+  slot: neck
+  price_cp: 200000
+  caster_level: 5
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[{"target": "ac", "type": "natural", "value": 1}]'
+  description: "Et amulet der giver +1 natural armor-bonus til AC."
+- id: amulet_of_natural_armor_2
+  name: Amulet of Natural Armor +2
+  category: wondrous
+  slot: neck
+  price_cp: 800000
+  caster_level: 10
+  aura: Moderate transmutation
+  weight: 0
+  modifiers: '[{"target": "ac", "type": "natural", "value": 2}]'
+  description: "Et amulet der giver +2 natural armor-bonus til AC."
+- id: amulet_of_natural_armor_3
+  name: Amulet of Natural Armor +3
+  category: wondrous
+  slot: neck
+  price_cp: 1800000
+  caster_level: 15
+  aura: Strong transmutation
+  weight: 0
+  modifiers: '[{"target": "ac", "type": "natural", "value": 3}]'
+  description: "Et amulet der giver +3 natural armor-bonus til AC."
+
+# ── Bracers of Armor (+N armor til AC, stacker ikke med båret rustning) ──────
+- id: bracers_of_armor_1
+  name: Bracers of Armor +1
+  category: wondrous
+  slot: arms
+  price_cp: 100000
+  caster_level: 5
+  aura: Faint conjuration
+  weight: 1
+  modifiers: '[{"target": "ac", "type": "armor", "value": 1}]'
+  description: "Armbånd der giver en +1 armor-bonus til AC (virker ikke sammen med båret rustning)."
+- id: bracers_of_armor_2
+  name: Bracers of Armor +2
+  category: wondrous
+  slot: arms
+  price_cp: 400000
+  caster_level: 7
+  aura: Moderate conjuration
+  weight: 1
+  modifiers: '[{"target": "ac", "type": "armor", "value": 2}]'
+  description: "Armbånd der giver en +2 armor-bonus til AC."
+- id: bracers_of_armor_3
+  name: Bracers of Armor +3
+  category: wondrous
+  slot: arms
+  price_cp: 900000
+  caster_level: 9
+  aura: Moderate conjuration
+  weight: 1
+  modifiers: '[{"target": "ac", "type": "armor", "value": 3}]'
+  description: "Armbånd der giver en +3 armor-bonus til AC."
+- id: bracers_of_armor_4
+  name: Bracers of Armor +4
+  category: wondrous
+  slot: arms
+  price_cp: 1600000
+  caster_level: 11
+  aura: Moderate conjuration
+  weight: 1
+  modifiers: '[{"target": "ac", "type": "armor", "value": 4}]'
+  description: "Armbånd der giver en +4 armor-bonus til AC."
+
+# ── Ability-forstærkere (+N enhancement til én evne — kaskaderer) ───────────
+- id: gauntlets_of_ogre_power
+  name: Gauntlets of Ogre Power
+  category: wondrous
+  slot: hands
+  price_cp: 400000
+  caster_level: 6
+  aura: Moderate transmutation
+  weight: 4
+  modifiers: '[{"target": "str", "type": "enhancement", "value": 2}]'
+  description: "Handsker der giver +2 enhancement-bonus til Styrke."
+- id: belt_of_giant_strength_4
+  name: Belt of Giant Strength +4
+  category: wondrous
+  slot: waist
+  price_cp: 1600000
+  caster_level: 10
+  aura: Moderate transmutation
+  weight: 1
+  modifiers: '[{"target": "str", "type": "enhancement", "value": 4}]'
+  description: "Et bælte der giver +4 enhancement-bonus til Styrke."
+- id: belt_of_giant_strength_6
+  name: Belt of Giant Strength +6
+  category: wondrous
+  slot: waist
+  price_cp: 3600000
+  caster_level: 12
+  aura: Strong transmutation
+  weight: 1
+  modifiers: '[{"target": "str", "type": "enhancement", "value": 6}]'
+  description: "Et bælte der giver +6 enhancement-bonus til Styrke."
+- id: gloves_of_dexterity_2
+  name: Gloves of Dexterity +2
+  category: wondrous
+  slot: hands
+  price_cp: 400000
+  caster_level: 8
+  aura: Moderate transmutation
+  weight: 0
+  modifiers: '[{"target": "dex", "type": "enhancement", "value": 2}]'
+  description: "Handsker der giver +2 enhancement-bonus til Behændighed."
+- id: gloves_of_dexterity_4
+  name: Gloves of Dexterity +4
+  category: wondrous
+  slot: hands
+  price_cp: 1600000
+  caster_level: 12
+  aura: Strong transmutation
+  weight: 0
+  modifiers: '[{"target": "dex", "type": "enhancement", "value": 4}]'
+  description: "Handsker der giver +4 enhancement-bonus til Behændighed."
+- id: amulet_of_health_2
+  name: Amulet of Health +2
+  category: wondrous
+  slot: neck
+  price_cp: 400000
+  caster_level: 8
+  aura: Moderate transmutation
+  weight: 0
+  modifiers: '[{"target": "con", "type": "enhancement", "value": 2}]'
+  description: "Et amulet der giver +2 enhancement-bonus til Kropsbygning."
+- id: amulet_of_health_4
+  name: Amulet of Health +4
+  category: wondrous
+  slot: neck
+  price_cp: 1600000
+  caster_level: 12
+  aura: Strong transmutation
+  weight: 0
+  modifiers: '[{"target": "con", "type": "enhancement", "value": 4}]'
+  description: "Et amulet der giver +4 enhancement-bonus til Kropsbygning."
+- id: headband_of_intellect_2
+  name: Headband of Intellect +2
+  category: wondrous
+  slot: head
+  price_cp: 400000
+  caster_level: 8
+  aura: Moderate transmutation
+  weight: 0
+  modifiers: '[{"target": "int", "type": "enhancement", "value": 2}]'
+  description: "Et pandebånd der giver +2 enhancement-bonus til Intelligens."
+- id: periapt_of_wisdom_2
+  name: Periapt of Wisdom +2
+  category: wondrous
+  slot: neck
+  price_cp: 400000
+  caster_level: 8
+  aura: Moderate transmutation
+  weight: 0
+  modifiers: '[{"target": "wis", "type": "enhancement", "value": 2}]'
+  description: "Et smykke der giver +2 enhancement-bonus til Visdom."
+- id: cloak_of_charisma_2
+  name: Cloak of Charisma +2
+  category: wondrous
+  slot: shoulders
+  price_cp: 400000
+  caster_level: 8
+  aura: Moderate transmutation
+  weight: 1
+  modifiers: '[{"target": "cha", "type": "enhancement", "value": 2}]'
+  description: "En kappe der giver +2 enhancement-bonus til Karisma."
