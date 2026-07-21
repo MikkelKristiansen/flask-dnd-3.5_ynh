@@ -269,3 +269,115 @@
   weight: 1
   modifiers: '[{"target": "cha", "type": "enhancement", "value": 2}]'
   description: "En kappe der giver +2 enhancement-bonus til Karisma."
+
+# ── Forbrugsvarer (B2): potions/wands. Ingen permanente modifiers — effekten ──
+# ── kommer via spell_id når genstanden BRUGES (charges tælles ned). Buff-spells ──
+# ── tilføjer en buff; øjeblikkelige rulles. caster_level styrer rulle-skalering. ──
+- id: potion_of_cure_light_wounds
+  name: Potion of Cure Light Wounds
+  category: potion
+  slot: null
+  price_cp: 5000
+  caster_level: 1
+  aura: Faint conjuration
+  weight: 0
+  modifiers: '[]'
+  spell_id: cure_light_wounds
+  charges_max: 1
+  description: "Drik for at helbrede 1d8+1 skade (kaster Cure Light Wounds på dig selv)."
+- id: potion_of_cure_moderate_wounds
+  name: Potion of Cure Moderate Wounds
+  category: potion
+  slot: null
+  price_cp: 30000
+  caster_level: 3
+  aura: Faint conjuration
+  weight: 0
+  modifiers: '[]'
+  spell_id: cure_moderate_wounds
+  charges_max: 1
+  description: "Drik for at helbrede 2d8+3 skade."
+- id: potion_of_bulls_strength
+  name: Potion of Bull's Strength
+  category: potion
+  slot: null
+  price_cp: 30000
+  caster_level: 3
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: bull_strength
+  charges_max: 1
+  description: "Drik for +4 enhancement-bonus til Styrke (aktiv buff indtil den fjernes)."
+- id: potion_of_cats_grace
+  name: Potion of Cat's Grace
+  category: potion
+  slot: null
+  price_cp: 30000
+  caster_level: 3
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: cat_grace
+  charges_max: 1
+  description: "Drik for +4 enhancement-bonus til Behændighed."
+- id: potion_of_bears_endurance
+  name: Potion of Bear's Endurance
+  category: potion
+  slot: null
+  price_cp: 30000
+  caster_level: 3
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: bear_endurance
+  charges_max: 1
+  description: "Drik for +4 enhancement-bonus til Kropsbygning."
+- id: potion_of_mage_armor
+  name: Potion of Mage Armor
+  category: potion
+  slot: null
+  price_cp: 5000
+  caster_level: 1
+  aura: Faint conjuration
+  weight: 0
+  modifiers: '[]'
+  spell_id: mage_armor
+  charges_max: 1
+  description: "Drik for +4 armor-bonus til AC (aktiv buff indtil den fjernes)."
+- id: potion_of_shield_of_faith
+  name: Potion of Shield of Faith
+  category: potion
+  slot: null
+  price_cp: 5000
+  caster_level: 1
+  aura: Faint abjuration
+  weight: 0
+  modifiers: '[]'
+  spell_id: shield_of_faith
+  charges_max: 1
+  description: "Drik for +2 deflection-bonus til AC (aktiv buff indtil den fjernes)."
+- id: wand_of_magic_missile
+  name: Wand of Magic Missile
+  category: wand
+  slot: null
+  price_cp: 75000
+  caster_level: 1
+  aura: Faint evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: magic_missile
+  charges_max: 50
+  description: "Peg og aktivér: affyr én missil for 1d4+1 kraftskade (rammer automatisk)."
+- id: wand_of_cure_light_wounds
+  name: Wand of Cure Light Wounds
+  category: wand
+  slot: null
+  price_cp: 75000
+  caster_level: 1
+  aura: Faint conjuration
+  weight: 0
+  modifiers: '[]'
+  spell_id: cure_light_wounds
+  charges_max: 50
+  description: "Aktivér for at helbrede 1d8+1 skade."

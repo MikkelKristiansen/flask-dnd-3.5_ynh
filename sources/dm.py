@@ -328,6 +328,8 @@ def api_give_loot():
         if not mi:
             return "Ukendt magisk genstand", 404
         kwargs = {"ref": base_ref, "name": mi["name"], "state": "backpack"}
+        if mi.get("spell_id") and mi.get("charges_max"):     # forbrugsvare → fulde ladninger
+            kwargs["charges"] = int(mi["charges_max"])
     else:
         try:
             bonus = int(request.form.get("bonus") or "")

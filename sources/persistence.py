@@ -83,6 +83,7 @@ def load_character(path: str) -> Character:
                 masterwork=bool(item.get("masterwork", False)),
                 enhancement=int(item.get("enhancement", 0) or 0),
                 abilities=[str(a) for a in (item.get("abilities") or [])],
+                charges=(None if item.get("charges") is None else int(item["charges"])),
                 house_rule=bool(item.get("house_rule", False)),
             ))
         else:
@@ -405,6 +406,8 @@ def _serialize_inventory_item(item: InventoryItem) -> dict:
         out["enhancement"] = item.enhancement
     if item.abilities:
         out["abilities"] = list(item.abilities)
+    if item.charges is not None:
+        out["charges"] = item.charges
     if item.house_rule:
         out["house_rule"] = item.house_rule
     if item.notes:

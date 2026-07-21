@@ -50,6 +50,8 @@ def api_inventory():
 
     char      = char_module.load_character(str(path))
     inventory = list(char.inventory)
+    used  = None            # "use": info om den brugte forbrugsvare (rul/buff/ladninger)
+    extra = {}              # ekstra save-nøgler ud over inventory (fx buffs ved brug)
 
     if action == "add":
         ref   = str(data.get("ref", "")).strip()
@@ -131,8 +133,52 @@ def api_inventory():
             if not old.ref:
                 old.name   = str(data.get("name", old.name))
                 old.weight = float(data.get("weight", old.weight))
+    elif action == "use":
+        # Brug en forbrugsvare (potion/scroll/wand): kast dens spell én gang + tæl
+        # ladninger ned. Buff-spells → tilføj buffen (effekt+varigheds-motoren);
+        # øjeblikkelige → returnér et rulle-udtryk klienten slår i terningefeltet.
+        # Ladnings-skalering (Cure 1d8+CL) bruger GENSTANDENS caster level, ikke
+        # drikkerens. Engangs (charges_max ≤ 1) fjernes ved 0; wands bliver stående.
+        idx = int(data.get("index", -1))
+        if not (0 <= idx < len(inventory)):
+            return jsonify({"error": "bad index"}), 400
+        item = inventory[idx]
+        table, _, oid = (item.ref or "").partition("/")
+        mi = db.get_magic_item(oid) if table == "magic_items" else None
+        if not mi or not mi.get("spell_id"):
+            return jsonify({"error": "ikke en forbrugsvare"}), 400
+        sid = str(mi["spell_id"])
+        cl = int(mi.get("caster_level") or 1)
+        cur = item.charges if item.charges is not None else int(mi.get("charges_max") or 1)
+        if cur <= 0:
+            return jsonify({"error": "tom"}), 400
 
-    char_module.save_character(str(path), {"inventory": inventory})
+        used = {"name": mi["name"]}
+        eff = db.get_effect(sid)
+        if eff and eff.get("kind") == "buff":
+            buffs = list(char.buffs)
+            buffs.append({"name": eff["name"], "spell_id": sid,
+                          "affects": list(eff.get("affects") or []),
+                          "note": f"fra {mi['name']}"})
+            extra["buffs"] = buffs
+            used["buff_added"] = eff["name"]
+        else:
+            info = (char_module.spell_cast_info(sid, cl, db)
+                    or char_module.spell_heal_cast_info(sid, cl, db))
+            if info:
+                used["roll_expr"] = info["roll_expr"]
+                used["roll_label"] = mi["name"]
+                used["kind"] = info.get("kind")
+
+        cur -= 1
+        if cur <= 0 and int(mi.get("charges_max") or 1) <= 1:
+            inventory.pop(idx)
+            used["removed"] = True
+        else:
+            item.charges = cur
+            used["charges_left"] = cur
+
+    char_module.save_character(str(path), {"inventory": inventory, **extra})
     ab     = char.ability_scores
     weight = char_module.carried_weight(inventory, db, char.size)
     enc    = char_module.encumbrance_level(ab.str, weight, char.size)
@@ -143,6 +189,7 @@ def api_inventory():
         "weight":     weight,
         "enc":        enc,
         "enc_limits": char_module.carry_limits(ab.str, char.size),
+        "used":       used,
     })
 
 @inventory_bp.route("/api/notes", methods=["POST"])

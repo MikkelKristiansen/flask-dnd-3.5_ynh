@@ -52,6 +52,10 @@ def _inv_row(item, r: dict) -> dict:
                    and rec.get("category") == "ammunition")
     if is_ammo:
         name = re.sub(r"\s*\(\d+\)\s*$", "", name)
+    # Forbrugsvare (potion/scroll/wand): magic_items-ref med et spell_id → "🧪 Brug".
+    consumable = bool(r.get("source") == "magic_items" and rec and rec.get("spell_id"))
+    charges = (item.charges if item.charges is not None
+               else (rec.get("charges_max") if consumable else None))
     return {
         "name": name, "weight": r["unit_weight"], "qty": item.qty,
         "notes": item.notes, "state": item.state, "is_ref": bool(item.ref),
@@ -61,6 +65,7 @@ def _inv_row(item, r: dict) -> dict:
         "house_rule": item.house_rule,
         "off_hand": item.off_hand, "double": item.double,
         "is_ammo": is_ammo,
+        "consumable": consumable, "charges": charges,
     }
 
 

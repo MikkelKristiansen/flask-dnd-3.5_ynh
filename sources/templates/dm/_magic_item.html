@@ -14,6 +14,7 @@
 
   <div class="sb-grid">
     {% if it.effects %}<div><span class="sb-k">Effekt</span> {{ it.effects|join('; ') }}</div>{% endif %}
+    {% if it.charges_max %}<div><span class="sb-k">Ladninger</span> {{ it.charges_max }}{% if it.charges_max == 1 %} (engangs){% endif %}</div>{% endif %}
     <div><span class="sb-k">Pris</span> {{ it.price_str }}</div>
     {% if it.weight %}<div><span class="sb-k">Vægt</span> {{ it.weight }} pund</div>{% endif %}
   </div>

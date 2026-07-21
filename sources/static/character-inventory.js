@@ -33,13 +33,20 @@ function renderInventory() {
     const wtCell = ref
       ? `<span class="inv-weight" title="Vægt fra katalog (størrelses-justeret)">${tw} lbs</span>`
       : `<span class="inv-weight inv-editable" onclick="editInvField(this,${idx},'weight')" title="Klik for at redigere vægt">${tw} lbs</span>`;
+    // Forbrugsvare (potion/wand): 🧪 Brug-knap + ladningstæller i stedet for antal-stepper.
+    const midCell = item.consumable
+      ? `<span class="inv-qty-stepper">
+           <button class="inv-use" onclick="useConsumable(${idx})" title="Brug (kast dens spell + tæl ladning ned)">🧪 Brug</button>
+           <span class="inv-charges" title="Ladninger tilbage">${item.charges != null ? item.charges : "?"}${item.charges != null ? " lad." : ""}</span>
+         </span>`
+      : `<span class="inv-qty-stepper">
+           <button class="inv-step" onclick="adjQty(${idx},-1)" title="−1 (fx brug ammo)">−</button>
+           <span class="inv-qty inv-editable" onclick="editInvField(this,${idx},'qty')" title="Klik for at indtaste antal">×${item.qty}</span>
+           <button class="inv-step" onclick="adjQty(${idx},1)" title="+1">+</button>
+         </span>`;
     let html =
       `<div class="inv-c1">${nameCell}${badge}</div>
-       <span class="inv-qty-stepper">
-         <button class="inv-step" onclick="adjQty(${idx},-1)" title="−1 (fx brug ammo)">−</button>
-         <span class="inv-qty inv-editable" onclick="editInvField(this,${idx},'qty')" title="Klik for at indtaste antal">×${item.qty}</span>
-         <button class="inv-step" onclick="adjQty(${idx},1)" title="+1">+</button>
-       </span>
+       ${midCell}
        ${wtCell}
        <button class="inv-remove" onclick="removeItem(${idx})" title="Fjern">×</button>`;
     if (item.notes) html += `<span class="inv-notes" style="cursor:pointer" onclick="openItemDetail(${idx})">${escHtml(item.notes)}</span>`;
@@ -234,6 +241,27 @@ function adjQty(idx, delta) {
   })
   .then(r => r.json())
   .then(data => { if (!data.error) updateInventoryDisplay(data); });
+}
+
+// Brug en forbrugsvare: kast dens spell én gang + tæl ladning ned. Buff-potions →
+// serveren tilføjer buffen (reload viser den + opdaterede stats); øjeblikkelige →
+// rul i terningefeltet og opdatér ladningstælleren live.
+function useConsumable(idx) {
+  const item = inventoryData[idx];
+  if (item.charges != null && item.charges <= 0) { alert(item.name + " er tom."); return; }
+  fetch(BASE + "/api/inventory", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "use", index: idx})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { alert("Kunne ikke bruge: " + data.error); return; }
+    const u = data.used || {};
+    if (u.buff_added) { location.reload(); return; }   // buff ændrer stats → genindlæs
+    if (u.roll_expr && typeof quickRoll === "function")
+      quickRoll(u.roll_expr, u.roll_label || item.name, 1);
+    updateInventoryDisplay(data);                       // ladninger/fjernelse live
+  });
 }
 
 // cost_cp (kobber) → læsbar gp/sp/cp; null = "—".
