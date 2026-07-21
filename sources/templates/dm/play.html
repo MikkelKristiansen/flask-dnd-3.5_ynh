@@ -273,6 +273,10 @@ a{color:var(--accent);}
       <div class="pc-line">Init {{ '%+d'|format(pc.init) }} · {{ pc.speed }}ft</div>
       {% if pc.conditions %}<div class="pc-cond">⚑ {{ pc.conditions|join(', ') }}</div>{% endif %}
       {% endif %}
+      {# Party-redigering låses under kamp: combatants seedes fra party ved kamp-start,
+         så tilføj/fjern nu ville ikke røre den kørende encounter. Panelet vises stadig
+         som DM-reference (HP/AC/saves). #}
+      {% if not combat_active %}
       <form method="post" action="{{ url_for('dm.edit_party', slug=session.slug) }}"
             style="margin-top:.35rem" onsubmit="return confirm('Fjern {{ pc.slug }} fra party?');">
         <input type="hidden" name="action" value="remove">
@@ -280,11 +284,14 @@ a{color:var(--accent);}
         <button type="submit" title="Fjern fra sessionens party"
                 style="background:transparent;border:1px solid var(--border);color:var(--muted);font-size:.7rem;padding:.15rem .5rem;border-radius:5px;cursor:pointer">✕ Fjern</button>
       </form>
+      {% endif %}
     </div>
     {% else %}
     <div class="note">Intet party valgt.</div>
     {% endfor %}
-    {% if available_pcs %}
+    {% if combat_active %}
+    <div class="note" style="margin-top:.6rem">🔒 Party låst under kamp — combatants blev sat da kampen startede.</div>
+    {% elif available_pcs %}
     <form method="post" action="{{ url_for('dm.edit_party', slug=session.slug) }}"
           style="display:flex;gap:.4rem;margin-top:.6rem">
       <select name="pc" style="flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:.2rem">

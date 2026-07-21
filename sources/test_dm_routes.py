@@ -616,6 +616,19 @@ def test_encounter_board_shows_live_combat_positions(enc_client):
     assert 'id="board-slot"' in html and 'data-combat="1"' in html
 
 
+def test_party_edit_locked_during_combat(enc_client):
+    # Party seedes til combatants ved kamp-start, så tilføj/fjern under kamp ville ikke
+    # røre encounteren → kontrollerne låses (panelet vises stadig som reference).
+    slug = _new(enc_client, name="PL", party=["tjorn"])
+    before = enc_client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "✕ Fjern" in before                               # party redigerbart uden kamp
+    assert "Party låst under kamp" not in before
+    enc_client.post(f"/dm/api/encounter/{slug}/start")
+    during = enc_client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "Party låst under kamp" in during
+    assert "✕ Fjern" not in during                           # redigering skjult under kamp
+
+
 def test_edit_link_locked_on_combat_board(enc_client):
     # Under kamp redigerer man den forfattede opstilling forgæves (kampen bruger live-
     # positioner), så redigér-linket låses på kamp-brættet.

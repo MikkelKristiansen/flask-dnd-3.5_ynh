@@ -476,8 +476,11 @@ def play(slug):
     party = dm_party.party_view(session.party, db)
     available_pcs = [s for s in dm_scene._character_slugs() if s not in session.party]
     board_maps, map_slug = _scene_board_maps(session, adventure)
+    # Under en kørende kamp låses party-redigeringen: combatants seedes fra party ved
+    # kamp-START, så tilføj/fjern nu ville ikke røre den igangværende encounter.
+    combat_active = bool(session.encounter.get("active"))
     return render_template("dm/play.html", session=session,
-                           available_pcs=available_pcs,
+                           available_pcs=available_pcs, combat_active=combat_active,
                            adventure=adventure, active=active, party=party,
                            adv_ref=session.adventure, map_slug=map_slug,
                            board_maps=board_maps,
