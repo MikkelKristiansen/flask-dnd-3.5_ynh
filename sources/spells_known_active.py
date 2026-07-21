@@ -69,15 +69,21 @@ def make_instance(char, spell_id: str, level: int, db) -> dict:
 def derive_known_active(char, db) -> list[dict]:
     """Render-rækker for de aktive spontane instanser (til "Aktive effekter").
 
-    Samme række-form som ``derive_active_utility`` (label/tracker/varighedstekst),
-    men nøglet på ``uid`` i stedet for level-index."""
+    Én række pr. instans, nøglet på ``uid`` i stedet for level-index. Samme
+    felter som ``derive_active_utility``/``derive_spell_effects`` tilsammen:
+
+    - Alle rækker bærer varigheds-trackeren (nedtæller).
+    - Vedvarende kamp-spells (Flaming Sphere) er også ``is_effect``: de bærer en
+      rulbar skade-formel + save-type/-effekt (DC lægges på i view-laget, som
+      kræver caster-evne-modifier). Har et spell flere save-angreb, bruges det
+      FØRSTE — de sorcerer-relevante vedvarende spells har præcis ét."""
     out: list[dict] = []
     for inst in (char.spells_known_active or []):
         sid = inst["spell_id"]
         spell = db.get_spell(sid) or {}
         dur = sp.spell_duration(spell, char.level)
         tracker = inst.get("duration")
-        out.append({
+        row = {
             "uid":          inst["uid"],
             "label":        spell.get("name") or sid,
             "level":        inst["level"],
@@ -88,5 +94,23 @@ def derive_known_active(char, db) -> list[dict]:
             "concentration": bool(dur and dur.get("concentration")),
             "permanent":    bool(dur and dur.get("permanent")),
             "school":       spell.get("school") or "",
-        })
+            "is_effect":    False,
+        }
+        # Vedvarende kamp: første save-angreb → skade/save på rækken (rulbar hver
+        # runde mens instansen er aktiv). Almindelige varigheds-buffs har ingen.
+        if sp.spell_is_sustained_combat(sid, char.level, db):
+            save_row = next((r for r in db.get_spell_attacks(sid)
+                             if r.get("kind") == "save"), None)
+            if save_row:
+                row.update({
+                    "is_effect":   True,
+                    "damage":      sp.spell_area_damage(save_row, char.level),
+                    "dmg_type":    save_row.get("dmg_type") or "",
+                    "save_type":   save_row.get("save_type") or "",
+                    "save_effect": save_row.get("save_effect") or "",
+                    "range":       spell.get("range") or "",
+                    "area":        spell.get("target") or "",
+                    "duration":    spell.get("duration") or "",
+                })
+        out.append(row)
     return out

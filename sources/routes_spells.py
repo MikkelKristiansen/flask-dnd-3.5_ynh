@@ -148,6 +148,9 @@ def api_known_active():
 
     action="activate" (level, spell_id) → tilføj instans m/ varigheds-snapshot.
     action="deactivate" (uid)          → fjern instansen (slotten refunderes ikke).
+    action="tick" (uid, delta, reset)  → justér instansens varigheds-nedtæller
+        (delta klampet 0..max; reset=True → fuld varighed). Har instansen intet
+        snapshot endnu (aktiveret før feature'en), synthesizes det ved første klik.
     """
     from app import _char_path
     data     = request.get_json()
@@ -169,6 +172,27 @@ def api_known_active():
     elif action == "deactivate":
         uid = str(data.get("uid", ""))
         instances = [i for i in instances if str(i.get("uid")) != uid]
+    elif action == "tick":
+        uid   = str(data.get("uid", ""))
+        delta = int(data.get("delta", 0))
+        reset = bool(data.get("reset", False))
+        inst = next((i for i in instances if str(i.get("uid")) == uid), None)
+        if inst is None:
+            return jsonify({"error": "no instance"}), 400
+        snap = inst.get("duration")
+        if snap is None:
+            snap = char_module.spell_duration_snapshot(
+                db.get_spell(inst["spell_id"]) or {}, char.level)
+            if snap is None:
+                return jsonify({"error": "no duration"}), 400
+        rmax = int(snap["max"])
+        cur = int(snap["left"])
+        new = rmax if reset else max(0, min(rmax, cur + delta))
+        inst["duration"] = {"left": new, "max": rmax, "unit": snap["unit"]}
+        char.spells_known_active = instances
+        char_module.save_character(str(path), {"spells_known_active": instances})
+        return jsonify({"ok": True, "left": new, "max": rmax,
+                        "unit_label": char_module.dur_unit_label(snap["unit"])})
     else:
         return jsonify({"error": "bad action"}), 400
 

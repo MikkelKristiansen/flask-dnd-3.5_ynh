@@ -66,16 +66,30 @@
 
     {# ── Aktive effekter (spontan): instanser oprettet af ✨ Kast på et varigheds- ── #}
     {# ── spell. Hver instans er uafhængig (uid) — samme spell kan stå flere gange.   #}
+    {% set save_names = {"reflex":"Refleks","fortitude":"Fysik","will":"Vilje"} %}
+    {% set save_fx = {"half":"halv","negates":"negerer","partial":"delvis"} %}
     <div class="section" id="known-active-section"{% if not known_active %} style="display:none"{% endif %}>
       <div class="section-title">Aktive effekter <span style="color:var(--muted);font-size:.7rem;font-style:italic">(spontane varigheds-spells i brug)</span></div>
       <div id="known-active-list">
         {% for inst in known_active %}
-        <div class="spell-row" data-uid="{{ inst.uid }}">
+        <div class="spell-row" data-uid="{{ inst.uid }}" style="flex-wrap:wrap;gap:.35rem .6rem">
           <span>
             <span class="spell-name">{{ inst.label }}</span>
-            {% if inst.duration_text %}<span class="spell-school">&nbsp;·&nbsp;{{ inst.duration_text }}</span>{% endif %}
+            {% if inst.is_effect and inst.save_type %}<span style="color:var(--accent);font-size:.72rem;margin-left:.35rem" title="Save-DC modstanderen skal slå">{{ save_names.get(inst.save_type, inst.save_type|capitalize) }} DC {{ inst.dc }}{% if inst.save_effect %} ({{ save_fx.get(inst.save_effect, inst.save_effect) }}){% endif %}</span>
+            {% elif inst.duration_text %}<span class="spell-school">&nbsp;·&nbsp;{{ inst.duration_text }}</span>{% endif %}
           </span>
+          <span style="display:flex;gap:.4rem;align-items:center">
+          {% if inst.is_effect and inst.damage %}
+            <span class="attack-dmg roll-tap" style="cursor:pointer" onclick="quickRoll('{{ inst.damage }}','{{ inst.label }} skade',1)" title="Rul skade ({{ inst.dmg_type }})">{{ inst.damage }}{% if inst.dmg_type %} {{ inst.dmg_type }}{% endif %}</span>
+          {% endif %}
+          {% if inst.tracker %}
+            <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.95rem" title="−1 {{ inst.unit_label }}" onclick="adjKnownDuration({{ inst.uid|tojson }},-1)">−</button>
+            <span class="summon-rounds{{ ' expired' if inst.tracker.left == 0 else '' }}" id="known-{{ inst.uid }}-dur">{% if inst.tracker.left == 0 %}udløbet{% else %}{{ inst.tracker.left }}/{{ inst.tracker.max }} {{ inst.unit_label }}{% endif %}</span>
+            <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.95rem" title="+1 {{ inst.unit_label }}" onclick="adjKnownDuration({{ inst.uid|tojson }},1)">+</button>
+            <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.85rem" title="Nulstil til fuld varighed" onclick="adjKnownDuration({{ inst.uid|tojson }},0,true)">⟲</button>
+          {% endif %}
           <button class="hp-btn" style="width:1.6rem;height:1.6rem;font-size:.85rem" title="Afslut effekten" onclick="deactivateKnown({{ inst.uid|tojson }})">✕</button>
+          </span>
         </div>
         {% endfor %}
       </div>

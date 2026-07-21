@@ -390,6 +390,25 @@ function castKnownDuration(level, spellId, label) {
   .then(d => { if (d && d.ok) location.reload(); });
 }
 
+// Justér en aktiv spontan instans' resterende varighed (uid-nøglet modstykke til
+// adjUtilDuration). reset=true → fuld varighed. Serveren returnerer enheds-labelen.
+function adjKnownDuration(uid, delta, reset) {
+  fetch(BASE + "/api/known_active", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "tick", uid, delta, reset: !!reset})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) return;
+    const el = document.getElementById("known-" + uid + "-dur");
+    if (!el) return;
+    const done = data.left === 0;
+    el.textContent = done ? "udløbet" : `${data.left}/${data.max} ${data.unit_label}`;
+    el.classList.toggle("expired", done);
+  });
+}
+
 // Afslut en aktiv spontan instans (uid). Slotten refunderes ikke — spellet er kastet.
 function deactivateKnown(uid) {
   fetch(BASE + "/api/known_active", {

@@ -240,6 +240,14 @@ def build_spell_view(char, db) -> dict:
     # Ingen DC/cast_mod nødvendig; ren visning fra spell_duration.
     spell_utilities = char_module.derive_active_utility(char, db)
 
+    # Spontane aktive instanser (skive 2): samme DC-berigelse som spell_effects
+    # for de vedvarende kamp-rækker (kræver cast_mod, kendt her).
+    known_active = spells_known_active.derive_known_active(char, db)
+    for a in known_active:
+        if a.get("is_effect"):
+            focus = char_module.spell_focus_bonus(char.feats, a["school"])
+            a["dc"] = char_module.spell_save_dc(a["level"], cast_mod, focus)
+
     # ⚡ Kast-knap: anden pass over spell_data (rækkerne blev bygget tidligt, før
     # cast_mod var kendt). Dekorér HVER cast (angreb/save/heal) med knap-tekst,
     # terning-feltets label og title. Al tekst bygges her i Python (ikke i
@@ -334,7 +342,7 @@ def build_spell_view(char, db) -> dict:
         "cast_ability": cast_ability,
         "cast_mod": cast_mod,
         "known_data": known_data,
-        "known_active": spells_known_active.derive_known_active(char, db),
+        "known_active": known_active,
         "spell_effects": spell_effects,
         "spell_utilities": spell_utilities,
     }
