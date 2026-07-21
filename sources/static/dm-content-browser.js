@@ -19,9 +19,10 @@
   var STATBLOCK = API.replace(/\/entity-ids$/, "/catalog-statblock");
 
   var TABS = [
-    { key: "monster", label: "Monstre", ins: "@monster[" },
-    { key: "faelde",  label: "Fælder",  ins: "@faelde[" },
-    { key: "door",    label: "Døre",    ins: "@dør[" }
+    { key: "monster",  label: "Monstre", ins: "@monster[" },
+    { key: "faelde",   label: "Fælder",  ins: "@faelde[" },
+    { key: "door",     label: "Døre",    ins: "@dør[" },
+    { key: "genstand", label: "Magiske genstande", ins: "@genstand[" }
   ];
   var CACHE = {};
   var active = "monster";

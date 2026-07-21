@@ -22,7 +22,8 @@
   }
 
   var CACHE = {};
-  var DB_TYPE = { monster: "monster", faelde: "faelde", "dør": "door", door: "door" };
+  var DB_TYPE = { monster: "monster", faelde: "faelde", "dør": "door", door: "door",
+                  genstand: "genstand" };
   function fetchIds(type, cb) {
     var key = DB_TYPE[type];
     if (!key || !API) { cb([]); return; }

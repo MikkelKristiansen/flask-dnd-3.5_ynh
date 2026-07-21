@@ -86,13 +86,14 @@ def test_navigation_persists(client):
 
 
 def test_entities_rendered_as_span(client):
-    # Et @-token der hverken er handout eller monster/npc forbliver ren tekst.
-    raw = ("---\ntitle: T\n---\n# S\nEn @genstand[amulet] uden opslag.\n")
+    # Et @-token der hverken er handout eller en katalog-type (monster/fælde/dør/
+    # magisk/genstand) forbliver ren tekst.
+    raw = ("---\ntitle: T\n---\n# S\nEn @blomst[rose] uden opslag.\n")
     (ds.ADVENTURES_DIR / "Plain").mkdir()
     (ds.ADVENTURES_DIR / "Plain" / "adventure.md").write_text(raw, encoding="utf-8")
     slug = _new(client, name="E", adventure="Plain")
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
-    assert '<span class="ent ent-genstand">amulet</span>' in html
+    assert '<span class="ent ent-blomst">rose</span>' in html
 
 
 def test_delete_session(client):
@@ -301,6 +302,50 @@ def test_give_loot_adds_item_to_character(client, tmp_path, monkeypatch):
 
     inv = char_module.load_character(str(chars / "tjorn.yaml")).inventory
     assert any(i.ref == "weapons/longsword" and i.enhancement == 1 and i.bonus == 1
+               for i in inv)
+
+
+# ── Magiske genstande i opslagsværket + give-loot (Del B1b) ──────────────────
+def test_entity_ids_lists_magic_items(client):
+    j = client.get("/dm/api/entity-ids?type=genstand").get_json()
+    ids = {r["id"] for r in j}
+    assert "cloak_of_resistance_1" in ids and "ring_of_protection_1" in ids
+
+
+def test_catalog_statblock_magic_item_has_no_give_loot(client):
+    # Opslagsværket er party-løst → visning uden give-loot-formular.
+    html = client.get("/dm/api/catalog-statblock/genstand/ring_of_protection_1").get_data(as_text=True)
+    assert "Ring of Protection +1" in html
+    assert "give-loot" not in html
+
+
+def test_magic_item_reference_is_clickable(client):
+    raw = ("---\ntitle: T\n---\n# S\nDu finder et @genstand[cloak_of_resistance_2].\n")
+    (ds.ADVENTURES_DIR / "MagicRef").mkdir()
+    (ds.ADVENTURES_DIR / "MagicRef" / "adventure.md").write_text(raw, encoding="utf-8")
+    slug = _new(client, name="MR", adventure="MagicRef")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert 'data-stat="genstand/cloak_of_resistance_2"' in html
+
+
+def test_give_loot_magic_item(client, tmp_path, monkeypatch):
+    import shutil
+    import app as app_module
+    import dm_scene
+    import character as char_module
+    chars = tmp_path / "characters"
+    chars.mkdir()
+    shutil.copy("defaults/tjorn.yaml", chars / "tjorn.yaml")
+    monkeypatch.setattr(app_module, "CHARACTERS_DIR", chars)
+    monkeypatch.setattr(dm_scene, "CHARACTERS_DIR", chars)
+
+    r = client.post("/dm/api/give-loot",
+                    data={"char": "tjorn", "base_ref": "magic_items/cloak_of_resistance_2"})
+    assert r.status_code == 200 and "Cloak of Resistance +2" in r.get_data(as_text=True)
+
+    inv = char_module.load_character(str(chars / "tjorn.yaml")).inventory
+    assert any(i.ref == "magic_items/cloak_of_resistance_2"
+               and i.name == "Cloak of Resistance +2" and i.state == "backpack"
                for i in inv)
 
 

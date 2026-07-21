@@ -14,6 +14,7 @@ import db
 import dm_scene
 import dm_session as ds
 import doors as doors_module
+import magic_items as magic_items_module
 import traps as traps_module
 from dm import _TRAP_TYPE, dm_bp
 
@@ -25,7 +26,8 @@ def entity_ids():
     (npc/brev/kort) hentes IKKE her — de completes fra selve teksten i klienten."""
     getters = {"monster": db.get_all_monsters,
                "faelde": db.get_all_traps,
-               "door": db.get_all_doors}
+               "door": db.get_all_doors,
+               "genstand": db.get_all_magic_items}
     g = getters.get(request.args.get("type", ""))
     if not g:
         return jsonify([])
@@ -47,6 +49,11 @@ def api_catalog_statblock(etype, ident):
         row = db.get_door(ident)
         if row:
             return render_template("dm/_door.html", d=doors_module.door_view(row))
+    elif etype == "genstand":
+        row = db.get_magic_item(ident)
+        if row:                                     # opslag = party-løst → ingen give-loot
+            return render_template("dm/_magic_item.html",
+                                   it=magic_items_module.magic_item_view(row))
     else:
         row = db.get_monster(ident)
         if row:

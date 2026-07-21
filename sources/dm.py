@@ -28,6 +28,7 @@ import catalog
 import doors as doors_module
 import magic_abilities
 import magic_gear
+import magic_items as magic_items_module
 import traps as traps_module
 
 # Entity-typer der slås op som statblok (klikbare → inspector).
@@ -38,6 +39,7 @@ _STAT_TYPES = {"monster", "npc"}
 _TRAP_TYPE = "faelde"
 _DOOR_TYPES = {"dør", "door"}
 _MAGIC_TYPE = "magisk"                                # @magisk[base+bonus] → magic_gear-overlay
+_ITEM_TYPE = "genstand"                               # @genstand[id] → magic_items-katalog
 
 dm_bp = Blueprint("dm", __name__, url_prefix="/dm")
 
@@ -63,7 +65,7 @@ def _entities_filter(text: str, docs: dict | None = None) -> Markup:
             out.append(Markup(
                 '<a class="ent ent-{} ent-link" data-doc="{}">{}</a>').format(
                     typ, key, docs[key]))
-        elif typ in _STAT_TYPES or typ == _TRAP_TYPE or typ == _MAGIC_TYPE:  # monster/npc/fælde/magisk → statblok-fetch
+        elif typ in _STAT_TYPES or typ in (_TRAP_TYPE, _MAGIC_TYPE, _ITEM_TYPE):  # monster/npc/fælde/magisk/genstand → statblok-fetch
             out.append(Markup(
                 '<a class="ent ent-{} ent-stat" data-stat="{}/{}">{}</a>').format(
                     typ, typ, ident, ident))
@@ -287,6 +289,14 @@ def api_statblock(adventure, etype, ident):
                      for p in dm_party.party_view(dm_scene._character_slugs(), db)]
             return render_template("dm/_magic.html", it=view, bonus=bonus, chars=chars)
         return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
+    if etype == _ITEM_TYPE:                            # genstand[id] → magic_items-katalog
+        row = db.get_magic_item(ident)
+        if row:
+            chars = [{"slug": p["slug"], "name": p["name"]}
+                     for p in dm_party.party_view(dm_scene._character_slugs(), db)]
+            return render_template("dm/_magic_item.html",
+                                   it=magic_items_module.magic_item_view(row), chars=chars)
+        return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
     stats = adv.statblock(ident)
     if stats:
         return render_template("dm/_statblock.html",
@@ -303,32 +313,43 @@ def api_statblock(adventure, etype, ident):
 
 @dm_bp.route("/api/give-loot", methods=["POST"])
 def api_give_loot():
-    """Trin 2: DM lægger et magisk item i en spillers rygsæk. Genbruger den
-    eksisterende inventar-save-vej (load_character → append InventoryItem →
-    save_character); feltmapningen 'magisk item → InventoryItem' bor i magic_gear."""
+    """DM lægger et magisk item i en spillers rygsæk. To slags loot deler samme vej:
+    en enhancement-bygget våben/rustning (magic_gear: base+bonus+abilities) ELLER en
+    færdig katalog-genstand (magic_items/<id>). Begge → append InventoryItem →
+    save_character (den eksisterende inventar-save-vej)."""
     from app import _char_path
     slug = (request.form.get("char") or "").strip()
     base_ref = (request.form.get("base_ref") or "").strip()
-    try:
-        bonus = int(request.form.get("bonus") or "")
-    except ValueError:
-        return "Ugyldig bonus", 400
-    table, _, oid = base_ref.partition("/")
-    base = (db.get_weapon(oid) if table == "weapons"
-            else db.get_armor(oid) if table == "armor" else None)
-    if not base:
-        return "Ukendt base-genstand", 404
-    # Abilities: kun dem der er gyldige for genstandens slot (våben/rustning/skjold).
-    slot = "weapon" if table == "weapons" else ("shield" if base.get("type") == "shield" else "armor")
-    valid = {a["id"] for a in magic_abilities.for_slot(slot)}
-    ability_ids = [a for a in request.form.getlist("abilities") if a in valid]
-    try:
-        kwargs = magic_gear.as_inventory_item(base_ref, bonus, ability_ids)
-    except ValueError:
-        return "Ugyldigt magisk item", 400
+    table = base_ref.partition("/")[0]
+
+    if table == "magic_items":
+        oid = base_ref.partition("/")[2]
+        mi = db.get_magic_item(oid)
+        if not mi:
+            return "Ukendt magisk genstand", 404
+        kwargs = {"ref": base_ref, "name": mi["name"], "state": "backpack"}
+    else:
+        try:
+            bonus = int(request.form.get("bonus") or "")
+        except ValueError:
+            return "Ugyldig bonus", 400
+        oid = base_ref.partition("/")[2]
+        base = (db.get_weapon(oid) if table == "weapons"
+                else db.get_armor(oid) if table == "armor" else None)
+        if not base:
+            return "Ukendt base-genstand", 404
+        # Abilities: kun dem der er gyldige for genstandens slot (våben/rustning/skjold).
+        slot = "weapon" if table == "weapons" else ("shield" if base.get("type") == "shield" else "armor")
+        valid = {a["id"] for a in magic_abilities.for_slot(slot)}
+        ability_ids = [a for a in request.form.getlist("abilities") if a in valid]
+        try:
+            kwargs = magic_gear.as_inventory_item(base_ref, bonus, ability_ids)
+        except ValueError:
+            return "Ugyldigt magisk item", 400
+        kwargs["name"] = magic_gear.magic_name(bonus, base["name"], magic_abilities.resolve(ability_ids))
+
     if slug not in dm_scene._character_slugs():
         return "Ukendt karakter", 404
-    kwargs["name"] = magic_gear.magic_name(bonus, base["name"], magic_abilities.resolve(ability_ids))
     path = _char_path(slug)
     char = char_module.load_character(str(path))
     inventory = list(char.inventory)

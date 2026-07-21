@@ -1,0 +1,34 @@
+{# Magisk-genstand-statblok til inspector/opslag. Genbruger .sb-*-stilene.
+   Kilde: db.get_magic_item → magic_items.magic_item_view. give-loot vises kun når
+   `chars` er sat (play-view m/ party), ikke i det party-løse opslagsværk. #}
+<div class="sb">
+  <div class="sb-head">
+    <span class="sb-name">✨ {{ it.name }}</span>
+    <span class="sb-origin">{{ it.category|capitalize }}</span>
+  </div>
+  <div class="sb-sub">
+    {%- if it.slot %}{{ it.slot|capitalize }}-slot{% else %}slotløs{% endif -%}
+    {%- if it.caster_level %} · caster level {{ it.caster_level }}{% endif -%}
+    {%- if it.aura %} · {{ it.aura }}{% endif -%}
+  </div>
+
+  <div class="sb-grid">
+    {% if it.effects %}<div><span class="sb-k">Effekt</span> {{ it.effects|join('; ') }}</div>{% endif %}
+    <div><span class="sb-k">Pris</span> {{ it.price_str }}</div>
+    {% if it.weight %}<div><span class="sb-k">Vægt</span> {{ it.weight }} pund</div>{% endif %}
+  </div>
+
+  {% if it.description %}<p class="sb-desc">{{ it.description }}</p>{% endif %}
+
+  {% if chars %}
+  <form class="give-loot" data-base="magic_items/{{ it.id }}" data-bonus="0">
+    <label class="sb-k">🎁 Giv til spiller
+      <select name="char">
+        {% for c in chars %}<option value="{{ c.slug }}">{{ c.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <button type="submit">Læg i rygsæk</button>
+    <span class="give-result" role="status" hidden></span>
+  </form>
+  {% endif %}
+</div>
