@@ -67,18 +67,33 @@
   });
 
   // Giv-loot-formularen bor i det fetch'ede magisk-item-fragment → delegeret submit.
+  // FormData tager char + alle afkrydsede abilities (name=abilities) med; base_ref/
+  // bonus ligger i dataset (ikke form-felter), så de sættes eksplicit.
   document.addEventListener('submit', function (e) {
     var form = e.target.closest('.give-loot');
     if (!form) return;
     e.preventDefault();
     var res = form.querySelector('.give-result');
-    fetch(ROOT + '/dm/api/give-loot', {
-      method: 'POST',
-      body: new URLSearchParams({
-        char: form.char.value, base_ref: form.dataset.base, bonus: form.dataset.bonus })
-    }).then(function (r) { return r.text(); })
+    var params = new URLSearchParams(new FormData(form));
+    params.set('base_ref', form.dataset.base);
+    params.set('bonus', form.dataset.bonus);
+    fetch(ROOT + '/dm/api/give-loot', { method: 'POST', body: params })
+      .then(function (r) { return r.text(); })
       .then(function (t) { res.hidden = false; res.textContent = t; })
       .catch(function () { res.hidden = false; res.textContent = 'Kunne ikke give loot.'; });
+  });
+
+  // Kryds en ability af/til i byggeren → genopbyg @magisk-ident'en og re-fetch
+  // fragmentet, så navn + pris opdateres live (server = sandhedskilde).
+  document.addEventListener('change', function (e) {
+    if (!e.target.matches('.give-loot input[name="abilities"]')) return;
+    var form = e.target.closest('.give-loot');
+    var baseId = (form.dataset.base || '').split('/')[1];
+    var checked = Array.prototype.map.call(
+      form.querySelectorAll('input[name="abilities"]:checked'),
+      function (c) { return c.value; });
+    var ident = baseId + '+' + form.dataset.bonus + (checked.length ? ',' + checked.join(',') : '');
+    openStat('magisk/' + ident);
   });
 
   // Kamp-brættet holdes synkront med trackeren: efter enhver kamp-handling

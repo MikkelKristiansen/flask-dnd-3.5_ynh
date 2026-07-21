@@ -19,8 +19,27 @@
     <div><span class="sb-k">Pris</span> {{ it.price_str }}</div>
   </div>
 
+  {% if it.abilities %}
+  <div class="sb-abilities">
+    <div class="sb-k">Special abilities</div>
+    {% for ab in it.abilities %}
+    <div class="sb-ability"><strong>{{ ab.name }}</strong>{% if ab.note %} — <span class="sb-ability-note">{{ ab.note }}</span>{% endif %}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {% if chars %}
   <form class="give-loot" data-base="{{ it.base_ref }}" data-bonus="{{ bonus }}">
+    {% if it.pickable %}
+    <details class="give-abilities"{% if it.ability_ids %} open{% endif %}>
+      <summary class="sb-k">✨ Special abilities (kryds af — pris opdateres)</summary>
+      <div class="give-abilities-list">
+        {% for ab in it.pickable %}
+        <label class="give-ability"><input type="checkbox" name="abilities" value="{{ ab.id }}"{% if ab.id in it.ability_ids %} checked{% endif %}> {{ ab.name }}{% if ab.price.type == 'bonus' %} <span class="sb-ability-note">(+{{ ab.price.value }})</span>{% else %} <span class="sb-ability-note">(+{{ ab.price.value }} gp)</span>{% endif %}</label>
+        {% endfor %}
+      </div>
+    </details>
+    {% endif %}
     <label class="sb-k">🎁 Giv til spiller
       <select name="char">
         {% for c in chars %}<option value="{{ c.slug }}">{{ c.name }}</option>{% endfor %}

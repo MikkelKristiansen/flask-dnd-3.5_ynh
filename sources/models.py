@@ -72,6 +72,7 @@ class InventoryItem:
     double: bool = False        # dobbeltvåben (fx quarterstaff) brugt som to våben → primær + off-hånds-ende (light)
     masterwork: bool = False    # rustning/skjold: mesterværk → ACP forbedres med +1 (mod 0)
     enhancement: int = 0        # magisk +N: rustning/skjold→AC (≥1 medfører masterwork); våben→skade (til-hit via bonus)
+    abilities: list = field(default_factory=list)  # magiske special abilities (id-liste → data/magic_abilities.yaml); navn/note/pris nu, mekanik senere
     house_rule: bool = False    # DM tillader trods manglende proficiency/druid-forbud → ingen straf/advarsel
 
 

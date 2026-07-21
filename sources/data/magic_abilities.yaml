@@ -1,0 +1,248 @@
+# Magiske special abilities for våben/rustning/skjold (SRD v3.5, Magic Items II).
+#
+# Prissættes på to måder (styrer 'price'):
+#   type: bonus  → "effektiv bonus"; value lægges oven på enhancement ved
+#                  prisberegning (samlet effektiv bonus, cap +10). SELVE enhancement
+#                  (til-hit/AC/skade) er UÆNDRET — abilities har egne effekter.
+#   type: flat   → fast gp-tillæg (value i gp), lægges direkte på prisen.
+#
+# 'slots' = hvilke genstandstyper ability'en kan sidde på (weapon|armor|shield).
+# 'note'  = kort dansk beskrivelse. TRIN 1: kun navn/note/pris vises — de mekaniske
+# effekter (fx flaming = +1d6 ild) wires i et senere lag (som +N-skade i Fase C).
+#
+# Dette er et kurateret start-katalog (de hyppigste). Den lange hale (fx anarchic,
+# axiomatic, ki focus, spell storing, dancing) kan udvides fra SRD-klonen senere.
+
+# ── Våben ──────────────────────────────────────────────────────────────────
+- id: flaming
+  name: Flaming
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "+1d6 ildskade ved hvert ramning."
+  source: "Magic Items II"
+- id: frost
+  name: Frost
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "+1d6 kuldeskade ved hvert ramning."
+  source: "Magic Items II"
+- id: shock
+  name: Shock
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "+1d6 elektricitetsskade ved hvert ramning."
+  source: "Magic Items II"
+- id: keen
+  name: Keen
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "Fordobler våbnets trusselsområde (kun stik-/hugvåben). Stacker ikke med Improved Critical."
+  source: "Magic Items II"
+- id: defending
+  name: Defending
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "Overfør hele eller dele af enhancement-bonussen til AC som skjold-bonus (vælges pr. runde)."
+  source: "Magic Items II"
+- id: ghost_touch
+  name: Ghost Touch
+  slots: [weapon, armor, shield]
+  price: {type: bonus, value: 1}
+  note: "Rammer inkorporeale væsner normalt; kan tages af/gives til inkorporeale."
+  source: "Magic Items II"
+- id: merciful
+  name: Merciful
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "+1d6 skade, og al skade er nonletal (kan slås fra)."
+  source: "Magic Items II"
+- id: thundering
+  name: Thundering
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "+1d8 sonisk skade ved kritisk ramning; offer kan blive døvet."
+  source: "Magic Items II"
+- id: vicious
+  name: Vicious
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "+2d6 skade på målet, men 1d6 skade på dig selv ved hvert ramning."
+  source: "Magic Items II"
+- id: distance
+  name: Distance
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "Fordobler rækkevidde-inkrement (kun afstandsvåben)."
+  source: "Magic Items II"
+- id: returning
+  name: Returning
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "Kastevåben vender tilbage til kasteren i starten af næste runde (kun afstands-/kastevåben)."
+  source: "Magic Items II"
+- id: seeking
+  name: Seeking
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "Ignorér skjul (concealment) på afstandsangreb (kun afstandsvåben)."
+  source: "Magic Items II"
+- id: flaming_burst
+  name: Flaming Burst
+  slots: [weapon]
+  price: {type: bonus, value: 2}
+  note: "Som Flaming (+1d6 ild), plus ekstra ildskade ved kritisk ramning."
+  source: "Magic Items II"
+- id: icy_burst
+  name: Icy Burst
+  slots: [weapon]
+  price: {type: bonus, value: 2}
+  note: "Som Frost (+1d6 kulde), plus ekstra kuldeskade ved kritisk ramning."
+  source: "Magic Items II"
+- id: shocking_burst
+  name: Shocking Burst
+  slots: [weapon]
+  price: {type: bonus, value: 2}
+  note: "Som Shock (+1d6 el), plus ekstra elektricitetsskade ved kritisk ramning."
+  source: "Magic Items II"
+- id: holy
+  name: Holy
+  slots: [weapon]
+  price: {type: bonus, value: 2}
+  note: "+2d6 skade mod onde væsner; en ond wielder får negative niveauer."
+  source: "Magic Items II"
+- id: unholy
+  name: Unholy
+  slots: [weapon]
+  price: {type: bonus, value: 2}
+  note: "+2d6 skade mod gode væsner; en god wielder får negative niveauer."
+  source: "Magic Items II"
+- id: wounding
+  name: Wounding
+  slots: [weapon]
+  price: {type: bonus, value: 2}
+  note: "1 Con-skade pr. ramning (blødning); helbredes 1/runde el. ved Cure + heal-tjek."
+  source: "Magic Items II"
+- id: speed
+  name: Speed
+  slots: [weapon]
+  price: {type: bonus, value: 3}
+  note: "Ét ekstra angreb pr. runde med våbnet (som Haste; stacker ikke med Haste)."
+  source: "Magic Items II"
+- id: brilliant_energy
+  name: Brilliant Energy
+  slots: [weapon]
+  price: {type: bonus, value: 4}
+  note: "Ignorér ikke-levende rustning/skjold/naturlig AC (rammer altid berøring-AC mod levende)."
+  source: "Magic Items II"
+- id: vorpal
+  name: Vorpal
+  slots: [weapon]
+  price: {type: bonus, value: 5}
+  note: "Halshugger offeret ved et naturligt 20 efterfulgt af bekræftet krit (kun hugvåben)."
+  source: "Magic Items II"
+
+# ── Rustning ───────────────────────────────────────────────────────────────
+- id: fortification_light
+  name: Fortification (light)
+  slots: [armor, shield]
+  price: {type: bonus, value: 1}
+  note: "25% chance for at negere ekstra skade fra kritiske ramninger og snigangreb."
+  source: "Magic Items II"
+- id: fortification_moderate
+  name: Fortification (moderate)
+  slots: [armor, shield]
+  price: {type: bonus, value: 3}
+  note: "75% chance for at negere ekstra skade fra kritiske ramninger og snigangreb."
+  source: "Magic Items II"
+- id: fortification_heavy
+  name: Fortification (heavy)
+  slots: [armor, shield]
+  price: {type: bonus, value: 5}
+  note: "100% immunitet mod ekstra skade fra kritiske ramninger og snigangreb."
+  source: "Magic Items II"
+- id: glamered
+  name: Glamered
+  slots: [armor]
+  price: {type: flat, value: 2700}
+  note: "Kan få rustningen til at se ud som normalt tøj (standard-handling)."
+  source: "Magic Items II"
+- id: slick
+  name: Slick
+  slots: [armor]
+  price: {type: flat, value: 3750}
+  note: "+5 kompetence-bonus til Escape Artist."
+  source: "Magic Items II"
+- id: shadow
+  name: Shadow
+  slots: [armor]
+  price: {type: flat, value: 3750}
+  note: "+5 kompetence-bonus til Hide."
+  source: "Magic Items II"
+- id: silent_moves
+  name: Silent Moves
+  slots: [armor]
+  price: {type: flat, value: 3750}
+  note: "+5 kompetence-bonus til Move Silently."
+  source: "Magic Items II"
+- id: acid_resistance
+  name: Acid Resistance
+  slots: [armor, shield]
+  price: {type: flat, value: 18000}
+  note: "Syre-resistens 10 (ignorér 10 syreskade pr. ramning/effekt)."
+  source: "Magic Items II"
+- id: fire_resistance
+  name: Fire Resistance
+  slots: [armor, shield]
+  price: {type: flat, value: 18000}
+  note: "Ild-resistens 10 (ignorér 10 ildskade pr. ramning/effekt)."
+  source: "Magic Items II"
+- id: cold_resistance
+  name: Cold Resistance
+  slots: [armor, shield]
+  price: {type: flat, value: 18000}
+  note: "Kulde-resistens 10 (ignorér 10 kuldeskade pr. ramning/effekt)."
+  source: "Magic Items II"
+- id: wild
+  name: Wild
+  slots: [armor, shield]
+  price: {type: bonus, value: 3}
+  note: "Bevarer rustnings-effekten ved wild shape/formskift (druide)."
+  source: "Magic Items II"
+
+# ── Skjold ─────────────────────────────────────────────────────────────────
+- id: arrow_catching
+  name: Arrow Catching
+  slots: [shield]
+  price: {type: bonus, value: 1}
+  note: "Afstandsangreb trækkes mod skjoldet, som var bæreren det egentlige mål."
+  source: "Magic Items II"
+- id: bashing
+  name: Bashing
+  slots: [shield]
+  price: {type: bonus, value: 1}
+  note: "Skjold-slag gør skade som ét størrelses-trin større + krit-bonus."
+  source: "Magic Items II"
+- id: blinding
+  name: Blinding
+  slots: [shield]
+  price: {type: bonus, value: 1}
+  note: "Kan blænde modstandere i nærkamp (Reflex-save) på kommando."
+  source: "Magic Items II"
+- id: arrow_deflection
+  name: Arrow Deflection
+  slots: [shield]
+  price: {type: bonus, value: 2}
+  note: "Kan afværge ét afstandsangreb pr. runde (Reflex-save DC 20)."
+  source: "Magic Items II"
+- id: animated
+  name: Animated
+  slots: [shield]
+  price: {type: bonus, value: 2}
+  note: "Svæver selv og giver AC uden at optage en hånd (aktiveres på kommando)."
+  source: "Magic Items II"
+- id: reflecting
+  name: Reflecting
+  slots: [shield]
+  price: {type: bonus, value: 5}
+  note: "Kan reflektere ét spell tilbage mod kasteren (som spell turning) én gang."
+  source: "Magic Items II"

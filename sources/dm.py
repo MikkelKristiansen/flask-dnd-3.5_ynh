@@ -26,6 +26,7 @@ import dm_session as ds
 import dm_setups
 import catalog
 import doors as doors_module
+import magic_abilities
 import magic_gear
 import traps as traps_module
 
@@ -209,35 +210,50 @@ def edit_party(slug):
     return redirect(url_for("dm.play", slug=slug))
 
 
-def _parse_magic_ident(ident: str) -> tuple[str | None, int | None]:
-    """'longsword+1' → ('longsword', 1). Uden '+N'-suffiks eller ikke-tal → (None, None).
-    Base-id'er kan selv have bindestreger (heavy-steel-shield) men aldrig '+', så vi
-    splitter på det sidste '+'."""
-    base, sep, raw = ident.rpartition("+")
+def _parse_magic_ident(ident: str) -> tuple[str | None, int | None, list[str]]:
+    """'longsword+1' → ('longsword', 1, []). Med abilities (komma-separeret efter
+    base+bonus): 'longsword+1,flaming,keen' → ('longsword', 1, ['flaming','keen']).
+    Uden '+N'-suffiks eller ikke-tal → (None, None, []). Base-id'er kan selv have
+    bindestreger (heavy-steel-shield) men aldrig '+' eller ',', så vi splitter først
+    abilities fra på komma, dernæst base fra bonus på det sidste '+'."""
+    head, _, tail = ident.partition(",")
+    base, sep, raw = head.rpartition("+")
     if not sep or not raw.isdigit():
-        return None, None
-    return base, int(raw)
+        return None, None, []
+    abilities = [a for a in (s.strip() for s in tail.split(",")) if a] if tail else []
+    return base, int(raw), abilities
 
 
-def _magic_gear_view(base_id: str, bonus: int) -> dict | None:
-    """Slå base-våben/-rustning op i kataloget og påfør enhancement-overlay
-    (magic_gear, ren motor). Returnér visnings-dict til _magic.html, eller None
-    hvis basen ikke findes / bonussen er ugyldig (magic_gear rejser ValueError)."""
+def _magic_gear_view(base_id: str, bonus: int, ability_ids: list | None = None) -> dict | None:
+    """Slå base-våben/-rustning op i kataloget og påfør enhancement- + ability-overlay
+    (magic_gear, ren motor). Returnér visnings-dict til _magic.html, eller None hvis
+    basen ikke findes / bonussen er ugyldig (magic_gear rejser ValueError). `slot`
+    (weapon|armor|shield) + `pickable` giver give-loot-byggeren dens afkrydsningsliste."""
+    ability_ids = ability_ids or []
     try:
         w = db.get_weapon(base_id)
         if w:
-            ov = magic_gear.enhance_weapon(w, bonus)
+            abilities = magic_abilities.resolve(ability_ids)
+            ov = magic_gear.enhance_weapon(w, bonus, abilities)
             ov["kind_label"] = "Magisk våben"
             ov["base_ref"] = f"weapons/{base_id}"
+            ov["ability_ids"] = ability_ids
+            ov["slot"] = "weapon"
+            ov["pickable"] = magic_abilities.for_slot("weapon")
             ov["detail"] = {"dmg": w.get("dmg_m"), "crit": w.get("critical"),
                             "type": w.get("damage_type")}
             ov["price_str"] = catalog.format_cost(ov["total_cost_cp"])
             return ov
         a = db.get_armor(base_id)
         if a:
-            ov = magic_gear.enhance_armor(a, bonus)
-            ov["kind_label"] = "Magisk skjold" if a.get("type") == "shield" else "Magisk rustning"
+            slot = "shield" if a.get("type") == "shield" else "armor"
+            abilities = magic_abilities.resolve(ability_ids)
+            ov = magic_gear.enhance_armor(a, bonus, abilities)
+            ov["kind_label"] = "Magisk skjold" if slot == "shield" else "Magisk rustning"
             ov["base_ref"] = f"armor/{base_id}"
+            ov["ability_ids"] = ability_ids
+            ov["slot"] = slot
+            ov["pickable"] = magic_abilities.for_slot(slot)
             ov["price_str"] = catalog.format_cost(ov["total_cost_cp"])
             return ov
     except ValueError:
@@ -263,9 +279,9 @@ def api_statblock(adventure, etype, ident):
         if row:
             return render_template("dm/_door.html", d=doors_module.door_view(row))
         return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
-    if etype == _MAGIC_TYPE:                            # magisk[base+bonus] → enhancement-overlay
-        base_id, bonus = _parse_magic_ident(ident)
-        view = _magic_gear_view(base_id, bonus) if base_id else None
+    if etype == _MAGIC_TYPE:                            # magisk[base+bonus,abilities] → overlay
+        base_id, bonus, ability_ids = _parse_magic_ident(ident)
+        view = _magic_gear_view(base_id, bonus, ability_ids) if base_id else None
         if view:
             chars = [{"slug": p["slug"], "name": p["name"]}
                      for p in dm_party.party_view(dm_scene._character_slugs(), db)]
@@ -302,13 +318,17 @@ def api_give_loot():
             else db.get_armor(oid) if table == "armor" else None)
     if not base:
         return "Ukendt base-genstand", 404
+    # Abilities: kun dem der er gyldige for genstandens slot (våben/rustning/skjold).
+    slot = "weapon" if table == "weapons" else ("shield" if base.get("type") == "shield" else "armor")
+    valid = {a["id"] for a in magic_abilities.for_slot(slot)}
+    ability_ids = [a for a in request.form.getlist("abilities") if a in valid]
     try:
-        kwargs = magic_gear.as_inventory_item(base_ref, bonus)
+        kwargs = magic_gear.as_inventory_item(base_ref, bonus, ability_ids)
     except ValueError:
         return "Ugyldigt magisk item", 400
     if slug not in dm_scene._character_slugs():
         return "Ukendt karakter", 404
-    kwargs["name"] = f"+{bonus} {base['name']}"
+    kwargs["name"] = magic_gear.magic_name(bonus, base["name"], magic_abilities.resolve(ability_ids))
     path = _char_path(slug)
     char = char_module.load_character(str(path))
     inventory = list(char.inventory)

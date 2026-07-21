@@ -87,3 +87,52 @@ def test_as_inventory_item_rejects_non_gear():
 def test_as_inventory_item_rejects_bad_bonus():
     with pytest.raises(ValueError):
         mg.as_inventory_item("weapons/longsword", 0)
+
+
+# ── Special abilities (Del A: pris + navn; mekanik wires senere) ────────────
+FLAMING = {"id": "flaming", "name": "Flaming", "price": {"type": "bonus", "value": 1}}
+KEEN    = {"id": "keen",    "name": "Keen",    "price": {"type": "bonus", "value": 1}}
+GLAMERED = {"id": "glamered", "name": "Glamered", "price": {"type": "flat", "value": 2700}}
+
+
+def test_bonus_ability_raises_effective_bonus_for_price():
+    # +1 Flaming longsword prissættes som effektiv +2: 15 + 300 + 2.000×2² = 8.315 gp
+    w = mg.enhance_weapon(LONGSWORD, 1, [FLAMING])
+    assert w["name"] == "+1 Flaming Longsword"
+    assert w["enhancement"] == 1                       # kamptal uændret (ikke +2)
+    assert w["attack_bonus"] == 1 and w["damage_bonus"] == 1
+    assert w["total_cost_cp"] == 831500
+    assert w["caster_level"] == 6                       # 3 × effektiv 2
+
+
+def test_multiple_bonus_abilities_sum_into_effective():
+    # +2 Flaming Keen = effektiv +4: 15 + 300 + 2.000×4² = 32.315 gp
+    w = mg.enhance_weapon(LONGSWORD, 2, [FLAMING, KEEN])
+    assert w["name"] == "+2 Flaming Keen Longsword"
+    assert w["total_cost_cp"] == 3231500
+
+
+def test_flat_ability_adds_fixed_gp_not_bonus():
+    # Glamered er +2.700 gp fast; effektiv bonus forbliver +1
+    a = mg.enhance_armor(FULL_PLATE, 1, [GLAMERED])
+    assert a["name"] == "+1 Glamered Full Plate"
+    # 1.500 + 150 + 1.000×1² + 2.700 = 5.350 gp
+    assert a["total_cost_cp"] == 535000
+
+
+def test_effective_bonus_cap_enforced():
+    speed = {"id": "speed", "name": "Speed", "price": {"type": "bonus", "value": 3}}
+    vorpal = {"id": "vorpal", "name": "Vorpal", "price": {"type": "bonus", "value": 5}}
+    with pytest.raises(ValueError):              # 5 + 3 + 5 = +13 > +10
+        mg.enhance_weapon(LONGSWORD, 5, [speed, vorpal])
+
+
+def test_no_abilities_is_backward_compatible():
+    # Uden abilities er resultatet identisk med den rene enhancement-pris
+    assert mg.enhance_weapon(LONGSWORD, 1, [])["total_cost_cp"] == \
+           mg.enhance_weapon(LONGSWORD, 1)["total_cost_cp"]
+
+
+def test_as_inventory_item_carries_ability_ids():
+    kw = mg.as_inventory_item("weapons/longsword", 1, ["flaming", "keen"])
+    assert kw["abilities"] == ["flaming", "keen"]
