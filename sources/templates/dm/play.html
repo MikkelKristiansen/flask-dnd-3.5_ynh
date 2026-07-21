@@ -229,6 +229,9 @@ a{color:var(--accent);}
        class="{{ 'active' if active and sc.id == active.id else '' }}">{{ sc.title }}</a>
     {% endfor %}
     <a class="nav-tool" href="{{ url_for('dm.bestiary_view', adventure=session.adventure, **{'from': session.slug}) }}">📖 Bestiar</a>
+    {# ?from=<slug> giver opslagsværket kamp-kontekst → magiske genstande kan uddeles
+       direkte (give-loot) uden at skrive en @genstand-reference i teksten først. #}
+    <a class="nav-tool" href="{{ url_for('dm.opslag', **{'from': session.slug}) }}" target="_blank" rel="noopener">🎁 Opslag / giv loot ↗</a>
   </nav>
 
   <div class="main">

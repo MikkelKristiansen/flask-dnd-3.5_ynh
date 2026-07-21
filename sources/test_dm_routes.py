@@ -319,6 +319,13 @@ def test_catalog_statblock_magic_item_has_no_give_loot(client):
     assert "give-loot" not in html
 
 
+def test_play_has_opslag_giveloot_shortcut(client):
+    # Play-viewet har en synlig genvej til opslagsværket m/ session-kontekst (give-loot).
+    slug = _new(client, name="GL")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert f"/dm/opslag?from={slug}" in html and "giv loot" in html
+
+
 def test_give_loot_visible_in_opslag_from_session(client, monkeypatch):
     # Opslagsværket åbnet fra en session (?from=<slug>) → magiske genstande får en
     # give-loot-knap; party-løst opslag (uden from) gør ikke.
