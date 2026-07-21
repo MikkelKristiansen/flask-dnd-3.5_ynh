@@ -147,6 +147,60 @@
   price: {type: bonus, value: 5}
   note: "Halshugger offeret ved et naturligt 20 efterfulgt af bekræftet krit (kun hugvåben)."
   source: "Magic Items II"
+- id: bane
+  name: Bane
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "Effektiv bonus +2 og +2d6 skade mod én udpeget fjende-type/subtype (fastlagt ved fremstilling)."
+  source: "Magic Items II"
+- id: ki_focus
+  name: Ki Focus
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "Kun nærkampsvåben. Lader wielderen bruge ki-angreb (fx Stunning Fist, quivering palm) gennem våbnet som ubevæbnet angreb."
+  source: "Magic Items II"
+- id: mighty_cleaving
+  name: Mighty Cleaving
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "Wielder med Cleave-feat kan foretage ét ekstra cleave-forsøg pr. runde."
+  source: "Magic Items II"
+- id: spell_storing
+  name: Spell Storing
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "Kan gemme ét målrettet spell (op til niveau 3, kast-tid 1 std. handling); udløses som fri handling ved ramning."
+  source: "Magic Items II"
+- id: throwing
+  name: Throwing
+  slots: [weapon]
+  price: {type: bonus, value: 1}
+  note: "Kun nærkampsvåben. Giver rækkevidde-inkrement på 10 fod og kan kastes af en øvet wielder."
+  source: "Magic Items II"
+- id: anarchic
+  name: Anarchic
+  slots: [weapon]
+  price: {type: bonus, value: 2}
+  note: "Kaotisk-tilpasset våben; omgår lawful DR, +2d6 skade mod lovlydige væsner; lovlydig wielder får negative niveauer."
+  source: "Magic Items II"
+- id: axiomatic
+  name: Axiomatic
+  slots: [weapon]
+  price: {type: bonus, value: 2}
+  note: "Lovlydigt-tilpasset våben; omgår chaotic DR, +2d6 skade mod kaotiske væsner; kaotisk wielder får negative niveauer."
+  source: "Magic Items II"
+- id: disruption
+  name: Disruption
+  slots: [weapon]
+  price: {type: bonus, value: 2}
+  note: "Kun stumpe våben. Udød ramt i kamp skal bestå Vilje-save DC 14 eller destrueres."
+  source: "Magic Items II"
+- id: dancing
+  name: Dancing
+  slots: [weapon]
+  price: {type: bonus, value: 4}
+  note: "Kan aktiveres (standard-handling) til at kæmpe løsrevet fra wielderen i 4 runder med dennes BAB, før det falder til jorden."
+  source: "Magic Items II"
 
 # ── Rustning ───────────────────────────────────────────────────────────────
 - id: fortification_light
@@ -214,6 +268,156 @@
   slots: [armor, shield]
   price: {type: bonus, value: 3}
   note: "Bevarer rustnings-effekten ved wild shape/formskift (druide)."
+  source: "Magic Items II"
+- id: spell_resistance_13
+  name: Spell Resistance (13)
+  slots: [armor, shield]
+  price: {type: bonus, value: 2}
+  note: "Giver bæreren spell resistance 13, mens genstanden bæres."
+  source: "Magic Items II"
+- id: spell_resistance_15
+  name: Spell Resistance (15)
+  slots: [armor, shield]
+  price: {type: bonus, value: 3}
+  note: "Giver bæreren spell resistance 15, mens genstanden bæres."
+  source: "Magic Items II"
+- id: spell_resistance_17
+  name: Spell Resistance (17)
+  slots: [armor, shield]
+  price: {type: bonus, value: 4}
+  note: "Giver bæreren spell resistance 17, mens genstanden bæres."
+  source: "Magic Items II"
+- id: spell_resistance_19
+  name: Spell Resistance (19)
+  slots: [armor, shield]
+  price: {type: bonus, value: 5}
+  note: "Giver bæreren spell resistance 19, mens genstanden bæres."
+  source: "Magic Items II"
+- id: slick_improved
+  name: Slick, Improved
+  slots: [armor]
+  price: {type: flat, value: 15000}
+  note: "Som Slick, men +10 kompetence-bonus til Escape Artist."
+  source: "Magic Items II"
+- id: slick_greater
+  name: Slick, Greater
+  slots: [armor]
+  price: {type: flat, value: 33750}
+  note: "Som Slick, men +15 kompetence-bonus til Escape Artist."
+  source: "Magic Items II"
+- id: shadow_improved
+  name: Shadow, Improved
+  slots: [armor]
+  price: {type: flat, value: 15000}
+  note: "Som Shadow, men +10 kompetence-bonus til Hide."
+  source: "Magic Items II"
+- id: shadow_greater
+  name: Shadow, Greater
+  slots: [armor]
+  price: {type: flat, value: 33750}
+  note: "Som Shadow, men +15 kompetence-bonus til Hide."
+  source: "Magic Items II"
+- id: silent_moves_improved
+  name: Silent Moves, Improved
+  slots: [armor]
+  price: {type: flat, value: 15000}
+  note: "Som Silent Moves, men +10 kompetence-bonus til Move Silently."
+  source: "Magic Items II"
+- id: silent_moves_greater
+  name: Silent Moves, Greater
+  slots: [armor]
+  price: {type: flat, value: 33750}
+  note: "Som Silent Moves, men +15 kompetence-bonus til Move Silently."
+  source: "Magic Items II"
+- id: electricity_resistance
+  name: Electricity Resistance
+  slots: [armor, shield]
+  price: {type: flat, value: 18000}
+  note: "Elektricitets-resistens 10 (ignorér 10 el-skade pr. ramning/effekt)."
+  source: "Magic Items II"
+- id: electricity_resistance_improved
+  name: Electricity Resistance, Improved
+  slots: [armor, shield]
+  price: {type: flat, value: 42000}
+  note: "Som Electricity Resistance, men resistens 20."
+  source: "Magic Items II"
+- id: electricity_resistance_greater
+  name: Electricity Resistance, Greater
+  slots: [armor, shield]
+  price: {type: flat, value: 66000}
+  note: "Som Electricity Resistance, men resistens 30."
+  source: "Magic Items II"
+- id: sonic_resistance
+  name: Sonic Resistance
+  slots: [armor, shield]
+  price: {type: flat, value: 18000}
+  note: "Sonisk resistens 10 (ignorér 10 lydskade pr. ramning/effekt)."
+  source: "Magic Items II"
+- id: sonic_resistance_improved
+  name: Sonic Resistance, Improved
+  slots: [armor, shield]
+  price: {type: flat, value: 42000}
+  note: "Som Sonic Resistance, men resistens 20."
+  source: "Magic Items II"
+- id: sonic_resistance_greater
+  name: Sonic Resistance, Greater
+  slots: [armor, shield]
+  price: {type: flat, value: 66000}
+  note: "Som Sonic Resistance, men resistens 30."
+  source: "Magic Items II"
+- id: acid_resistance_improved
+  name: Acid Resistance, Improved
+  slots: [armor, shield]
+  price: {type: flat, value: 42000}
+  note: "Som Acid Resistance, men resistens 20."
+  source: "Magic Items II"
+- id: acid_resistance_greater
+  name: Acid Resistance, Greater
+  slots: [armor, shield]
+  price: {type: flat, value: 66000}
+  note: "Som Acid Resistance, men resistens 30."
+  source: "Magic Items II"
+- id: cold_resistance_improved
+  name: Cold Resistance, Improved
+  slots: [armor, shield]
+  price: {type: flat, value: 42000}
+  note: "Som Cold Resistance, men resistens 20."
+  source: "Magic Items II"
+- id: cold_resistance_greater
+  name: Cold Resistance, Greater
+  slots: [armor, shield]
+  price: {type: flat, value: 66000}
+  note: "Som Cold Resistance, men resistens 30."
+  source: "Magic Items II"
+- id: fire_resistance_improved
+  name: Fire Resistance, Improved
+  slots: [armor, shield]
+  price: {type: flat, value: 42000}
+  note: "Som Fire Resistance, men resistens 20."
+  source: "Magic Items II"
+- id: fire_resistance_greater
+  name: Fire Resistance, Greater
+  slots: [armor, shield]
+  price: {type: flat, value: 66000}
+  note: "Som Fire Resistance, men resistens 30."
+  source: "Magic Items II"
+- id: invulnerability
+  name: Invulnerability
+  slots: [armor]
+  price: {type: bonus, value: 3}
+  note: "Giver bæreren damage reduction 5/magic."
+  source: "Magic Items II"
+- id: etherealness
+  name: Etherealness
+  slots: [armor]
+  price: {type: flat, value: 49000}
+  note: "På kommando kan bæreren blive æterisk (som ethereal jaunt) én gang dagligt, så længe ønsket."
+  source: "Magic Items II"
+- id: undead_controlling
+  name: Undead Controlling
+  slots: [armor, shield]
+  price: {type: flat, value: 49000}
+  note: "Bæreren kan kontrollere op til 26 HD udød pr. dag (som control undead); kontrollen mistes ved daggry."
   source: "Magic Items II"
 
 # ── Skjold ─────────────────────────────────────────────────────────────────
