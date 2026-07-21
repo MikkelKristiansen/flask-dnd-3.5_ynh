@@ -30,6 +30,38 @@
   }
   function close() { lb.hidden = true; body.innerHTML = ''; }
 
+  // Dør-markør → statblok + kamp-HP-tracker (session-scoped: col/row identificerer
+  // instansen). Uden aktiv kamp giver endpointet bare den statiske dør.
+  function openDoor(el) {
+    var ref = el.dataset.mref, col = el.dataset.col || 0, row = el.dataset.row || 0;
+    title.textContent = '🚪 Dør';
+    body.innerHTML = '<p class="lb-loading">Henter …</p>';
+    lb.hidden = false;
+    fetch(ROOT + '/dm/api/encounter/' + encodeURIComponent(cfg.dataset.slug)
+          + '/door/' + encodeURIComponent(ref) + '?col=' + col + '&row=' + row)
+      .then(function (r) { return r.text(); })
+      .then(function (html) { body.innerHTML = html; })
+      .catch(function () { body.innerHTML = '<p>Kunne ikke hente dør.</p>'; });
+  }
+
+  // Justér en dørs kamp-HP. Kaldes fra inline onclick i det fetch'ede fragment, så
+  // funktionen eksponeres globalt. Opdaterer HP-tallet live (server = sandhedskilde).
+  window.adjDoorHp = function (ref, col, row, delta, reset) {
+    var params = new URLSearchParams({ ref: ref, col: col, row: row });
+    if (reset) params.set('reset', '1'); else params.set('delta', delta);
+    fetch(ROOT + '/dm/api/encounter/' + encodeURIComponent(cfg.dataset.slug) + '/door_hp',
+          { method: 'POST', body: params })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.error) return;
+        var el = document.getElementById('door-hp-' + ref + '-' + col + '-' + row);
+        if (!el) return;
+        var done = d.current === 0;
+        el.textContent = done ? 'smadret' : (d.current + '/' + d.max);
+        el.classList.toggle('expired', done);
+      });
+  };
+
   var MARKER_LABEL = { trap: '🪤 Fælde', door: '🚪 Dør', treasure: '💰 Skat', note: '📌 Note' };
   function openMarker(el) {                       // markør på brættet → note-detalje
     // En fælde-markør bundet til en fælde i kataloget → åbn dens statblok
@@ -38,10 +70,11 @@
       openStat('faelde/' + el.dataset.mref);
       return;
     }
-    // En dør-markør bundet til en dør i kataloget → åbn dens statblok (samme
-    // opslag som @dør i prosaen). Ubundet → fald tilbage på noten.
+    // En dør-markør bundet til en dør i kataloget → åbn dens statblok. Under kamp
+    // beriges den med en HP-tracker (col/row identificerer dør-instansen). Ubundet →
+    // fald tilbage på noten.
     if (el.dataset.mkind === 'door' && el.dataset.mref) {
-      openStat('door/' + el.dataset.mref);
+      openDoor(el);
       return;
     }
     title.textContent = MARKER_LABEL[el.dataset.mkind] || '📌 Markør';

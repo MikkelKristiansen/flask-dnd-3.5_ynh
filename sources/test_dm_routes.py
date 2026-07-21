@@ -629,6 +629,34 @@ def test_party_edit_locked_during_combat(enc_client):
     assert "✕ Fjern" not in during                           # redigering skjult under kamp
 
 
+def test_door_hp_tracker_during_combat(enc_client):
+    slug, _ = _start(enc_client)
+    # Dør-popuppen under kamp viser en HP-tracker (lazy-init fra kataloget: 60/60)
+    frag = enc_client.get(f"/dm/api/encounter/{slug}/door/iron-door?col=3&row=2").get_data(as_text=True)
+    assert "HP i kamp" in frag and "60/60" in frag
+    assert "adjDoorHp('iron-door',3,2" in frag and "Hardness 10" in frag
+    # −15 HP → 45/60, persisteret i encounterens object_hp
+    r = enc_client.post(f"/dm/api/encounter/{slug}/door_hp",
+                        data={"ref": "iron-door", "col": "3", "row": "2", "delta": "-15"}).get_json()
+    assert r == {"current": 45, "max": 60}
+    store = ds.load_session(slug).encounter["object_hp"]
+    assert store["iron-door:3:2"]["current"] == 45
+    # reset → fuld HP
+    r = enc_client.post(f"/dm/api/encounter/{slug}/door_hp",
+                        data={"ref": "iron-door", "col": "3", "row": "2", "reset": "1"}).get_json()
+    assert r["current"] == 60
+
+
+def test_door_static_when_no_combat(client):
+    slug = _new(client, name="DS")                     # ingen aktiv kamp
+    frag = client.get(f"/dm/api/encounter/{slug}/door/iron-door?col=3&row=2").get_data(as_text=True)
+    assert "Jerndør" in frag and "HP i kamp" not in frag    # statisk dør, ingen tracker
+    # HP-endpointet afvises uden kamp
+    r = client.post(f"/dm/api/encounter/{slug}/door_hp",
+                    data={"ref": "iron-door", "col": "3", "row": "2", "delta": "-5"})
+    assert r.get_json().get("error") == "ingen kamp"
+
+
 def test_edit_link_locked_on_combat_board(enc_client):
     # Under kamp redigerer man den forfattede opstilling forgæves (kampen bruger live-
     # positioner), så redigér-linket låses på kamp-brættet.

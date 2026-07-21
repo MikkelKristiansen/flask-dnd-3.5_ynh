@@ -295,6 +295,23 @@ def set_combatant_hp(slug: str, cid: str, current_hp: int) -> CampaignSession:
     return session
 
 
+def set_object_hp(slug: str, key: str, current: int, max_hp: int,
+                  hardness=None) -> CampaignSession:
+    """Sæt en destruerbar markørs (fx dør) aktuelle HP i encounterens object_hp-store.
+
+    Muterer kun encounter-tilstanden (kun under kamp) — kortets forfattede opstilling
+    røres ikke. `key` = 'ref:col:row' (unik pr. dør-instans). max/hardness leveres af
+    kalderen (fra dør-kataloget); gemmes med, så visningen ikke skal slå op igen."""
+    session = load_session(slug)
+    if session.encounter.get("active"):
+        store = session.encounter.setdefault("object_hp", {})
+        store[key] = {"current": max(0, min(int(max_hp), int(current))),
+                      "max": int(max_hp),
+                      "hardness": None if hardness is None else int(hardness)}
+        save_session(session)
+    return session
+
+
 def set_combatant_position(slug: str, cid: str, col: int, row: int) -> CampaignSession:
     """Flyt en combatant til en ny grid-celle (live-position under kamp). Muterer
     kun encounter-tilstanden — kortets forfattede opstilling røres ikke."""

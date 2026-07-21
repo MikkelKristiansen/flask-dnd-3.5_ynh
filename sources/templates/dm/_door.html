@@ -18,6 +18,21 @@
     {% if d.search_dc is not none %}<div><span class="sb-k">Search DC</span> {{ d.search_dc }}</div>{% endif %}
   </div>
 
+  {# Kamp-HP-tracker: kun når døren åbnes fra en kørende kamp (live sendt med).
+     Rå +/- (DM taster det der gik igennem); hardness vises som påmindelse. #}
+  {% if live %}
+  <div class="sb-grid" style="margin-top:.5rem;border-top:1px solid var(--border,#6b5f53);padding-top:.5rem">
+    <div style="display:flex;align-items:center;gap:.4rem">
+      <span class="sb-k">HP i kamp</span>
+      <button class="hp-btn" style="width:1.7rem;height:1.7rem;font-size:1rem" title="−1 HP" onclick="adjDoorHp('{{ live.ref }}',{{ live.col }},{{ live.row }},-1)">−</button>
+      <span class="summon-rounds{{ ' expired' if live.current == 0 else '' }}" id="door-hp-{{ live.ref }}-{{ live.col }}-{{ live.row }}">{% if live.current == 0 %}smadret{% else %}{{ live.current }}/{{ live.max }}{% endif %}</span>
+      <button class="hp-btn" style="width:1.7rem;height:1.7rem;font-size:1rem" title="+1 HP" onclick="adjDoorHp('{{ live.ref }}',{{ live.col }},{{ live.row }},1)">+</button>
+      <button class="hp-btn" style="width:1.7rem;height:1.7rem;font-size:.85rem" title="Nulstil til fuld HP" onclick="adjDoorHp('{{ live.ref }}',{{ live.col }},{{ live.row }},0,true)">⟲</button>
+    </div>
+  </div>
+  {% if live.hardness %}<div class="sb-note">Hardness {{ live.hardness }} — træk fra hver skade før du tæller ned.</div>{% endif %}
+  {% endif %}
+
   {% if d.note %}<div class="sb-note">{{ d.note }}</div>{% endif %}
   {% if d.source_note %}<div class="sb-src">{{ d.source_note }}</div>{% endif %}
 </div>

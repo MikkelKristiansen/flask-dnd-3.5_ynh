@@ -6,13 +6,21 @@ uændret. dm.py importerer dette modul i bunden, så decorators kører og regist
 ruterne. Delte helpers (`_tracker_html`/`_load_or_404`/`_scene_board_maps`) bliver i
 dm.py og importeres herfra.
 """
-from flask import render_template, request
+from flask import jsonify, render_template, request
 
+import db
 import dm_encounter
 import dm_scene
 import dm_session as ds
 import dm_setups
+import doors as doors_module
 from dm import _load_or_404, _scene_board_maps, _tracker_html, dm_bp
+
+
+def _door_hp_key(ref: str, col, row) -> str:
+    """Stabil nøgle pr. dør-INSTANS i encounterens object_hp-store. col/row gør to
+    døre af samme type unikke; de er låst under kamp, så nøglen er stabil."""
+    return f"{ref}:{col}:{row}"
 
 
 @dm_bp.route("/api/encounter/<slug>/start", methods=["POST"])
@@ -63,6 +71,52 @@ def encounter_hp(slug):
             else int(request.form.get("value") or 0)
         session = ds.set_combatant_hp(slug, cid, new_hp)
     return _tracker_html(session)
+
+
+@dm_bp.route("/api/encounter/<slug>/door/<ref>")
+def encounter_door(slug, ref):
+    """Dør-statblok til inspektøren, beriget med kamp-HP når en kamp kører. Åbnes af
+    dør-markøren i play-viewet (col/row identificerer instansen). Uden aktiv kamp er
+    det bare den statiske dør-visning (som opslags-statblokken)."""
+    session = _load_or_404(slug)
+    row = db.get_door(ref)
+    if not row:
+        return render_template("dm/_statblock.html", none=True, etype="door", ident=ref)
+    live = None
+    if session.encounter.get("active"):
+        col, rrow = request.args.get("col", "0"), request.args.get("row", "0")
+        key = _door_hp_key(ref, col, rrow)
+        stored = (session.encounter.get("object_hp") or {}).get(key)
+        hp_max = row.get("hp")
+        if hp_max is not None:                       # kun døre med HP kan trackes
+            live = {"ref": ref, "col": col, "row": rrow,
+                    "current": stored["current"] if stored else int(hp_max),
+                    "max": int(hp_max), "hardness": row.get("hardness")}
+    return render_template("dm/_door.html", d=doors_module.door_view(row), live=live)
+
+
+@dm_bp.route("/api/encounter/<slug>/door_hp", methods=["POST"])
+def encounter_door_hp(slug):
+    """Justér en dørs kamp-HP (rå +/-, reset til fuld). Lazy-init fra dør-kataloget;
+    kun under aktiv kamp. Returnerer den nye HP så popuppen kan opdatere tallet live."""
+    session = _load_or_404(slug)
+    if not session.encounter.get("active"):
+        return jsonify({"error": "ingen kamp"}), 400
+    ref = request.form.get("ref", "")
+    col, row = request.form.get("col", "0"), request.form.get("row", "0")
+    door = db.get_door(ref)
+    if not door or door.get("hp") is None:
+        return jsonify({"error": "ukendt dør"}), 400
+    hp_max = int(door["hp"])
+    key = _door_hp_key(ref, col, row)
+    stored = (session.encounter.get("object_hp") or {}).get(key)
+    cur = stored["current"] if stored else hp_max
+    if request.form.get("reset"):
+        new = hp_max
+    else:
+        new = max(0, min(hp_max, cur + int(request.form.get("delta") or 0)))
+    ds.set_object_hp(slug, key, new, hp_max, door.get("hardness"))
+    return jsonify({"current": new, "max": hp_max})
 
 
 @dm_bp.route("/api/encounter/<slug>/condition", methods=["POST"])
