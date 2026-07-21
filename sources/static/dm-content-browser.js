@@ -17,6 +17,9 @@
 
   var API = panel.dataset.entityApi || "";
   var STATBLOCK = API.replace(/\/entity-ids$/, "/catalog-statblock");
+  // Åbnet fra en session? → giv ?from=<slug> med til statblok-fetch, så magiske
+  // genstande får en give-loot-knap (kamp-kontekst). Tom = party-løst opslag.
+  var FROM = panel.dataset.from || "";
 
   var TABS = [
     { key: "monster",  label: "Monstre", ins: "@monster[" },
@@ -109,7 +112,8 @@
     box.className = "br-preview";
     box.innerHTML = "Henter …";
     row.parentNode.insertBefore(box, row.nextSibling);
-    fetch(STATBLOCK + "/" + type + "/" + encodeURIComponent(id))
+    fetch(STATBLOCK + "/" + type + "/" + encodeURIComponent(id)
+          + (FROM ? "?from=" + encodeURIComponent(FROM) : ""))
       .then(function (r) { return r.text(); })
       .then(function (html) { box.innerHTML = html; })
       .catch(function () { box.innerHTML = "Kunne ikke hente statblok."; });

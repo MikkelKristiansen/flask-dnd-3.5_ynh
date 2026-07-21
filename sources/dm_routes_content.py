@@ -11,12 +11,23 @@ from flask import abort, jsonify, render_template, request, url_for
 
 import bestiary
 import db
+import dm_party
 import dm_scene
 import dm_session as ds
 import doors as doors_module
 import magic_items as magic_items_module
 import traps as traps_module
 from dm import _TRAP_TYPE, dm_bp
+
+
+def _loot_chars(from_session: str | None):
+    """Spiller-liste til give-loot i opslagsværket, MEN kun når det er åbnet fra en
+    gyldig session (?from=<slug>) — ellers er der ingen kamp-/party-kontekst og
+    give-loot vises ikke. Samme liste (alle karakterer) som play-inspektøren."""
+    if not from_session or not any(s["slug"] == from_session for s in ds.list_sessions()):
+        return None
+    return [{"slug": p["slug"], "name": p["name"]}
+            for p in dm_party.party_view(dm_scene._character_slugs(), db)]
 
 
 @dm_bp.route("/api/entity-ids")
@@ -51,9 +62,11 @@ def api_catalog_statblock(etype, ident):
             return render_template("dm/_door.html", d=doors_module.door_view(row))
     elif etype == "genstand":
         row = db.get_magic_item(ident)
-        if row:                                     # opslag = party-løst → ingen give-loot
+        if row:
+            # Åbnet fra en session (?from=<slug>) → give-loot vises; ellers party-løst.
             return render_template("dm/_magic_item.html",
-                                   it=magic_items_module.magic_item_view(row))
+                                   it=magic_items_module.magic_item_view(row),
+                                   chars=_loot_chars(request.args.get("from")))
     else:
         row = db.get_monster(ident)
         if row:
@@ -64,9 +77,14 @@ def api_catalog_statblock(etype, ident):
 
 @dm_bp.route("/opslag")
 def opslag():
-    """Selvstændigt opslagsværk: browse hele kataloget (monstre/fælder/døre) uden et
-    åbent eventyr. Genbruger opslagsværk-panelet + JS'en fra editoren (uden indsæt)."""
-    return render_template("dm/opslag.html", entity_api=url_for("dm.entity_ids"))
+    """Selvstændigt opslagsværk: browse hele kataloget (monstre/fælder/døre/genstande).
+    ?from=<session-slug> giver kamp-kontekst, så magiske genstande kan uddeles direkte
+    (give-loot). Genbruger opslagsværk-panelet + JS'en fra editoren (uden indsæt)."""
+    from_session = request.args.get("from") or ""
+    if from_session and not any(s["slug"] == from_session for s in ds.list_sessions()):
+        from_session = ""
+    return render_template("dm/opslag.html", entity_api=url_for("dm.entity_ids"),
+                           from_session=from_session)
 
 
 @dm_bp.route("/bestiary/<adventure>")

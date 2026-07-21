@@ -22,7 +22,7 @@
   {% if it.description %}<p class="sb-desc">{{ it.description }}</p>{% endif %}
 
   {% if chars %}
-  <form class="give-loot" data-base="magic_items/{{ it.id }}" data-bonus="0">
+  <form class="give-loot" data-base="magic_items/{{ it.id }}" data-bonus="0" data-give-url="{{ url_for('dm.api_give_loot') }}">
     <label class="sb-k">🎁 Giv til spiller
       <select name="char">
         {% for c in chars %}<option value="{{ c.slug }}">{{ c.name }}</option>{% endfor %}

@@ -29,7 +29,7 @@
   {% endif %}
 
   {% if chars %}
-  <form class="give-loot" data-base="{{ it.base_ref }}" data-bonus="{{ bonus }}">
+  <form class="give-loot" data-base="{{ it.base_ref }}" data-bonus="{{ bonus }}" data-give-url="{{ url_for('dm.api_give_loot') }}">
     {% if it.pickable %}
     <details class="give-abilities"{% if it.ability_ids %} open{% endif %}>
       <summary class="sb-k">✨ Special abilities (kryds af — pris opdateres)</summary>

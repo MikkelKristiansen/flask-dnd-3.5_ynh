@@ -319,6 +319,27 @@ def test_catalog_statblock_magic_item_has_no_give_loot(client):
     assert "give-loot" not in html
 
 
+def test_give_loot_visible_in_opslag_from_session(client, monkeypatch):
+    # Opslagsværket åbnet fra en session (?from=<slug>) → magiske genstande får en
+    # give-loot-knap; party-løst opslag (uden from) gør ikke.
+    from pathlib import Path
+    import dm_scene
+    import dm_party
+    monkeypatch.setattr(dm_scene, "CHARACTERS_DIR", Path("defaults"))
+    monkeypatch.setattr(dm_party, "CHARACTERS_DIR", Path("defaults"))
+    slug = _new(client, name="OL")
+    url = "/dm/api/catalog-statblock/genstand/cloak_of_resistance_1"
+    frag = client.get(f"{url}?from={slug}").get_data(as_text=True)
+    assert "give-loot" in frag and "Giv til spiller" in frag
+    assert "data-give-url" in frag                               # submit-URL til den delte JS
+    assert "give-loot" not in client.get(url).get_data(as_text=True)          # uden from
+    assert "give-loot" not in client.get(f"{url}?from=nope").get_data(as_text=True)  # ugyldig from
+    # opslag-siden bærer from videre til browseren
+    page = client.get(f"/dm/opslag?from={slug}").get_data(as_text=True)
+    assert f'data-from="{slug}"' in page
+    assert 'dm-give-loot.js' in page                             # submit-handleren loades
+
+
 def test_magic_item_reference_is_clickable(client):
     raw = ("---\ntitle: T\n---\n# S\nDu finder et @genstand[cloak_of_resistance_2].\n")
     (ds.ADVENTURES_DIR / "MagicRef").mkdir()

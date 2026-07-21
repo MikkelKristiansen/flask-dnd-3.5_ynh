@@ -30,12 +30,13 @@ h1{color:var(--accent);font-size:1.5rem;letter-spacing:.5px;}
   <p class="hint">Browse hele kataloget (monstre, fælder, døre, magiske genstande). Søg på navn eller CR,
     klik et navn for statblokken. (I eventyr-editoren kan du desuden indsætte referencer direkte.)</p>
 
-  <div id="browse-panel" class="browse-panel" data-entity-api="{{ entity_api }}">
+  <div id="browse-panel" class="browse-panel" data-entity-api="{{ entity_api }}" data-from="{{ from_session }}">
     <div class="br-tabs"></div>
     <input type="text" class="br-search" placeholder="Søg (navn eller CR)…" aria-label="Søg i opslagsværk">
     <div class="br-list"></div>
   </div>
 </div>
 <script src="{{ url_for('static', filename='dm-content-browser.js') }}"></script>
+<script src="{{ url_for('static', filename='dm-give-loot.js') }}"></script>
 </body>
 </html>
