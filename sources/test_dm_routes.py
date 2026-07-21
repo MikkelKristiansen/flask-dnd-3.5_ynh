@@ -616,6 +616,18 @@ def test_encounter_board_shows_live_combat_positions(enc_client):
     assert 'id="board-slot"' in html and 'data-combat="1"' in html
 
 
+def test_edit_link_locked_on_combat_board(enc_client):
+    # Under kamp redigerer man den forfattede opstilling forgæves (kampen bruger live-
+    # positioner), så redigér-linket låses på kamp-brættet.
+    import dm_setups
+    dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 80},
+        "tokens": [{"kind": "monster", "ref": "goblin", "label": "A", "col": 4, "row": 2}]})
+    slug, _ = _start(enc_client)
+    frag = enc_client.get(f"/dm/api/encounter/{slug}/board").get_data(as_text=True)
+    assert "Redigering låst" in frag
+    assert "✏️ Rediger" not in frag                    # intet klikbart redigér-link i kamp
+
+
 def test_encounter_move_updates_live_position(enc_client):
     import dm_setups
     dm_setups.save_setup("Test", "testkort", {"grid": {"cell": 80},
@@ -756,7 +768,10 @@ def test_new_adventure_duplicate_and_empty_are_rejected(client):
 def test_play_has_board_link(client):
     slug = _new(client, name="BL")                     # scene 1 har @kort[testkort]
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
-    assert "/dm/board/Test/testkort" in html and "Åbn bræt" in html
+    # Bræt-editoren nås via "✏️ Rediger" på kort-figuren (den redundante "Åbn bræt"
+    # i scene-titlen er fjernet). Uden aktiv kamp er linket klikbart (ikke låst).
+    assert "/dm/board/Test/testkort" in html and "✏️ Rediger" in html
+    assert "Redigering låst" not in html
 
 
 def test_play_renders_board_with_setup_tokens(client):

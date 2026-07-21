@@ -4,8 +4,14 @@
    /dm/api/encounter/<slug>/board (fragment-swap under kamp). #}
 <figure class="embed-doc board-fig"{% if m.combat %} data-combat="1" data-session="{{ session.slug }}"{% endif %}>
   <figcaption>🗺 {{ m.title }}
-    {% if m.combat %}<span class="combat-badge">⚔ kamp — træk for at flytte</span>{% endif %}
+    {% if m.combat %}<span class="combat-badge">⚔ kamp — træk for at flytte</span>
+    {# Opstillingen redigeres i dm_setups (start-positioner); en kørende kamp bruger
+       live-positioner, så en redigering ville alligevel ikke slå igennem her. Lås
+       derfor redigér-linket på DETTE bræt så længe dets kamp kører. #}
+    <span class="board-link board-link-locked" title="Opstillingen kan ikke redigeres mens kampen kører — ændringer slår ikke igennem i den kørende kamp">🔒 Redigering låst</span>
+    {% else %}
     <a class="board-link" href="{{ url_for('dm.board', adventure=adv_ref, map_slug=m.map_slug, **{'from': session.slug}) }}">✏️ Rediger</a>
+    {% endif %}
   </figcaption>
   {% with map_url=m.map_url, board=m.board %}{% include "dm/_board.html" %}{% endwith %}
 </figure>
