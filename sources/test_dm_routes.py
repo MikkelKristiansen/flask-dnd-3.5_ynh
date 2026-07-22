@@ -849,6 +849,14 @@ def test_new_adventure_duplicate_and_empty_are_rejected(client):
     assert "adv_error" in empty.headers["Location"]         # tomt navn
 
 
+def test_play_has_ruler_tool(client):
+    # Måle-linealen (klient-kun): 📏-knap på bræt-figuren + dm-ruler.js loades.
+    slug = _new(client, name="RL")                     # scene 1 har @kort[testkort]
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert "board-ruler-toggle" in html and "📏 Lineal" in html
+    assert "dm-ruler.js" in html
+
+
 def test_play_has_board_link(client):
     slug = _new(client, name="BL")                     # scene 1 har @kort[testkort]
     html = client.get(f"/dm/play/{slug}").get_data(as_text=True)

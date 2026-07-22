@@ -4,6 +4,8 @@
    /dm/api/encounter/<slug>/board (fragment-swap under kamp). #}
 <figure class="embed-doc board-fig"{% if m.combat %} data-combat="1" data-session="{{ session.slug }}"{% endif %}>
   <figcaption>🗺 {{ m.title }}
+    {# Måle-lineal (klient-kun): slå til, tryk-og-træk på gitteret for afstand (3.5). #}
+    <button type="button" class="board-link board-ruler-toggle" title="Lineal: tryk og træk på brættet for at måle afstand (3.5-regel)">📏 Lineal</button>
     {% if m.combat %}<span class="combat-badge">⚔ kamp — træk for at flytte</span>
     {# Opstillingen redigeres i dm_setups (start-positioner); en kørende kamp bruger
        live-positioner, så en redigering ville alligevel ikke slå igennem her. Lås

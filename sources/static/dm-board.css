@@ -66,3 +66,13 @@
  box-shadow:0 0 8px 2px rgba(255,210,74,.7);z-index:4;}
 .tok-dead{opacity:.5;filter:grayscale(.7);}
 .tok-dead .tok-disc,.tok-dead .tok-lbl{text-decoration:line-through;}
+
+/* Måle-lineal (dm-ruler.js) — klient-kun taktisk hjælpemiddel. */
+body.ruler-on .board{cursor:crosshair;touch-action:none;}   /* touch-træk måler, scroller ikke */
+body.ruler-on .board .tok{pointer-events:none;}   /* token-flyt fra → tryk måler i stedet */
+body.ruler-on .board-ruler-toggle{color:var(--accent) !important;border-color:var(--accent) !important;}
+.ruler-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;}
+.ruler-line{stroke:var(--accent);stroke-width:2.5;stroke-dasharray:4 3;opacity:.9;}
+.ruler-label{position:absolute;transform:translate(-50%,-150%);background:rgba(0,0,0,.78);
+ color:#fff;font:600 .8rem/1 Georgia,serif;padding:.12rem .4rem;border-radius:4px;
+ pointer-events:none;white-space:nowrap;z-index:6;}
