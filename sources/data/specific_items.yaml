@@ -1,0 +1,113 @@
+# specific_items — navngivne magiske våben/rustninger/skjolde (SRD Magic Items II).
+#
+# Del C: hver række er et PRESET for Del A's give-loot — base_ref + enhancement +
+# abilities giver et fungerende InventoryItem (angrebs-motoren wirer flaming/frost/
+# keen osv. automatisk). De BESPOKE-effekter (charge-skade, slay-on-crit, 1/dag-
+# stråle …) er ren note-tekst — samme trin-1-filosofi som resten af magic-items.
+#
+# price_cp = markedspris i kobber (gp × 100). Kurateret ikonisk start-sæt; den lange
+# hale (fler specifics + skjolde) kan udvides fra SRD-klonen senere (evt. via Sonnet).
+
+# ── Våben ──────────────────────────────────────────────────────────────────
+- id: flame_tongue
+  name: Flame Tongue
+  slot: weapon
+  base_ref: weapons/longsword
+  enhancement: 1
+  abilities: '["flaming_burst"]'
+  price_cp: 2071500
+  caster_level: 12
+  aura: Strong evocation
+  note: "1/dag: skyd en ildstråle (ranged touch, 30 fod) for 4d6 ildskade."
+- id: frost_brand
+  name: Frost Brand
+  slot: weapon
+  base_ref: weapons/greatsword
+  enhancement: 3
+  abilities: '["frost"]'
+  price_cp: 5447500
+  caster_level: 14
+  aura: Strong evocation
+  note: "Beskytter wielderen mod ild (absorberer 10 ildskade/runde). Lyser under frysepunktet og kan ikke skjules da."
+- id: nine_lives_stealer
+  name: Nine Lives Stealer
+  slot: weapon
+  base_ref: weapons/longsword
+  enhancement: 2
+  abilities: '[]'
+  price_cp: 2305700
+  caster_level: 13
+  aura: Strong necromancy
+  note: "Ved bekræftet kritisk: offer skal bestå Fort DC 20 eller dø (9 gange, så opbrugt). Virker ikke mod crit-immune. Ondt: en god wielder får 2 negative niveauer."
+- id: dwarven_thrower
+  name: Dwarven Thrower
+  slot: weapon
+  base_ref: weapons/warhammer
+  enhancement: 2
+  abilities: '[]'
+  price_cp: 6031200
+  caster_level: 10
+  aura: Moderate evocation
+  note: "I en dværges hånd: +3 og returning; kan kastes (30-fods inkrement) for +2d8 skade mod kæmper, +1d8 mod alt andet."
+- id: dagger_of_venom
+  name: Dagger of Venom
+  slot: weapon
+  base_ref: weapons/dagger
+  enhancement: 1
+  abilities: '[]'
+  price_cp: 830200
+  caster_level: 5
+  aura: Faint necromancy
+  note: "1/dag: påfør gift (som spellet, Fort DC 14) ved en ramning; kan besluttes efter ramningen (fri handling, samme runde)."
+- id: sword_of_life_stealing
+  name: Sword of Life Stealing
+  slot: weapon
+  base_ref: weapons/longsword
+  enhancement: 2
+  abilities: '[]'
+  price_cp: 2571500
+  caster_level: 13
+  aura: Strong necromancy
+  note: "Ved bekræftet kritisk: offer får et negativt niveau, og wielderen får 1d6 midlertidige HP (24 timer). Offer: Fort DC 16 dagen efter el. mist et niveau."
+- id: assassins_dagger
+  name: Assassin's Dagger
+  slot: weapon
+  base_ref: weapons/dagger
+  enhancement: 2
+  abilities: '[]'
+  price_cp: 1030200
+  caster_level: 9
+  aura: Moderate necromancy
+  note: "+1 til DC'en for Fort-saven mod en assassins death attack."
+- id: holy_avenger
+  name: Holy Avenger
+  slot: weapon
+  base_ref: weapons/longsword
+  enhancement: 2
+  abilities: '[]'
+  price_cp: 12063000
+  caster_level: 18
+  aura: Overwhelming abjuration and evocation
+  note: "Cold iron-klinge. I en paladins hånd bliver den en +5 holy longsword (+2d6 mod onde) og giver spell resistance + dispel-effekt. Uden for paladin-hånd: +2."
+
+# ── Rustning ───────────────────────────────────────────────────────────────
+- id: rhino_hide
+  name: Rhino Hide
+  slot: armor
+  base_ref: armor/hide
+  enhancement: 2
+  abilities: '[]'
+  price_cp: 516500
+  caster_level: 9
+  aura: Moderate transmutation
+  note: "+2 enhancement til AC (ACP −1). Giver +2d6 skade på ethvert vellykket charge-angreb (også monteret charge)."
+- id: demon_armor
+  name: Demon Armor
+  slot: armor
+  base_ref: armor/full_plate
+  enhancement: 4
+  abilities: '[]'
+  price_cp: 5226000
+  caster_level: 13
+  aura: Strong necromancy
+  note: "+4 full plate formet som en dæmon. Klo-angreb 1d10 (slår som +1) der kan påføre contagion (Fort DC 14 negerer) ved en normal nærkampsramning."

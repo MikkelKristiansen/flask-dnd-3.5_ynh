@@ -1,0 +1,34 @@
+{# Navngiven specific (Del C) til inspektør/opslag. Genbruger .sb-*-stilene.
+   Kilde: db.get_specific_item → specific_items.specific_item_view. give-loot vises
+   kun når `chars` er sat (play-view/opslag m/ session); den bygger et rigtigt
+   våben/rustnings-item via Del A (base+enh+abilities) + navn + note. #}
+<div class="sb">
+  <div class="sb-head">
+    <span class="sb-name">✨ {{ it.name }}</span>
+    <span class="sb-origin">{{ it.slot|capitalize }}</span>
+  </div>
+  <div class="sb-sub">
+    {{ it.base_name }} · +{{ it.enhancement }}
+    {%- if it.ability_names %} · {{ it.ability_names|join(', ') }}{% endif -%}
+    {%- if it.caster_level %} · caster level {{ it.caster_level }}{% endif -%}
+    {%- if it.aura %} · {{ it.aura }}{% endif -%}
+  </div>
+
+  <div class="sb-grid">
+    <div><span class="sb-k">Pris</span> {{ it.price_str }}</div>
+  </div>
+
+  {% if it.note %}<p class="sb-desc">{{ it.note }}</p>{% endif %}
+
+  {% if chars %}
+  <form class="give-loot" data-base="specifik/{{ it.id }}" data-bonus="0" data-give-url="{{ url_for('dm.api_give_loot') }}">
+    <label class="sb-k">🎁 Giv til spiller
+      <select name="char">
+        {% for c in chars %}<option value="{{ c.slug }}">{{ c.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <button type="submit">Læg i rygsæk</button>
+    <span class="give-result" role="status" hidden></span>
+  </form>
+  {% endif %}
+</div>

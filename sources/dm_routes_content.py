@@ -16,6 +16,7 @@ import dm_scene
 import dm_session as ds
 import doors as doors_module
 import magic_items as magic_items_module
+import specific_items as specific_items_module
 import traps as traps_module
 from dm import _TRAP_TYPE, dm_bp
 
@@ -38,7 +39,8 @@ def entity_ids():
     getters = {"monster": db.get_all_monsters,
                "faelde": db.get_all_traps,
                "door": db.get_all_doors,
-               "genstand": db.get_all_magic_items}
+               "genstand": db.get_all_magic_items,
+               "specifik": db.get_all_specific_items}
     g = getters.get(request.args.get("type", ""))
     if not g:
         return jsonify([])
@@ -66,6 +68,12 @@ def api_catalog_statblock(etype, ident):
             # Åbnet fra en session (?from=<slug>) → give-loot vises; ellers party-løst.
             return render_template("dm/_magic_item.html",
                                    it=magic_items_module.magic_item_view(row),
+                                   chars=_loot_chars(request.args.get("from")))
+    elif etype == "specifik":
+        row = db.get_specific_item(ident)
+        if row:
+            return render_template("dm/_specific.html",
+                                   it=specific_items_module.specific_item_view(row),
                                    chars=_loot_chars(request.args.get("from")))
     else:
         row = db.get_monster(ident)

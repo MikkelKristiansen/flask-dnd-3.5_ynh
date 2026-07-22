@@ -286,6 +286,27 @@ def get_all_magic_items() -> list[dict]:
     return [_magic_item_row(r) for r in rows]
 
 
+def _specific_item_row(row) -> dict:
+    """Konverter en specific_items-række til dict og afkod abilities-JSON."""
+    rec = dict(row)
+    rec["abilities"] = json.loads(rec["abilities"] or "[]")
+    return rec
+
+
+def get_specific_item(item_id: str) -> dict | None:
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM specific_items WHERE id = ?", (item_id,)
+        ).fetchone()
+    return _specific_item_row(row) if row else None
+
+
+def get_all_specific_items() -> list[dict]:
+    with _connect() as conn:
+        rows = conn.execute("SELECT * FROM specific_items ORDER BY slot, name").fetchall()
+    return [_specific_item_row(r) for r in rows]
+
+
 def get_special_ability(ability_id: str) -> dict | None:
     with _connect() as conn:
         row = conn.execute(

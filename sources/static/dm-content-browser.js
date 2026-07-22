@@ -25,7 +25,8 @@
     { key: "monster",  label: "Monstre", ins: "@monster[" },
     { key: "faelde",   label: "Fælder",  ins: "@faelde[" },
     { key: "door",     label: "Døre",    ins: "@dør[" },
-    { key: "genstand", label: "Magiske genstande", ins: "@genstand[" }
+    { key: "genstand", label: "Magiske genstande", ins: "@genstand[" },
+    { key: "specifik", label: "Specifikke", ins: "@specifik[" }
   ];
   var CACHE = {};
   var active = "monster";

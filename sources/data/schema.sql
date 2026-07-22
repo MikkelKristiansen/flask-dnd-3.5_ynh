@@ -370,3 +370,21 @@ CREATE TABLE magic_items (
     charges_max  INTEGER,                    -- forbrugsvarer (B2): fulde ladninger (wand=50, potion/scroll=1)
     description  TEXT                         -- SRD/OGL-forklaring
 );
+
+-- Navngivne "specifics" (Del C): færdige magiske våben/rustninger/skjolde (Flame
+-- Tongue, Rhino Hide, Nine Lives Stealer …). Et preset for Del A's give-loot:
+-- base_ref + enhancement + abilities → et fungerende InventoryItem (angrebs-motoren
+-- wirer flaming/keen osv.); bespoke-effekter (charge-skade, slay-on-crit) er noter.
+DROP TABLE IF EXISTS specific_items;
+CREATE TABLE specific_items (
+    id           TEXT PRIMARY KEY,           -- slug, fx 'flame_tongue'
+    name         TEXT NOT NULL,              -- 'Flame Tongue'
+    slot         TEXT NOT NULL,              -- weapon | armor | shield
+    base_ref     TEXT NOT NULL,              -- 'weapons/longsword' | 'armor/hide'
+    enhancement  INTEGER NOT NULL DEFAULT 1, -- +N (til-hit/skade el. AC)
+    abilities    TEXT NOT NULL DEFAULT '[]', -- JSON: magic_abilities-ids (fx ["flaming_burst"])
+    price_cp     INTEGER,                    -- markedspris i kobber
+    caster_level INTEGER,
+    aura         TEXT,
+    note         TEXT                         -- særtekst: bespoke-effekter (ikke-generiske)
+);

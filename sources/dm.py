@@ -29,6 +29,7 @@ import doors as doors_module
 import magic_abilities
 import magic_gear
 import magic_items as magic_items_module
+import specific_items as specific_items_module
 import traps as traps_module
 
 # Entity-typer der slås op som statblok (klikbare → inspector).
@@ -40,6 +41,7 @@ _TRAP_TYPE = "faelde"
 _DOOR_TYPES = {"dør", "door"}
 _MAGIC_TYPE = "magisk"                                # @magisk[base+bonus] → magic_gear-overlay
 _ITEM_TYPE = "genstand"                               # @genstand[id] → magic_items-katalog
+_SPECIFIC_TYPE = "specifik"                           # @specifik[id] → specific_items-katalog
 
 dm_bp = Blueprint("dm", __name__, url_prefix="/dm")
 
@@ -65,7 +67,7 @@ def _entities_filter(text: str, docs: dict | None = None) -> Markup:
             out.append(Markup(
                 '<a class="ent ent-{} ent-link" data-doc="{}">{}</a>').format(
                     typ, key, docs[key]))
-        elif typ in _STAT_TYPES or typ in (_TRAP_TYPE, _MAGIC_TYPE, _ITEM_TYPE):  # monster/npc/fælde/magisk/genstand → statblok-fetch
+        elif typ in _STAT_TYPES or typ in (_TRAP_TYPE, _MAGIC_TYPE, _ITEM_TYPE, _SPECIFIC_TYPE):  # monster/npc/fælde/magisk/genstand/specifik → statblok-fetch
             out.append(Markup(
                 '<a class="ent ent-{} ent-stat" data-stat="{}/{}">{}</a>').format(
                     typ, typ, ident, ident))
@@ -297,6 +299,14 @@ def api_statblock(adventure, etype, ident):
             return render_template("dm/_magic_item.html",
                                    it=magic_items_module.magic_item_view(row), chars=chars)
         return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
+    if etype == _SPECIFIC_TYPE:                        # specifik[id] → specific_items-katalog
+        row = db.get_specific_item(ident)
+        if row:
+            chars = [{"slug": p["slug"], "name": p["name"]}
+                     for p in dm_party.party_view(dm_scene._character_slugs(), db)]
+            return render_template("dm/_specific.html",
+                                   it=specific_items_module.specific_item_view(row), chars=chars)
+        return render_template("dm/_statblock.html", none=True, etype=etype, ident=ident)
     stats = adv.statblock(ident)
     if stats:
         return render_template("dm/_statblock.html",
@@ -330,6 +340,21 @@ def api_give_loot():
         kwargs = {"ref": base_ref, "name": mi["name"], "state": "backpack"}
         if mi.get("spell_id") and mi.get("charges_max"):     # forbrugsvare → fulde ladninger
             kwargs["charges"] = int(mi["charges_max"])
+    elif table == "specifik":
+        # Navngiven specific (Del C): et preset for Del A's give-loot. Byg det som et
+        # rigtigt våben/rustnings-item (base+enh+abilities → angrebs-motoren wirer
+        # flaming/keen), men med specific-navnet + særteksten som note.
+        sp = db.get_specific_item(base_ref.partition("/")[2])
+        if not sp:
+            return "Ukendt specific", 404
+        try:
+            kwargs = magic_gear.as_inventory_item(
+                sp["base_ref"], int(sp["enhancement"]), sp["abilities"])
+        except ValueError:
+            return "Ugyldig specific", 400
+        kwargs["name"] = sp["name"]
+        if sp.get("note"):
+            kwargs["notes"] = sp["note"]
     else:
         try:
             bonus = int(request.form.get("bonus") or "")

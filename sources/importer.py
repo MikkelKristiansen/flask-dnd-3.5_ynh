@@ -48,6 +48,7 @@ TABLES = [
     "effects",
     "special_abilities",
     "magic_items",
+    "specific_items",
 ]
 
 

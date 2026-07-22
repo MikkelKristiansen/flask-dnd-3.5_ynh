@@ -356,6 +356,50 @@ def test_magic_item_reference_is_clickable(client):
     assert 'data-stat="genstand/cloak_of_resistance_2"' in html
 
 
+def test_entity_ids_lists_specifics(client):
+    ids = {r["id"] for r in client.get("/dm/api/entity-ids?type=specifik").get_json()}
+    assert "flame_tongue" in ids and "rhino_hide" in ids
+
+
+def test_catalog_statblock_specific(client):
+    html = client.get("/dm/api/catalog-statblock/specifik/flame_tongue").get_data(as_text=True)
+    assert "Flame Tongue" in html and "Longsword" in html and "Flaming Burst" in html
+    assert "give-loot" not in html                      # party-løst opslag
+
+
+def test_specific_reference_is_clickable(client):
+    raw = ("---\ntitle: T\n---\n# S\nDu finder en @specifik[flame_tongue].\n")
+    (ds.ADVENTURES_DIR / "SpecRef").mkdir()
+    (ds.ADVENTURES_DIR / "SpecRef" / "adventure.md").write_text(raw, encoding="utf-8")
+    slug = _new(client, name="SR", adventure="SpecRef")
+    html = client.get(f"/dm/play/{slug}").get_data(as_text=True)
+    assert 'data-stat="specifik/flame_tongue"' in html
+
+
+def test_give_loot_specific_builds_weapon_item(client, tmp_path, monkeypatch):
+    # En specific gives som et RIGTIGT våben-item (base+enh+abilities via Del A) med
+    # specific-navnet + særteksten som note — så angrebs-motoren wirer flaming osv.
+    import shutil
+    import app as app_module
+    import dm_scene
+    import character as char_module
+    chars = tmp_path / "characters"
+    chars.mkdir()
+    shutil.copy("defaults/tjorn.yaml", chars / "tjorn.yaml")
+    monkeypatch.setattr(app_module, "CHARACTERS_DIR", chars)
+    monkeypatch.setattr(dm_scene, "CHARACTERS_DIR", chars)
+
+    r = client.post("/dm/api/give-loot",
+                    data={"char": "tjorn", "base_ref": "specifik/flame_tongue"})
+    assert r.status_code == 200 and "Flame Tongue" in r.get_data(as_text=True)
+
+    it = next(i for i in char_module.load_character(str(chars / "tjorn.yaml")).inventory
+              if i.name == "Flame Tongue")
+    assert it.ref == "weapons/longsword" and it.enhancement == 1
+    assert it.abilities == ["flaming_burst"] and it.bonus == 1
+    assert "ildstråle" in (it.notes or "")               # særtekst bevaret som note
+
+
 def test_give_loot_magic_item(client, tmp_path, monkeypatch):
     import shutil
     import app as app_module
