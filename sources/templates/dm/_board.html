@@ -4,7 +4,8 @@
    automatisk). Samme partial kan senere genbruges til et player-view (kald
    board_view med audience='player', så filtreres hidden-tokens fra). #}
 <div class="board" data-cell="{{ board.grid.cell or 0 }}"
-     data-gx="{{ board.grid.x or 0 }}" data-gy="{{ board.grid.y or 0 }}">
+     data-gx="{{ board.grid.x or 0 }}" data-gy="{{ board.grid.y or 0 }}"
+     data-grid-color="{{ board.grid.color or '#000000' }}" data-grid-opacity="{{ board.grid.opacity if board.grid.opacity is not none else 0.30 }}">
   {% if map_url %}<img class="board-map" src="{{ map_url }}" alt="">{% else %}
   <div class="board-nomap">Intet kort-billede — upload det under Eventyr → billeder.</div>{% endif %}
   <div class="board-grid"></div>
@@ -50,6 +51,15 @@
       var cell = +board.dataset.cell || 0, gx = +board.dataset.gx || 0, gy = +board.dataset.gy || 0;
       var grid = board.querySelector('.board-grid');
       if (cell > 0) {
+        // Gitter-farve (hex, fuld alpha i gradienten) + gennemsigtighed på selve
+        // laget — ækvivalent med rgba-alpha, men uden hex→rgb-parsing. Valgbart pr.
+        // kort (data-grid-color/-opacity), så et mørkt kort kan få et lyst gitter.
+        var gc = board.dataset.gridColor || '#000000';
+        var go = board.dataset.gridOpacity; go = (go === '' || go == null) ? 0.30 : +go;
+        grid.style.backgroundImage =
+          'linear-gradient(to right, ' + gc + ' 1px, transparent 1px),' +
+          'linear-gradient(to bottom, ' + gc + ' 1px, transparent 1px)';
+        grid.style.opacity = go;
         grid.style.backgroundSize = (cell / Wn * 100) + '% ' + (cell / Hn * 100) + '%';
         grid.style.backgroundPosition = (gx / Wn * 100) + '% ' + (gy / Hn * 100) + '%';
         grid.style.display = 'block';

@@ -73,6 +73,9 @@ h1{color:var(--accent);font-size:1.3rem;}
   <label>Felter på tværs <input id="ci-cols" type="number" min="1" placeholder="fx 20"></label>
   <button type="button" class="ghost" id="ci-fromcols">Beregn felt-px</button>
   <span class="sep">|</span>
+  <label>Gitter-farve <input id="ci-color" type="color" value="{{ board.grid.color or '#000000' }}" style="width:2.4rem;padding:0;height:1.6rem" title="Vælg en farve der er synlig mod kortet (fx hvid mod et mørkt kort)"></label>
+  <label>Synlighed <input id="ci-opacity" type="range" min="0.05" max="1" step="0.05" value="{{ board.grid.opacity if board.grid.opacity is not none else 0.30 }}" style="width:90px" title="Gennemsigtighed"></label>
+  <span class="sep">|</span>
   <button type="button" id="ci-save">Gem grid</button>
   <span id="ci-msg"></span>
 </div>
@@ -107,14 +110,18 @@ h1{color:var(--accent);font-size:1.3rem;}
   var board = document.querySelector('.board');
   var cell = document.getElementById('ci-cell'), x = document.getElementById('ci-x'),
       y = document.getElementById('ci-y'), cols = document.getElementById('ci-cols'),
+      color = document.getElementById('ci-color'), opacity = document.getElementById('ci-opacity'),
       msg = document.getElementById('ci-msg');
   function preview() {
     board.dataset.cell = cell.value || 0;
     board.dataset.gx = x.value || 0;
     board.dataset.gy = y.value || 0;
+    board.dataset.gridColor = color.value || '#000000';
+    board.dataset.gridOpacity = opacity.value || 0.30;
     if (window.dmRelayout) window.dmRelayout();
   }
-  [cell, x, y].forEach(function (i) { i.addEventListener('input', preview); });
+  [cell, x, y, color, opacity].forEach(function (i) { i.addEventListener('input', preview); });
+  preview();   // anvend gemt farve/synlighed med det samme
 
   document.getElementById('ci-fromcols').addEventListener('click', function () {
     var n = +cols.value, Wn = +board.dataset.naturalW || 0;   // sat af bræt-layout
@@ -124,6 +131,7 @@ h1{color:var(--accent);font-size:1.3rem;}
   document.getElementById('ci-save').addEventListener('click', function () {
     var fd = new FormData();
     fd.set('cell', cell.value || 0); fd.set('x', x.value || 0); fd.set('y', y.value || 0);
+    fd.set('color', color.value || '#000000'); fd.set('opacity', opacity.value || 0.30);
     fetch(location.pathname + '/grid', { method: 'POST', body: fd }).then(function (r) {
       msg.textContent = r.ok ? 'Gemt ✓' : 'Fejl';
       setTimeout(function () { msg.textContent = ''; }, 2000);

@@ -397,9 +397,17 @@ def board_grid(adventure, map_slug):
     if adventure not in ds.list_adventures():
         abort(404)
     setup = dm_setups.load_setup(adventure, map_slug)
+    # Gitter-farve/-gennemsigtighed (valgbart pr. kort, så det er læsbart mod kortet).
+    # Klampet til gyldige værdier; default sort/0.30 (uændret udseende for gamle kort).
+    color = (request.form.get("color") or "#000000").strip()[:7]
+    try:
+        opacity = max(0.05, min(1.0, float(request.form.get("opacity"))))
+    except (TypeError, ValueError):
+        opacity = 0.30
     setup["grid"] = {"cell": round(float(request.form.get("cell") or 0), 2),
                      "x": int(float(request.form.get("x") or 0)),
-                     "y": int(float(request.form.get("y") or 0))}
+                     "y": int(float(request.form.get("y") or 0)),
+                     "color": color, "opacity": round(opacity, 2)}
     dm_setups.save_setup(adventure, map_slug, setup)
     return ("", 204)
 

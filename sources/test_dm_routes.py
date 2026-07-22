@@ -770,10 +770,27 @@ def test_board_grid_calibration_persists(client):
                     data={"cell": "142.5", "x": "8", "y": "-3"})
     assert r.status_code == 204
     grid = dm_setups.load_setup("Test", "testkort")["grid"]
-    assert grid == {"cell": 142.5, "x": 8, "y": -3}
+    # cell/x/y gemmes; farve/synlighed defaulter (sort/0.30) når de ikke sendes.
+    assert grid == {"cell": 142.5, "x": 8, "y": -3, "color": "#000000", "opacity": 0.3}
     # kalibreringen slår igennem i vis-tilstand
     html = client.get("/dm/board/Test/testkort").get_data(as_text=True)
     assert 'data-cell="142.5"' in html
+
+
+def test_board_grid_color_and_opacity_persist(client):
+    import dm_setups
+    r = client.post("/dm/board/Test/testkort/grid",
+                    data={"cell": "80", "x": "0", "y": "0", "color": "#ffffff", "opacity": "0.6"})
+    assert r.status_code == 204
+    grid = dm_setups.load_setup("Test", "testkort")["grid"]
+    assert grid["color"] == "#ffffff" and grid["opacity"] == 0.6
+    # farve/synlighed når frem til brættet som data-attributter
+    html = client.get("/dm/board/Test/testkort").get_data(as_text=True)
+    assert 'data-grid-color="#ffffff"' in html and 'data-grid-opacity="0.6"' in html
+    # ugyldig opacity → default 0.30 (klampet/robust)
+    client.post("/dm/board/Test/testkort/grid",
+                data={"cell": "80", "x": "0", "y": "0", "color": "#ff0000", "opacity": "nonsense"})
+    assert dm_setups.load_setup("Test", "testkort")["grid"]["opacity"] == 0.3
 
 
 def test_board_tokens_save_persists_and_sanitizes(client):
