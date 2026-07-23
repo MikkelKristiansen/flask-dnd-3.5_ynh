@@ -2155,3 +2155,465 @@
   skills: '[{"name": "Perform (sang)", "total": 10}, {"name": "Diplomacy", "total": 10}, {"name": "Bluff", "total": 10}, {"name": "Knowledge (arcana)", "total": 8}, {"name": "Tumble", "total": 9}]'
   feats: '["Weapon Finesse", "Toughness", "Skill Focus (Perform)"]'
   source_note: "KONSTRUERET (ikke en trykt SRD-tabel): menneske Bard 4 efter Table: The Bard (character-classes-i.md) — BAB +3, Fort +1, Ref +4, Will +4, spells/dag 3/2/0 og spells known 6/3/2, samt Special-kolonnen: bardic music + bardic knowledge + countersong + fascinate + inspire courage +1 (L1), inspire competence (L3). Spontan caster (kaster frit fra kendte spells; ingen 2.-niveau-slot fra tabellen, kun via Cha-bonus). Elite array Cha-primært; +1 ability-increase ved character-niveau 4 lagt på Cha (15 → 16). Array: Cha 16/Dex 14/Con 13/Int 12/Str 10/Wis 8. HP = gennemsnit 4d6 (14) + Con-mod×4 (+4) + Toughness (+3) = 21. AC 15 = 10 + 3 forstærket læder + 2 Dex (barder kaster uhindret i let rustning). Kårde bruges med Weapon Finesse (angreb = BAB 3 + Dex 2 = +5; skade er stadig Str 0). Bardisk musik = 1/dag pr. bard-niveau = 4/dag. Bardic knowledge = +bard-niveau 4 + Int-mod 1 = +5. Slots/dag = base 3/2/0 + Cha-bonusspells (Cha-mod +3 giver +1 på spell-niveau 1 og 2) = 3/3/1; spells known påvirkes IKKE af Cha (2.-niveau-known kræver dog Cha høj nok til bonusspell, hvilket Cha 16 opfylder). DC = 10 + spell-niveau + Cha-mod (3). Feats: L1 Weapon Finesse, human bonus Toughness, L3 Skill Focus (Perform). Skill-point = (6 + Int 1) × (4 + 3 niveauer) + 4 human = 53, fordelt på fem viste class-skills (maks 7 ranks ved niveau 4)."
+
+- id: assassin-vine
+  name: Snigmorderranke
+  size: large
+  type: plant
+  cr: "3"
+  alignment: "Altid neutral"
+  hd: "4d8+12 (30 hp)"
+  hp_max: 30
+  ac: 15
+  ac_touch: 9
+  ac_flat: 15
+  ac_note: "-1 størrelse, +6 naturlig"
+  init: 0
+  speed: "5 ft."
+  bab: 3
+  grapple: 12
+  str: 20
+  dex: 10
+  con: 16
+  int: ~
+  wis: 13
+  cha: 9
+  save_fort: 7
+  save_ref: 1
+  save_will: 2
+  attacks: '[{"name": "Slag", "bonus": "+7", "damage": "1d6+7", "notes": "nærkamp, rækkevidde 3 m (6 m med udstrakt ranke)"}]'
+  full_attack: ~
+  special_attacks: "Knus (constrict, 1d6+7 skade ved vellykket greb); sammenfiltring (entangle, kan besjæle planter inden for 9 m som fri handling, Ref DC 13 halv); forbedret greb (kræver et vellykket slag-angreb)"
+  special_qualities: "Blindsyn 9 m (opfanger fjender via lyd, lugt og vibrationer); camouflage (kræver DC 20 Spot-check for at opdage den før den angriber); immunitet mod elektricitet; lavlys-syn; plante-træk (immun mod gift, søvn, lammelse, bedøvelse, polymorf og sinds-påvirkende effekter; ingen kritiske træfninger); resistens mod kulde 10 og ild 10"
+  skills: ~
+  feats: ~
+  source_note: "SRD: Assassin Vine"
+
+- id: phantom-fungus
+  name: Spøgelsessvamp
+  size: medium
+  type: plant
+  cr: "3"
+  alignment: "Altid neutral"
+  hd: "2d8+6 (15 hp)"
+  hp_max: 15
+  ac: 14
+  ac_touch: 10
+  ac_flat: 14
+  ac_note: "+4 naturlig"
+  init: 0
+  speed: "20 ft."
+  bab: 1
+  grapple: 3
+  str: 14
+  dex: 10
+  con: 16
+  int: 2
+  wis: 11
+  cha: 9
+  save_fort: 6
+  save_ref: 0
+  save_will: 0
+  attacks: '[{"name": "Bid", "bonus": "+3", "damage": "1d6+3", "notes": "nærkamp"}]'
+  full_attack: ~
+  special_attacks: ~
+  special_qualities: "Lavlys-syn; plante-træk (immun mod gift, søvn, lammelse, bedøvelse, polymorf og sinds-påvirkende effekter; ingen kritiske træfninger); vedvarende usynlighed (greater invisibility, konstant og virker selv når svampen angriber, ophører 1 minut efter den dør)"
+  skills: '[{"name": "Listen", "total": 4}, {"name": "Move Silently", "total": 6}, {"name": "Spot", "total": 4}]'
+  feats: '["Alertness"]'
+  source_note: "SRD: Phantom Fungus"
+
+- id: shrieker
+  name: Skrigersvamp
+  size: medium
+  type: plant
+  cr: "1"
+  alignment: "Altid neutral"
+  hd: "2d8+2 (11 hp)"
+  hp_max: 11
+  ac: 8
+  ac_touch: 5
+  ac_flat: 8
+  ac_note: "-5 Dex, +3 naturlig"
+  init: -5
+  speed: "0 ft."
+  bab: 1
+  grapple: -4
+  str: ~
+  dex: ~
+  con: 13
+  int: ~
+  wis: 2
+  cha: 1
+  save_fort: 4
+  save_ref: 0
+  save_will: -4
+  attacks: '[]'
+  full_attack: ~
+  special_attacks: "Skrig (shriek — bevægelse eller en lyskilde inden for 3 m får svampen til at udstøde en gennemtrængende lyd i 1d3 runder, som tiltrækker nysgerrige væsener i nærheden)"
+  special_qualities: "Lavlys-syn; plante-træk (immun mod gift, søvn, lammelse, bedøvelse, polymorf og sinds-påvirkende effekter; ingen kritiske træfninger)"
+  skills: ~
+  feats: ~
+  source_note: "SRD: Shrieker"
+
+- id: violet-fungus
+  name: Violet svamp
+  size: medium
+  type: plant
+  cr: "3"
+  alignment: "Altid neutral"
+  hd: "2d8+6 (15 hp)"
+  hp_max: 15
+  ac: 13
+  ac_touch: 9
+  ac_flat: 13
+  ac_note: "-1 Dex, +4 naturlig"
+  init: -1
+  speed: "10 ft."
+  bab: 1
+  grapple: 3
+  str: 14
+  dex: 8
+  con: 16
+  int: ~
+  wis: 11
+  cha: 9
+  save_fort: 6
+  save_ref: -1
+  save_will: 0
+  attacks: '[{"name": "Tentakel", "bonus": "+3", "damage": "1d6+2 plus gift", "notes": "nærkamp, rækkevidde 3 m"}]'
+  full_attack: "4 tentakler +3 (1d6+2 plus gift)"
+  special_attacks: "Gift (injektion, Fort DC 14; indledende og sekundær skade 1d4 Str og 1d4 Con)"
+  special_qualities: "Lavlys-syn; plante-træk (immun mod gift, søvn, lammelse, bedøvelse, polymorf og sinds-påvirkende effekter; ingen kritiske træfninger)"
+  skills: ~
+  feats: ~
+  source_note: "SRD: Violet Fungus"
+
+- id: dryad
+  name: Dryade
+  size: medium
+  type: fey
+  cr: "3"
+  alignment: "Sædvanligvis kaotisk god"
+  hd: "4d6 (14 hp)"
+  hp_max: 14
+  ac: 17
+  ac_touch: 14
+  ac_flat: 13
+  ac_note: "+4 Dex, +3 naturlig"
+  init: 4
+  speed: "30 ft."
+  bab: 2
+  grapple: 2
+  str: 10
+  dex: 19
+  con: 11
+  int: 14
+  wis: 15
+  cha: 18
+  save_fort: 3
+  save_ref: 8
+  save_will: 6
+  attacks: '[{"name": "Daggert", "bonus": "+6", "damage": "1d4", "crit": "19-20", "notes": "nærkamp"}, {"name": "Langbue (mesterværk)", "bonus": "+7", "damage": "1d8", "crit": "x3", "notes": "afstand"}]'
+  full_attack: "Daggert +6 (1d4/19-20) eller mesterværks-langbue +7 (1d8/x3)"
+  special_attacks: "Trylle-lignende evner (fri brug — entangle DC 13, speak with plants, tree shape; 3/dag — charm person DC 13, deep slumber DC 15, tree stride; 1/dag — suggestion DC 15; CL 6, DC'er Wis-baserede)"
+  special_qualities: "Skadesreduktion 5/koldt jern; træbundet (bundet til ét kæmpe egetræ og må aldrig komme mere end 300 yards væk — bliver syg og dør inden for 4d6 timer hvis den gør); vild-empati (som druidens vild-empati, men med +6 racebonus)"
+  skills: '[{"name": "Escape Artist", "total": 11}, {"name": "Handle Animal", "total": 11}, {"name": "Hide", "total": 11}, {"name": "Knowledge (nature)", "total": 11}, {"name": "Listen", "total": 9}, {"name": "Move Silently", "total": 11}, {"name": "Ride", "total": 6}, {"name": "Spot", "total": 9}, {"name": "Survival", "total": 9}, {"name": "Use Rope", "total": 4}]'
+  feats: '["Great Fortitude", "Weapon Finesse"]'
+  source_note: "SRD: Dryad"
+
+- id: nixie
+  name: Nikse
+  size: small
+  type: fey (aquatic)
+  cr: "1"
+  alignment: "Altid neutral"
+  hd: "1d6 (3 hp)"
+  hp_max: 3
+  ac: 14
+  ac_touch: 14
+  ac_flat: 11
+  ac_note: "+1 størrelse, +3 Dex"
+  init: 3
+  speed: "20 ft., svømme 30 ft."
+  bab: 0
+  grapple: -6
+  str: 7
+  dex: 16
+  con: 11
+  int: 12
+  wis: 13
+  cha: 18
+  save_fort: 0
+  save_ref: 5
+  save_will: 3
+  attacks: '[{"name": "Kortsværd", "bonus": "+4", "damage": "1d4-2", "crit": "19-20", "notes": "nærkamp"}, {"name": "Let armbrøst", "bonus": "+4", "damage": "1d6", "crit": "19-20", "notes": "afstand"}]'
+  full_attack: "Kortsværd +4 (1d4-2/19-20) eller let armbrøst +4 (1d6/19-20)"
+  special_attacks: "Charm person (3/dag som besværgelsen, CL 4; ramte skal bestå Vil DC 15 eller være charmed i 24 timer — DC Cha-baseret)"
+  special_qualities: "Amfibisk (kan overleve på land på trods af sin akvatiske natur); skadesreduktion 5/koldt jern; lavlys-syn; trylleresistens 16; water breathing (1/dag som besværgelsen, CL 12 — gives typisk til charmede væsener); vild-empati (som druidens vild-empati, men med +6 racebonus)"
+  skills: '[{"name": "Bluff", "total": 8}, {"name": "Craft (any one)", "total": 5}, {"name": "Escape Artist", "total": 6}, {"name": "Handle Animal", "total": 8}, {"name": "Hide", "total": 7}, {"name": "Listen", "total": 6}, {"name": "Perform (sing)", "total": 7}, {"name": "Search", "total": 3}, {"name": "Sense Motive", "total": 5}, {"name": "Spot", "total": 6}, {"name": "Swim", "total": 6}]'
+  feats: '["Dodge", "Weapon Finesse"]'
+  source_note: "SRD: Nixie"
+
+- id: pixie
+  name: Pixie
+  size: small
+  type: fey
+  cr: "4"
+  alignment: "Altid neutral god"
+  hd: "1d6 (3 hp)"
+  hp_max: 3
+  ac: 16
+  ac_touch: 15
+  ac_flat: 12
+  ac_note: "+1 størrelse, +4 Dex, +1 naturlig"
+  init: 4
+  speed: "20 ft., flyvning 60 ft. (god)"
+  bab: 0
+  grapple: -6
+  str: 7
+  dex: 18
+  con: 11
+  int: 16
+  wis: 15
+  cha: 16
+  save_fort: 0
+  save_ref: 6
+  save_will: 4
+  attacks: '[{"name": "Kortsværd", "bonus": "+5", "damage": "1d4-2", "crit": "19-20", "notes": "nærkamp"}, {"name": "Langbue", "bonus": "+5", "damage": "1d6-2", "crit": "x3", "notes": "afstand"}]'
+  full_attack: "Kortsværd +5 (1d4-2/19-20) eller langbue +5 (1d6-2/x3)"
+  special_attacks: "Trylle-lignende evner (1/dag — lesser confusion DC 14, dancing lights, detect chaos, detect evil, detect good, detect law, detect thoughts DC 15, dispel magic, entangle DC 14, permanent image DC 19 kun visuelle/auditive elementer, polymorph på sig selv; CL 8, DC'er Cha-baserede; hver tiende pixie kan desuden bruge irresistible dance 1/dag, CL 8); specielle pile (skader intet, men kan udløse hukommelsestab [Vil DC 15] eller søvn [Fort DC 15] — begge DC'er Cha-baserede med +2 racebonus)"
+  special_qualities: "Skadesreduktion 10/koldt jern; vedvarende usynlighed (greater invisibility, konstant, kan undertrykkes/genoptages som fri handling); lavlys-syn; trylleresistens 15"
+  skills: '[{"name": "Bluff", "total": 7}, {"name": "Concentration", "total": 4}, {"name": "Escape Artist", "total": 8}, {"name": "Hide", "total": 8}, {"name": "Listen", "total": 8}, {"name": "Move Silently", "total": 8}, {"name": "Ride", "total": 8}, {"name": "Search", "total": 9}, {"name": "Sense Motive", "total": 6}, {"name": "Spot", "total": 8}]'
+  feats: '["Dodge", "Weapon Finesse"]'
+  source_note: "SRD: Pixie"
+
+- id: satyr
+  name: Satyr
+  size: medium
+  type: fey
+  cr: "2"
+  alignment: "Sædvanligvis kaotisk neutral"
+  hd: "5d6+5 (22 hp)"
+  hp_max: 22
+  ac: 15
+  ac_touch: 11
+  ac_flat: 14
+  ac_note: "+1 Dex, +4 naturlig"
+  init: 1
+  speed: "40 ft."
+  bab: 2
+  grapple: 2
+  str: 10
+  dex: 13
+  con: 12
+  int: 12
+  wis: 13
+  cha: 13
+  save_fort: 2
+  save_ref: 5
+  save_will: 5
+  attacks: '[{"name": "Pandestød", "bonus": "+2", "damage": "1d6", "notes": "nærkamp"}, {"name": "Daggert", "bonus": "-3", "damage": "1d4", "crit": "19-20", "notes": "nærkamp, sekundært"}, {"name": "Kortbue", "bonus": "+3", "damage": "1d6", "crit": "x3", "notes": "afstand"}]'
+  full_attack: "Pandestød +2 (1d6) og daggert -3 (1d4/19-20); eller kortbue +3 (1d6/x3)"
+  special_attacks: "Panfløjter (pipes — satyren spiller magiske melodier; alle inden for 18 m (undtagen andre satyrer) skal bestå Vil DC 13 eller påvirkes af charm person, sleep eller fear, CL 10, DC Cha-baseret; hæver CR til 4 når satyren bærer fløjterne)"
+  special_qualities: "Skadesreduktion 5/koldt jern; lavlys-syn"
+  skills: '[{"name": "Bluff", "total": 9}, {"name": "Hide", "total": 13}, {"name": "Knowledge (nature)", "total": 9}, {"name": "Listen", "total": 15}, {"name": "Move Silently", "total": 13}, {"name": "Perform (wind instruments)", "total": 9}, {"name": "Spot", "total": 15}]'
+  feats: '["Alertness", "Dodge", "Mobility"]'
+  source_note: "SRD: Satyr"
+
+- id: grig
+  name: Grig
+  size: tiny
+  type: fey
+  cr: "1"
+  alignment: "Altid neutral god"
+  hd: "1/2 d6+1 (2 hp)"
+  hp_max: 2
+  ac: 18
+  ac_touch: 16
+  ac_flat: 16
+  ac_note: "+2 størrelse, +4 Dex, +2 naturlig"
+  init: 4
+  speed: "20 ft., flyvning 40 ft. (dårlig)"
+  bab: 0
+  grapple: -11
+  str: 5
+  dex: 18
+  con: 13
+  int: 10
+  wis: 13
+  cha: 14
+  save_fort: 1
+  save_ref: 6
+  save_will: 3
+  attacks: '[{"name": "Kortsværd", "bonus": "+6", "damage": "1d3-3", "crit": "19-20", "notes": "nærkamp"}, {"name": "Langbue", "bonus": "+6", "damage": "1d4-3", "crit": "x3", "notes": "afstand"}]'
+  full_attack: "Kortsværd +6 (1d3-3/19-20) eller langbue +6 (1d4-3/x3)"
+  special_attacks: "Trylle-lignende evner (3/dag — disguise self, entangle DC 13, invisibility på sig selv, pyrotechnics DC 14, ventriloquism DC 13; CL 9, DC'er Cha-baserede); fiddle (én grig pr. flok bærer en lille violin — når den spilles, skal alle ikke-sprites inden for 9 m bestå Vil DC 12 eller påvirkes som af irresistible dance, så længe der spilles)"
+  special_qualities: "Skadesreduktion 5/koldt jern; lavlys-syn; trylleresistens 17"
+  skills: '[{"name": "Craft (any one)", "total": 4}, {"name": "Escape Artist", "total": 8}, {"name": "Hide", "total": 16}, {"name": "Jump", "total": 3}, {"name": "Listen", "total": 3}, {"name": "Move Silently", "total": 8}, {"name": "Perform (string instruments)", "total": 6}, {"name": "Search", "total": 2}, {"name": "Spot", "total": 3}]'
+  feats: '["Dodge", "Weapon Finesse"]'
+  source_note: "SRD: Grig"
+
+- id: blink-dog
+  name: Blinkhund
+  size: medium
+  type: magical beast
+  cr: "2"
+  alignment: "Sædvanligvis lovlig god"
+  hd: "4d10 (22 hp)"
+  hp_max: 22
+  ac: 16
+  ac_touch: 13
+  ac_flat: 13
+  ac_note: "+3 Dex, +3 naturlig"
+  init: 3
+  speed: "40 ft."
+  bab: 4
+  grapple: 4
+  str: 10
+  dex: 17
+  con: 10
+  int: 10
+  wis: 13
+  cha: 11
+  save_fort: 4
+  save_ref: 7
+  save_will: 4
+  attacks: '[{"name": "Bid", "bonus": "+4", "damage": "1d6", "notes": "nærkamp"}]'
+  full_attack: ~
+  special_attacks: ~
+  special_qualities: "Blink (kan bruge blink som besværgelsen, CL 8, og kan slå effekten til/fra som fri handling); dimension door (kan teleportere 1/runde som fri handling — kun den selv, dukker aldrig op inde i faste objekter og kan handle straks efter teleportering); mørkesyn 18 m; lavlys-syn; lugtesans"
+  skills: '[{"name": "Hide", "total": 3}, {"name": "Listen", "total": 5}, {"name": "Sense Motive", "total": 3}, {"name": "Spot", "total": 5}, {"name": "Survival", "total": 4}]'
+  feats: '["Iron Will", "Run", "Track"]'
+  source_note: "SRD: Blink Dog"
+
+- id: ankheg
+  name: Ankheg
+  size: large
+  type: magical beast
+  cr: "3"
+  alignment: "Altid neutral"
+  hd: "3d10+12 (28 hp)"
+  hp_max: 28
+  ac: 18
+  ac_touch: 9
+  ac_flat: 18
+  ac_note: "-1 størrelse, +9 naturlig"
+  init: 0
+  speed: "30 ft., grave 20 ft."
+  bab: 3
+  grapple: 12
+  str: 21
+  dex: 10
+  con: 17
+  int: 1
+  wis: 13
+  cha: 6
+  save_fort: 6
+  save_ref: 3
+  save_will: 2
+  attacks: '[{"name": "Bid", "bonus": "+7", "damage": "2d6+7 plus 1d4 syre", "notes": "nærkamp"}]'
+  full_attack: ~
+  special_attacks: "Forbedret greb (kræver et vellykket bid-angreb; hvis ankhegen skades under et greb, trækker den sig baglæns ned i sin tunnel med byttet); spyt syre (30 ft. linje, én gang hver 6. time, 4d4 syreskade, Ref DC 14 halv — bruges kun når den er desperat eller frustreret)"
+  special_qualities: "Mørkesyn 18 m; lavlys-syn; rystelsessans 18 m"
+  skills: '[{"name": "Climb", "total": 8}, {"name": "Listen", "total": 6}, {"name": "Spot", "total": 3}]'
+  feats: '["Alertness", "Toughness"]'
+  source_note: "SRD: Ankheg"
+
+- id: owlbear
+  name: Uglebjørn
+  size: large
+  type: magical beast
+  cr: "4"
+  alignment: "Altid neutral"
+  hd: "5d10+25 (52 hp)"
+  hp_max: 52
+  ac: 15
+  ac_touch: 10
+  ac_flat: 14
+  ac_note: "-1 størrelse, +1 Dex, +5 naturlig"
+  init: 1
+  speed: "30 ft."
+  bab: 5
+  grapple: 14
+  str: 21
+  dex: 12
+  con: 21
+  int: 2
+  wis: 12
+  cha: 10
+  save_fort: 9
+  save_ref: 5
+  save_will: 2
+  attacks: '[{"name": "Klo", "bonus": "+9", "damage": "1d6+5", "notes": "nærkamp"}, {"name": "Bid", "bonus": "+4", "damage": "1d8+2", "notes": "nærkamp, sekundært"}]'
+  full_attack: "2 klør +9 (1d6+5) og bid +4 (1d8+2)"
+  special_attacks: "Forbedret greb (kræver et vellykket klo-angreb)"
+  special_qualities: "Lugtesans"
+  skills: '[{"name": "Listen", "total": 8}, {"name": "Spot", "total": 8}]'
+  feats: '["Alertness", "Track"]'
+  source_note: "SRD: Owlbear"
+
+- id: griffon
+  name: Grif
+  size: large
+  type: magical beast
+  cr: "4"
+  alignment: "Altid neutral"
+  hd: "7d10+21 (59 hp)"
+  hp_max: 59
+  ac: 17
+  ac_touch: 11
+  ac_flat: 15
+  ac_note: "-1 størrelse, +2 Dex, +6 naturlig"
+  init: 2
+  speed: "30 ft., flyv 80 ft. (gennemsnitlig)"
+  bab: 7
+  grapple: 15
+  str: 18
+  dex: 15
+  con: 16
+  int: 5
+  wis: 13
+  cha: 8
+  save_fort: 8
+  save_ref: 7
+  save_will: 5
+  attacks: '[{"name": "Bid", "bonus": "+11", "damage": "2d6+4", "notes": "nærkamp"}, {"name": "Klo", "bonus": "+8", "damage": "1d4+2", "notes": "nærkamp, sekundært"}]'
+  full_attack: "Bid +11 (2d6+4) og 2 klør +8 (1d4+2)"
+  special_attacks: "Storm-dyk (pounce — ved dyk eller charge kan grifen udføre et fuldt angreb inkl. to rake-angreb); rake 1d6+2 (kun ved pounce)"
+  special_qualities: "Mørkesyn 18 m; lavlys-syn; lugtesans"
+  skills: '[{"name": "Jump", "total": 8}, {"name": "Listen", "total": 6}, {"name": "Spot", "total": 10}]'
+  feats: '["Iron Will", "Multiattack", "Weapon Focus (bite)"]'
+  source_note: "SRD: Griffon"
+
+- id: hippogriff
+  name: Hippogrif
+  size: large
+  type: magical beast
+  cr: "2"
+  alignment: "Altid neutral"
+  hd: "3d10+9 (25 hp)"
+  hp_max: 25
+  ac: 15
+  ac_touch: 11
+  ac_flat: 13
+  ac_note: "-1 størrelse, +2 Dex, +4 naturlig"
+  init: 2
+  speed: "50 ft., flyv 100 ft. (gennemsnitlig)"
+  bab: 3
+  grapple: 11
+  str: 18
+  dex: 15
+  con: 16
+  int: 2
+  wis: 13
+  cha: 8
+  save_fort: 6
+  save_ref: 5
+  save_will: 2
+  attacks: '[{"name": "Klo", "bonus": "+6", "damage": "1d4+4", "notes": "nærkamp"}, {"name": "Bid", "bonus": "+1", "damage": "1d8+2", "notes": "nærkamp, sekundært"}]'
+  full_attack: "2 klør +6 (1d4+4) og bid +1 (1d8+2)"
+  special_attacks: ~
+  special_qualities: "Mørkesyn 18 m; lavlys-syn; lugtesans"
+  skills: '[{"name": "Listen", "total": 4}, {"name": "Spot", "total": 8}]'
+  feats: '["Dodge", "Wingover"]'
+  source_note: "SRD: Hippogriff"
