@@ -2617,3 +2617,333 @@
   skills: '[{"name": "Listen", "total": 4}, {"name": "Spot", "total": 8}]'
   feats: '["Dodge", "Wingover"]'
   source_note: "SRD: Hippogriff"
+
+- id: air_elemental_small
+  name: Luftelemental (lille)
+  size: small
+  type: elemental
+  cr: "1"
+  alignment: "Normalt neutral"
+  hd: "2d8 (9 hp)"
+  hp_max: 9
+  ac: 17
+  ac_touch: 14
+  ac_flat: 14
+  ac_note: "+1 størrelse, +3 Dex, +3 naturlig"
+  init: 7
+  speed: "flyvning 100 ft. (perfekt)"
+  bab: 1
+  grapple: -3
+  str: 10
+  dex: 17
+  con: 10
+  int: 4
+  wis: 11
+  cha: 11
+  save_fort: 0
+  save_ref: 6
+  save_will: 0
+  attacks: '[{"name": "Slag", "bonus": "+5", "damage": "1d4", "notes": "nærkamp"}]'
+  full_attack: "Slag +5 (1d4)"
+  special_attacks: "Luftherredømme (flyvende modstandere får -1 på angreb/skade mod elementaren); hvirvelvind (kan 1/10 min. antage hvirvelvindsform i op til 1 runde pr. 2 HD; Refleks DC 11, 1d4 skade)"
+  special_qualities: "Mørkesyn 18 m; elemental-træk (immun over for gift, søvn, lammelse, bedøvelse; ingen kritiske træffere)"
+  skills: '[{"name": "Listen", "total": 2}, {"name": "Spot", "total": 3}]'
+  feats: '["Flyby Attack", "Improved Initiative", "Weapon Finesse"]'
+  source_note: "SRD: Air Elemental (Small)"
+
+- id: air_elemental_medium
+  name: Luftelemental (mellem)
+  size: medium
+  type: elemental
+  cr: "3"
+  alignment: "Normalt neutral"
+  hd: "4d8+8 (26 hp)"
+  hp_max: 26
+  ac: 18
+  ac_touch: 15
+  ac_flat: 13
+  ac_note: "+5 Dex, +3 naturlig"
+  init: 9
+  speed: "flyvning 100 ft. (perfekt)"
+  bab: 3
+  grapple: 4
+  str: 12
+  dex: 21
+  con: 14
+  int: 4
+  wis: 11
+  cha: 11
+  save_fort: 3
+  save_ref: 9
+  save_will: 1
+  attacks: '[{"name": "Slag", "bonus": "+8", "damage": "1d6+1", "notes": "nærkamp"}]'
+  full_attack: "Slag +8 (1d6+1)"
+  special_attacks: "Luftherredømme (flyvende modstandere får -1 på angreb/skade mod elementaren); hvirvelvind (kan 1/10 min. antage hvirvelvindsform i op til 1 runde pr. 2 HD; Refleks DC 13, 1d6 skade)"
+  special_qualities: "Mørkesyn 18 m; elemental-træk (immun over for gift, søvn, lammelse, bedøvelse; ingen kritiske træffere)"
+  skills: '[{"name": "Listen", "total": 3}, {"name": "Spot", "total": 4}]'
+  feats: '["Dodge", "Flyby Attack", "Improved Initiative", "Weapon Finesse"]'
+  source_note: "SRD: Air Elemental (Medium)"
+
+- id: earth_elemental_small
+  name: Jordelemental (lille)
+  size: small
+  type: elemental
+  cr: "1"
+  alignment: "Normalt neutral"
+  hd: "2d8+2 (11 hp)"
+  hp_max: 11
+  ac: 17
+  ac_touch: 10
+  ac_flat: 17
+  ac_note: "+1 størrelse, -1 Dex, +7 naturlig"
+  init: -1
+  speed: "20 ft."
+  bab: 1
+  grapple: 0
+  str: 17
+  dex: 8
+  con: 13
+  int: 4
+  wis: 11
+  cha: 11
+  save_fort: 4
+  save_ref: -1
+  save_will: 0
+  attacks: '[{"name": "Slag", "bonus": "+5", "damage": "1d6+4", "notes": "nærkamp"}]'
+  full_attack: "Slag +5 (1d6+4)"
+  special_attacks: "Jordherredømme (+1 på angreb/skade når begge parter rører jorden, -4 hvis modstanderen er i luften eller vandet); skub (kan starte et bulerid uden at fremprovokere en frit slag)"
+  special_qualities: "Mørkesyn 18 m; jordglidning (kan bevæge sig gennem jord/sten/metal som en fisk i vand); elemental-træk (immun over for gift, søvn, lammelse, bedøvelse; ingen kritiske træffere)"
+  skills: '[{"name": "Listen", "total": 3}, {"name": "Spot", "total": 2}]'
+  feats: '["Power Attack"]'
+  source_note: "SRD: Earth Elemental (Small)"
+
+- id: earth_elemental_medium
+  name: Jordelemental (mellem)
+  size: medium
+  type: elemental
+  cr: "3"
+  alignment: "Normalt neutral"
+  hd: "4d8+12 (30 hp)"
+  hp_max: 30
+  ac: 18
+  ac_touch: 9
+  ac_flat: 18
+  ac_note: "-1 Dex, +9 naturlig"
+  init: -1
+  speed: "20 ft."
+  bab: 3
+  grapple: 8
+  str: 21
+  dex: 8
+  con: 17
+  int: 4
+  wis: 11
+  cha: 11
+  save_fort: 7
+  save_ref: 0
+  save_will: 1
+  attacks: '[{"name": "Slag", "bonus": "+8", "damage": "1d8+7", "notes": "nærkamp"}]'
+  full_attack: "Slag +8 (1d8+7)"
+  special_attacks: "Jordherredømme (+1 på angreb/skade når begge parter rører jorden, -4 hvis modstanderen er i luften eller vandet); skub (kan starte et bulerid uden at fremprovokere en frit slag)"
+  special_qualities: "Mørkesyn 18 m; jordglidning (kan bevæge sig gennem jord/sten/metal som en fisk i vand); elemental-træk (immun over for gift, søvn, lammelse, bedøvelse; ingen kritiske træffere)"
+  skills: '[{"name": "Listen", "total": 4}, {"name": "Spot", "total": 3}]'
+  feats: '["Cleave", "Power Attack"]'
+  source_note: "SRD: Earth Elemental (Medium)"
+
+- id: fire_elemental_small
+  name: Ildelemental (lille)
+  size: small
+  type: elemental
+  cr: "1"
+  alignment: "Normalt neutral"
+  hd: "2d8 (9 hp)"
+  hp_max: 9
+  ac: 15
+  ac_touch: 12
+  ac_flat: 14
+  ac_note: "+1 størrelse, +1 Dex, +3 naturlig"
+  init: 5
+  speed: "50 ft."
+  bab: 1
+  grapple: -3
+  str: 10
+  dex: 13
+  con: 10
+  int: 4
+  wis: 11
+  cha: 11
+  save_fort: 0
+  save_ref: 4
+  save_will: 0
+  attacks: '[{"name": "Slag", "bonus": "+3", "damage": "1d4 plus 1d4 ild", "notes": "nærkamp"}]'
+  full_attack: "Slag +3 (1d4 plus 1d4 ild)"
+  special_attacks: "Brænd (slag-angreb sætter ild til modstanderen; Refleks DC 11 for ikke at antænde, brænder 1d4 runder; en brændende skabning kan bruge en handling på at slukke ilden)"
+  special_qualities: "Mørkesyn 18 m; immun over for ild; sårbar over for kulde; elemental-træk (immun over for gift, søvn, lammelse, bedøvelse; ingen kritiske træffere)"
+  skills: '[{"name": "Listen", "total": 2}, {"name": "Spot", "total": 3}]'
+  feats: '["Dodge", "Improved Initiative", "Weapon Finesse"]'
+  source_note: "SRD: Fire Elemental (Small)"
+
+- id: fire_elemental_medium
+  name: Ildelemental (mellem)
+  size: medium
+  type: elemental
+  cr: "3"
+  alignment: "Normalt neutral"
+  hd: "4d8+8 (26 hp)"
+  hp_max: 26
+  ac: 16
+  ac_touch: 13
+  ac_flat: 13
+  ac_note: "+3 Dex, +3 naturlig"
+  init: 7
+  speed: "50 ft."
+  bab: 3
+  grapple: 4
+  str: 12
+  dex: 17
+  con: 14
+  int: 4
+  wis: 11
+  cha: 11
+  save_fort: 3
+  save_ref: 7
+  save_will: 1
+  attacks: '[{"name": "Slag", "bonus": "+6", "damage": "1d6+1 plus 1d6 ild", "notes": "nærkamp"}]'
+  full_attack: "Slag +6 (1d6+1 plus 1d6 ild)"
+  special_attacks: "Brænd (slag-angreb sætter ild til modstanderen; Refleks DC 14 for ikke at antænde, brænder 1d4 runder; en brændende skabning kan bruge en handling på at slukke ilden)"
+  special_qualities: "Mørkesyn 18 m; immun over for ild; sårbar over for kulde; elemental-træk (immun over for gift, søvn, lammelse, bedøvelse; ingen kritiske træffere)"
+  skills: '[{"name": "Listen", "total": 3}, {"name": "Spot", "total": 4}]'
+  feats: '["Dodge", "Improved Initiative", "Mobility", "Weapon Finesse"]'
+  source_note: "SRD: Fire Elemental (Medium)"
+
+- id: water_elemental_small
+  name: Vandelemental (lille)
+  size: small
+  type: elemental
+  cr: "1"
+  alignment: "Normalt neutral"
+  hd: "2d8+2 (11 hp)"
+  hp_max: 11
+  ac: 17
+  ac_touch: 11
+  ac_flat: 17
+  ac_note: "+1 størrelse, +6 naturlig"
+  init: 0
+  speed: "20 ft., svømme 90 ft."
+  bab: 1
+  grapple: -1
+  str: 14
+  dex: 10
+  con: 13
+  int: 4
+  wis: 11
+  cha: 11
+  save_fort: 4
+  save_ref: 0
+  save_will: 0
+  attacks: '[{"name": "Slag", "bonus": "+4", "damage": "1d6+3", "notes": "nærkamp"}]'
+  full_attack: "Slag +4 (1d6+3)"
+  special_attacks: "Vandherredømme (+1 på angreb/skade når begge parter rører vand, -4 hvis en af parterne rører jorden); dræn (slukker ikke-magisk ild af Large størrelse eller mindre ved berøring); malstrøm (kan 1/10 min. under vand antage malstrømsform i op til 1 runde pr. 2 HD; Refleks DC 13, 1d4 skade)"
+  special_qualities: "Mørkesyn 18 m; elemental-træk (immun over for gift, søvn, lammelse, bedøvelse; ingen kritiske træffere)"
+  skills: '[{"name": "Listen", "total": 2}, {"name": "Spot", "total": 3}]'
+  feats: '["Power Attack"]'
+  source_note: "SRD: Water Elemental (Small)"
+
+- id: water_elemental_medium
+  name: Vandelemental (mellem)
+  size: medium
+  type: elemental
+  cr: "3"
+  alignment: "Normalt neutral"
+  hd: "4d8+12 (30 hp)"
+  hp_max: 30
+  ac: 19
+  ac_touch: 11
+  ac_flat: 18
+  ac_note: "+1 Dex, +8 naturlig"
+  init: 1
+  speed: "20 ft., svømme 90 ft."
+  bab: 3
+  grapple: 6
+  str: 16
+  dex: 12
+  con: 17
+  int: 4
+  wis: 11
+  cha: 11
+  save_fort: 7
+  save_ref: 2
+  save_will: 1
+  attacks: '[{"name": "Slag", "bonus": "+6", "damage": "1d8+4", "notes": "nærkamp"}]'
+  full_attack: "Slag +6 (1d8+4)"
+  special_attacks: "Vandherredømme (+1 på angreb/skade når begge parter rører vand, -4 hvis en af parterne rører jorden); dræn (slukker ikke-magisk ild af Large størrelse eller mindre ved berøring); malstrøm (kan 1/10 min. under vand antage malstrømsform i op til 1 runde pr. 2 HD; Refleks DC 15, 1d6 skade)"
+  special_qualities: "Mørkesyn 18 m; elemental-træk (immun over for gift, søvn, lammelse, bedøvelse; ingen kritiske træffere)"
+  skills: '[{"name": "Listen", "total": 3}, {"name": "Spot", "total": 4}]'
+  feats: '["Cleave", "Power Attack"]'
+  source_note: "SRD: Water Elemental (Medium)"
+
+- id: gray_ooze
+  name: Grå slam
+  size: medium
+  type: ooze
+  cr: "4"
+  alignment: "Altid neutral"
+  hd: "3d10+15 (31 hp)"
+  hp_max: 31
+  ac: 5
+  ac_touch: 5
+  ac_flat: 5
+  ac_note: "-5 Dex"
+  init: -5
+  speed: "10 ft."
+  bab: 2
+  grapple: 3
+  str: 12
+  dex: 1
+  con: 21
+  int: ~
+  wis: 1
+  cha: 1
+  save_fort: 6
+  save_ref: -4
+  save_will: -4
+  attacks: '[{"name": "Slag", "bonus": "+3", "damage": "1d6+1 plus 1d6 syre", "notes": "nærkamp"}]'
+  full_attack: "Slag +3 (1d6+1 plus 1d6 syre)"
+  special_attacks: "Syre (skade fra angreb tæller som syreskade og æder også udstyr); kvæl 1d6+1 plus 1d6 syre; forbedret greb"
+  special_qualities: "Rystesans 18 m; immun over for kulde og ild; slam-træk; gennemsigtig (kræver Spot DC 15 for at opdage før angreb)"
+  skills: '[]'
+  feats: '[]'
+  source_note: "SRD: Gray Ooze (CR i SRD-tabellen er 4, ikke 2 som antaget i opgavebeskrivelsen — brugt SRD-værdien jf. instruktionen om at følge kilden)"
+
+- id: homunculus
+  name: Homunculus
+  size: tiny
+  type: construct
+  cr: "1"
+  alignment: "Enhver (som skaberen)"
+  hd: "2d10 (11 hp)"
+  hp_max: 11
+  ac: 14
+  ac_touch: 14
+  ac_flat: 12
+  ac_note: "+2 Dex, +2 størrelse"
+  init: 2
+  speed: "20 ft., flyvning 50 ft. (god)"
+  bab: 1
+  grapple: -8
+  str: 8
+  dex: 15
+  con: ~
+  int: 10
+  wis: 12
+  cha: 7
+  save_fort: 0
+  save_ref: 4
+  save_will: 1
+  attacks: '[{"name": "Bid", "bonus": "+2", "damage": "1d4-1 plus gift", "notes": "nærkamp"}]'
+  full_attack: "Bid +2 (1d4-1 plus gift)"
+  special_attacks: "Gift (bid, Udholdenhed DC 13, indledende skade søvn i 1 minut, sekundær skade søvn i yderligere 5d6 minutter)"
+  special_qualities: "Konstrukt-træk; mørkesyn 18 m; lavlys-syn"
+  skills: '[{"name": "Hide", "total": 14}, {"name": "Listen", "total": 4}, {"name": "Spot", "total": 4}]'
+  feats: '["Lightning Reflexes"]'
+  source_note: "SRD: Homunculus"
