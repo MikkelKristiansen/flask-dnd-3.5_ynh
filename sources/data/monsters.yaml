@@ -2947,3 +2947,234 @@
   skills: '[{"name": "Hide", "total": 14}, {"name": "Listen", "total": 4}, {"name": "Spot", "total": 4}]'
   feats: '["Lightning Reflexes"]'
   source_note: "SRD: Homunculus"
+
+- id: basilisk
+  name: Basilisk
+  size: medium
+  type: magical beast
+  cr: "5"
+  alignment: "Altid neutral"
+  hd: "6d10+12 (45 hp)"
+  hp_max: 45
+  ac: 16
+  ac_touch: 9
+  ac_flat: 16
+  ac_note: "-1 Dex, +7 naturlig"
+  init: -1
+  speed: "20 ft."
+  bab: 6
+  grapple: 8
+  str: 15
+  dex: 8
+  con: 15
+  int: 2
+  wis: 12
+  cha: 11
+  save_fort: 9
+  save_ref: 4
+  save_will: 3
+  attacks: '[{"name": "Bid", "bonus": "+8", "damage": "1d8+3", "notes": "nærkamp"}]'
+  full_attack: "Bid +8 (1d8+3)"
+  special_attacks: "Forstenende blik (30 ft., Udholdenhed DC 13 negerer, forvandler permanent til sten)"
+  special_qualities: "Mørkesyn 18 m, lavlys-syn"
+  skills: '[{"name": "Hide", "total": 0}, {"name": "Listen", "total": 7}, {"name": "Spot", "total": 7}]'
+  feats: '["Alertness", "Blind-Fight", "Great Fortitude"]'
+  source_note: "SRD: Basilisk"
+
+- id: mummy
+  name: Mumie
+  size: medium
+  type: undead
+  cr: "5"
+  alignment: "Sædvanligvis lovlydig ond"
+  hd: "8d12+3 (55 hp)"
+  hp_max: 55
+  ac: 20
+  ac_touch: 10
+  ac_flat: 20
+  ac_note: "+10 naturlig"
+  init: 0
+  speed: "20 ft."
+  bab: 4
+  grapple: 11
+  str: 24
+  dex: 10
+  con: ~
+  int: 6
+  wis: 14
+  cha: 15
+  save_fort: 4
+  save_ref: 2
+  save_will: 8
+  attacks: '[{"name": "Slag", "bonus": "+11", "damage": "1d6+10 plus mumie-rådnen", "notes": "nærkamp"}]'
+  full_attack: "Slag +11 (1d6+10 plus mumie-rådnen)"
+  special_attacks: "Fortvivlelse (blot synet af en mumie: Vilje DC 16 eller lammet af rædsel i 1d4 runder, virker kun én gang pr. mumie pr. 24 timer); mumie-rådnen (overnaturlig sygdom ved slag, Udholdenhed DC 16, inkubation 1 minut, 1d6 Con og 1d6 Cha skade — fortsætter til Con 0 eller forbandelsen brydes)"
+  special_qualities: "Skadesreduktion 5/-, mørkesyn 18 m, udøde-træk, sårbarhed over for ild"
+  skills: '[{"name": "Hide", "total": 7}, {"name": "Listen", "total": 8}, {"name": "Move Silently", "total": 7}, {"name": "Spot", "total": 8}]'
+  feats: '["Alertness", "Great Fortitude", "Toughness"]'
+  source_note: "SRD: Mummy"
+
+- id: chimera
+  name: Chimera
+  size: large
+  type: magical beast
+  cr: "7"
+  alignment: "Sædvanligvis kaotisk ond"
+  hd: "9d10+27 (76 hp)"
+  hp_max: 76
+  ac: 19
+  ac_touch: 10
+  ac_flat: 18
+  ac_note: "-1 størrelse, +1 Dex, +9 naturlig"
+  init: 1
+  speed: "30 ft., flyv 50 ft. (dårlig)"
+  bab: 9
+  grapple: 17
+  str: 19
+  dex: 13
+  con: 17
+  int: 4
+  wis: 13
+  cha: 10
+  save_fort: 9
+  save_ref: 7
+  save_will: 6
+  attacks: '[{"name": "Bid (drage-hoved)", "bonus": "+12", "damage": "2d6+4", "notes": "nærkamp"}, {"name": "Bid (løve-hoved)", "bonus": "+12", "damage": "1d8+4", "notes": "nærkamp"}, {"name": "Stød (gede-hoved)", "bonus": "+12", "damage": "1d8+4", "notes": "nærkamp"}, {"name": "Klo", "bonus": "+10", "damage": "1d6+2", "notes": "nærkamp, sekundært, x2"}]'
+  full_attack: "Bid (drage) +12 (2d6+4) og bid (løve) +12 (1d8+4) og stød (gede) +12 (1d8+4) og 2 klør +10 (1d6+2)"
+  special_attacks: "Åndevåben (afhænger af drage-hovedets farve, 3d8 skade, hver 1d4 runde, Refleks DC 17 halv skade)"
+  special_qualities: "Mørkesyn 18 m, lavlys-syn, lugtesans"
+  skills: '[{"name": "Hide", "total": 1}, {"name": "Listen", "total": 9}, {"name": "Spot", "total": 9}]'
+  feats: '["Alertness", "Hover", "Iron Will", "Multiattack"]'
+  source_note: "SRD: Chimera"
+
+- id: medusa
+  name: Medusa
+  size: medium
+  type: monstrous humanoid
+  cr: "7"
+  alignment: "Sædvanligvis lovlydig ond"
+  hd: "6d8+6 (33 hp)"
+  hp_max: 33
+  ac: 15
+  ac_touch: 12
+  ac_flat: 13
+  ac_note: "+2 Dex, +3 naturlig"
+  init: 2
+  speed: "30 ft."
+  bab: 6
+  grapple: 6
+  str: 10
+  dex: 15
+  con: 12
+  int: 12
+  wis: 13
+  cha: 15
+  save_fort: 3
+  save_ref: 7
+  save_will: 6
+  attacks: '[{"name": "Kortbue", "bonus": "+8", "damage": "1d6", "crit": "x3", "notes": "afstand"}, {"name": "Dolk", "bonus": "+8", "damage": "1d4", "crit": "19-20", "notes": "nærkamp"}, {"name": "Slanger", "bonus": "+8", "damage": "1d4 plus gift", "notes": "nærkamp"}]'
+  full_attack: "Kortbue +8/+3 (1d6/x3); eller dolk +8/+3 (1d4/19-20) og slanger +3 (1d4 plus gift)"
+  special_attacks: "Forstenende blik (30 ft., Udholdenhed DC 15 negerer, forvandler permanent til sten); gift (bid fra hårslanger, Udholdenhed DC 14, indledende skade 1d6 Styrke, sekundær skade 2d6 Styrke)"
+  special_qualities: "Mørkesyn 18 m"
+  skills: '[{"name": "Bluff", "total": 9}, {"name": "Diplomacy", "total": 4}, {"name": "Disguise", "total": 9}, {"name": "Intimidate", "total": 4}, {"name": "Move Silently", "total": 8}, {"name": "Spot", "total": 8}]'
+  feats: '["Point Blank Shot", "Precise Shot", "Weapon Finesse"]'
+  source_note: "SRD: Medusa"
+
+- id: hill_giant
+  name: Bakke-jætte
+  size: large
+  type: giant
+  cr: "7"
+  alignment: "Ofte kaotisk ond"
+  hd: "12d8+48 (102 hp)"
+  hp_max: 102
+  ac: 20
+  ac_touch: 8
+  ac_flat: 20
+  ac_note: "-1 størrelse, -1 Dex, +9 naturlig, +3 hudrustning"
+  init: -1
+  speed: "30 ft. i hudrustning (basisfart 40 ft.)"
+  bab: 9
+  grapple: 20
+  str: 25
+  dex: 8
+  con: 19
+  int: 6
+  wis: 10
+  cha: 7
+  save_fort: 12
+  save_ref: 3
+  save_will: 4
+  attacks: '[{"name": "Storkølle", "bonus": "+16", "damage": "2d8+10", "notes": "nærkamp"}, {"name": "Slag", "bonus": "+15", "damage": "1d4+7", "notes": "nærkamp"}, {"name": "Sten", "bonus": "+8", "damage": "2d6+7", "notes": "afstand"}]'
+  full_attack: "Storkølle +16/+11 (2d8+10) eller 2 slag +15 (1d4+7) eller sten +8 (2d6+7)"
+  special_attacks: "Stenkast"
+  special_qualities: "Lavlys-syn, stenfangst"
+  skills: '[{"name": "Climb", "total": 7}, {"name": "Jump", "total": 7}, {"name": "Listen", "total": 3}, {"name": "Spot", "total": 6}]'
+  feats: '["Cleave", "Improved Bull Rush", "Power Attack", "Improved Sunder", "Weapon Focus (greatclub)"]'
+  source_note: "SRD: Hill Giant"
+
+- id: ogre_mage
+  name: Ogre-troldmand
+  size: large
+  type: giant
+  cr: "8"
+  alignment: "Sædvanligvis lovlydig ond"
+  hd: "5d8+15 (37 hp)"
+  hp_max: 37
+  ac: 18
+  ac_touch: 9
+  ac_flat: 18
+  ac_note: "-1 størrelse, +5 naturlig, +4 kædeskjorte"
+  init: 4
+  speed: "40 ft., flyv 40 ft. (god)"
+  bab: 3
+  grapple: 12
+  str: 21
+  dex: 10
+  con: 17
+  int: 14
+  wis: 14
+  cha: 17
+  save_fort: 7
+  save_ref: 1
+  save_will: 3
+  attacks: '[{"name": "Storsværd", "bonus": "+7", "damage": "3d6+7", "crit": "19-20", "notes": "nærkamp"}, {"name": "Langbue", "bonus": "+2", "damage": "2d6", "crit": "x3", "notes": "afstand"}]'
+  full_attack: "Storsværd +7 (3d6+7/19-20) eller langbue +2 (2d6/x3)"
+  special_attacks: "Trylleagtige evner (til vilje: mørke, usynlighed; 1/dag: charme person DC 14, kuldekegle DC 18, luftformet, polymorf, søvn DC 14; kasterniveau 9)"
+  special_qualities: "Mørkesyn 27 m, lavlys-syn, regeneration 5 (ild og syre skader normalt), trylleresistens 19"
+  skills: '[{"name": "Concentration", "total": 11}, {"name": "Listen", "total": 10}, {"name": "Spellcraft", "total": 10}, {"name": "Spot", "total": 10}]'
+  feats: '["Combat Expertise", "Improved Initiative"]'
+  source_note: "SRD: Ogre Mage"
+
+- id: treant
+  name: Ent
+  size: huge
+  type: plant
+  cr: "8"
+  alignment: "Sædvanligvis neutral god"
+  hd: "7d8+35 (66 hp)"
+  hp_max: 66
+  ac: 20
+  ac_touch: 7
+  ac_flat: 20
+  ac_note: "-2 størrelse, -1 Dex, +13 naturlig"
+  init: -1
+  speed: "30 ft."
+  bab: 5
+  grapple: 22
+  str: 29
+  dex: 8
+  con: 21
+  int: 12
+  wis: 16
+  cha: 12
+  save_fort: 10
+  save_ref: 1
+  save_will: 7
+  attacks: '[{"name": "Slag", "bonus": "+12", "damage": "2d6+9", "notes": "nærkamp"}]'
+  full_attack: "2 slag +12 (2d6+9)"
+  special_attacks: "Animér træer (op til to træer inden for 55 m, som liveoak, kasterniveau 12); dobbelt skade mod genstande ved fuldt angreb; trampe 2d6+13 (Refleks DC 22 halv, Styrke-baseret)"
+  special_qualities: "Skadesreduktion 10/hugvåben, lavlys-syn, plante-træk, sårbarhed over for ild"
+  skills: '[{"name": "Diplomacy", "total": 3}, {"name": "Hide", "total": -9}, {"name": "Intimidate", "total": 6}, {"name": "Knowledge (nature)", "total": 6}, {"name": "Listen", "total": 8}, {"name": "Sense Motive", "total": 8}, {"name": "Spot", "total": 8}, {"name": "Survival", "total": 8}]'
+  feats: '["Improved Sunder", "Iron Will", "Power Attack"]'
+  source_note: "SRD: Treant"
