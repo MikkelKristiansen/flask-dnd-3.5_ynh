@@ -7,7 +7,8 @@
 #
 # - Henter nyeste main med --ff-only (aldrig merge-commits på en deploy-server;
 #   fejler højlydt hvis serveren er divergeret i stedet for at flette blindt).
-# - Reseeder srd35.db KUN hvis data/*.yaml eller schema.sql ændrede sig i pullet
+# - Reseeder srd35.db KUN hvis noget under data/ ændrede sig i pullet (både *.yaml
+#   og schema.sql ligger dér — det er hele importer.py's input)
 #   (eller --force-seed, eller hvis db-filen mangler). Reference-db'en er genereret
 #   fra data/ + schema.sql; brugerdata (characters/adventures/sessions/…) ligger i
 #   flask_dnd-data/ og røres ALDRIG af importer.py.
@@ -49,7 +50,7 @@ if $force_seed; then
 elif [ ! -f "$DATA_DB" ]; then
   echo "srd35.db mangler — reseeder."
   need_seed=true
-elif sudo -u "$APP_USER" git diff --name-only "$before" "$after" | grep -qE '^(data/|schema\.sql$)'; then
+elif sudo -u "$APP_USER" git diff --name-only "$before" "$after" | grep -q '^data/'; then
   need_seed=true
 fi
 
@@ -57,7 +58,7 @@ if $need_seed; then
   echo "Reseeder $DATA_DB …"
   sudo -u "$APP_USER" DND_DB_PATH="$DATA_DB" "$APP_DIR/venv/bin/python" importer.py
 else
-  echo "Ingen ændringer i data/ eller schema.sql — springer reseed over."
+  echo "Ingen ændringer under data/ — springer reseed over."
 fi
 
 # ── 3) Genstart + health-check ───────────────────────────────────────────────
