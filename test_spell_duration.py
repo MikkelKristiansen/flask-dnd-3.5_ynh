@@ -1,6 +1,6 @@
 """Unit-tests for kategori F: varigheds-parser + utility-udledning.
 
-Kør: python -m pytest test_spell_duration.py   (fra sources/)
+Kør: python -m pytest test_spell_duration.py   (fra repo-roden)
 
 spell_duration parser spells.yaml's prosa-varighed til et tal der skalerer med
 casterniveau. Den gætter ALDRIG: uparsbar tekst → computed=None, rå tekst som note.

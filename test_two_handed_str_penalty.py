@@ -1,6 +1,6 @@
 """Unit-tests: en Str-STRAF multipliceres aldrig af tohånds/off-hånds-faktoren.
 
-Kør: python -m pytest test_two_handed_str_penalty.py   (fra sources/)
+Kør: python -m pytest test_two_handed_str_penalty.py   (fra repo-roden)
 
 Bug: tohånds ganger Str ×1.5, men koden ganger også en negativ modifier
 (floor(-1 · 1.5) = -2). RAW/Rules Compendium: kun en Str-*bonus* multipliceres —

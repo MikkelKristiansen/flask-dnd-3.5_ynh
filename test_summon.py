@@ -1,6 +1,6 @@
 """Unit-tests for summon-motoren (summon.py).
 
-Kør: python -m pytest test_summon.py   (fra sources/)
+Kør: python -m pytest test_summon.py   (fra repo-roden)
 
 To ting verificeres: (1) at de FASTE statblokke matcher SRD for hver væsen-type
 (animal ¾ BAB, magical_beast fuld BAB, fey ½ BAB, elementaler/dire-saves, d10/d6

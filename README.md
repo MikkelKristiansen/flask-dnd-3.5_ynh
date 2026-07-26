@@ -1,7 +1,8 @@
-# D&D 3.5 Character Sheet — YunoHost-pakke
+# D&D 3.5 Character Sheet
 
 En tablet-optimeret Flask-webapp til håndtering af D&D 3.5 karakterark.
-Pakket som YunoHost-app med Gunicorn og Nginx.
+Kører som systemd-tjeneste; deploy sker via git (se nedenfor). Ynh-pakningen
+blev fjernet 26. juli 2026.
 
 ## Funktioner
 
@@ -16,30 +17,49 @@ Pakket som YunoHost-app med Gunicorn og Nginx.
 ## Lokal udvikling
 
 ```bash
-cd sources/
-DND_CHARACTERS_DIR=defaults/ python app.py
-# Åbn http://localhost:5000
+./run-local.sh            # starter på http://localhost:5000 (auto-reload)
+./run-local.sh --fresh    # nulstiller lokal test-tilstand + srd35.db
 ```
 
-## Deploy (YunoHost)
+## Deploy
+
+Appen kører som systemd-tjeneste (`flask_dnd`) i `/srv/apps/flask_dnd` på serveren.
+Deploy = push + pull:
 
 ```bash
-yunohost app upgrade flask_dnd --url https://github.com/MikkelKristiansen/flask-dnd-3.5_ynh.git
+git push                                   # fra din maskine
+# på serveren:
+cd /srv/apps/flask_dnd && git pull && sudo systemctl restart flask_dnd
+```
+
+Rollback: `git checkout <commit>` + `systemctl restart flask_dnd`.
+
+`srd35.db` genseedes IKKE af `git pull`. Efter ændringer i `data/*.yaml` eller
+`schema.sql` køres importeren mod data-mappens db:
+
+```bash
+cd /srv/apps/flask_dnd
+sudo -u apps DND_DB_PATH=/srv/apps/flask_dnd-data/srd35.db venv/bin/python importer.py
+sudo systemctl restart flask_dnd
 ```
 
 ## Filstruktur
 
 ```
-sources/          App-kode (Flask, Jinja2-templates)
-conf/             Nginx + systemd-konfiguration (med __PLACEHOLDERS__)
-scripts/          YunoHost install/upgrade/remove/backup/restore
+app.py, *.py       App-kode (Flask, ruter, regel-motor) i roden
+data/              SRD-data (YAML) — kilden importer.py seeder srd35.db fra
+templates/         Jinja2-templates          static/   CSS/JS/billeder
+defaults/          Eksempel-karakterer (seed)  adventures/  eventyr-seeds
+editor/            Emacs/redigerings-værktøjer
+scripts/           Egne data-værktøjer (gen_control_e_rows, triage_*)
+deploy/            flask_dnd.service (systemd-unit til serveren)
 ```
 
 ---
 
 ## Open Game License
 
-Spell-, feat- og skill-data i `sources/srd35.db` stammer fra
+Spell-, feat- og skill-data i `srd35.db` stammer fra
 **System Reference Document (SRD) v3.5**, udgivet af Wizards of the Coast
 under **Open Game License v1.0a**.
 

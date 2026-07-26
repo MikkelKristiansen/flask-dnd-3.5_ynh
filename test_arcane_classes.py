@@ -6,7 +6,7 @@ Verificerer:
   (c) cast_ability bruges korrekt (CHA for bard/sorcerer, INT for wizard → bonus slots).
   (d) Cleric/druid-slot-adfærd er uændret (wis bruges stadig).
 
-Kør: python -m pytest test_arcane_classes.py   (fra sources/)
+Kør: python -m pytest test_arcane_classes.py   (fra repo-roden)
 """
 import pathlib
 

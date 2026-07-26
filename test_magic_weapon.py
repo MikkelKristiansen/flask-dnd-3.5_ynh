@@ -1,6 +1,6 @@
 """Unit-test: magisk enhancement på et våben → +N til-hit OG +N skade (Fase C trin 3).
 
-Kør: python -m pytest test_magic_weapon.py   (fra sources/)
+Kør: python -m pytest test_magic_weapon.py   (fra repo-roden)
 
 Et DM-loot-våben bærer item.enhancement (magisk +N). Til-hit-siden kommer via
 item.bonus ("masterwork/magi"), skade-siden via enhancement (derive_attacks/make).

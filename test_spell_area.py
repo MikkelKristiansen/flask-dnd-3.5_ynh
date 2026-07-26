@@ -1,6 +1,6 @@
 """Unit-tests for kategori E (område/save) — skade-skalering + udledning.
 
-Kør: python -m pytest test_spell_area.py   (fra sources/)
+Kør: python -m pytest test_spell_area.py   (fra repo-roden)
 
 Kategori E rammer FJENDER med en save-DC frem for et til-hit-rul (Fireball, Sleep).
 Skaden skalerer ANTAL terninger pr. casterniveau (1d6/niveau, cappet), modsat

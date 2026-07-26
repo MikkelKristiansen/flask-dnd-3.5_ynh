@@ -1,6 +1,6 @@
 """Unit-tests for dice.py — ren terninglogik.
 
-Kør: python -m pytest test_dice.py   (fra sources/)
+Kør: python -m pytest test_dice.py   (fra repo-roden)
 """
 import pytest
 

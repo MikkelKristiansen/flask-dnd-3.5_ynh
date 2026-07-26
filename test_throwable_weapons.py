@@ -1,6 +1,6 @@
 """Unit-tests for kastbare våben (thrown=1): ét angreb m/ ⇄-skift nærkamp/kastet.
 
-Kør: python -m pytest test_throwable_weapons.py   (fra sources/)
+Kør: python -m pytest test_throwable_weapons.py   (fra repo-roden)
 
 Et kastbart våben (dagger, spear, javelin …) giver ÉN angrebsrække med en ⇄-knap
 i stedet for to samtidige. item.thrown styrer tilstanden (None = våbnets natur:

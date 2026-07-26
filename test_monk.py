@@ -1,7 +1,7 @@
 """Tests for Monk-features: Flurry of Blows, Ki Strike, Fast Movement, Evasion,
 unarmed skade-skalering og AC-bonus (refdata-helpers + app-integration).
 
-Kør: python -m pytest test_monk.py   (fra sources/)
+Kør: python -m pytest test_monk.py   (fra repo-roden)
 """
 import pathlib
 

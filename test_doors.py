@@ -1,6 +1,6 @@
 """Tests for dør-data-laget: db.get_door + doors.door_view.
 
-Kør: python -m pytest test_doors.py   (fra sources/)
+Kør: python -m pytest test_doors.py   (fra repo-roden)
 
 Kræver et seedet srd35.db (python importer.py) med doors-tabellen.
 """

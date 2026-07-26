@@ -1,6 +1,6 @@
 """Integrationstests: rulbar healing + vedvarende save-spells i selve view-laget.
 
-Kør: python -m pytest test_heal_and_sustained_view.py   (fra sources/)
+Kør: python -m pytest test_heal_and_sustained_view.py   (fra repo-roden)
 
 Dækker de to sammenbyggede briefs (BRIEF-heal-cast.md + BRIEF-sustained-save-
 duration.md) ende-til-ende gennem build_character_view, ikke bare de rene

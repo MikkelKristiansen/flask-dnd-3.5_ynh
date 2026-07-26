@@ -1,6 +1,6 @@
 """Unit-tests for Summon Familiar (Wizard/Sorcerer) — bygget på companion-motoren.
 
-Kør: python -m pytest test_familiar.py   (fra sources/)
+Kør: python -m pytest test_familiar.py   (fra repo-roden)
 
 Dækker: eligibility, SRD-avancement (naturlig rustning/Int/specials), HP = ½ mester,
 og at typens MESTER-bonus (rat +2 Fort, toad +3 HP) faktisk rammer mesterens tal.

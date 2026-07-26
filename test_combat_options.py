@@ -1,6 +1,6 @@
 """Unit-tests for Kampindstillinger (Lag A + Lag B): combat_options.py.
 
-Kør: python -m pytest test_combat_options.py   (fra sources/)
+Kør: python -m pytest test_combat_options.py   (fra repo-roden)
 
 Dækker: feat-gating af aktive toggles, panel-synlighed, at de scope'ede
 targets (attack_melee/ranged, damage_melee/ranged) rammer det rigtige angreb

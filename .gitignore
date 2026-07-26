@@ -10,7 +10,7 @@ CLAUDE.md
 rules/
 
 # Genereret af importer.py — bygges lokalt/på serveren, ikke versioneret
-sources/srd35.db
+srd35.db
 
 # Snapshots af karakterfiler (skrives ved siden af characters/ ved gem) — runtime-data
 backups/
@@ -18,17 +18,17 @@ backups/
 # Eventyr-billeder (kort/handouts) er brugerdata: uploades til data_dir på serveren
 # (eller scp'es), ikke versioneret i git. Print-opløste kort ville ellers bloate
 # repoet permanent. Selve eventyr-teksten (adventure.md) committes som seed.
-sources/adventures/*/media/
+adventures/*/media/
 
 # Egne tanker og ideer
 overvejelser-og-briefs/
 
 # Monster billed-tokens (udklippede Paizo Pawns, privat brug) — copyright, ALDRIG
-# i repoet. Ligger i data_dir på serveren; lokalt (run-local) i sources/monster_tokens/.
+# i repoet. Ligger i data_dir på serveren; lokalt (run-local) i monster_tokens/.
 monster_tokens/
 
 # Lokal test-tilstand lavet af run-local.sh (kopi af defaults/ + DM-sessioner)
-sources/.local-characters/
-sources/.local-sessions/
-sources/sessions/
+.local-characters/
+.local-sessions/
+sessions/
 briefs/

@@ -1,7 +1,7 @@
 """Tests for at party'ets ledsagere (animal companion / familiar / mount) føres
 ind i DM-encounteren som egne combatants.
 
-Kør: python -m pytest test_dm_companions.py   (fra sources/)
+Kør: python -m pytest test_dm_companions.py   (fra repo-roden)
 
 Dækker: feltmapning statblok → combatant-kilde, og at en rigtig druide-companion
 (defaults/tjorn.yaml → "Varg") dukker op med auto-rulbar init + HP, mens et party

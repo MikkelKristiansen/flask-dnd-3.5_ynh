@@ -1,6 +1,6 @@
 """Unit-tests for spell_cast_info — ⚡ Kast-knappens data.
 
-Kør: python -m pytest test_spell_cast_info.py   (fra sources/)
+Kør: python -m pytest test_spell_cast_info.py   (fra repo-roden)
 
 Øjeblikkelige angrebsspells (Magic Missile o.l.) har ingen "I brug"-tilstand, så de
 kastes direkte via Kast-knappen: rul skade + brug slot. spell_cast_info() leverer

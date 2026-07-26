@@ -7,7 +7,7 @@ Verificerer:
   (b) persistence.save_character kan tilføje TO feats på ét niveau (new_feats),
       med dedup på tværs af listen.
 
-Kør: python -m pytest test_fighter_bonus_feats.py   (fra sources/)
+Kør: python -m pytest test_fighter_bonus_feats.py   (fra repo-roden)
 """
 import pathlib
 

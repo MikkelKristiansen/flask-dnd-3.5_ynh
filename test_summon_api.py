@@ -5,7 +5,7 @@ spontant offer, fjern-ved-Brugt, HP pr. væsen og effekter pr. summon — plus
 klasse-gating og guards. Bruger de rigtige defaults-karakterer (druide tjorn,
 cleric aelred) kopieret til en tmp-mappe; app.CHARACTERS_DIR monkeypatches dertil.
 
-Kør: python -m pytest test_summon_api.py   (fra sources/)
+Kør: python -m pytest test_summon_api.py   (fra repo-roden)
 """
 import pathlib
 

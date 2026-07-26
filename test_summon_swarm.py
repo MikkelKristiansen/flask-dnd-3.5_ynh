@@ -1,6 +1,6 @@
 """Unit-tests for Summon Swarm (BRIEF-summon-swarm.md).
 
-Kør: python -m pytest test_summon_swarm.py   (fra sources/)
+Kør: python -m pytest test_summon_swarm.py   (fra repo-roden)
 
 Summon Swarm er en selvstændig lille feature: ét fast spell (niveau 2, ikke
 niveau-skaleret), valg mellem 3 faste væsner, og en varighed (Concentration + 2

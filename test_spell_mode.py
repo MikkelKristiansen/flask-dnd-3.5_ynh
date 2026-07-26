@@ -1,6 +1,6 @@
 """Unit-tests for spell-angrebs-tilstande (mode_group).
 
-Kør: python -m pytest test_spell_mode.py   (fra sources/)
+Kør: python -m pytest test_spell_mode.py   (fra repo-roden)
 
 Produce Flame har to katalog-rækker med samme mode_group ("touch"): nærkamp-touch
 og kastet ranged-touch. De er gensidigt udelukkende tilstande af ÉT angreb — arket

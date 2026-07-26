@@ -1,6 +1,6 @@
 """Unit-tests for ranged Str-til-skade (composite bue, regular bue, kaster-våben).
 
-Kør: python -m pytest test_ranged_str.py   (fra sources/)
+Kør: python -m pytest test_ranged_str.py   (fra repo-roden)
 
 Bug: _DEFAULT_STR_MULT["ranged"] gav ALLE ranged-våben 0 Str til skade. Korrekt
 kun for armbrøster. Denne fil dækker de øvrige tilfælde (data-drevet via

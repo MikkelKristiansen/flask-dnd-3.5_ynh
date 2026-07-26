@@ -1,6 +1,6 @@
 """Unit-tests for den mekaniske effekt-motor (resolve_modifiers + cascade).
 
-Kør: python -m pytest test_effects.py   (fra sources/)
+Kør: python -m pytest test_effects.py   (fra repo-roden)
 
 Stacking er det fiddly sted hvor det går galt hvis man sjusker — derfor er den
 isoleret i resolve_modifiers og dækket grundigt her.

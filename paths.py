@@ -11,7 +11,7 @@ from pathlib import Path
 CHARACTERS_DIR = Path(os.environ.get("DND_CHARACTERS_DIR",
                                      str(Path(__file__).parent / "characters")))
 # Portrætter lægges manuelt i data-mappen (ved siden af characters/), ikke i
-# sources/static/ som overskrives ved upgrade. Konvention: portraits/<slug>.<ext>.
+# static/ som overskrives ved deploy. Konvention: portraits/<slug>.<ext>.
 PORTRAITS_DIR = CHARACTERS_DIR.parent / "portraits"
 PORTRAIT_EXTS = ("jpg", "jpeg", "png", "webp")
 
@@ -26,7 +26,7 @@ MONSTER_TOKEN_EXTS = ("png",)
 # linje med karakterfiler og portrætter → data-mappen ved siden af characters/,
 # så de overlever upgrades og backup'es. Hvert eventyr er en egen mappe:
 # adventures/<Eventyr>/adventure.md + adventures/<Eventyr>/media/*.png.
-# De medfølgende eventyr i sources/adventures/ er SEED-kilde (kopieres til
+# De medfølgende eventyr i adventures/ er SEED-kilde (kopieres til
 # data-mappen ved første install, som defaults/*.yaml → characters/).
 ADVENTURES_DIR = Path(os.environ.get("DND_ADVENTURES_DIR",
                                      str(CHARACTERS_DIR.parent / "adventures")))

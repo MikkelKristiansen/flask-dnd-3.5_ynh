@@ -25,14 +25,14 @@
 ;;   * Eldoc: punkt på @monster[…] → én linje (navn · CR · HP · AC · angreb);
 ;;     punkt på @npc[…] → titel + første linje af dens `## Statblok:'-blok.
 ;;   * C-c C-d .  (dnd-goto-definition): hop til definitionen — buffer-overskrift
-;;     for lokale typer, ellers `sources/data/monsters.yaml' for monstre.
+;;     for lokale typer, ellers `data/monsters.yaml' for monstre.
 ;;   * Flymake: markér referencer der ikke resolver (ukendt monster-id eller en
 ;;     lokal reference uden matchende `## …:'-overskrift).  @faelde[…] lintes ikke.
 ;;   * Snippets (hvis yasnippet er indlæst): scene / rum / roster / statblok /
 ;;     ra (read-aloud) / brev / kort — spejler `adventures/_TEMPLATE.md'.
 ;;
 ;; Data-kilden er `srd35.db'.  Den lokaliseres automatisk ved at gå op fra den
-;; åbne fil til repoets rod (mappen der indeholder `sources/'); ellers sæt
+;; åbne fil til repoets rod (mappen der indeholder `data/'); ellers sæt
 ;; `dnd-adventure-db-path' manuelt.
 ;;
 ;; Installation (i din init):
@@ -64,7 +64,7 @@
   :prefix "dnd-adventure-")
 
 (defcustom dnd-adventure-db-path nil
-  "Sti til srd35.db.  Nil = lokalisér automatisk (op til mappen med `sources/')."
+  "Sti til srd35.db.  Nil = lokalisér automatisk (op til mappen med `data/')."
   :type '(choice (const :tag "Automatisk" nil) file)
   :group 'dnd-adventure)
 
@@ -89,8 +89,8 @@
   "Find srd35.db: eksplicit indstilling → op fra filen til repo-rod → cwd."
   (or (and dnd-adventure-db-path (expand-file-name dnd-adventure-db-path))
       (let ((root (and buffer-file-name
-                       (locate-dominating-file buffer-file-name "sources"))))
-        (and root (expand-file-name "sources/srd35.db" root)))
+                       (locate-dominating-file buffer-file-name "data"))))
+        (and root (expand-file-name "srd35.db" root)))
       (expand-file-name "srd35.db" default-directory)))
 
 (defun dnd-adventure--query-monsters ()
@@ -346,10 +346,10 @@ Nil hvis ingen matchende overskrift i bufferen."
 ;; ── Hop-til-definition ───────────────────────────────────────────────────────
 
 (defun dnd-adventure--goto-monster (id)
-  "Åbn `sources/data/monsters.yaml' og hop til `id: ID'-linjen."
+  "Åbn `data/monsters.yaml' og hop til `id: ID'-linjen."
   (let* ((root (and buffer-file-name
-                    (locate-dominating-file buffer-file-name "sources")))
-         (yaml (and root (expand-file-name "sources/data/monsters.yaml" root))))
+                    (locate-dominating-file buffer-file-name "data")))
+         (yaml (and root (expand-file-name "data/monsters.yaml" root))))
     (unless (and yaml (file-exists-p yaml))
       (user-error "monsters.yaml ikke fundet (søgt fra %s)"
                   (or buffer-file-name default-directory)))
@@ -364,7 +364,7 @@ Nil hvis ingen matchende overskrift i bufferen."
 (defun dnd-goto-definition ()
   "Hop til definitionen af @type[id]-referencen ved punktet.
 Lokale typer (npc/kort/brev) → matchende `## …:'-overskrift i bufferen;
-monster → `sources/data/monsters.yaml' på posten."
+monster → `data/monsters.yaml' på posten."
   (interactive)
   (let ((ref (dnd-adventure--ref-at-point)))
     (unless ref (user-error "Punktet står ikke på en @type[id]-reference"))

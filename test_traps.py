@@ -1,6 +1,6 @@
 """Tests for fælde-data-laget: db.get_trap + traps.trap_view.
 
-Kør: python -m pytest test_traps.py   (fra sources/)
+Kør: python -m pytest test_traps.py   (fra repo-roden)
 
 Kræver et seedet srd35.db (python importer.py) med traps-tabellen.
 """

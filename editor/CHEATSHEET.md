@@ -7,7 +7,7 @@ To Emacs-værktøjer til at skrive eventyr i det format `dm_parser.py` læser:
 | `dnd-adventure-mode.el` | **Skrivestøtte** i `adventure.md`: completion, eldoc, lint, hop, snippets |
 | `dnd-browse.el` | **Opslag**: read-only browser over hele `srd35.db` |
 
-Alt kører lokalt mod `sources/srd35.db` med Emacs' **indbyggede SQLite (Emacs 29+)**.
+Alt kører lokalt mod `srd35.db` med Emacs' **indbyggede SQLite (Emacs 29+)**.
 Ingen build, ingen kørende Flask, aldrig skrivning til db'en.
 
 ---
@@ -22,7 +22,7 @@ Ingen build, ingen kørende Flask, aldrig skrivning til db'en.
 ```
 
 `dnd-browse` autoloades af mode-filen — ingen ekstra `require`.
-Db'en findes automatisk (op fra filen til mappen med `sources/`); ellers sæt
+Db'en findes automatisk (op fra filen til mappen med `data/`); ellers sæt
 `dnd-adventure-db-path` manuelt.
 
 ---
@@ -103,11 +103,11 @@ gives en klar besked i stedet — de er ren læse-/opslagsdata.
 | Symptom | Årsag / fix |
 |---|---|
 | "Denne Emacs har ikke indbygget SQLite" | Kræver Emacs 29+ bygget med SQLite |
-| "srd35.db ikke fundet" | Kør `python importer.py` i `sources/`, eller sæt `dnd-adventure-db-path` |
+| "srd35.db ikke fundet" | Kør `python importer.py` i repo-roden, eller sæt `dnd-adventure-db-path` |
 | Completion tom / forkert efter data-ændring | `C-c C-d r` (glemmer cachen) |
 | Ingen snippets | `yasnippet` er ikke indlæst — snippets er valgfrie |
 
 ---
 
-*Data-kilde: `sources/srd35.db` (genereret af `importer.py` fra `data/*.yaml`).
+*Data-kilde: `srd35.db` (genereret af `importer.py` fra `data/*.yaml`).
 Værktøjerne er altid read-only mod db'en.*

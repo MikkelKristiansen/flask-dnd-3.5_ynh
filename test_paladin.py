@@ -3,7 +3,7 @@
 Caps (SRD): Lay on Hands-pulje = level × Cha-bonus (kræver Cha 12+), Smite Evil
 = 1/dag + 1 pr. 5 levels (max 5). Begge nulstilles ved "Ny dag".
 
-Kør: python -m pytest test_paladin.py   (fra sources/)
+Kør: python -m pytest test_paladin.py   (fra repo-roden)
 """
 import pathlib
 

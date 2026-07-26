@@ -1,6 +1,6 @@
 // test_js_smoke.js — afhængighedsfri smoke-test af character-*.js.
 //
-// Kør: node test_js_smoke.js   (fra sources/)
+// Kør: node test_js_smoke.js   (fra repo-roden)
 //
 // JS'en er browser-globale klassiske scripts (ingen build/moduler). Her konkateneres
 // de i load-orden og køres ÉN gang i en vm-kontekst — samme delte globale scope som

@@ -4,7 +4,7 @@ Hermetisk (ingen DB): base-genstande konstrueres inline. Priser er verificeret m
 kendte SRD-markedspriser (+1 longsword 2.315 gp, +5 longsword 50.315 gp,
 +1 full plate 2.650 gp, +2 heavy steel shield 4.170 gp).
 
-Kør: python -m pytest test_magic_gear.py   (fra sources/)
+Kør: python -m pytest test_magic_gear.py   (fra repo-roden)
 """
 import pytest
 
