@@ -24,18 +24,22 @@ blev fjernet 26. juli 2026.
 ## Deploy
 
 Appen kører som systemd-tjeneste (`flask_dnd`) i `/srv/apps/flask_dnd` på serveren.
-Deploy = push + pull:
+Deploy = push fra din maskine, opdatér på serveren:
 
 ```bash
 git push                                   # fra din maskine
 # på serveren:
-cd /srv/apps/flask_dnd && git pull && sudo systemctl restart flask_dnd
+sudo /srv/apps/flask_dnd/deploy/update.sh
 ```
 
-Rollback: `git checkout <commit>` + `systemctl restart flask_dnd`.
+`deploy/update.sh` gør det hele: `git pull` → reseeder `srd35.db` **kun** hvis
+`data/*.yaml` eller `schema.sql` ændrede sig → genstarter tjenesten → health-check.
+Brug `--force-seed` for at reseede uanset. `srd35.db` genseedes ikke af `git pull`
+alene, så kør altid via scriptet (eller reseed manuelt, se nedenfor).
 
-`srd35.db` genseedes IKKE af `git pull`. Efter ændringer i `data/*.yaml` eller
-`schema.sql` køres importeren mod data-mappens db:
+Rollback: `git checkout <commit>` + `sudo systemctl restart flask_dnd`.
+
+Manuel reseed (hvis du ikke bruger scriptet):
 
 ```bash
 cd /srv/apps/flask_dnd
