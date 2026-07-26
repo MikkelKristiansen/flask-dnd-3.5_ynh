@@ -1,0 +1,19 @@
+[Unit]
+Description=flask_dnd (D&D 3.5)
+After=network.target
+
+[Service]
+User=apps
+Group=apps
+WorkingDirectory=/srv/apps/flask_dnd
+# Kode og data er adskilt, som de var på rpi5. Alle øvrige datastier
+# (portraits, adventures, sessions, monster_tokens) udleder paths.py af
+# CHARACTERS_DIR.parent — derfor er de to variabler nok.
+Environment=DND_DB_PATH=/srv/apps/flask_dnd-data/srd35.db
+Environment=DND_CHARACTERS_DIR=/srv/apps/flask_dnd-data/characters
+ExecStart=/srv/apps/flask_dnd/venv/bin/gunicorn --workers 2 --bind 0.0.0.0:8764 app:app
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
