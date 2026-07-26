@@ -168,6 +168,8 @@ h1{color:var(--accent);font-size:1.8rem;margin-bottom:2rem;letter-spacing:2px;}
     samme filnavn (den gamle bevares som en version, så det kan fortrydes).</p>
 </form>
 
-<p class="version">Sidst opdateret: {{ last_updated }}</p>
+<p class="version">Sidst opdateret: {{ last_updated }}
+{% if auth_rolle %} · logget ind som {{ auth_rolle }} ·
+  <a href="{{ url_for('auth_logout') }}" style="color:inherit">log ud</a>{% endif %}</p>
 </body>
 </html>

@@ -9,6 +9,7 @@ from flask import (Flask, Response, abort, jsonify, redirect, render_template,
 from ruamel.yaml import YAML
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+import auth
 import catalog
 import character as char_module
 import db
@@ -28,6 +29,10 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
 # Karakterfiler er små (~få KB), men portræt-upload kan være et helt foto.
 # 8 MB rummer rigeligt et almindeligt billede og holder stadig grænsen for store.
 app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024
+
+# Adgangskontrol (to delte kodeord). Slår sig selv fra, når der ikke er sat
+# kodeord i miljøet — se auth.py.
+auth.init_app(app)
 
 
 @app.context_processor

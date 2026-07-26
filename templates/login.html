@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D&D 3.5 — Log ind</title>
+<style>
+:root {
+  --bg:#403932; --surface:#4a4139; --accent:#DAC597;
+  --text:#ede7d5; --muted:#a5a195; --border:#6b5f53; --red:#b5432c;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
+     min-height:100vh;display:flex;flex-direction:column;align-items:center;
+     justify-content:center;padding:2rem 1rem;}
+h1{color:var(--accent);font-size:1.6rem;margin-bottom:1.6rem;letter-spacing:2px;
+   text-align:center;}
+form{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+     padding:1.4rem;width:100%;max-width:340px;}
+label{display:block;color:var(--muted);font-size:.85rem;margin-bottom:.5rem;}
+input[type=password]{width:100%;padding:.75rem;font-size:1.05rem;
+     font-family:inherit;background:#2a2420;color:var(--text);
+     border:1px solid var(--border);border-radius:5px;}
+input[type=password]:focus{outline:none;border-color:var(--accent);}
+button{width:100%;margin-top:1rem;padding:.75rem;font-size:1rem;
+     font-family:inherit;background:var(--accent);color:#2a2420;font-weight:bold;
+     border:none;border-radius:5px;cursor:pointer;}
+button:hover{filter:brightness(1.08);}
+.fejl{color:var(--red);font-size:.88rem;margin-bottom:.9rem;}
+.note{color:var(--muted);font-size:.78rem;margin-top:1rem;text-align:center;}
+</style>
+</head>
+<body>
+<h1>D&amp;D 3.5</h1>
+<form method="post" action="{{ url_for('auth_login') }}">
+  {% if fejl %}<p class="fejl">{{ fejl }}</p>{% endif %}
+  <input type="hidden" name="next" value="{{ next }}">
+  <label for="kodeord">Kodeord</label>
+  <input type="password" id="kodeord" name="kodeord" autofocus
+         autocomplete="current-password" autocapitalize="off" spellcheck="false">
+  <button type="submit">Log ind</button>
+</form>
+{% if rolle %}<p class="note">Logget ind som {{ rolle }}.
+  <a href="{{ url_for('auth_logout') }}" style="color:var(--accent)">Log ud</a></p>{% endif %}
+</body>
+</html>

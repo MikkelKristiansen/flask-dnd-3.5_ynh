@@ -11,6 +11,10 @@ WorkingDirectory=/srv/apps/flask_dnd
 # CHARACTERS_DIR.parent — derfor er de to variabler nok.
 Environment=DND_DB_PATH=/srv/apps/flask_dnd-data/srd35.db
 Environment=DND_CHARACTERS_DIR=/srv/apps/flask_dnd-data/characters
+# Kodeords-hashes og session-nøgle (se auth.py og scripts/lav-kodeord-hash.py).
+# Egen fil uden for git, chmod 600. Uden bindestreg foran stien: mangler filen,
+# nægter tjenesten at starte — bedre end at starte uden adgangskontrol.
+EnvironmentFile=/etc/flask_dnd.env
 ExecStart=/srv/apps/flask_dnd/venv/bin/gunicorn --workers 2 --bind 0.0.0.0:8764 app:app
 Restart=on-failure
 RestartSec=5
