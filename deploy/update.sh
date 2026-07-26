@@ -43,6 +43,20 @@ if [ "$before" = "$after" ] && ! $force_seed; then
   exit 0
 fi
 
+# ── 1b) Advar hvis den kørende unit er drevet fra repoets ────────────────────
+# Deploy udruller BEVIDST ikke unit-filen (den kan have lokale tilpasninger, og
+# en restart med en forkert unit er værre end en forældet). Men en ændring i
+# repoet, der aldrig når /etc, er svær at få øje på — fx da EnvironmentFile med
+# kodeords-hashene blev tilføjet, og appen derfor startede uden adgangskontrol.
+INSTALLED_UNIT="/etc/systemd/system/$SERVICE.service"
+if [ -f "$INSTALLED_UNIT" ] && \
+   ! diff -q "$INSTALLED_UNIT" "$APP_DIR/deploy/$SERVICE.service" >/dev/null 2>&1; then
+  echo "BEMÆRK: $INSTALLED_UNIT afviger fra deploy/$SERVICE.service."
+  echo "        Deploy rører ikke unit-filen — se forskellen med:"
+  echo "          diff $INSTALLED_UNIT $APP_DIR/deploy/$SERVICE.service"
+  echo "        Skal repoets version gælde: cp den ind, systemctl daemon-reload."
+fi
+
 # ── 2) Reseed db'en hvis nødvendigt ──────────────────────────────────────────
 need_seed=false
 if $force_seed; then
@@ -68,9 +82,15 @@ sleep 2
 
 code=$(curl -s -o /dev/null -w "%{http_code}" --retry 5 --retry-connrefused --retry-delay 1 --max-time 8 "http://127.0.0.1:$PORT/" || true)
 echo "Health: http://127.0.0.1:$PORT/ -> $code"
-if [ "$code" != "200" ]; then
-  echo "ADVARSEL: uventet HTTP-status efter genstart — tjek 'journalctl -u $SERVICE'." >&2
-  exit 1
-fi
+# 302 er lige så sundt som 200: med adgangskontrol slået til sender "/" en
+# ulogget klient (og det er curl her) videre til /login. Health-checket spørger
+# kun om tjenesten svarer — ikke om den lukker os ind.
+case "$code" in
+  200|302) ;;
+  *)
+    echo "ADVARSEL: uventet HTTP-status efter genstart — tjek 'journalctl -u $SERVICE'." >&2
+    exit 1
+    ;;
+esac
 
 echo "Deploy OK: ${before:0:9} -> ${after:0:9}"
