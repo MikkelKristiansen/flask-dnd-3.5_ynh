@@ -27,6 +27,11 @@ overvejelser-og-briefs/
 # i repoet. Ligger i data_dir på serveren; lokalt (run-local) i monster_tokens/.
 monster_tokens/
 
+# Privat data-overlay (egne NPC'er/fælder, ikke-OGL) — bor UDEN FOR repoet i
+# ../dnd-private-data (eget privat repo), netop så det ikke kan committes her.
+# Denne linje er et sikkerhedsnet, hvis mappen alligevel havner i repo-roden.
+private-data/
+
 # Lokal test-tilstand lavet af run-local.sh (kopi af defaults/ + DM-sessioner)
 .local-characters/
 .local-sessions/

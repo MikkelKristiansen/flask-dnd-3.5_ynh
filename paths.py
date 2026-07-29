@@ -22,6 +22,15 @@ PORTRAIT_EXTS = ("jpg", "jpeg", "png", "webp")
 MONSTER_TOKENS_DIR = CHARACTERS_DIR.parent / "monster_tokens"
 MONSTER_TOKEN_EXTS = ("png",)
 
+# Privat data-overlay: egne monstre/NPC'er, fælder, magiske genstande m.m. som
+# ikke er OGL-materiale og derfor ikke må i det offentlige repo. Mappen har samme
+# filnavne som data/ (private-data/monsters.yaml, private-data/traps.yaml …), og
+# importer.py lægger dem OVENPÅ data/<tabel>.yaml, så de havner i srd35.db på
+# lige fod med SRD-indholdet. Ligger uden for repoet af samme grund som
+# monster_tokens/: så et `git add -A` fysisk ikke kan komme til at fange den.
+PRIVATE_DATA_DIR = Path(os.environ.get(
+    "DND_PRIVATE_DATA_DIR", str(CHARACTERS_DIR.parent / "private-data")))
+
 # DM-modul. Eventyr er brugerdata (tekst + uploadede kort/handout-billeder), på
 # linje med karakterfiler og portrætter → data-mappen ved siden af characters/,
 # så de overlever upgrades og backup'es. Hvert eventyr er en egen mappe:

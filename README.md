@@ -47,11 +47,35 @@ sudo -u apps DND_DB_PATH=/srv/apps/flask_dnd-data/srd35.db venv/bin/python impor
 sudo systemctl restart flask_dnd
 ```
 
+## Privat indhold (egne NPC'er m.m.)
+
+Repoet indeholder kun OGL-materiale. Hjemmelavede monstre, NPC'er, fælder og
+magiske genstande hører til i et **privat data-overlay** uden for repoet — samme
+filnavne og format som `data/`:
+
+```
+data/monsters.yaml          SRD-monstre (i git)
+private-data/monsters.yaml  dine egne  (aldrig i dette repo)
+                         →  begge seedes ind i srd35.db
+```
+
+`importer.py` læser SRD-filen først og lægger overlayet ovenpå, så private
+monstre optræder i bestiaret, `@monster[id]`-autocomplete, encounters og på
+brættet præcis som SRD-indholdet. Samme id som en SRD-række overskriver den —
+tilladt, men seed'en advarer om det.
+
+Stien styres af `DND_PRIVATE_DATA_DIR`: lokalt sætter `run-local.sh` den til
+`../dnd-private-data` (eget privat git-repo, søskende til dette), på serveren
+peger `deploy/update.sh` den på `/srv/apps/flask_dnd-data/private-data/`.
+Serverens kopi følger ikke med app-repoets `git pull` — læg filerne derop og
+kør `sudo /srv/apps/flask_dnd/deploy/update.sh --force-seed`.
+
 ## Filstruktur
 
 ```
 app.py, *.py       App-kode (Flask, ruter, regel-motor) i roden
 data/              SRD-data (YAML) — kilden importer.py seeder srd35.db fra
+                   (+ privat overlay uden for repoet, se ovenfor)
 templates/         Jinja2-templates          static/   CSS/JS/billeder
 defaults/          Eksempel-karakterer (seed)  adventures/  eventyr-seeds
 editor/            Emacs/redigerings-værktøjer

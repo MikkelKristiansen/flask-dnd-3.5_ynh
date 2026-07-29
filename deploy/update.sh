@@ -18,6 +18,10 @@ set -euo pipefail
 # ── Konfiguration (matcher flask_dnd.service) ────────────────────────────────
 APP_DIR=/srv/apps/flask_dnd
 DATA_DB=/srv/apps/flask_dnd-data/srd35.db
+# Privat data-overlay (egne NPC'er m.m., ikke i det offentlige repo). Ligger i
+# data-mappen som alt andet brugerdata; opdateres IKKE af pullet herunder — når
+# du har lagt nye filer derop, reseed med --force-seed.
+PRIVATE_DATA=/srv/apps/flask_dnd-data/private-data
 APP_USER=apps
 SERVICE=flask_dnd
 PORT=8764
@@ -70,7 +74,8 @@ fi
 
 if $need_seed; then
   echo "Reseeder $DATA_DB …"
-  sudo -u "$APP_USER" DND_DB_PATH="$DATA_DB" "$APP_DIR/venv/bin/python" importer.py
+  sudo -u "$APP_USER" DND_DB_PATH="$DATA_DB" DND_PRIVATE_DATA_DIR="$PRIVATE_DATA" \
+    "$APP_DIR/venv/bin/python" importer.py
 else
   echo "Ingen ændringer under data/ — springer reseed over."
 fi

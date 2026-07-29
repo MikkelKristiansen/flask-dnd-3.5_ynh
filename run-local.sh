@@ -5,7 +5,8 @@
 #
 # Gør før den starter Flask:
 #   1. Tjekker at flask/ruamel.yaml er installeret.
-#   2. Seeder srd35.db fra data/*.yaml hvis den mangler (genereres, ikke i git).
+#   2. Seeder srd35.db fra data/*.yaml — plus det private overlay i
+#      ../dnd-private-data (egne NPC'er, eget repo) — hvis db'en mangler.
 #   3. Lokal, git-ignoreret kopi af eksempel-karaktererne, så test IKKE ændrer
 #      de committede defaults/.
 #   4. DM-sessioner i en lokal, git-ignoreret mappe (så de ikke roder git-status).
@@ -14,13 +15,19 @@
 #
 # Brug:   ./run-local.sh            → starter på http://localhost:5000
 #         ./run-local.sh --fresh    → nulstiller test-data OG srd35.db (brug efter
-#                                      ændringer i data/*.yaml eller schema.sql)
+#                                      ændringer i data/*.yaml, schema.sql eller
+#                                      i det private overlay)
 set -euo pipefail
 
 cd "$(dirname "$0")"
 
 DATA_DIR=".local-characters"
 SESS_DIR=".local-sessions"
+
+# Privat data-overlay (egne NPC'er m.m.) — eget git-repo som søskende til dette,
+# altså UDEN FOR repoet, så det ikke kan committes her ved et uheld. Findes
+# mappen ikke, seedes der bare uden den.
+export DND_PRIVATE_DATA_DIR="${DND_PRIVATE_DATA_DIR:-$(cd .. && pwd)/dnd-private-data}"
 
 # --fresh: smid lokal test-tilstand + databasen væk, så alt seedes/genopbygges.
 if [ "${1:-}" = "--fresh" ]; then
