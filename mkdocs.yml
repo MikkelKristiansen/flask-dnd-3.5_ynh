@@ -117,3 +117,6 @@ nav:
       - "Ruter (genereret)": arkitektur/ruter.md
   - Drift:
       - drift/index.md
+      - Deploy: drift/deploy.md
+      - "Privat overlay": drift/privat-overlay.md
+      - Faldgruber: drift/faldgruber.md
