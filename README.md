@@ -35,17 +35,13 @@ sudo /srv/apps/flask_dnd/deploy/update.sh
 `deploy/update.sh` gør det hele: `git pull` → reseeder `srd35.db` **kun** hvis
 `data/*.yaml` eller `schema.sql` ændrede sig → genstarter tjenesten → health-check.
 Brug `--force-seed` for at reseede uanset. `srd35.db` genseedes ikke af `git pull`
-alene, så kør altid via scriptet (eller reseed manuelt, se nedenfor).
+alene, så kør altid via scriptet.
 
 Rollback: `git checkout <commit>` + `sudo systemctl restart flask_dnd`.
 
-Manuel reseed (hvis du ikke bruger scriptet):
-
-```bash
-cd /srv/apps/flask_dnd
-sudo -u apps DND_DB_PATH=/srv/apps/flask_dnd-data/srd35.db venv/bin/python importer.py
-sudo systemctl restart flask_dnd
-```
+📖 **[docs/drift/deploy.md](docs/drift/deploy.md)** — hvert trin forklaret,
+manuel reseed, hvorfor unit-filen bevidst ikke udrulles, og forbeholdet ved
+rollback.
 
 ## Privat indhold (egne NPC'er m.m.)
 
@@ -70,6 +66,9 @@ peger `deploy/update.sh` den på `/srv/apps/flask_dnd-data/private-data/`.
 Serverens kopi følger ikke med app-repoets `git pull` — læg filerne derop og
 kør `sudo /srv/apps/flask_dnd/deploy/update.sh --force-seed`.
 
+📖 **[docs/drift/privat-overlay.md](docs/drift/privat-overlay.md)** —
+arbejdsgangen trin for trin og de tre fælder.
+
 ## Filstruktur
 
 ```
@@ -81,7 +80,25 @@ defaults/          Eksempel-karakterer (seed)  adventures/  eventyr-seeds
 editor/            Emacs/redigerings-værktøjer
 scripts/           Egne data-værktøjer (gen_control_e_rows, triage_*)
 deploy/            flask_dnd.service (systemd-unit til serveren)
+docs/              Dokumentation (MkDocs) — se nedenfor
 ```
+
+## Dokumentation
+
+Uddybende dokumentation ligger i `docs/` og kan læses direkte på GitHub, eller
+bygges lokalt:
+
+```bash
+./docs/serve.sh     # http://localhost:8000, live-reload
+```
+
+| | |
+|---|---|
+| [Arkitektur](docs/arkitektur/index.md) | lagene, filkort, blueprints, de to bevidste cirkulære imports |
+| [Dataflow](docs/arkitektur/dataflow.md) | seeding, det private overlay, hvor brugerdata bor |
+| [Regelmotor](docs/arkitektur/regelmotor.md) | hvordan tallene på arket bliver til |
+| [Drift](docs/drift/index.md) | vært, stier, adgangskontrol |
+| [Deploy](docs/drift/deploy.md) · [Privat overlay](docs/drift/privat-overlay.md) · [Faldgruber](docs/drift/faldgruber.md) | drift i detaljer |
 
 ---
 
