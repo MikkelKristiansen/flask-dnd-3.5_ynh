@@ -1,0 +1,119 @@
+# MkDocs-konfiguration for flask-dnd-3.5's dokumentation.
+#
+# Byg/læs lokalt:   ./docs/serve.sh          → http://localhost:8000 (live-reload)
+# Byg til udgivelse: ./docs/build.sh         → site/ (statisk HTML, gitignoreret)
+#
+# Afhængigheder ligger i docs/requirements.txt og installeres i .venv-docs —
+# BEVIDST adskilt fra appens requirements.txt, så serverens venv i
+# /srv/apps/flask_dnd ikke vokser med byggeværktøj den aldrig skal bruge.
+
+site_name: flask-dnd-3.5
+site_description: >-
+  D&D 3.5 karakterark og DM-modul — brugervejledning, arkitektur og drift.
+site_author: Mikkel Kristiansen
+site_url: https://docs.mkuv.dk/dnd/
+copyright: >-
+  SRD-indhold er Open Game Content under OGL v1.0a.
+  Kode og tekst © 2024–2026 Mikkel Kristiansen.
+
+repo_url: https://github.com/MikkelKristiansen/flask-dnd-3.5_ynh
+repo_name: flask-dnd-3.5
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+site_dir: site
+
+# Byggescripterne og requirements.txt bor i docs/ for at ligge tæt på det de
+# bygger — men de er værktøj, ikke sider. Uden dette bliver de kopieret med ud
+# på det udgivne website som downloadbare filer.
+exclude_docs: |
+  requirements.txt
+  *.sh
+
+theme:
+  name: material
+  language: da
+  icon:
+    logo: material/dice-d20
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs          # brug/, arkitektur/, drift/ … som faner øverst
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.action.edit
+  palette:
+    # Lys tilstand er standard; knappen skifter til mørk (godt ved spillebordet).
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Skift til mørk tilstand
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Skift til lys tilstand
+
+plugins:
+  - search:
+      lang: da
+
+markdown_extensions:
+  - admonition               # !!! warning-bokse til faldgruberne
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      permalink_title: Link til dette afsnit
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.snippets:
+      # Tillader at trække uddrag ind fra repoet, så docs ikke dublerer kode.
+      base_path: [.]
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        # Mermaid-diagrammer (dataflow m.m.) — Material har js'en indbygget.
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+
+# Fejl højlydt på døde interne links og filer der ikke er i nav — ellers
+# rådner dokumentationen stille, og det er hele grunden til at have den.
+strict: true
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+# Nav vokser etapevist (se briefs/BRIEF-docs-*.md). Med strict: true skal hver
+# post pege på en fil der findes, så en ny side tilføjes HER samtidig med at den
+# skrives — ellers fejler byggeriet, og det er meningen.
+nav:
+  - Forside: index.md
+  - Arkitektur:
+      - arkitektur/index.md
+      - Dataflow: arkitektur/dataflow.md
+      - Regelmotor: arkitektur/regelmotor.md
+      - "Datamodel (genereret)": arkitektur/datamodel.md
+      - "Ruter (genereret)": arkitektur/ruter.md
+  - Drift:
+      - drift/index.md

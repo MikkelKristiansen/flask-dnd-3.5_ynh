@@ -1,0 +1,442 @@
+<!-- GENERERET AF scripts/gen_docs.py — REDIGÉR IKKE I HÅNDEN.
+     Ret kilden (`data/schema.sql`) og kør scriptet igen. -->
+
+
+# Datamodel
+
+`srd35.db` bygges fra bunden af `importer.py` ud af `data/schema.sql` og én `data/<tabel>.yaml` pr. tabel. Databasen er **genereret** og git-ignoreret — den er aldrig kilden til sandheden, filerne i `data/` er.
+
+Skemaet har **19 tabeller** med i alt **2004 SRD-rækker**.
+
+!!! tip "Tilføj en ny tabel"
+    Tre trin, ingen ny indlæsningskode: `CREATE TABLE` i `data/schema.sql`, en `data/<tabel>.yaml` ved siden af, og tabelnavnet føjet til `TABLES` i `importer.py`.
+
+## Oversigt
+
+| Tabel | Rækker | Kolonner | Hvad den holder |
+|---|--:|--:|---|
+| [`spells`](#spells) | 499 | 19 | — |
+| [`skills`](#skills) | 45 | 6 | — |
+| [`feats`](#feats) | 73 | 8 | — |
+| [`conditions`](#conditions) | 23 | 4 | — |
+| [`class_levels`](#class_levels) | 220 | 29 | Én tabel for alle klassers level-progression. Tilføj en klasse = append rækker (med class:) til data/class_levels.yaml — ingen schema- eller importer-ændring. |
+| [`domains`](#domains) | 22 | 3 | — |
+| [`domain_spells`](#domain_spells) | 198 | 3 | — |
+| [`spell_attacks`](#spell_attacks) | 139 | 25 | Angreb en spell kan lave (Produce Flame, Magic Stone …). 0..n rækker pr. spell. Skade udregnes (gemmes aldrig): base_damage + min(floor(niveau*dmg_per_level/dmg_per_level_div), max) + dmg_bonus. |
+| [`armor`](#armor) | 18 | 11 | — |
+| [`weapons`](#weapons) | 73 | 16 | — |
+| [`items`](#items) | 126 | 8 | — |
+| [`animals`](#animals) | 186 | 21 | Væsen-katalog: BÅDE animal companions OG summonbare væsner (Summon Nature's Ally). companion_ok skelner de to roller; hit_die rummer ikke-d8-væsner. |
+| [`monsters`](#monsters) | 95 | 32 | DM-bestiar: monstre/NPC'er til DM-modulet. MODSAT animals (rå stats → beregn) gemmes her den TRYKTE SRD-statblok direkte ("hybrid"): monstre har ofte klasse-niveauer/skabeloner der ikke beregnes rent, og den trykte statblok ER den kanoniske kildedata. Ability-modifiers udledes stadig ved visning (bestiary.py), aldrig gemt. Samme skema bruges til adventure-lokale statblokke (## Statblok: i et eventyrs # Dokumenter) via dm_parser. |
+| [`traps`](#traps) | 37 | 14 | Fælder (SRD v3.5). TRYKT statblok — de regulære semikolon-felter fra traps.md gemmes direkte som skalarer (ingen JSON, ingen beregning): en fælde er statisk. En fælde er ENTEN angrebs- (attack) ELLER save-baseret; det ikke- brugte felt er NULL. Vises via traps.trap_view i _trap.html-inspectoren. |
+| [`doors`](#doors) | 6 | 11 | Døre (SRD v3.5 "Table: Doors"). TRYKT statblok — samme mønster som traps: ingen beregning, bare skalarer. Vises via doors.door_view i _door.html. |
+| [`effects`](#effects) | 51 | 13 | Mekaniske effekter: buffs & tilstande oversat til modifiers, så de ændrer de faktiske tal (ability scores kaskaderer; direkte bonusser lægges på pr. tal). modifiers/riders gemmes som JSON-tekst og afkodes i db._effect_row. modifier = {target, type, value, only_vs?, note?} target: str|dex|con|int|wis|cha (kaskaderer) · ac|ac_touch|attack|damage · save_fort|save_ref|save_will|save_all · skill:<id> · speed · init · hp_temp type:   enhancement morale dodge luck insight deflection natural competence resistance size circumstance sacred profane untyped penalty rider    = ikke-numerisk effekt (flag/tekst), fx "mister Dex til AC". |
+| [`special_abilities`](#special_abilities) | 149 | 8 | Special-evner (natural abilities): forklarings-katalog for væsners special attacks og special qualities. Slug'en matcher det ledende navn i animals' fritekst-felter (fx "Rage", "Improved grab"), så wild_shape kan slå en forklaring + Ex/Su/Sp-art op. |
+| [`magic_items`](#magic_items) | 34 | 12 | Magiske genstande (wondrous items, ringe, rods, forbrugsvarer). Del B: wondrous + ringe med permanente bonusser modelleres som modifiers (samme JSON-form som effects) → et BÅRET item (state=worn) bidrager dem til active_modifiers via effekt-motoren. Forbrugsvarer (B2) bruger spell_id + charges_max. |
+| [`specific_items`](#specific_items) | 10 | 10 | Navngivne "specifics" (Del C): færdige magiske våben/rustninger/skjolde (Flame Tongue, Rhino Hide, Nine Lives Stealer …). Et preset for Del A's give-loot: base_ref + enhancement + abilities → et fungerende InventoryItem (angrebs-motoren wirer flaming/keen osv.); bespoke-effekter (charge-skade, slay-on-crit) er noter. |
+
+## spells
+
+Kilde: `data/spells.yaml` (499 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `level_druid` | `INTEGER` |  |
+| `level_cleric` | `INTEGER` |  |
+| `level_wizard` | `INTEGER` |  |
+| `level_bard` | `INTEGER` |  |
+| `level_ranger` | `INTEGER` |  |
+| `level_paladin` | `INTEGER` |  |
+| `school` | `TEXT` |  |
+| `cast_time` | `TEXT` |  |
+| `range` | `TEXT` |  |
+| `target` | `TEXT` |  |
+| `duration` | `TEXT` |  |
+| `self_duration` | `INTEGER` | 1 = spell der kun rammer casteren selv og har varighed (ikke instant). Får tre tilstande på arket (Ledig/I brug/Brugt) i stedet for to. |
+| `save` | `TEXT` |  |
+| `spell_resistance` | `TEXT` |  |
+| `components` | `TEXT` |  |
+| `target_label` | `TEXT` |  |
+| `description` | `TEXT` |  |
+
+## skills
+
+Kilde: `data/skills.yaml` (45 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `ability` | `TEXT NOT NULL` |  |
+| `trained_only` | `INTEGER NOT NULL` |  |
+| `armor_check` | `INTEGER NOT NULL DEFAULT 0` | 0 ingen · 1 normal ACP · 2 dobbelt (Swim) |
+| `description` | `TEXT` |  |
+
+## feats
+
+Kilde: `data/feats.yaml` (73 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `type` | `TEXT` |  |
+| `prerequisites` | `TEXT` |  |
+| `benefit` | `TEXT` |  |
+| `normal` | `TEXT` |  |
+| `special` | `TEXT` |  |
+| `fighter_bonus` | `INTEGER` | 1 = må vælges som fighter-bonus-feat (nullable) |
+
+## conditions
+
+Kilde: `data/conditions.yaml` (23 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `summary` | `TEXT NOT NULL` |  |
+| `description` | `TEXT NOT NULL` |  |
+
+## class_levels
+
+Én tabel for alle klassers level-progression. Tilføj en klasse = append rækker (med class:) til data/class_levels.yaml — ingen schema- eller importer-ændring.
+
+Kilde: `data/class_levels.yaml` (220 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `class` | `TEXT NOT NULL` |  |
+| `level` | `INTEGER NOT NULL` |  |
+| `hd` | `TEXT NOT NULL` |  |
+| `skill_points` | `INTEGER NOT NULL` |  |
+| `bab` | `INTEGER NOT NULL` |  |
+| `fort` | `INTEGER NOT NULL` |  |
+| `ref` | `INTEGER NOT NULL` |  |
+| `will` | `INTEGER NOT NULL` |  |
+| `spells_0` | `INTEGER NOT NULL` |  |
+| `spells_1` | `INTEGER NOT NULL` |  |
+| `spells_2` | `INTEGER NOT NULL` |  |
+| `spells_3` | `INTEGER NOT NULL` |  |
+| `spells_4` | `INTEGER NOT NULL` |  |
+| `spells_5` | `INTEGER NOT NULL` |  |
+| `spells_6` | `INTEGER NOT NULL` |  |
+| `spells_7` | `INTEGER NOT NULL` |  |
+| `spells_8` | `INTEGER NOT NULL` |  |
+| `spells_9` | `INTEGER NOT NULL` |  |
+| `spells_known_0` | `INTEGER` | Antal spells KENDT pr. niveau (spontane castere: sorcerer/bard). Fast SRD-opslagstabel, IKKE Cha-afhængig (modsat wizards Int-formel). Nullable: NULL = klassen bruger ikke "spells known" (behandles som 0). Kun sorcerer/ bard-rækker fylder disse; øvrige klasser udelader feltet. |
+| `spells_known_1` | `INTEGER` |  |
+| `spells_known_2` | `INTEGER` |  |
+| `spells_known_3` | `INTEGER` |  |
+| `spells_known_4` | `INTEGER` |  |
+| `spells_known_5` | `INTEGER` |  |
+| `spells_known_6` | `INTEGER` |  |
+| `spells_known_7` | `INTEGER` |  |
+| `spells_known_8` | `INTEGER` |  |
+| `spells_known_9` | `INTEGER` |  |
+| `features` | `TEXT NOT NULL` |  |
+
+## domains
+
+Kilde: `data/domains.yaml` (22 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `granted_power` | `TEXT NOT NULL` |  |
+
+## domain_spells
+
+Kilde: `data/domain_spells.yaml` (198 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `domain_id` | `TEXT NOT NULL` |  |
+| `level` | `INTEGER NOT NULL` |  |
+| `spell_id` | `TEXT NOT NULL` |  |
+
+## spell_attacks
+
+Angreb en spell kan lave (Produce Flame, Magic Stone …). 0..n rækker pr. spell. Skade udregnes (gemmes aldrig): base_damage + min(floor(niveau*dmg_per_level/dmg_per_level_div), max) + dmg_bonus.
+
+Kilde: `data/spell_attacks.yaml` (139 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `spell_id` | `TEXT NOT NULL` | FK til spells.id |
+| `label` | `TEXT NOT NULL` | visningsnavn på angrebsrækken |
+| `kind` | `TEXT NOT NULL` | melee | ranged | melee_touch | ranged_touch | save (kategori E: område/save, intet til-hit) | heal (rulbar healing, intet til-hit) |
+| `mode_group` | `TEXT` | tilstands-gruppe: rækker m/ samme (spell_id, mode_group) er ét angreb i flere tilstande (Produce Flame: touch) |
+| `base_damage` | `TEXT` | terningen, fx "1d6" (tom = ren save-effekt uden skade, fx Sleep/Web) |
+| `dmg_per_level` | `INTEGER` | FLAD skade-bonus pr. casterniveau (Produce Flame 1) |
+| `dmg_per_level_div` | `INTEGER` | del niveauet med dette først (tom=1); Flame Blade 2 = +1 pr. 2 niveauer |
+| `dmg_per_level_max` | `INTEGER` | cap på niveau-bonus (Produce Flame 5) |
+| `dmg_bonus` | `INTEGER` | flad skade-bonus (Magic Stone +1) |
+| `to_hit` | `INTEGER` | flad til-hit-bonus (Magic Stone +1) |
+| `crit` | `TEXT` | default x2 |
+| `dmg_type` | `TEXT` | skadetype |
+| `range_ft` | `INTEGER` | rækkevidde for kastet/ranged |
+| `charges` | `INTEGER` | antal ladninger (Magic Stone 3); tom = ubegrænset |
+| `alt_note` | `TEXT` | fx "2d6+2 mod udøde" |
+| `dice_per_level` | `INTEGER` | kategori E (område/save-effekt): ANTAL skade-terninger pr. casterniveau (Fireball 1 = 1d6/niveau) |
+| `dice_per_level_div` | `INTEGER` | del niveauet med dette først (tom=1); Vampiric Touch 2 = 1 terning pr. 2 niveauer |
+| `dice_per_level_max` | `INTEGER` | cap på antal terninger (Fireball 10, Cone of Cold 15) |
+| `save_type` | `TEXT` | reflex | fortitude | will |
+| `save_effect` | `TEXT` | half | negates | partial |
+| `auto_hit` | `INTEGER` | kategori B, auto-hit + antal-skud (Magic Missile, Scorching Ray): 1 = rammer automatisk (skjul til-hit; Magic Missile) |
+| `shots` | `INTEGER` | basis-antal missiler/stråler (tom = 1) |
+| `shots_from` | `INTEGER` | casterniveau hvorfra ekstra skud tælles (MM 1, SR 3) |
+| `shots_div` | `INTEGER` | niveauer pr. ekstra skud (MM 2, SR 4) |
+| `shots_max` | `INTEGER` | cap på antal skud (MM 5, SR 3) |
+
+## armor
+
+Kilde: `data/armor.yaml` (18 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `armor_bonus` | `INTEGER NOT NULL` |  |
+| `max_dex` | `INTEGER` | NULL = ingen Dex-grænse |
+| `armor_check` | `INTEGER NOT NULL DEFAULT 0` | ACP (negativ); anvendes på Str/Dex-skills |
+| `spell_failure` | `INTEGER NOT NULL DEFAULT 0` | arcane spell failure % (kun arcane casters; gemt til senere) |
+| `druid_ok` | `INTEGER NOT NULL DEFAULT 1` | 0 = forbudt for druider (metal); jf. _DRUID_PROHIBITED_ARMOR |
+| `type` | `TEXT NOT NULL` | light | medium | heavy | shield |
+| `cost_cp` | `INTEGER` | pris i kobber (1 gp = 100 cp) |
+| `weight` | `REAL NOT NULL DEFAULT 0` | pund (Medium); Small ×½, Large ×2 udregnes |
+| `description` | `TEXT` | SRD-beskrivelse (særlige egenskaber); NULL = ingen særtekst |
+
+## weapons
+
+Kilde: `data/weapons.yaml` (73 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `category` | `TEXT NOT NULL` | simple | martial | exotic |
+| `weapon_class` | `TEXT NOT NULL` | unarmed | light | one-handed | two-handed | ranged |
+| `cost_cp` | `INTEGER` | pris i kobber (1 gp = 100 cp); NULL = — / special |
+| `dmg_s` | `TEXT` | skade, Small-version |
+| `dmg_m` | `TEXT` | skade, Medium-version (a/b for dobbeltvåben) |
+| `critical` | `TEXT` | fx "19–20/x2" |
+| `range_ft` | `INTEGER` | range increment i fod; NULL = ren nærkamp |
+| `weight` | `REAL NOT NULL DEFAULT 0` | pund (Medium-version) |
+| `damage_type` | `TEXT` | bludgeoning | piercing | slashing | kombinationer |
+| `hands` | `INTEGER` | hænder våbnet kræver; NULL = udled af weapon_class (kun sat hvor ranged afviger) |
+| `metal` | `INTEGER` | 0 = ikke-metal (træ/læder): kan ikke laves af cold iron / forsølves; NULL = metal (default) |
+| `ranged_str` | `TEXT` | ranged Str-til-skade: composite | penalty_only | full | none | NULL(=none) |
+| `thrown` | `INTEGER` | 1 = kastbart håndvåben (kan bruges i BÅDE nærkamp og kast) → ⇄-skift på arket; NULL = nej |
+| `description` | `TEXT` | SRD-beskrivelse (særlige egenskaber); NULL = ingen særtekst |
+
+## items
+
+Kilde: `data/items.yaml` (126 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `category` | `TEXT NOT NULL` | adventuring_gear | substance | tool | clothing | food | ammunition |
+| `cost_cp` | `INTEGER` | pris i kobber; NULL = variabel / — |
+| `weight` | `REAL NOT NULL DEFAULT 0` | pund (Medium-version) |
+| `small_quarter` | `INTEGER NOT NULL DEFAULT 0` | 1 = vejer ¼ for Small (SRD fodnote 1); 0 = uændret |
+| `bundle` | `INTEGER` | antal enheder som vægt/pris dækker (ammo: 10/20/5); NULL = per styk |
+| `description` | `TEXT` | SRD-beskrivelse (særlige egenskaber); NULL = ingen særtekst |
+
+## animals
+
+Væsen-katalog: BÅDE animal companions OG summonbare væsner (Summon Nature's Ally). companion_ok skelner de to roller; hit_die rummer ikke-d8-væsner.
+
+Kilde: `data/animals.yaml` (186 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `size` | `TEXT NOT NULL` | tiny | small | medium | large | huge |
+| `base_hd` | `INTEGER NOT NULL` | antal hit dice (uden bonus-HD) |
+| `type` | `TEXT` | animal (default/NULL) | magical_beast | elemental | fey | outsider |
+| `hit_die` | `INTEGER` | driver BAB: animal/elemental ¾·HD, magical_beast/outsider 1·HD, fey ½·HD terningtype pr. HD: 6 (fey) | 10 (magical beast); NULL = 8 (dyr/elementaler) |
+| `good_saves` | `TEXT` | JSON-liste, fx ["fort","ref"]; NULL = udled af type |
+| `str` | `INTEGER NOT NULL` | (animal/magical_beast: fort+ref · fey: ref+will · elemental: pr. element) |
+| `dex` | `INTEGER NOT NULL` |  |
+| `con` | `INTEGER NOT NULL` |  |
+| `int` | `INTEGER NOT NULL` |  |
+| `wis` | `INTEGER NOT NULL` |  |
+| `cha` | `INTEGER NOT NULL` |  |
+| `natural_armor` | `INTEGER NOT NULL DEFAULT 0` | basis naturlig rustning (avancement lægger til) |
+| `speed` | `TEXT NOT NULL` | fri tekst, fx "50 ft." eller "10 ft., fly 80 ft." |
+| `attacks` | `TEXT NOT NULL` | JSON: [{name, damage, group:primary|secondary, count?}] |
+| `special_attacks` | `TEXT` | fri tekst, fx "Trip" / "Poison"; NULL = ingen |
+| `special_qualities` | `TEXT` | fri tekst, fx "Low-light vision, scent" |
+| `skills` | `TEXT NOT NULL` | JSON: [{id, misc, note?}] (misc = total − basis-abilitymod) |
+| `feats` | `TEXT NOT NULL` | JSON: liste af feat-navne (strenge) |
+| `companion_ok` | `INTEGER` | 1/NULL = kan vælges som animal companion; 0 = kun summonbar |
+
+## monsters
+
+DM-bestiar: monstre/NPC'er til DM-modulet. MODSAT animals (rå stats → beregn) gemmes her den TRYKTE SRD-statblok direkte ("hybrid"): monstre har ofte klasse-niveauer/skabeloner der ikke beregnes rent, og den trykte statblok ER den kanoniske kildedata. Ability-modifiers udledes stadig ved visning (bestiary.py), aldrig gemt. Samme skema bruges til adventure-lokale statblokke (## Statblok: i et eventyrs # Dokumenter) via dm_parser.
+
+Kilde: `data/monsters.yaml` (95 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `size` | `TEXT NOT NULL` | tiny | small | medium | large | huge … |
+| `type` | `TEXT NOT NULL` | humanoid | undead | animal | giant | magical beast | … |
+| `cr` | `TEXT` | challenge rating som trykt, fx "1/3", "2" |
+| `alignment` | `TEXT` | fx "NE", "Always neutral evil" |
+| `hd` | `TEXT` | trykt HD-udtryk, fx "1d12 (6 hp)" |
+| `hp_max` | `INTEGER NOT NULL` | trykt gennemsnits-HP |
+| `ac` | `INTEGER NOT NULL` |  |
+| `ac_touch` | `INTEGER NOT NULL` |  |
+| `ac_flat` | `INTEGER NOT NULL` |  |
+| `ac_note` | `TEXT` | trykt AC-opdeling, fx "+1 Dex, +2 natural, +2 skjold" |
+| `init` | `INTEGER NOT NULL DEFAULT 0` |  |
+| `speed` | `TEXT NOT NULL` |  |
+| `bab` | `INTEGER NOT NULL DEFAULT 0` |  |
+| `grapple` | `INTEGER` | NULL = ikke relevant |
+| `str` | `INTEGER` | NULL = — (fx undead uden Con) |
+| `dex` | `INTEGER` |  |
+| `con` | `INTEGER` |  |
+| `int` | `INTEGER` |  |
+| `wis` | `INTEGER` |  |
+| `cha` | `INTEGER` |  |
+| `save_fort` | `INTEGER NOT NULL DEFAULT 0` |  |
+| `save_ref` | `INTEGER NOT NULL DEFAULT 0` |  |
+| `save_will` | `INTEGER NOT NULL DEFAULT 0` |  |
+| `attacks` | `TEXT NOT NULL` | JSON: [{name, bonus, damage, crit?, notes?}] |
+| `full_attack` | `TEXT` | fri tekst: fuld-angrebs-rutine (hvis > ét angreb) |
+| `special_attacks` | `TEXT` | fri tekst; NULL = ingen |
+| `special_qualities` | `TEXT` | fri tekst |
+| `skills` | `TEXT` | JSON: [{name, total}]; NULL = ingen |
+| `feats` | `TEXT` | JSON: liste af feat-navne |
+| `source_note` | `TEXT` | fx "SRD: Human Warrior Skeleton" |
+
+## traps
+
+Fælder (SRD v3.5). TRYKT statblok — de regulære semikolon-felter fra traps.md gemmes direkte som skalarer (ingen JSON, ingen beregning): en fælde er statisk. En fælde er ENTEN angrebs- (attack) ELLER save-baseret; det ikke- brugte felt er NULL. Vises via traps.trap_view i _trap.html-inspectoren.
+
+Kilde: `data/traps.yaml` (37 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `cr` | `TEXT` | challenge rating som trykt, fx "1", "5" |
+| `trap_type` | `TEXT` | mechanical | magic device | spell |
+| `trigger` | `TEXT` | location | proximity | touch | timed | … |
+| `reset` | `TEXT` | manual | automatic | no reset | repair |
+| `attack` | `TEXT` | trykt Atk-linje, fx "+10 ranged (1d6/×3, arrow)"; NULL hvis save-baseret |
+| `save` | `TEXT` | trykt save-linje, fx "DC 20 Reflex save avoids"; NULL hvis atk-baseret |
+| `effect` | `TEXT` | skade/effekt-fritekst, fx "10 ft. deep (1d6, fall)" |
+| `search_dc` | `INTEGER` | Search DC (find fælden) |
+| `disable_dc` | `INTEGER` | Disable Device DC (afmontér) |
+| `price` | `TEXT` | trykt markedspris, fx "2,000 gp" |
+| `note` | `TEXT` | valgfrit: bypass / multiple targets / særlig note |
+| `source_note` | `TEXT` | fx "SRD: Basic Arrow Trap" |
+
+## doors
+
+Døre (SRD v3.5 "Table: Doors"). TRYKT statblok — samme mønster som traps: ingen beregning, bare skalarer. Vises via doors.door_view i _door.html.
+
+Kilde: `data/doors.yaml` (6 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` |  |
+| `name` | `TEXT NOT NULL` |  |
+| `material` | `TEXT` | wood | stone | iron | … |
+| `thickness` | `TEXT` | trykt, fx "1 in.", "4 in." |
+| `hardness` | `INTEGER` |  |
+| `hp` | `INTEGER` |  |
+| `break_dc` | `TEXT` | trykt, fx "13 (stuck) / 15 (locked)" |
+| `open_lock_dc` | `INTEGER` | Open Lock-DC hvis låst; NULL ellers |
+| `search_dc` | `INTEGER` | find hemmelig dør; NULL ellers |
+| `note` | `TEXT` |  |
+| `source_note` | `TEXT` |  |
+
+## effects
+
+Mekaniske effekter: buffs & tilstande oversat til modifiers, så de ændrer de faktiske tal (ability scores kaskaderer; direkte bonusser lægges på pr. tal). modifiers/riders gemmes som JSON-tekst og afkodes i db._effect_row. modifier = {target, type, value, only_vs?, note?} target: str|dex|con|int|wis|cha (kaskaderer) · ac|ac_touch|attack|damage · save_fort|save_ref|save_will|save_all · skill:<id> · speed · init · hp_temp type:   enhancement morale dodge luck insight deflection natural competence resistance size circumstance sacred profane untyped penalty rider    = ikke-numerisk effekt (flag/tekst), fx "mister Dex til AC".
+
+Kilde: `data/effects.yaml` (51 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` | = buffens spell_id eller tilstandens id |
+| `name` | `TEXT NOT NULL` |  |
+| `kind` | `TEXT NOT NULL` | buff | condition |
+| `source_spell_id` | `TEXT` | FK til spells.id for SRD-beskrivelse (kan være NULL) |
+| `modifiers` | `TEXT NOT NULL DEFAULT '[]'` | JSON: liste af modifier-objekter |
+| `riders` | `TEXT NOT NULL DEFAULT '[]'` | JSON: liste af ikke-numeriske ryttere |
+| `picker` | `TEXT` | Picker-metadata: hvor/hvordan effekten tilbydes i effekt-vælgeren. buff | damage | NULL (NULL = vises ikke i picker) |
+| `category` | `TEXT` | buff-gruppe i vælgeren (fx 'arcane' = wizard); NULL = generel/guddommelig |
+| `note` | `TEXT` | kort virkningstekst i vælgeren |
+| `affects` | `TEXT NOT NULL DEFAULT '[]'` | JSON: hvilke sektioner buffen markerer (attack/save/...) |
+| `editable` | `INTEGER NOT NULL DEFAULT 0` | 1 = spørg om en værdi ved tilføjelse (ability-skade) |
+| `negative` | `INTEGER NOT NULL DEFAULT 0` | 1 = gem værdien negativ (skade) |
+| `prompt` | `TEXT` | spørgsmålstekst når editable |
+
+## special_abilities
+
+Special-evner (natural abilities): forklarings-katalog for væsners special attacks og special qualities. Slug'en matcher det ledende navn i animals' fritekst-felter (fx "Rage", "Improved grab"), så wild_shape kan slå en forklaring + Ex/Su/Sp-art op.
+
+Kilde: `data/special_abilities.yaml` (149 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` | slug, fx 'rage', 'improved_grab', 'low_light_vision' |
+| `name` | `TEXT NOT NULL` | visningsnavn, fx 'Rage' |
+| `kind` | `TEXT` | ex | su | sp (afgør overførsel ved wild shape) |
+| `category` | `TEXT` | attack | quality (informativt; feltet i animals afgør reelt) |
+| `buff_id` | `TEXT` | valgfri FK til effects.id: aktiverbar stat-buff (fx rage) |
+| `rider_type` | `TEXT` | engangs-angrebsrytter: extra_attacks | two_hit | |
+| `rider_count` | `INTEGER` | on_charge | on_hit | on_grapple | trample (NULL = ingen) antal ekstra angreb (extra_attacks, fx rake = 2) |
+| `description` | `TEXT` | SRD/OGL-forklaring |
+
+## magic_items
+
+Magiske genstande (wondrous items, ringe, rods, forbrugsvarer). Del B: wondrous + ringe med permanente bonusser modelleres som modifiers (samme JSON-form som effects) → et BÅRET item (state=worn) bidrager dem til active_modifiers via effekt-motoren. Forbrugsvarer (B2) bruger spell_id + charges_max.
+
+Kilde: `data/magic_items.yaml` (34 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` | slug, fx 'cloak_of_resistance_1' |
+| `name` | `TEXT NOT NULL` | visningsnavn, fx 'Cloak of Resistance +1' |
+| `category` | `TEXT NOT NULL` | wondrous | ring | rod | potion | scroll | wand |
+| `slot` | `TEXT` | krops-slot (neck/ring/hands/...) — SRD 'Body Slot'; NULL = slotløs |
+| `price_cp` | `INTEGER` | markedspris i kobber |
+| `caster_level` | `INTEGER` | CL (til dispel/craft) |
+| `aura` | `TEXT` | fx 'Faint abjuration' |
+| `weight` | `REAL NOT NULL DEFAULT 0` | vægt i pund |
+| `modifiers` | `TEXT NOT NULL DEFAULT '[]'` | JSON: liste af modifier-objekter (som effects.modifiers) |
+| `spell_id` | `TEXT` | forbrugsvarer (B2): spellet der kastes ved brug |
+| `charges_max` | `INTEGER` | forbrugsvarer (B2): fulde ladninger (wand=50, potion/scroll=1) |
+| `description` | `TEXT` | SRD/OGL-forklaring |
+
+## specific_items
+
+Navngivne "specifics" (Del C): færdige magiske våben/rustninger/skjolde (Flame Tongue, Rhino Hide, Nine Lives Stealer …). Et preset for Del A's give-loot: base_ref + enhancement + abilities → et fungerende InventoryItem (angrebs-motoren wirer flaming/keen osv.); bespoke-effekter (charge-skade, slay-on-crit) er noter.
+
+Kilde: `data/specific_items.yaml` (10 rækker)
+
+| Kolonne | Type | Note |
+|---|---|---|
+| `id` | `TEXT PRIMARY KEY` | slug, fx 'flame_tongue' |
+| `name` | `TEXT NOT NULL` | 'Flame Tongue' |
+| `slot` | `TEXT NOT NULL` | weapon | armor | shield |
+| `base_ref` | `TEXT NOT NULL` | 'weapons/longsword' | 'armor/hide' |
+| `enhancement` | `INTEGER NOT NULL DEFAULT 1` | +N (til-hit/skade el. AC) |
+| `abilities` | `TEXT NOT NULL DEFAULT '[]'` | JSON: magic_abilities-ids (fx ["flaming_burst"]) |
+| `price_cp` | `INTEGER` | markedspris i kobber |
+| `caster_level` | `INTEGER` |  |
+| `aura` | `TEXT` |  |
+| `note` | `TEXT` | særtekst: bespoke-effekter (ikke-generiske) |

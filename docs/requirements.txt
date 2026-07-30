@@ -1,0 +1,11 @@
+# Afhængigheder til at BYGGE dokumentationen — ikke til at køre appen.
+#
+# Holdt adskilt fra repoets requirements.txt med vilje: serverens venv i
+# /srv/apps/flask_dnd skal kun indeholde det appen bruger i drift. Byggeriet
+# sker i .venv-docs (gitignoreret), oprettet af docs/serve.sh.
+#
+# Installér:  .venv-docs/bin/pip install -r docs/requirements.txt
+
+# Pinnet, så et build om et halvt år ser ud som i dag. Material trækker selv
+# mkdocs, pymdown-extensions og lunr-sprogpakkerne (inkl. dansk søgning) med.
+mkdocs-material==9.7.7

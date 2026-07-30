@@ -37,3 +37,14 @@ private-data/
 .local-sessions/
 sessions/
 briefs/
+
+# Claude Code's lokale session-indstillinger (maskine-specifikke, som CLAUDE.md)
+.claude/
+
+# Dokumentations-byggeri (MkDocs). .venv-docs er byggemiljøet (adskilt fra
+# appens .venv, så serverens venv ikke får docs-afhængigheder); site/ er den
+# genererede HTML, der udgives til docs.mkuv.dk — begge genereres, ingen af dem
+# versioneres. De GENEREREDE sider docs/arkitektur/{datamodel,ruter}.md er
+# derimod committet med vilje, så docs/-træet kan læses direkte på GitHub.
+.venv-docs/
+site/
