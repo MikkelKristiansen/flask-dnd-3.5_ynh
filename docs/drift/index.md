@@ -60,6 +60,13 @@ tælles som sundt, fordi en ulogget klient sendes til `/login`).
 Rollback: `git checkout <commit>` + `sudo systemctl restart flask_dnd`.
 `git pull` er ufarlig for data — den rører aldrig `/srv/apps/flask_dnd-data`.
 
-!!! info "Uddybende drift-sider er på vej"
-    Deploy i detaljer, det private overlay og faldgruber-siden er beskrevet i
-    `briefs/BRIEF-docs-drift-og-adr.md`.
+**[Deploy i detaljer](deploy.md)** — hvad hvert trin gør og hvorfor, hvorfor
+unit-filen bevidst ikke udrulles, og forbeholdet ved rollback.
+
+## Videre herfra
+
+| Side | Hvad den dækker |
+|---|---|
+| [Deploy](deploy.md) | `update.sh` trin for trin, rollback |
+| [Privat overlay](privat-overlay.md) | egne NPC'er: stier, arbejdsgang, de tre fælder |
+| [Faldgruber](faldgruber.md) | fejl der har kostet tid — slå op på symptomet |
