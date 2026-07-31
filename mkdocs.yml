@@ -33,6 +33,10 @@ exclude_docs: |
 theme:
   name: material
   language: da
+  # Ingen hentning af Roboto fra fonts.googleapis.com — systemfonten bruges.
+  # Står ens i hub'en (mkuv-docs); lad den blive stående, ellers skifter
+  # skrifttypen når man klikker fra docs.mkuv.dk-forsiden ind i /dnd/.
+  font: false
   icon:
     logo: material/dice-d20
     repo: fontawesome/brands/github
@@ -95,6 +99,12 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
+  # Ikon-shortcodes som :material-sitemap: og :material-server:. UDEN denne
+  # vises de som RÅ TEKST — docs/index.md bruger to af dem, så det var synligt
+  # på forsiden. Tilføjet 31. juli 2026, kopieret fra mkuv-docs' skabelon.
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 # Fejl højlydt på døde interne links og filer der ikke er i nav — ellers
 # rådner dokumentationen stille, og det er hele grunden til at have den.
