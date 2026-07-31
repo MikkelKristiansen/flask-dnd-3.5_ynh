@@ -116,8 +116,10 @@ nav:
       - "Datamodel (genereret)": arkitektur/datamodel.md
       - "Ruter (genereret)": arkitektur/ruter.md
   - Udvikling:
+      - udvikling/index.md
       - Opskrifter: udvikling/opskrifter.md
       - Test: udvikling/test.md
+      - "Værktøj": udvikling/vaerktoej.md
   - Drift:
       - drift/index.md
       - Deploy: drift/deploy.md
