@@ -125,6 +125,11 @@ nav:
       - Regelmotor: arkitektur/regelmotor.md
       - "Datamodel (genereret)": arkitektur/datamodel.md
       - "Ruter (genereret)": arkitektur/ruter.md
+  - Beslutninger:
+      - beslutninger/index.md
+      - "0001: Gem aldrig beregnede tal": beslutninger/0001-gem-aldrig-beregnede-tal.md
+      - "0002: Flad filstruktur": beslutninger/0002-flad-filstruktur.md
+      - "0003: Databasen er genereret": beslutninger/0003-databasen-er-genereret.md
   - Udvikling:
       - udvikling/index.md
       - Opskrifter: udvikling/opskrifter.md
