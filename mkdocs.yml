@@ -115,6 +115,8 @@ nav:
       - Regelmotor: arkitektur/regelmotor.md
       - "Datamodel (genereret)": arkitektur/datamodel.md
       - "Ruter (genereret)": arkitektur/ruter.md
+  - Udvikling:
+      - Test: udvikling/test.md
   - Drift:
       - drift/index.md
       - Deploy: drift/deploy.md
