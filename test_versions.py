@@ -228,6 +228,24 @@ def test_route_rejects_path_traversal(client, url, tmp_path):
     assert r.get_json()["error"] == "ukendt snapshot"
 
 
+def test_levelup_saves_a_named_version(client, tmp_path, snap_dir):
+    """Et level-up skal efterlade en "Level N"-version der aldrig roteres væk."""
+    import character as char_module
+
+    char = tmp_path / "characters" / "tjorn.yaml"
+    # Giv nok XP til at level-up'et er tilladt (ruten afviser ellers med 400).
+    c = char_module.load_character(str(char))
+    ready_xp = char_module.xp_to_next_level(c.level)
+    char_module.save_character(str(char), {"experience_points": ready_xp})
+
+    r = client.post("/api/levelup", json={"char": "tjorn", "hp_roll": 5})
+    assert r.status_code == 200, r.get_json()
+    new_level = r.get_json()["new_level"]
+
+    labels = [versions.snapshot_label(p) for p in snap_dir.glob("*.yaml")]
+    assert f"Level-{new_level}" in labels
+
+
 def test_route_restore_still_works(client, tmp_path):
     """Ruten flyttede fra app.py til blueprintet — den skal opføre sig uændret."""
     char = tmp_path / "characters" / "tjorn.yaml"

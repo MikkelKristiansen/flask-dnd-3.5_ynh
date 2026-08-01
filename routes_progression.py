@@ -8,6 +8,7 @@ import character as char_module
 import db
 import effects
 import refdata
+import versions
 from character_view import _paladin_caps
 
 progression_bp = Blueprint("progression", __name__)
@@ -82,6 +83,13 @@ def api_levelup():
         "new_feats":     new_feats,
         "ability_boost": ability_boost,
     })
+    # Mærk tilstanden lige efter level-up. Et level-up er præcis den slags
+    # skillepunkt man vil kunne finde igen, og en navngivet version roteres
+    # aldrig væk. Best-effort: mislykkes den, er selve level-up'et stadig gemt.
+    try:
+        versions.save_named_snapshot(path, f"Level {new_level}")
+    except Exception:
+        pass
     return jsonify({"ok": True, "new_level": new_level, "hp_gained": hp_gained})
 
 @progression_bp.route("/api/newday", methods=["POST"])
