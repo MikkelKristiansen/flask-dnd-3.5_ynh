@@ -65,7 +65,8 @@ summon.py            Summonede væsner       wild_shape.py  Wild shape
 
 db.py                SQLite-læselag         refdata.py     Statiske regeltabeller
 models.py            Dataklasser            paths.py       Stier + slug
-persistence.py       YAML ind/ud, atomar skrivning, roterende snapshots
+persistence.py       YAML ind/ud (load/save/serialisering)
+versions.py          Atomar skrivning + snapshots (beskytter live-data)
 dice.py              Terningudtryk          auth.py        To delte kodeord
 
 data/                SRD-data i YAML + schema.sql   ← kilden til sandheden
