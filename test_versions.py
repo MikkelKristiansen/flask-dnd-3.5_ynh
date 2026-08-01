@@ -156,3 +156,85 @@ def test_restore_from_named_snapshot(char):
     named = [s for s in versions.list_snapshots(char) if versions.snapshot_label(s)][0]
     versions.restore_snapshot(str(char), named.name)
     assert char.read_text(encoding="utf-8") == "name: Tjorn\n"
+
+
+# ── Ruter (routes_versions.py) ─────────────────────────────────────────────
+
+@pytest.fixture
+def client(tmp_path, monkeypatch):
+    """Testklient med CHARACTERS_DIR peget på en tmp-kopi af defaults/tjorn.yaml."""
+    import shutil
+    import app as app_module
+
+    chars = tmp_path / "characters"
+    chars.mkdir()
+    shutil.copy("defaults/tjorn.yaml", chars / "tjorn.yaml")
+    monkeypatch.setattr(app_module, "CHARACTERS_DIR", chars)
+    app_module.app.config["TESTING"] = True
+    return app_module.app.test_client()
+
+
+@pytest.fixture
+def snap_dir(tmp_path):
+    return tmp_path / "backups" / "tjorn"
+
+
+def _names(snap_dir):
+    return sorted(p.name for p in snap_dir.glob("*.yaml"))
+
+
+def test_route_save_named_version(client, snap_dir):
+    r = client.post("/api/version/save", json={"char": "tjorn", "name": "Session 12"})
+    assert r.status_code == 200
+    assert r.get_json()["name"] == "Session-12"
+    assert _names(snap_dir) == [r.get_json()["file"]]
+
+
+def test_route_save_rejects_empty_name(client, snap_dir):
+    r = client.post("/api/version/save", json={"char": "tjorn", "name": "   "})
+    assert r.status_code == 400
+    assert not snap_dir.exists() or _names(snap_dir) == []
+
+
+def test_route_save_unknown_character_is_404(client):
+    r = client.post("/api/version/save", json={"char": "findes-ikke", "name": "x"})
+    assert r.status_code == 404
+
+
+def test_route_rename(client, snap_dir):
+    f = client.post("/api/version/save",
+                    json={"char": "tjorn", "name": "Gammel"}).get_json()["file"]
+    r = client.post("/api/version/rename",
+                    json={"char": "tjorn", "snapshot": f, "name": "Ny"})
+    assert r.status_code == 200 and r.get_json()["name"] == "Ny"
+    assert _names(snap_dir) == [r.get_json()["file"]]
+
+
+def test_route_rename_with_empty_name_unlabels(client):
+    f = client.post("/api/version/save",
+                    json={"char": "tjorn", "name": "Væk med mig"}).get_json()["file"]
+    r = client.post("/api/version/rename",
+                    json={"char": "tjorn", "snapshot": f, "name": ""})
+    assert r.get_json()["name"] == ""
+
+
+@pytest.mark.parametrize("url", ["/api/version/rename", "/api/restore"])
+def test_route_rejects_path_traversal(client, url, tmp_path):
+    """Et snapshot-navn fra klienten må kun pege på DENNE karakters snapshots."""
+    r = client.post(url, json={"char": "tjorn",
+                               "snapshot": "../../characters/tjorn.yaml",
+                               "name": "ondt"})
+    assert r.status_code == 400
+    assert r.get_json()["error"] == "ukendt snapshot"
+
+
+def test_route_restore_still_works(client, tmp_path):
+    """Ruten flyttede fra app.py til blueprintet — den skal opføre sig uændret."""
+    char = tmp_path / "characters" / "tjorn.yaml"
+    original = char.read_bytes()
+    f = client.post("/api/version/save",
+                    json={"char": "tjorn", "name": "Før"}).get_json()["file"]
+    char.write_bytes(b"name: Bortkommet\n")
+    r = client.post("/api/restore", json={"char": "tjorn", "snapshot": f})
+    assert r.status_code == 200
+    assert char.read_bytes() == original

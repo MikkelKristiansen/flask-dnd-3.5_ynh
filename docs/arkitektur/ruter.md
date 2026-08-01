@@ -4,7 +4,7 @@
 
 # Ruter
 
-**81 ruter** fordelt på **8 grupper**. Kernen (karakterark, portrætter, terningkast) ligger i `app.py`; resten er udspaltet i blueprints — ét domæne pr. fil.
+**83 ruter** fordelt på **9 grupper**. Kernen (karakterark, portrætter, terningkast) ligger i `app.py`; resten er udspaltet i blueprints — ét domæne pr. fil.
 
 Ruter under `/api/` returnerer JSON og kaldes fra `static/*.js`. De øvrige renderer Jinja-templates.
 
@@ -20,7 +20,6 @@ Fil(er): `app.py`, `auth.py`
 | `/api/detail/<dtype>/<did>` | GET | — |
 | `/api/hp` | POST | — |
 | `/api/portrait` | POST | Skift/tilføj portræt på en eksisterende karakter (multipart-upload). |
-| `/api/restore` | POST | — |
 | `/api/roll/<path:expression>` | GET | — |
 | `/create` | GET | — |
 | `/create` | POST | Byg en ny level-1-karakter fra formularen, valider mod reglerne og skriv YAML. |
@@ -145,3 +144,13 @@ Fil(er): `routes_summon.py`
 | `/api/summon_dismiss` | POST | Afskedig et spontant summonet væsen (fjern ref'en fra summons-listen). |
 | `/api/summon_hp` | POST | Justér HP for ÉT væsen i et summon (identificeret af SNA-slot + væsen-index). |
 | `/api/summon_rounds` | POST | Tæl et summons resterende runder op/ned (varighed = 1 runde/casterniveau). |
+
+## Blueprint `versions`
+
+Fil(er): `routes_versions.py`
+
+| Rute | Metode | Hvad den gør |
+|---|---|---|
+| `/api/restore` | POST | Rul arket tilbage til en tidligere version (den nuværende gemmes først). |
+| `/api/version/rename` | POST | Navngiv en eksisterende version bagudrettet. |
+| `/api/version/save` | POST | Gem den nuværende tilstand som en navngivet version. |

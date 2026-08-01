@@ -16,24 +16,41 @@
   </div>
 
   <div class="section" id="versions-section">
-    <div class="section-title">Versioner</div>
+    <div class="section-title">
+      Versioner
+      <button class="notes-edit-btn" onclick="saveNamedVersion()">📌 Gem version…</button>
+    </div>
     {% if snapshots %}
     <p style="color:var(--muted);font-size:.8rem;margin-bottom:.6rem">
       Tidligere gemte tilstande, nyeste øverst. Gendan ruller arket tilbage til en version —
       den nuværende tilstand gemmes som et nyt snapshot først, så du kan fortryde.
+      Navngivne versioner (📌) slettes aldrig automatisk; de øvrige roteres væk med tiden.
     </p>
     {% for s in snapshots %}
     <div style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;
                 padding:.45rem .2rem;border-bottom:1px solid var(--border)">
       <span style="color:var(--text);font-size:.85rem">
-        {{ s.label }}{% if s.is_current %} <span style="color:var(--green);font-size:.75rem">· nuværende</span>{% endif %}
+        {% if s.name %}
+          📌 <strong>{{ s.name }}</strong>
+          <span style="color:var(--muted);font-size:.75rem">· {{ s.label }}</span>
+        {% else %}
+          {{ s.label }}
+        {% endif %}
+        {% if s.is_current %} <span style="color:var(--green);font-size:.75rem">· nuværende</span>{% endif %}
       </span>
-      {% if not s.is_current %}
-      <button onclick="restoreSnapshot('{{ s.file }}','{{ s.label }}')"
-              style="background:var(--card);border:1px solid var(--border);color:var(--text);
-                     font-family:Georgia,serif;font-size:.78rem;padding:.25rem .7rem;
-                     border-radius:5px;cursor:pointer;white-space:nowrap">↩ Gendan</button>
-      {% endif %}
+      <span style="display:flex;gap:.35rem;white-space:nowrap">
+        <button onclick="renameVersion('{{ s.file }}','{{ s.name }}')"
+                title="{% if s.name %}Omdøb eller fjern navnet{% else %}Giv versionen et navn{% endif %}"
+                style="background:var(--card);border:1px solid var(--border);color:var(--text);
+                       font-family:Georgia,serif;font-size:.78rem;padding:.25rem .6rem;
+                       border-radius:5px;cursor:pointer">✎ Navngiv</button>
+        {% if not s.is_current %}
+        <button onclick="restoreSnapshot('{{ s.file }}','{{ s.name or s.label }}')"
+                style="background:var(--card);border:1px solid var(--border);color:var(--text);
+                       font-family:Georgia,serif;font-size:.78rem;padding:.25rem .7rem;
+                       border-radius:5px;cursor:pointer">↩ Gendan</button>
+        {% endif %}
+      </span>
     </div>
     {% endfor %}
     {% else %}
