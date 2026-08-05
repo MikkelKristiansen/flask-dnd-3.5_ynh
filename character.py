@@ -52,9 +52,9 @@ from attacks import (  # noqa: F401
     grapple_total, initiative_total, derive_attacks,
     hand_usage, twf_context, two_weapon_penalty, monk_unarmed_attacks)
 from items import (  # noqa: F401
-    CARRIED_STATES,
+    CARRIED_STATES, HAVERSACK_REF, HAVERSACK_CAPACITY_LB,
     carry_limits, encumbrance_level, total_weight, weight_for_size, resolve_item,
-    carried_weight, equipped_armor, encumbrance_consequences)
+    carried_weight, equipped_armor, encumbrance_consequences, haversack_status)
 from spells import (  # noqa: F401
     spell_charge_key, spell_attack_damage, spell_area_damage,
     derive_spell_attacks, derive_spell_effects, spell_max_charges, active_spell_keys,

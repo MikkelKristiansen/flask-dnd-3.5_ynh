@@ -150,6 +150,35 @@ def carried_weight(inventory: list[InventoryItem], db, size: str = "medium") -> 
     )
 
 
+HAVERSACK_REF = "magic_items/handy_haversack"
+# SRD: hovedrum 80 lb + to sidelommer à 20 lb. Rumfanget (12 kubikfod i alt)
+# modelleres IKKE — kataloget kender genstandes vægt, ikke deres volumen.
+HAVERSACK_CAPACITY_LB = 120.0
+
+
+def haversack_status(inventory: list[InventoryItem], db, size: str = "medium") -> dict:
+    """Indhold og kapacitet for genstande i "haversack"-tilstand.
+
+    Tilstanden fjerner vægt fra encumbrance-regnskabet, så den skal kunne
+    modsiges: `owned` er False hvis der ligger noget i haversacken uden at en
+    Handy Haversack faktisk bæres. Arket viser det som en advarsel — ellers ville
+    tilstanden være en gratis vægtrabat, og så er tallet på arket misvisende.
+
+    Haversacken selv tæller normalt med (den vejer altid 5 lb, uanset indhold —
+    det følger gratis af at dens katalog-vægt er fast).
+    """
+    owned = any(i.ref == HAVERSACK_REF and i.state in CARRIED_STATES for i in inventory)
+    contents = [i for i in inventory if i.state == "haversack"]
+    weight = round(sum(resolve_item(i, db, size)["weight"] for i in contents), 3)
+    return {
+        "owned": owned,
+        "count": len(contents),
+        "weight": weight,
+        "capacity": HAVERSACK_CAPACITY_LB,
+        "over": weight > HAVERSACK_CAPACITY_LB,
+    }
+
+
 def material_modifiers(record: dict, table: str, size: str = "medium") -> list[dict]:
     """Tilgængelige materiale-/kvalitets-modifikatorer for en katalog-række.
 

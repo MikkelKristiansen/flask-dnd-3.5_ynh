@@ -63,7 +63,7 @@ class InventoryItem:
     qty: int = 1
     notes: str = ""
     ref: str = ""               # "tabel/id" i kataloget (weapons|armor|items); tom = custom
-    state: str = "backpack"     # wielded | worn | backpack | stored | dropped
+    state: str = "backpack"     # wielded | worn | backpack | stored | dropped | haversack
     bonus: int = 0              # til-hit-bonus på afledte angreb (masterwork/feat/TWF)
     str_mult: float | None = None  # override af Str-til-skade (None = default fra våbentype)
     two_handed: bool = False    # enhåndsvåben brugt tohånds → ×1,5 Str (hvis str_mult ikke sat)

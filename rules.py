@@ -276,7 +276,10 @@ def xp_progress(xp: int, level: int) -> dict:
 
 
 # Tilstande en genstand kan have. CARRIED_STATES tæller med i båret vægt.
-INVENTORY_STATES = {"wielded", "worn", "backpack", "stored", "dropped"}
+# "haversack" = i en Handy Haversack: tæller ikke i vægten (beholderen selv gør),
+# men er i modsætning til "stored" stadig med i felten — SRD lader dig hente
+# derfra som en move action uden at provokere attacks of opportunity.
+INVENTORY_STATES = {"wielded", "worn", "backpack", "stored", "dropped", "haversack"}
 
 
 # ── Materiale-/kvalitets-modifikatorer (SRD special materials) ──────────────

@@ -261,6 +261,7 @@ def build_character_view(char, db):
     weight     = char_module.carried_weight(char.inventory, db, char.size)
     enc_limits = char_module.carry_limits(ab.str, char.size)
     enc        = char_module.encumbrance_level(ab.str, weight, char.size)
+    haversack  = char_module.haversack_status(char.inventory, db, char.size)
     base_speed = char.combat.get("speed", 30)
     # Beriget inventar-visning: navn/vægt slås op i kataloget for ref-poster,
     # størrelses-justeres, og state vises. is_ref => navn/vægt redigeres ikke i UI.
@@ -659,6 +660,7 @@ def build_character_view(char, db):
         "weight": weight,
         "enc_limits": enc_limits,
         "enc": enc,
+        "haversack": haversack,
         "base_speed": base_speed,
         "attack_rows": attack_rows,
         "attacks_json": attacks_json,

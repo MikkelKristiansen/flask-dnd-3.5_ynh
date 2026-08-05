@@ -18,6 +18,31 @@
          background:rgba(192,57,43,.12);border-radius:4px;border:1px solid rgba(192,57,43,.4)"></div>
     <div id="enc-limits-text" style="color:var(--muted);font-size:.75rem;margin-top:.4rem"></div>
 
+    {# Handy Haversack: indhold holdes uden for bærevægten, så det skal fremgå HVOR
+       meget der er taget ud af regnskabet — ellers ser totalen bare forkert ud. #}
+    {% if haversack.count %}
+    <div style="margin-top:.5rem;padding:.5rem;border-radius:4px;
+         {% if haversack.owned and not haversack.over %}background:rgba(41,128,185,.12);border:1px solid rgba(41,128,185,.4)
+         {% else %}background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.4){% endif %};
+         font-size:.78rem">
+      {% if not haversack.owned %}
+        <strong>Ingen Handy Haversack båret.</strong>
+        {{ haversack.count }} genstand{{ '' if haversack.count == 1 else 'e' }}
+        ({{ '%g'|format(haversack.weight) }} lb) er sat til «i haversack» og tæller
+        derfor ikke med i bærevægten. Køb en haversack, eller flyt dem til rygsæk.
+      {% elif haversack.over %}
+        <strong>Haversack overfyldt.</strong>
+        {{ '%g'|format(haversack.weight) }} lb af maks
+        {{ '%g'|format(haversack.capacity) }} lb.
+      {% else %}
+        <strong>I haversack:</strong>
+        {{ haversack.count }} genstand{{ '' if haversack.count == 1 else 'e' }},
+        {{ '%g'|format(haversack.weight) }} af {{ '%g'|format(haversack.capacity) }} lb
+        — uden for bærevægten. Hentes som move action uden attack of opportunity.
+      {% endif %}
+    </div>
+    {% endif %}
+
     <div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)">
       <div style="color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Tilføj fra katalog (butik)</div>
       {# Udrustningsbutikken — tilstand udledes af kategori; juster bagefter i detalje-modalen. #}

@@ -20,7 +20,8 @@ function renderInventory() {
     return;
   }
   list.innerHTML = "";
-  const STATE_LABEL = {wielded:"i hånden", worn:"båret", stored:"opbevaret", dropped:"droppet"};
+  const STATE_LABEL = {wielded:"i hånden", worn:"båret", stored:"opbevaret", dropped:"droppet",
+                       haversack:"i haversack"};
   inventoryData.forEach((item, idx) => {
     const row = document.createElement("div");
     row.className = "inv-row";
