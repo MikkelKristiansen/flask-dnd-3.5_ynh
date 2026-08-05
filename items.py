@@ -129,7 +129,8 @@ def resolve_item(item: InventoryItem, db, size: str = "medium") -> dict:
                 bundle = record.get("bundle") or 1
                 if bundle > 1:
                     base_weight = base_weight / bundle
-    unit = weight_for_size(base_weight, kind, size)
+    unit = weight_for_size(base_weight, kind, size) * material_weight_factor(item.material)
+    unit = round(unit, 3)
     return {
         "name": name,
         "unit_weight": unit,
@@ -191,6 +192,9 @@ def material_modifiers(record: dict, table: str, size: str = "medium") -> list[d
 
     SRD: masterwork-kvaliteten og magisk enhancement koster det samme uanset størrelse,
     så kun cold irons ×2-delta følger den størrelses-justerede basispris.
+
+    darkwood tilbydes kun på træ-emner (wooden=1 i data) og koster masterwork-prisen
+    plus 10 gp per pund ORIGINAL vægt — se _darkwood_delta_cp.
     """
     if table == "weapons":
         mods = [{"key": "masterwork", "label": "Masterwork", "delta_cp": 30000}]
@@ -202,10 +206,57 @@ def material_modifiers(record: dict, table: str, size: str = "medium") -> list[d
             silver = _SILVER_DELTA_CP.get(wclass)
             if silver:
                 mods.append({"key": "silvered", "label": "Alch. Silver", "delta_cp": silver})
+        if record.get("wooden"):
+            mods.append({"key": "darkwood", "label": "Darkwood",
+                         "delta_cp": _darkwood_delta_cp(record, table, size)})
         return mods
     if table == "armor":
-        return [{"key": "masterwork", "label": "Masterwork", "delta_cp": 15000}]
+        mods = [{"key": "masterwork", "label": "Masterwork", "delta_cp": 15000}]
+        if record.get("wooden"):
+            mods.append({"key": "darkwood", "label": "Darkwood",
+                         "delta_cp": _darkwood_delta_cp(record, table, size)})
+        return mods
     return []
+
+
+# ── Darkwood (SRD special materials) ────────────────────────────────────────
+# "Considered a masterwork item and weighs only half as much … The armor check
+# penalty of a darkwood shield is lessened by 2 compared to an ordinary shield of
+# its type. To determine the price … use the original weight but add 10 gp per
+# pound to the price of a masterwork version of that item."
+DARKWOOD = "darkwood"
+_DARKWOOD_GP_PER_LB = 1000          # 10 gp = 1000 cp
+_DARKWOOD_WEIGHT_FACTOR = 0.5
+# ACP-forbedringen er 2 målt fra et ORDINÆRT skjold, ikke oveni masterworks 1 —
+# "compared to an ordinary shield of its type". Darkwood ER masterwork, så de to
+# lægges ikke sammen.
+_DARKWOOD_ACP_BONUS = 2
+
+
+def material_weight_factor(material: str) -> float:
+    """Vægtfaktor for et special material. 1,0 = uændret.
+
+    Hooket resolve_item mangler i dag: vægten kom direkte fra katalog-rækken, så
+    intet materiale kunne ændre den. Mithral halverer også (SRD), så den kan
+    tilføjes her uden at røre resolve_item.
+    """
+    return _DARKWOOD_WEIGHT_FACTOR if material == DARKWOOD else 1.0
+
+
+def _darkwood_delta_cp(record: dict, table: str, size: str = "medium") -> int:
+    """Prisdelta for darkwood: masterwork-prisen + 10 gp per pund original vægt.
+
+    "Original weight" er emnets vægt FØR halveringen, men efter størrelses-
+    justering — et Small-skjold bruger sine egne pund, ikke Medium-tabellens.
+    Verificeret mod SRD's egen tabel: heavy wooden shield 7 + 150 + 10 lb × 10 gp
+    = 257 gp, som er præcis den pris SRD opgiver for "Darkwood shield".
+    (SRD's egen darkwood-buckler på 205 gp følger IKKE formlen — den giver 215.
+    Det er en inkonsistens i kilden; formlen er den rigtige, og buckleren er
+    alligevel metal og får derfor aldrig darkwood tilbudt her.)
+    """
+    mw = 30000 if table == "weapons" else 15000
+    weight = weight_for_size(record.get("weight") or 0.0, weight_kind(table, record), size)
+    return int(mw + round(weight * _DARKWOOD_GP_PER_LB))
 
 
 def _effective_armor_row(rec: dict, item: InventoryItem) -> dict:
@@ -217,19 +268,26 @@ def _effective_armor_row(rec: dict, item: InventoryItem) -> dict:
     (max_dex, spell_failure, druid_ok …) er uændret. Vi kopierer rækken, så
     db'ens cache aldrig muteres.
     """
-    masterwork = item.masterwork or item.enhancement >= 1
+    darkwood = item.material == DARKWOOD
+    masterwork = item.masterwork or item.enhancement >= 1 or darkwood
     if not masterwork and item.enhancement == 0:
         return rec
     eff = dict(rec)
     if masterwork:
-        eff["armor_check"] = min(0, int(rec.get("armor_check", 0)) + 1)
+        # Darkwood-skjold: 2 bedre end et ORDINÆRT skjold — de 2 erstatter
+        # masterworks 1, de lægges ikke oveni ("compared to an ordinary shield
+        # of its type"). Loft ved 0: ACP bliver aldrig positiv.
+        forbedring = _DARKWOOD_ACP_BONUS if darkwood else 1
+        eff["armor_check"] = min(0, int(rec.get("armor_check", 0)) + forbedring)
     if item.enhancement:
         eff["armor_bonus"] = int(rec.get("armor_bonus", 0)) + item.enhancement
     # Vis-navn afspejler tilpasningen (fx "Studded Leather +1 (mesterværk)").
     label = rec.get("name", "")
     if item.enhancement:
         label = f"{label} +{item.enhancement}"
-    if item.masterwork and not item.enhancement:
+    if darkwood:
+        label = f"{label} (darkwood)"
+    elif item.masterwork and not item.enhancement:
         label = f"{label} (mesterværk)"
     eff["name"] = label
     return eff

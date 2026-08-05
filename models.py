@@ -72,6 +72,9 @@ class InventoryItem:
     mighty: int | None = None   # composite bue: mighty +N-rating (loft på Str-bonus til skade); None = generisk/uden loft
     double: bool = False        # dobbeltvåben (fx quarterstaff) brugt som to våben → primær + off-hånds-ende (light)
     masterwork: bool = False    # rustning/skjold: mesterværk → ACP forbedres med +1 (mod 0)
+    material: str = ""          # special material (SRD): "darkwood" … Ét felt frem for en bool pr.
+                                # materiale, så mithral/adamantine/dragonhide kan komme til uden
+                                # at hvert kaldested skal huske en ny flag. "" = almindeligt.
     enhancement: int = 0        # magisk +N: rustning/skjold→AC (≥1 medfører masterwork); våben→skade (til-hit via bonus)
     abilities: list = field(default_factory=list)  # magiske special abilities (id-liste → data/magic_abilities.yaml); navn/note/pris nu, mekanik senere
     charges: int | None = None  # forbrugsvarer (potion/scroll/wand): resterende ladninger; None = ikke en forbrugsvare

@@ -160,6 +160,7 @@ CREATE TABLE armor (
     armor_check   INTEGER NOT NULL DEFAULT 0, -- ACP (negativ); anvendes på Str/Dex-skills
     spell_failure INTEGER NOT NULL DEFAULT 0, -- arcane spell failure % (kun arcane casters; gemt til senere)
     druid_ok      INTEGER NOT NULL DEFAULT 1, -- 0 = forbudt for druider (metal); jf. _DRUID_PROHIBITED_ARMOR
+    wooden        INTEGER,                    -- 1 = træ (kan laves af darkwood); NULL = ikke træ. IKKE det samme som druid_ok, der er en regel-proxy
     type          TEXT NOT NULL,              -- light | medium | heavy | shield
     cost_cp       INTEGER,                    -- pris i kobber (1 gp = 100 cp)
     weight        REAL NOT NULL DEFAULT 0,    -- pund (Medium); Small ×½, Large ×2 udregnes
@@ -181,6 +182,10 @@ CREATE TABLE weapons (
     damage_type  TEXT,                       -- bludgeoning | piercing | slashing | kombinationer
     hands        INTEGER,                    -- hænder våbnet kræver; NULL = udled af weapon_class (kun sat hvor ranged afviger)
     metal        INTEGER,                    -- 0 = ikke-metal (træ/læder): kan ikke laves af cold iron / forsølves; NULL = metal (default)
+    wooden       INTEGER,                    -- 1 = træ/overvejende træ (kan laves af darkwood); NULL = nej.
+                                             -- BEVIDST adskilt fra `metal`: den er sat efter "kan forsølves", så alle
+                                             -- buer og spyd står som metal dér — men SRD nævner netop bue og spyd
+                                             -- som darkwood-eksempler. De to felter kan ikke udledes af hinanden.
     ranged_str   TEXT,                       -- ranged Str-til-skade: composite | penalty_only | full | none | NULL(=none)
     thrown       INTEGER,                    -- 1 = kastbart håndvåben (kan bruges i BÅDE nærkamp og kast) → ⇄-skift på arket; NULL = nej
     description  TEXT                        -- SRD-beskrivelse (særlige egenskaber); NULL = ingen særtekst

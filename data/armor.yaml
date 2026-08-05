@@ -145,6 +145,7 @@
   max_dex:
   armor_check: -1
   spell_failure: 5
+  wooden: 1
   druid_ok: 1
   type: shield
   cost_cp: 300
@@ -167,6 +168,7 @@
   max_dex:
   armor_check: -2
   spell_failure: 15
+  wooden: 1
   druid_ok: 1
   type: shield
   cost_cp: 700
@@ -189,6 +191,7 @@
   max_dex: 2
   armor_check: -10
   spell_failure: 50
+  wooden: 1
   druid_ok: 0
   type: shield
   cost_cp: 3000

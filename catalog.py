@@ -181,6 +181,17 @@ def apply_material_overlay(record: dict, table: str, mods) -> dict:
     if "silvered" in chosen:
         prefix.append("Alch. Silver")
         notes.append("Alkymisk sølv: −1 skade, omgår DR/silver.")
+    if "darkwood" in chosen:
+        # Darkwood ER masterwork pr. SRD — sæt flaget, så et emne der KUN vælger
+        # darkwood stadig får masterwork-effekten (våben +1 til-hit).
+        overlay["material"] = "darkwood"
+        overlay["masterwork"] = True
+        if table == "weapons":
+            overlay["bonus"] = 1
+        prefix.append("Darkwood")
+        notes.append("Darkwood: mesterværk og halv vægt."
+                     + (" Skjoldets ACP er 2 bedre end et ordinært."
+                        if record.get("type") == "shield" else ""))
     if prefix:
         overlay["name"] = " ".join(prefix + [record["name"]])
     if notes:

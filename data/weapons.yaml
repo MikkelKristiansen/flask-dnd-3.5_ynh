@@ -3,6 +3,11 @@
 # metal: 0 = ikke-metal våben (træ/læder) der hverken kan laves af cold iron eller
 #   forsølves (alkymisk sølv). Udeladt = metal (default) — de fleste våben. Styrer
 #   hvilke materiale-modifikatorer udrustningsbutikken tilbyder (se rules.material_modifiers).
+# wooden: 1 = træ/overvejende træ → kan laves af darkwood. IKKE det samme som metal:0,
+#   som også dækker læder (sap, whip) og som er udeladt på buer og spyd — dem nævner
+#   SRD's darkwood-tekst netop som eksempler. Armbrøster er ude (metalmekanisme =
+#   "only partially of wood"), og stagevåben med metalhoved er ude af samme grund som
+#   SRD's egne modeksempler, battleaxe og mace.
 - id: gauntlet
   name: Gauntlet
   category: simple
@@ -99,6 +104,7 @@
   damage_type: Bludgeoning
   metal: 0
   thrown: true
+  wooden: 1
 - id: mace_heavy
   name: Mace, heavy
   category: simple
@@ -134,6 +140,7 @@
   damage_type: Piercing
   description: A shortspear is small enough to wield one-handed. It may also be thrown.
   thrown: true
+  wooden: 1
 - id: longspear
   name: Longspear
   category: simple
@@ -146,6 +153,7 @@
   weight: 9.0
   damage_type: Piercing
   description: A longspear has reach. You can strike opponents 10 feet away with it, but you can’t use it against an adjacent foe. If you use a ready action to set a longspear against a charge, you deal double damage on a successful hit against a charging character.
+  wooden: 1
 - id: quarterstaff
   name: Quarterstaff
   category: simple
@@ -159,6 +167,7 @@
   damage_type: Bludgeoning
   metal: 0
   description: "A quarterstaff is a double weapon. You can fight with it as if fighting with two weapons, but if you do, you incur all the normal attack penalties associated with fighting with two weapons, just as if you were using a one-handed weapon and a light weapon. A creature wielding a quarterstaff in one hand can’t use it as a double weapon—only one end of the weapon can be used in any given round.\n\nThe quarterstaff is a special monk weapon. This designation gives a monk wielding a quarterstaff special options."
+  wooden: 1
 - id: spear
   name: Spear
   category: simple
@@ -172,6 +181,7 @@
   damage_type: Piercing
   description: A spear can be thrown. If you use a ready action to set a spear against a charge, you deal double damage on a successful hit against a charging character.
   thrown: true
+  wooden: 1
 - id: crossbow_heavy
   name: Crossbow, heavy
   category: simple
@@ -229,6 +239,7 @@
   ranged_str: full
   description: Since it is not designed for melee, you are treated as nonproficient with it and take a –4 penalty on attack rolls if you use a javelin as a melee weapon.
   thrown: true
+  wooden: 1
 - id: sling
   name: Sling
   category: simple
@@ -521,6 +532,7 @@
   weight: 8.0
   damage_type: Bludgeoning
   metal: 0
+  wooden: 1
 - id: flail_heavy
   name: Flail, heavy
   category: martial
@@ -618,6 +630,7 @@
   hands: 2
   ranged_str: penalty_only
   description: You need at least two hands to use a bow, regardless of its size. A longbow is too unwieldy to use while you are mounted. If you have a penalty for low Strength, apply it to damage rolls when you use a longbow. If you have a bonus for high Strength, you can apply it to damage rolls when you use a composite longbow (see below) but not a regular longbow.
+  wooden: 1
 - id: longbow_composite
   name: Longbow, composite
   category: martial
@@ -632,6 +645,7 @@
   hands: 2
   ranged_str: composite
   description: "You need at least two hands to use a bow, regardless of its size. You can use a composite longbow while mounted. All composite bows are made with a particular strength rating (that is, each requires a minimum Strength modifier to use with proficiency). If your Strength bonus is less than the strength rating of the composite bow, you can’t effectively use it, so you take a –2 penalty on attacks with it. The default composite longbow requires a Strength modifier of +0 or higher to use with proficiency. A composite longbow can be made with a high strength rating to take advantage of an above-average Strength score; this feature allows you to add your Strength bonus to damage, up to the maximum bonus indicated for the bow. Each point of Strength bonus granted by the bow adds 100 gp to its cost.\n\nFor purposes of weapon proficiency and similar feats, a composite longbow is treated as if it were a longbow."
+  wooden: 1
 - id: shortbow
   name: Shortbow
   category: martial
@@ -646,6 +660,7 @@
   hands: 2
   ranged_str: penalty_only
   description: You need at least two hands to use a bow, regardless of its size. You can use a shortbow while mounted. If you have a penalty for low Strength, apply it to damage rolls when you use a shortbow. If you have a bonus for high Strength, you can apply it to damage rolls when you use a composite shortbow (see below) but not a regular shortbow.
+  wooden: 1
 - id: shortbow_composite
   name: Shortbow, composite
   category: martial
@@ -660,6 +675,7 @@
   hands: 2
   ranged_str: composite
   description: "You need at least two hands to use a bow, regardless of its size. You can use a composite shortbow while mounted. All composite bows are made with a particular strength rating (that is, each requires a minimum Strength modifier to use with proficiency). If your Strength bonus is lower than the strength rating of the composite bow, you can’t effectively use it, so you take a –2 penalty on attacks with it. The default composite shortbow requires a Strength modifier of +0 or higher to use with proficiency. A composite shortbow can be made with a high strength rating to take advantage of an above-average Strength score; this feature allows you to add your Strength bonus to damage, up to the maximum bonus indicated for the bow. Each point of Strength bonus granted by the bow adds 75 gp to its cost.\n\nFor purposes of weapon proficiency and similar feats, a composite shortbow is treated as if it were a shortbow."
+  wooden: 1
 - id: kama
   name: Kama
   category: exotic
@@ -685,6 +701,7 @@
   damage_type: Bludgeoning
   metal: 0
   description: The nunchaku is a special monk weapon. This designation gives a monk wielding a nunchaku special options. With a nunchaku, you get a +2 bonus on opposed attack rolls made to disarm an enemy (including the roll to avoid being disarmed if such an attempt fails).
+  wooden: 1
 - id: sai
   name: Sai
   category: exotic
