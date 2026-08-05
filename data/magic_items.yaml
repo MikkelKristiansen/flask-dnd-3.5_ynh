@@ -381,3 +381,28 @@
   spell_id: cure_light_wounds
   charges_max: 50
   description: "Aktivér for at helbrede 1d8+1 skade."
+
+# ── Utility: slotløse genstande hvis effekt IKKE beregnes af appen. Hverken ──
+# ── modifiers (ingen numerisk bonus) eller spell_id (kaster ikke et spell) — ──
+# ── de står i kataloget så de kan slås op og gives som loot, men reglen selv ──
+# ── håndhæves ved bordet, som SRD's øvrige bespoke-effekter.                 ──
+- id: pearl_of_power_1
+  name: Pearl of Power (1st level)
+  category: wondrous
+  slot: null
+  price_cp: 100000
+  caster_level: 17
+  aura: Strong transmutation
+  weight: 0
+  modifiers: '[]'
+  description: "1/dag: genkald en level 1-spell du allerede har forberedt OG kastet — den er forberedt igen. Kun for castere der forbereder spells (cleric, druid, ranger, paladin, wizard)."
+- id: handy_haversack
+  name: Handy Haversack
+  category: wondrous
+  slot: null
+  price_cp: 200000
+  caster_level: 9
+  aura: Moderate conjuration
+  weight: 5
+  modifiers: '[]'
+  description: "Rygsæk med to sidelommer (2 kubikfod / 20 pund hver) og et hovedrum (8 kubikfod / 80 pund). Vejer altid kun 5 pund uanset indhold. Det du rækker efter ligger altid øverst: at hente en genstand er en move action, og den provokerer IKKE attacks of opportunity."
