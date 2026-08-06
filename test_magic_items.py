@@ -4,6 +4,10 @@ Bruger den seedede srd35.db (get_magic_item). Verificerer at et BÅRET item bidr
 sine modifiers, at backpack ikke gør, at stacking følger typereglen, og at ability-
 forstærkere kaskaderer.
 """
+import shutil
+
+import pytest
+
 import db
 import effects
 import items as items_module
@@ -67,3 +71,77 @@ def test_inventory_resolves_name_and_weight_from_catalog():
     r = items_module.resolve_item(it, db)
     assert r["name"] == "Cloak of Resistance +2"
     assert r["source"] == "magic_items"
+
+
+# ── Kan tilstanden 'worn' overhovedet NÅS? ───────────────────────────────────
+# Testene ovenfor bygger state="worn" direkte i Python. Det beviser at motoren
+# regner rigtigt, men ikke at nogen brugerhandling kan frembringe tilstanden —
+# og i en periode kunne den ikke: både /api/inventory og inventar-UI'en tvang
+# alt der ikke var rustning tilbage til "backpack", så ingen magisk genstand
+# kunne bæres og ingen af dem virkede. Derfor går disse tests gennem RUTEN.
+
+def _wearable(ref):
+    it = InventoryItem(ref=ref)
+    return items_module.is_wearable(it, items_module.resolve_item(it, db).get("record"))
+
+
+def test_is_wearable_daekker_slot_og_slotloese_med_modifiers():
+    assert _wearable("magic_items/periapt_of_wisdom_2")      # slot: neck
+    assert _wearable("armor/chain_shirt")                    # rustning → AC
+    assert not _wearable("magic_items/potion_of_cure_light_wounds")   # hverken slot/mods
+    assert not _wearable("weapons/longsword")                # våben wieldes, bæres ikke
+    assert not _wearable("items/tent")                       # grej hører i rygsækken
+
+
+@pytest.fixture
+def client(tmp_path, monkeypatch):
+    import app as app_module
+    shutil.copy("defaults/tjorn.yaml", tmp_path / "tjorn.yaml")
+    monkeypatch.setattr(app_module, "CHARACTERS_DIR", tmp_path)
+    return app_module.app.test_client()
+
+
+def _post(client, **kw):
+    return client.post("/api/inventory", json={"char": "tjorn", **kw})
+
+
+def test_ruten_tillader_at_baere_en_magisk_genstand(client, tmp_path):
+    """Regression: Periapt of Wisdom kunne ikke sættes til 'worn' gennem ruten,
+    så dens +2 Visdom var uopnåelig i praksis."""
+    import character as char_module
+    r = _post(client, action="add", ref="magic_items/periapt_of_wisdom_2", state="worn")
+    assert r.status_code == 200
+
+    char = char_module.load_character(str(tmp_path / "tjorn.yaml"))
+    it = next(i for i in char.inventory if i.ref == "magic_items/periapt_of_wisdom_2")
+    assert it.state == "worn"                      # IKKE coercet til backpack
+
+    # …og bonussen når faktisk frem til ability-scoren.
+    mods, _ = effects.collect_character_effects(char, db)
+    base = char.ability_scores.wis
+    assert effects.effective_ability_scores(char.ability_scores, mods).wis == base + 2
+
+
+def test_ruten_afviser_at_baere_en_potion(client, tmp_path):
+    """Modstykket: en potion har hverken slot eller modifiers → hører i rygsækken."""
+    import character as char_module
+    _post(client, action="add", ref="magic_items/potion_of_cure_light_wounds", state="worn")
+    char = char_module.load_character(str(tmp_path / "tjorn.yaml"))
+    it = next(i for i in char.inventory
+              if i.ref == "magic_items/potion_of_cure_light_wounds")
+    assert it.state == "backpack"
+
+
+def test_update_bevarer_worn_paa_magisk_genstand(client, tmp_path):
+    """Den anden halvdel af fejlen: update-vejen nulstillede worn ved hver
+    inventar-redigering, så bonussen forsvandt ved et tilfældigt klik."""
+    import character as char_module
+    _post(client, action="add", ref="magic_items/periapt_of_wisdom_2", state="worn")
+    char = char_module.load_character(str(tmp_path / "tjorn.yaml"))
+    idx = next(i for i, x in enumerate(char.inventory)
+               if x.ref == "magic_items/periapt_of_wisdom_2")
+
+    r = _post(client, action="update", index=idx, state="worn", qty=1, notes="")
+    assert r.status_code == 200
+    char = char_module.load_character(str(tmp_path / "tjorn.yaml"))
+    assert char.inventory[idx].state == "worn"

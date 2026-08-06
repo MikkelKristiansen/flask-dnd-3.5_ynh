@@ -442,6 +442,30 @@ def effective_armor_row(rec: dict, item: InventoryItem) -> dict:
     return eff
 
 
+def is_wearable(item: InventoryItem, record: dict | None) -> bool:
+    """Må genstanden stå i tilstanden 'worn'?
+
+    'worn' betyder "har den på sig, så den virker" — og den betydning dækker to
+    slags genstande. Rustning og skjolde bæres for at give AC (equipped_armor).
+    Magiske genstande bæres for at bidrage deres modifiers: effects.
+    magic_item_modifiers tæller KUN worn, så en amulet i rygsækken gør intet.
+
+    For magiske genstande er kriteriet slot ELLER modifiers — ikke slot alene.
+    Slotløse genstande kan sagtens have en permanent effekt (ioun stones kredser
+    om hovedet uden at optage et slot), og de skal kunne bæres. Omvendt har en
+    potion hverken slot eller modifiers og hører i rygsækken.
+
+    `record` er katalog-rækken fra resolve_item; None (ukendt ref) → ikke bærbar.
+    """
+    if not record:
+        return False
+    if item.ref.startswith("armor/"):
+        return True
+    if item.ref.startswith("magic_items/"):
+        return bool(record.get("slot") or record.get("modifiers"))
+    return False
+
+
 def equipped_armor(inventory: list[InventoryItem], db):
     """Find båret rustning + skjold i inventaret (state=worn, ref til armor).
 

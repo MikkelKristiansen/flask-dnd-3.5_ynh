@@ -66,6 +66,10 @@ def _inv_row(item, r: dict) -> dict:
         "off_hand": item.off_hand, "double": item.double,
         "is_ammo": is_ammo,
         "consumable": consumable, "charges": charges,
+        # Må posten stå i "båret"? Serveren afgør det (items.is_wearable), så UI'en
+        # ikke skal gætte ud fra ref-præfikset — en slotløs magisk genstand med
+        # modifiers er bærbar, en potion er ikke.
+        "wearable": char_module.is_wearable(item, rec),
     }
 
 

@@ -132,12 +132,13 @@ function openItemDetail(idx) {
   const nameEl = document.getElementById("item-modal-name");
   const wtEl   = document.getElementById("item-modal-weight");
   nameEl.disabled = wtEl.disabled = !!item.is_ref;
-  // "Worn" (rustning → AC) kun for rustning — våben/grej kan ikke bæres som rustning.
-  const isArmorItem = (item.ref || "").startsWith("armor/");
+  // "Båret" gælder rustning (→ AC) OG magiske genstande (→ deres modifiers, som kun
+  // tælles når state=worn). Serveren afgør hvad der er bærbart og sender det med som
+  // item.wearable — UI'en gætter ikke selv ud fra ref-præfikset.
   const wornOpt = document.getElementById("item-state-worn");
-  wornOpt.hidden = wornOpt.disabled = !isArmorItem;
+  wornOpt.hidden = wornOpt.disabled = !item.wearable;
   let startState = item.state || "backpack";
-  if (startState === "worn" && !isArmorItem) startState = "backpack";  // ryd gammel ulovlig tilstand
+  if (startState === "worn" && !item.wearable) startState = "backpack";  // ryd gammel ulovlig tilstand
   document.getElementById("item-modal-state").value = startState;
   // Våben-felter (bonus/Str-mult) kun for våben i kataloget
   const isWeapon = (item.ref || "").startsWith("weapons/");

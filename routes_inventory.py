@@ -21,6 +21,15 @@ def _armor_slot(item, db) -> str | None:
         return None
     return "shield" if rec.get("type") == "shield" else "body"
 
+def _wearable(item, db) -> bool:
+    """items.is_wearable for en inventar-post — slår katalog-rækken op undervejs.
+
+    Bruges til at coerce en ulovlig 'worn' til 'backpack'. Rustning bæres for AC,
+    magiske genstande for deres modifiers (som KUN tælles når state=worn).
+    """
+    return char_module.is_wearable(item, char_module.resolve_item(item, db).get("record"))
+
+
 def _enforce_armor_slots(inventory, idx, db) -> None:
     """Hård slot-håndhævelse: kun én worn krops-rustning + ét worn skjold ad gangen.
 
@@ -58,9 +67,9 @@ def api_inventory():
         state = str(data.get("state", "backpack")).lower()
         if state not in char_module.INVENTORY_STATES:
             state = "backpack"
-        # "worn" (rustning → AC) giver kun mening for rustning; våben/grej kan ikke
-        # bæres som rustning. Coerce til "backpack" (på person).
-        if state == "worn" and not ref.startswith("armor/"):
+        # "worn" giver kun mening for rustning (→ AC) og magiske genstande (→ deres
+        # modifiers); våben og almindeligt grej kan ikke bæres. Coerce til "backpack".
+        if state == "worn" and not _wearable(char_module.InventoryItem(ref=ref), db):
             state = "backpack"
         if ref:
             # Katalog-genstand: navn/vægt slås op via ref ved visning
@@ -111,8 +120,8 @@ def api_inventory():
             if "state" in data:
                 st = str(data["state"]).lower()
                 if st in char_module.INVENTORY_STATES:
-                    # "worn" (rustning → AC) kun for rustning; ellers på person.
-                    if st == "worn" and _armor_slot(old, db) is None:
+                    # "worn" kun for rustning (→ AC) og magiske genstande (→ modifiers).
+                    if st == "worn" and not _wearable(old, db):
                         st = "backpack"
                     old.state = st
                     _enforce_armor_slots(inventory, idx, db)
