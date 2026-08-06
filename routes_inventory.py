@@ -75,7 +75,11 @@ def api_inventory():
             # Materiale-/kvalitets-mods fra butikken (masterwork/cold iron/sølv) →
             # ekstra felter (masterwork-flag, +1 til-hit, materiale-mærkat i navn).
             table, _, oid = ref.partition("/")
-            getter = {"weapons": db.get_weapon, "armor": db.get_armor}.get(table)
+            # items er med, fordi ammunition kan være cold iron/adamantine/
+            # darkwood/forsølvet — uden den ville materialevalg på pile blive
+            # tavst droppet her (creation.py har haft items med hele tiden).
+            getter = {"weapons": db.get_weapon, "armor": db.get_armor,
+                      "items": db.get_item}.get(table)
             record = getter(oid) if getter else None
             if record:
                 kwargs.update(catalog.apply_material_overlay(record, table, data.get("mods")))

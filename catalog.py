@@ -118,7 +118,9 @@ def _item_entry(it: dict, *, recommended, size) -> dict:
         "proficient": True,           # almindeligt gear har ingen proficiency
         "recommended": it["id"] in recommended,
         "description": it.get("description"),
-        "modifiers": [],              # gear har ingen materiale-modifikatorer
+        # Almindeligt gear har ingen materialevalg; ammunition har (cold iron,
+        # adamantine, darkwood, forsølvning) — material_modifiers afgør selv.
+        "modifiers": material_modifiers(it, "items", size),
         "detail": {},
     }
 

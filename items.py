@@ -196,6 +196,8 @@ def material_modifiers(record: dict, table: str, size: str = "medium") -> list[d
     darkwood tilbydes kun på træ-emner (wooden=1 i data) og koster masterwork-prisen
     plus 10 gp per pund ORIGINAL vægt — se _darkwood_delta_cp.
     """
+    if not record:                      # ukendt ref → ingen modifikatorer
+        return []
     if table == "weapons":
         mods = [{"key": "masterwork", "label": "Masterwork", "delta_cp": 30000}]
         wclass = record.get("weapon_class")
@@ -240,7 +242,46 @@ def material_modifiers(record: dict, table: str, size: str = "medium") -> list[d
         mods.append({"key": "dragonhide", "label": "Dragonhide",
                      "delta_cp": _dragonhide_delta_cp(record, size)})
         return mods
+    if table == "items" and record.get("category") == "ammunition":
+        return _ammunition_modifiers(record, size)
     return []
+
+
+# ── Ammunition ──────────────────────────────────────────────────────────────
+# SRD prissætter ammunition PER STYK: "The masterwork quality adds 300 gp to the
+# cost of a normal weapon (or 6 gp to the cost of a single unit of ammunition)",
+# og special material-tabellernes "Ammunition"-rækker følger samme enhed.
+# Kataloget opgiver derimod ammunition PER BUNDT (arrows_20 = 1 gp for 20), så
+# alle satser her ganges med bundle-størrelsen for at give et bundt-delta.
+_AMMO_MASTERWORK_CP = 600            # +6 gp/stk
+_AMMO_ADAMANTINE_CP = 6000           # +60 gp/stk
+_AMMO_SILVER_CP = 200                # +2 gp/stk
+
+
+def _ammunition_modifiers(record: dict, size: str = "medium") -> list[dict]:
+    """Materiale-modifikatorer for ammunition (pile, bolte, slyngesten).
+
+    Mithral er bevidst UDELADT: SRD's mithral-tabel har ingen ammunition-række,
+    og materialets eneste effekt er halv vægt, hvilket er uden betydning for et
+    projektil. De øvrige har alle en eksplicit SRD-hjemmel.
+    """
+    bundle = record.get("bundle") or 1
+    base = int(record.get("cost_cp") or 0)          # pris for HELE bundtet
+    mods = [{"key": "masterwork", "label": "Masterwork",
+             "delta_cp": _AMMO_MASTERWORK_CP * bundle}]
+    if record.get("wooden"):
+        # Darkwood = masterwork-prisen + 10 gp per pund original vægt.
+        w = weight_for_size(record.get("weight") or 0.0, weight_kind("items", record), size)
+        mods.append({"key": "darkwood", "label": "Darkwood",
+                     "delta_cp": int(_AMMO_MASTERWORK_CP * bundle
+                                     + round(w * _DARKWOOD_GP_PER_LB))})
+    if record.get("metal"):
+        mods.append({"key": "cold_iron", "label": "Cold Iron", "delta_cp": base})
+        mods.append({"key": "adamantine", "label": "Adamantine",
+                     "delta_cp": _AMMO_ADAMANTINE_CP * bundle})
+        mods.append({"key": "silvered", "label": "Alch. Silver",
+                     "delta_cp": _AMMO_SILVER_CP * bundle})
+    return mods
 
 
 def _dragonhide_delta_cp(record: dict, size: str = "medium") -> int:

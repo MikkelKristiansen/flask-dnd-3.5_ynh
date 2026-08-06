@@ -814,6 +814,8 @@
   small_quarter: 0
   bundle: 20
   description: An arrow used as a melee weapon is treated as a light improvised weapon (–4 penalty on attack rolls) and deals damage as a dagger of its size (critical multiplier x2). Arrows come in a leather quiver that holds 20 arrows. An arrow that hits its target is destroyed; one that misses has a 50% chance of being destroyed or lost.
+  wooden: 1
+  metal: 1
 - id: crossbow_bolts_10
   name: Crossbow bolts (10)
   category: ammunition
@@ -822,6 +824,8 @@
   small_quarter: 0
   bundle: 10
   description: A crossbow bolt used as a melee weapon is treated as a light improvised weapon (–4 penalty on attack rolls) and deals damage as a dagger of its size (crit x2). Bolts come in a wooden case that holds 10 bolts (or 5, for a repeating crossbow). A bolt that hits its target is destroyed; one that misses has a 50% chance of being destroyed or lost.
+  wooden: 1
+  metal: 1
 - id: crossbow_bolts_5
   name: Crossbow bolts (5)
   category: ammunition
@@ -830,6 +834,8 @@
   small_quarter: 0
   bundle: 5
   description: A crossbow bolt used as a melee weapon is treated as a light improvised weapon (–4 penalty on attack rolls) and deals damage as a dagger of its size (crit x2). Bolts come in a wooden case that holds 10 bolts (or 5, for a repeating crossbow). A bolt that hits its target is destroyed; one that misses has a 50% chance of being destroyed or lost.
+  wooden: 1
+  metal: 1
 - id: sling_bullets_10
   name: Sling bullets (10)
   category: ammunition
@@ -838,3 +844,4 @@
   small_quarter: 0
   bundle: 10
   description: Bullets come in a leather pouch that holds 10 bullets. A bullet that hits its target is destroyed; one that misses has a 50% chance of being destroyed or lost.
+  metal: 1

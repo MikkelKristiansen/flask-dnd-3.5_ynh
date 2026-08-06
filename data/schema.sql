@@ -203,6 +203,8 @@ CREATE TABLE items (
     weight        REAL NOT NULL DEFAULT 0,    -- pund (Medium-version)
     small_quarter INTEGER NOT NULL DEFAULT 0, -- 1 = vejer ¼ for Small (SRD fodnote 1); 0 = uændret
     bundle        INTEGER,    -- antal enheder som vægt/pris dækker (ammo: 10/20/5); NULL = per styk
+    wooden        INTEGER,    -- 1 = træ → kan laves af darkwood (kun ammunition; SRD nævner "an arrow")
+    metal         INTEGER,    -- 1 = metaldele → kan laves af cold iron/adamantine eller forsølves
     description   TEXT        -- SRD-beskrivelse (særlige egenskaber); NULL = ingen særtekst
 );
 
