@@ -229,3 +229,34 @@ def test_soelv_virker_ikke_paa_sjaeldne_metaller():
 def test_soelv_alene_virker_paa_almindeligt_staal():
     ov = catalog.apply_material_overlay(db_module.get_weapon("longsword"), "weapons", ["silvered"])
     assert "Silver" in ov["name"] and "material" not in ov
+
+
+# ── Tower shield og druider (SRD-skelnen: materiale vs. proficiency) ─────────
+
+def test_tower_shield_er_traeskjold():
+    """SRD equipment.md: 'This massive wooden shield is nearly as tall as you
+    are.' Bekræftet af hardness 5 (metal-skjolde har 10) og af epic-tabellens
+    materiale-rul, hvor tower shield ruller wood/dark-wood."""
+    rec = db_module.get_armor("tower_shield")
+    assert rec["wooden"] == 1
+    assert not rec["metal"]
+
+
+def test_druide_mister_ikke_spells_af_et_tower_shield():
+    """SRD har TO uafhængige regler: 'must use only wooden ones' (materiale →
+    prohibited → mister spells i 24 t) og 'proficient with shields (except tower
+    shields)' (proficiency → ACP rammer angreb). Et tower shield er af træ, så
+    kun den anden gælder — druiden beholder sine spells."""
+    rec = db_module.get_armor("tower_shield")
+    assert rules.druid_armor_violations("Druid", None, rec) == []
+
+
+def test_druide_er_stadig_ikke_proficient_med_tower_shield():
+    import attacks
+    prof = {"types": ["light", "medium"], "shields": True, "tower_shield": False}
+    assert attacks.armor_proficient(db_module.get_armor("tower_shield"), prof) is False
+
+
+def test_metalskjold_koster_stadig_druiden_hendes_spells():
+    rec = db_module.get_armor("heavy_steel_shield")
+    assert rules.druid_armor_violations("Druid", None, rec) == ["Heavy Steel Shield"]

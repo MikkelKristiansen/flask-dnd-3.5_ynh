@@ -203,7 +203,7 @@
   armor_check: -10
   spell_failure: 50
   wooden: 1
-  druid_ok: 0
+  druid_ok: 1
   type: shield
   cost_cp: 3000
   weight: 45.0
