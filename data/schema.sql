@@ -161,6 +161,9 @@ CREATE TABLE armor (
     spell_failure INTEGER NOT NULL DEFAULT 0, -- arcane spell failure % (kun arcane casters; gemt til senere)
     druid_ok      INTEGER NOT NULL DEFAULT 1, -- 0 = forbudt for druider (metal); jf. _DRUID_PROHIBITED_ARMOR
     wooden        INTEGER,                    -- 1 = træ (kan laves af darkwood); NULL = ikke træ. IKKE det samme som druid_ok, der er en regel-proxy
+    metal         INTEGER,                    -- 1 = "normally made of metal" (kan laves af adamantine); NULL = nej.
+                                              -- IKKE det samme som druid_ok=0: studded leather har metalnitter nok til
+                                              -- druide-forbuddet, men er læder og kan ikke laves af adamantine.
     type          TEXT NOT NULL,              -- light | medium | heavy | shield
     cost_cp       INTEGER,                    -- pris i kobber (1 gp = 100 cp)
     weight        REAL NOT NULL DEFAULT 0,    -- pund (Medium); Small ×½, Large ×2 udregnes

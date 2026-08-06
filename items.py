@@ -209,14 +209,43 @@ def material_modifiers(record: dict, table: str, size: str = "medium") -> list[d
         if record.get("wooden"):
             mods.append({"key": "darkwood", "label": "Darkwood",
                          "delta_cp": _darkwood_delta_cp(record, table, size)})
+        # Adamantine kræver metaldele. `metal != 0` er ikke nok alene: feltet er
+        # sat efter "kan forsølves", så buer og spyd står som metal dér selv om
+        # de er træ. wooden udelukker derfor eksplicit — jf. SRD's egen
+        # afgrænsning: "An arrow could be made of adamantine, but a quarterstaff
+        # could not."
+        if record.get("metal") != 0 and not record.get("wooden"):
+            mods.append({"key": "adamantine", "label": "Adamantine",
+                         "delta_cp": _ADAMANTINE_WEAPON_CP})
         return mods
     if table == "armor":
         mods = [{"key": "masterwork", "label": "Masterwork", "delta_cp": 15000}]
         if record.get("wooden"):
             mods.append({"key": "darkwood", "label": "Darkwood",
                          "delta_cp": _darkwood_delta_cp(record, table, size)})
+        if record.get("metal"):
+            atype = record.get("type")
+            mods.append({"key": "adamantine", "label": "Adamantine",
+                         "delta_cp": (_ADAMANTINE_SHIELD_CP if atype == "shield"
+                                      else _ADAMANTINE_ARMOR_CP.get(atype, 0))})
+        # Dragonhide udskifter materialet og gælder derfor enhver rustning og
+        # ethvert skjold — SRD begrænser den ikke til metal-typer.
+        mods.append({"key": "dragonhide", "label": "Dragonhide",
+                     "delta_cp": _dragonhide_delta_cp(record, size)})
         return mods
     return []
+
+
+def _dragonhide_delta_cp(record: dict, size: str = "medium") -> int:
+    """Dragonhide koster DOBBELT af masterwork-prisen for den type.
+
+    Masterwork-rustning = basis + 150 gp, så prisen er 2 × (basis + 150), og
+    deltaet oven i basisprisen bliver basis + 300 gp — ikke basis + 150.
+    Kontrol: full plate 1.500 → masterwork 1.650 → dragonhide 3.300, altså
+    delta 1.800 = 1.500 + 300.
+    """
+    base = cost_for_size(record.get("cost_cp"), "half", size) or 0
+    return int(base + 30000)
 
 
 # ── Darkwood (SRD special materials) ────────────────────────────────────────
@@ -231,6 +260,35 @@ _DARKWOOD_WEIGHT_FACTOR = 0.5
 # "compared to an ordinary shield of its type". Darkwood ER masterwork, så de to
 # lægges ikke sammen.
 _DARKWOOD_ACP_BONUS = 2
+
+
+# ── Adamantine (SRD) ────────────────────────────────────────────────────────
+# "Only weapons, armor, and shields normally made of metal can be fashioned from
+# adamantine." Altid masterwork — masterwork-prisen er INKLUDERET i tillæggene
+# nedenfor, så de er faste beløb og ikke deltaer oven i masterwork.
+# Rustning giver DR 1/2/3 efter kategori; det BEREGNES ikke (appen har ingen
+# karakter-DR — kun monstre har det), så det står som note, ligesom cold irons
+# DR-bypass. ACP-forbedringen og +1 til-hit er masterworks egne, ikke ekstra.
+ADAMANTINE = "adamantine"
+_ADAMANTINE_ARMOR_CP = {"light": 500000, "medium": 1000000, "heavy": 1500000}
+# SRD's pristabel har INGEN skjold-række, selv om teksten udtrykkeligt tillader
+# adamantine-skjolde. Vi bruger light armor-raten. Det er en dokumenteret
+# antagelse, ikke en SRD-værdi — ret den hvis DM'en vil noget andet.
+_ADAMANTINE_SHIELD_CP = 500000
+_ADAMANTINE_WEAPON_CP = 300000
+_ADAMANTINE_DR = {"light": 1, "medium": 2, "heavy": 3}
+
+# ── Dragonhide (SRD) ────────────────────────────────────────────────────────
+# Kun rustning og skjolde ("armorsmiths … produce armor or shields"). Altid
+# masterwork, og — pointen — "because dragonhide armor isn't made of metal,
+# druids can wear it without penalty". Prisen er DOBBELT af masterwork-prisen
+# for den type, så deltaet oven i basisprisen er basis + masterwork.
+DRAGONHIDE = "dragonhide"
+
+
+def adamantine_dr(armor_type: str) -> int:
+    """DR/– som adamantine-rustning giver. 0 for skjolde og ukendte typer."""
+    return _ADAMANTINE_DR.get(armor_type, 0)
 
 
 def material_weight_factor(material: str) -> float:
@@ -269,10 +327,18 @@ def _effective_armor_row(rec: dict, item: InventoryItem) -> dict:
     db'ens cache aldrig muteres.
     """
     darkwood = item.material == DARKWOOD
-    masterwork = item.masterwork or item.enhancement >= 1 or darkwood
+    dragonhide = item.material == DRAGONHIDE
+    masterwork = (item.masterwork or item.enhancement >= 1
+                  or darkwood or dragonhide or item.material == ADAMANTINE)
     if not masterwork and item.enhancement == 0:
         return rec
     eff = dict(rec)
+    if dragonhide:
+        # "Because dragonhide armor isn't made of metal, druids can wear it
+        # without penalty." Det er hele pointen med materialet — og fordi
+        # druid_armor_violations() læser druid_ok fra netop denne effektive
+        # række, ophæves forbuddet uden at reglen skal kende til materialer.
+        eff["druid_ok"] = 1
     if masterwork:
         # Darkwood-skjold: 2 bedre end et ORDINÆRT skjold — de 2 erstatter
         # masterworks 1, de lægges ikke oveni ("compared to an ordinary shield
@@ -285,8 +351,8 @@ def _effective_armor_row(rec: dict, item: InventoryItem) -> dict:
     label = rec.get("name", "")
     if item.enhancement:
         label = f"{label} +{item.enhancement}"
-    if darkwood:
-        label = f"{label} (darkwood)"
+    if item.material:
+        label = f"{label} ({item.material})"
     elif item.masterwork and not item.enhancement:
         label = f"{label} (mesterværk)"
     eff["name"] = label

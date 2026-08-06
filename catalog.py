@@ -11,6 +11,7 @@ Den gyldne regel: Python ejer reglerne. Dette modul REGNER ingen 3.5-regler selv
 
 import rules
 from attacks import weapon_proficient, armor_proficient
+import items
 from items import carry_limits, cost_for_size, material_modifiers, weight_for_size, weight_kind
 
 
@@ -181,17 +182,32 @@ def apply_material_overlay(record: dict, table: str, mods) -> dict:
     if "silvered" in chosen:
         prefix.append("Alch. Silver")
         notes.append("Alkymisk sølv: −1 skade, omgår DR/silver.")
-    if "darkwood" in chosen:
-        # Darkwood ER masterwork pr. SRD — sæt flaget, så et emne der KUN vælger
-        # darkwood stadig får masterwork-effekten (våben +1 til-hit).
-        overlay["material"] = "darkwood"
-        overlay["masterwork"] = True
-        if table == "weapons":
-            overlay["bonus"] = 1
-        prefix.append("Darkwood")
-        notes.append("Darkwood: mesterværk og halv vægt."
-                     + (" Skjoldets ACP er 2 bedre end et ordinært."
-                        if record.get("type") == "shield" else ""))
+    # Special materials er indbyrdes udelukkende — et emne er lavet af ÉT
+    # materiale. Rækkefølgen her afgør hvem der vinder hvis flere er valgt.
+    for key, label, note in (
+        ("darkwood", "Darkwood",
+         "Darkwood: mesterværk og halv vægt."
+         + (" Skjoldets ACP er 2 bedre end et ordinært."
+            if record.get("type") == "shield" else "")),
+        ("adamantine", "Adamantine",
+         "Adamantine: mesterværk. "
+         + (f"Rustningen giver DR {items.adamantine_dr(record.get('type'))}/– "
+            "(beregnes ikke — noteres her)."
+            if items.adamantine_dr(record.get("type")) else
+            "Ignorerer hardness under 20 ved sunder og angreb på objekter.")),
+        ("dragonhide", "Dragonhide",
+         "Dragonhide: mesterværk og IKKE metal — en druide kan bære den uden straf."),
+    ):
+        if key in chosen:
+            # Alle tre ER masterwork pr. SRD, så flaget sættes uanset hvad; et
+            # emne der kun vælger materialet får stadig masterwork-effekten.
+            overlay["material"] = key
+            overlay["masterwork"] = True
+            if table == "weapons":
+                overlay["bonus"] = 1
+            prefix.append(label)
+            notes.append(note)
+            break
     if prefix:
         overlay["name"] = " ".join(prefix + [record["name"]])
     if notes:
