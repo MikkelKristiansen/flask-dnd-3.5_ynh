@@ -176,38 +176,49 @@ def apply_material_overlay(record: dict, table: str, mods) -> dict:
         if table == "weapons":
             overlay["bonus"] = 1
         prefix.append("Masterwork")
-    if "cold_iron" in chosen:
-        prefix.append("Cold Iron")
-        notes.append("Cold iron: omgår DR/cold iron.")
-    if "silvered" in chosen:
-        prefix.append("Alch. Silver")
-        notes.append("Alkymisk sølv: −1 skade, omgår DR/silver.")
     # Special materials er indbyrdes udelukkende — et emne er lavet af ÉT
     # materiale. Rækkefølgen her afgør hvem der vinder hvis flere er valgt.
-    for key, label, note in (
-        ("darkwood", "Darkwood",
+    # (`always_mw` = SRD gør emnet masterwork af sig selv. Cold iron gør IKKE:
+    #  det er almindeligt jern smedet koldt, ikke en kvalitetsforbedring.)
+    atype = record.get("type")
+    for key, label, always_mw, note in (
+        ("darkwood", "Darkwood", True,
          "Darkwood: mesterværk og halv vægt."
-         + (" Skjoldets ACP er 2 bedre end et ordinært."
-            if record.get("type") == "shield" else "")),
-        ("adamantine", "Adamantine",
+         + (" Skjoldets ACP er 2 bedre end et ordinært." if atype == "shield" else "")),
+        ("adamantine", "Adamantine", True,
          "Adamantine: mesterværk. "
-         + (f"Rustningen giver DR {items.adamantine_dr(record.get('type'))}/– "
-            "(beregnes ikke — noteres her)."
-            if items.adamantine_dr(record.get("type")) else
+         + (f"Rustningen giver DR {items.adamantine_dr(atype)}/– (beregnes ikke — noteres her)."
+            if items.adamantine_dr(atype) else
             "Ignorerer hardness under 20 ved sunder og angreb på objekter.")),
-        ("dragonhide", "Dragonhide",
+        ("dragonhide", "Dragonhide", True,
          "Dragonhide: mesterværk og IKKE metal — en druide kan bære den uden straf."),
+        ("mithral", "Mithral", True,
+         "Mithral: mesterværk og halv vægt."
+         + (f" Tæller som {items.mithral_armor_type(atype)} rustning (proficiency),"
+            " ACP 3 bedre, max Dex +2, spell failure −10 %."
+            if atype in ("light", "medium", "heavy") else
+            " ACP 3 bedre, max Dex +2, spell failure −10 %."
+            if atype == "shield" else "")),
+        ("cold_iron", "Cold Iron", False,
+         "Cold iron: omgår DR/cold iron. Magisk enhancement koster 2.000 gp ekstra."),
     ):
         if key in chosen:
-            # Alle tre ER masterwork pr. SRD, så flaget sættes uanset hvad; et
-            # emne der kun vælger materialet får stadig masterwork-effekten.
             overlay["material"] = key
-            overlay["masterwork"] = True
-            if table == "weapons":
-                overlay["bonus"] = 1
+            if always_mw:
+                # SRD gør emnet masterwork af sig selv, så et emne der KUN
+                # vælger materialet får stadig masterwork-effekten.
+                overlay["masterwork"] = True
+                if table == "weapons":
+                    overlay["bonus"] = 1
             prefix.append(label)
             notes.append(note)
             break
+    # Alkymisk sølv er en OVERFLADEBEHANDLING, ikke et materiale — derfor uden
+    # for løkken. SRD: "doesn't work on rare metals such as adamantine, cold
+    # iron, and mithral", så den kan kun lægges på almindeligt stål.
+    if "silvered" in chosen and not overlay.get("material"):
+        prefix.append("Alch. Silver")
+        notes.append("Alkymisk sølv: −1 skade, omgår DR/silver.")
     if prefix:
         overlay["name"] = " ".join(prefix + [record["name"]])
     if notes:

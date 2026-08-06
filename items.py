@@ -217,6 +217,10 @@ def material_modifiers(record: dict, table: str, size: str = "medium") -> list[d
         if record.get("metal") != 0 and not record.get("wooden"):
             mods.append({"key": "adamantine", "label": "Adamantine",
                          "delta_cp": _ADAMANTINE_WEAPON_CP})
+            # Våben hører under mithral-tabellens "Other items": 500 gp/lb.
+            w = weight_for_size(record.get("weight") or 0.0, weight_kind(table, record), size)
+            mods.append({"key": "mithral", "label": "Mithral",
+                         "delta_cp": int(round(w * _MITHRAL_OTHER_CP_PER_LB))})
         return mods
     if table == "armor":
         mods = [{"key": "masterwork", "label": "Masterwork", "delta_cp": 15000}]
@@ -228,6 +232,9 @@ def material_modifiers(record: dict, table: str, size: str = "medium") -> list[d
             mods.append({"key": "adamantine", "label": "Adamantine",
                          "delta_cp": (_ADAMANTINE_SHIELD_CP if atype == "shield"
                                       else _ADAMANTINE_ARMOR_CP.get(atype, 0))})
+            mods.append({"key": "mithral", "label": "Mithral",
+                         "delta_cp": (_MITHRAL_SHIELD_CP if atype == "shield"
+                                      else _MITHRAL_ARMOR_CP.get(atype, 0))})
         # Dragonhide udskifter materialet og gælder derfor enhver rustning og
         # ethvert skjold — SRD begrænser den ikke til metal-typer.
         mods.append({"key": "dragonhide", "label": "Dragonhide",
@@ -285,6 +292,29 @@ _ADAMANTINE_DR = {"light": 1, "medium": 2, "heavy": 3}
 # for den type, så deltaet oven i basisprisen er basis + masterwork.
 DRAGONHIDE = "dragonhide"
 
+# ── Mithral (SRD) ───────────────────────────────────────────────────────────
+# Kun emner der primært er af metal ("A longsword can be a mithral weapon,
+# while a scythe cannot"). Altid masterwork — prisen er inkluderet i tillæggene.
+# Halv vægt. Rustning: ACP 3 bedre (min 0), max Dex +2, spell failure −10 %, og
+# ÉN KATEGORI LETTERE "for purposes of movement and other limitations".
+#
+# Kategoriskiftet har i denne app kun betydning for PROFICIENCY: appen udleder
+# ikke bevægelse af rustningskategori (kun af encumbrance-vægt i
+# encumbrance_consequences), så SRD's speed-effekt findes her slet ikke at
+# ændre. En kriger med kun Light Armor Proficiency kan altså bære mithral
+# chainmail uden straf — hvilket er den rigtige regel.
+MITHRAL = "mithral"
+_MITHRAL_ARMOR_CP = {"light": 100000, "medium": 400000, "heavy": 900000}
+_MITHRAL_SHIELD_CP = 100000
+_MITHRAL_OTHER_CP_PER_LB = 50000        # "Other items +500 gp/lb."
+_MITHRAL_ACP_BONUS = 3                  # "armor check penalties are lessened by 3"
+_MITHRAL_LIGHTER = {"heavy": "medium", "medium": "light", "light": "light"}
+
+
+def mithral_armor_type(armor_type: str) -> str:
+    """Rustningskategorien mithral tæller som. Skjolde er uændrede."""
+    return _MITHRAL_LIGHTER.get(armor_type, armor_type)
+
 
 def adamantine_dr(armor_type: str) -> int:
     """DR/– som adamantine-rustning giver. 0 for skjolde og ukendte typer."""
@@ -298,7 +328,9 @@ def material_weight_factor(material: str) -> float:
     intet materiale kunne ændre den. Mithral halverer også (SRD), så den kan
     tilføjes her uden at røre resolve_item.
     """
-    return _DARKWOOD_WEIGHT_FACTOR if material == DARKWOOD else 1.0
+    if material in (DARKWOOD, MITHRAL):     # begge halverer pr. SRD
+        return 0.5
+    return 1.0
 
 
 def _darkwood_delta_cp(record: dict, table: str, size: str = "medium") -> int:
@@ -317,22 +349,31 @@ def _darkwood_delta_cp(record: dict, table: str, size: str = "medium") -> int:
     return int(mw + round(weight * _DARKWOOD_GP_PER_LB))
 
 
-def _effective_armor_row(rec: dict, item: InventoryItem) -> dict:
+def effective_armor_row(rec: dict, item: InventoryItem) -> dict:
     """Påfør masterwork/magi på en katalog-række → en effektiv kopi.
 
     Reglerne (3.5 SRD): mesterværk forbedrer rustnings-tjekstraffen (ACP) med +1
     mod 0 (aldrig positiv); en enhancement-bonus lægges til AC og medfører altid
-    mesterværk (magisk rustning er pr. definition mesterværk). Resten af rækken
-    (max_dex, spell_failure, druid_ok …) er uændret. Vi kopierer rækken, så
-    db'ens cache aldrig muteres.
+    mesterværk (magisk rustning er pr. definition mesterværk). Special materials
+    kan derudover ændre druid_ok (dragonhide), ACP/max_dex/spell_failure/type
+    (mithral) og ACP (darkwood). Vi kopierer rækken, så db'ens cache aldrig muteres.
     """
     darkwood = item.material == DARKWOOD
     dragonhide = item.material == DRAGONHIDE
-    masterwork = (item.masterwork or item.enhancement >= 1
-                  or darkwood or dragonhide or item.material == ADAMANTINE)
+    mithral = item.material == MITHRAL
+    masterwork = (item.masterwork or item.enhancement >= 1 or darkwood
+                  or dragonhide or mithral or item.material == ADAMANTINE)
     if not masterwork and item.enhancement == 0:
         return rec
     eff = dict(rec)
+    if mithral:
+        # Max Dex +2 gælder kun hvor der ER en grænse (NULL = ubegrænset).
+        if rec.get("max_dex") is not None:
+            eff["max_dex"] = int(rec["max_dex"]) + 2
+        eff["spell_failure"] = max(0, int(rec.get("spell_failure", 0)) - 10)
+        # "One category lighter … for purposes of movement and other limitations."
+        # I denne app betyder det proficiency; bevægelse udledes ikke af kategori.
+        eff["type"] = mithral_armor_type(rec.get("type", ""))
     if dragonhide:
         # "Because dragonhide armor isn't made of metal, druids can wear it
         # without penalty." Det er hele pointen med materialet — og fordi
@@ -340,10 +381,11 @@ def _effective_armor_row(rec: dict, item: InventoryItem) -> dict:
         # række, ophæves forbuddet uden at reglen skal kende til materialer.
         eff["druid_ok"] = 1
     if masterwork:
-        # Darkwood-skjold: 2 bedre end et ORDINÆRT skjold — de 2 erstatter
-        # masterworks 1, de lægges ikke oveni ("compared to an ordinary shield
-        # of its type"). Loft ved 0: ACP bliver aldrig positiv.
-        forbedring = _DARKWOOD_ACP_BONUS if darkwood else 1
+        # Darkwood-skjold: 2 bedre end et ORDINÆRT skjold; mithral: 3 bedre.
+        # Begge er målt fra ordinær og ERSTATTER masterworks 1 — de lægges ikke
+        # oveni ("lessened by N compared to ordinary … of its type"). Loft ved 0.
+        forbedring = (_DARKWOOD_ACP_BONUS if darkwood
+                      else _MITHRAL_ACP_BONUS if mithral else 1)
         eff["armor_check"] = min(0, int(rec.get("armor_check", 0)) + forbedring)
     if item.enhancement:
         eff["armor_bonus"] = int(rec.get("armor_bonus", 0)) + item.enhancement
@@ -364,7 +406,7 @@ def equipped_armor(inventory: list[InventoryItem], db):
 
     Returnerer (armor_row, shield_row) som katalog-dicts eller None. Tager den
     første af hver slags: armor = type light/medium/heavy, shield = type shield.
-    Masterwork/magi fra inventory-posten er påført rækken (se _effective_armor_row).
+    Masterwork/magi fra inventory-posten er påført rækken (se effective_armor_row).
     """
     armor_row = shield_row = None
     for item in inventory:
@@ -375,7 +417,7 @@ def equipped_armor(inventory: list[InventoryItem], db):
             continue
         # Frisk kopi med house_rule-flaget (DM tillader trods druide-metal-forbud),
         # så druid_armor_violations kan dæmpe advarslen uden at mutere db-cachen.
-        rec = {**_effective_armor_row(rec, item), "house_rule": bool(item.house_rule)}
+        rec = {**effective_armor_row(rec, item), "house_rule": bool(item.house_rule)}
         if rec["type"] == "shield":
             shield_row = shield_row or rec
         elif rec["type"] in ("light", "medium", "heavy"):

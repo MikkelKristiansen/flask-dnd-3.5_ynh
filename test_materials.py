@@ -69,14 +69,14 @@ def test_adamantine_dr_pr_kategori():
 
 def test_adamantine_er_masterwork():
     rec = db_module.get_armor("full_plate")           # ordinær ACP -6
-    eff = items._effective_armor_row(rec, I(ref="armor/full_plate", material="adamantine"))
+    eff = items.effective_armor_row(rec, I(ref="armor/full_plate", material="adamantine"))
     assert eff["armor_check"] == int(rec["armor_check"]) + 1
 
 
 def test_adamantine_ophaever_ikke_druideforbud():
     """Adamantine er metal — en druide må stadig ikke bære den."""
     rec = db_module.get_armor("full_plate")
-    eff = items._effective_armor_row(rec, I(ref="armor/full_plate", material="adamantine"))
+    eff = items.effective_armor_row(rec, I(ref="armor/full_plate", material="adamantine"))
     assert rules.druid_armor_violations("Druid", eff, None)
 
 
@@ -102,15 +102,15 @@ def test_dragonhide_lader_en_druide_baere_metalrustning():
     """Hele pointen: 'because dragonhide armor isn't made of metal, druids can
     wear it without penalty'."""
     rec = db_module.get_armor("full_plate")
-    alm = items._effective_armor_row(rec, I(ref="armor/full_plate"))
-    dh = items._effective_armor_row(rec, I(ref="armor/full_plate", material="dragonhide"))
+    alm = items.effective_armor_row(rec, I(ref="armor/full_plate"))
+    dh = items.effective_armor_row(rec, I(ref="armor/full_plate", material="dragonhide"))
     assert rules.druid_armor_violations("Druid", alm, None) == ["Full Plate"]
     assert rules.druid_armor_violations("Druid", dh, None) == []
 
 
 def test_dragonhide_er_masterwork():
     rec = db_module.get_armor("full_plate")
-    eff = items._effective_armor_row(rec, I(ref="armor/full_plate", material="dragonhide"))
+    eff = items.effective_armor_row(rec, I(ref="armor/full_plate", material="dragonhide"))
     assert eff["armor_check"] == int(rec["armor_check"]) + 1
 
 
@@ -135,3 +135,97 @@ def test_kun_eet_materiale_ad_gangen():
         db_module.get_armor("heavy_steel_shield"), "armor", ["adamantine", "dragonhide"])
     assert ov["material"] == "adamantine"
     assert ov["name"].count("(") == 0        # ikke to materiale-mærkater i navnet
+
+
+# ── Mithral ─────────────────────────────────────────────────────────────────
+
+def test_mithral_priser_pr_kategori():
+    """SRD: light 1.000, medium 4.000, heavy 9.000, shield 1.000 gp."""
+    for oid, gp in (("chain_shirt", 1000), ("breastplate", 4000),
+                    ("full_plate", 9000), ("heavy_steel_shield", 1000)):
+        assert _delta(db_module.get_armor(oid), "armor", "mithral") == gp * 100, oid
+
+
+def test_mithral_vaaben_koster_500_gp_pr_pund():
+    """Våben hører under tabellens 'Other items: +500 gp/lb.'"""
+    rec = db_module.get_weapon("longsword")             # 4 lb
+    assert _delta(rec, "weapons", "mithral") == 4 * 50000
+
+
+def test_mithral_er_en_kategori_lettere():
+    assert items.mithral_armor_type("heavy") == "medium"
+    assert items.mithral_armor_type("medium") == "light"
+    assert items.mithral_armor_type("light") == "light"   # light bliver ikke lettere
+    assert items.mithral_armor_type("shield") == "shield"
+
+
+def test_mithral_effekter_paa_raekken():
+    rec = db_module.get_armor("full_plate")     # ACP -6, maxDex 1, SF 35 %, heavy
+    eff = items.effective_armor_row(rec, I(ref="armor/full_plate", material="mithral"))
+    assert eff["armor_check"] == -3             # 3 bedre end ordinær
+    assert eff["max_dex"] == 3                  # +2
+    assert eff["spell_failure"] == 25           # -10
+    assert eff["type"] == "medium"              # én kategori lettere
+
+
+def test_mithral_acp_har_loft_ved_nul():
+    rec = db_module.get_armor("chain_shirt")    # ACP -2
+    eff = items.effective_armor_row(rec, I(ref="armor/chain_shirt", material="mithral"))
+    assert eff["armor_check"] == 0              # -2 + 3 = 1 → loft 0
+
+
+def test_mithral_halverer_vaegten():
+    alm = items.resolve_item(I(ref="armor/full_plate"), db_module)["unit_weight"]
+    mi = items.resolve_item(I(ref="armor/full_plate", material="mithral"), db_module)["unit_weight"]
+    assert mi == alm / 2
+
+
+def test_mithral_kategoriskift_slaar_igennem_paa_proficiency():
+    """Den egentlige konsekvens i denne app: bevægelse udledes ikke af kategori,
+    men proficiency gør. Kræver at proficiency_violations bruger den EFFEKTIVE
+    række — ikke katalogets rå."""
+    import attacks
+    prof = {"types": ["light"], "shields": True}
+    alm = attacks.proficiency_violations(
+        None, prof, [I(ref="armor/breastplate", state="worn")], db_module)
+    mi = attacks.proficiency_violations(
+        None, prof, [I(ref="armor/breastplate", state="worn", material="mithral")], db_module)
+    assert alm["armor"] == ["Breastplate"]
+    assert mi["armor"] == []
+
+
+def test_mithral_kun_paa_metal():
+    for oid in ("leather", "hide", "light_wooden_shield"):
+        assert "mithral" not in _keys(db_module.get_armor(oid), "armor"), oid
+    for oid in ("quarterstaff", "longbow"):
+        assert "mithral" not in _keys(db_module.get_weapon(oid), "weapons"), oid
+
+
+# ── Cold iron og alkymisk sølv ──────────────────────────────────────────────
+
+def test_cold_iron_er_ikke_masterwork():
+    """Koldsmedet jern er ikke en kvalitetsforbedring — i modsætning til de
+    øvrige materialer sætter cold iron IKKE masterwork-flaget."""
+    ov = catalog.apply_material_overlay(db_module.get_weapon("longsword"), "weapons", ["cold_iron"])
+    assert ov["material"] == "cold_iron"
+    assert "masterwork" not in ov and "bonus" not in ov
+
+
+def test_masterwork_kan_kombineres_med_cold_iron():
+    ov = catalog.apply_material_overlay(
+        db_module.get_weapon("longsword"), "weapons", ["masterwork", "cold_iron"])
+    assert ov["masterwork"] is True and ov["material"] == "cold_iron"
+
+
+def test_soelv_virker_ikke_paa_sjaeldne_metaller():
+    """SRD: 'doesn't work on rare metals such as adamantine, cold iron, and
+    mithral'."""
+    rec = db_module.get_weapon("longsword")
+    for mat in ("cold_iron", "mithral", "adamantine"):
+        ov = catalog.apply_material_overlay(rec, "weapons", [mat, "silvered"])
+        assert "Silver" not in ov["name"], mat
+
+
+def test_soelv_alene_virker_paa_almindeligt_staal():
+    ov = catalog.apply_material_overlay(db_module.get_weapon("longsword"), "weapons", ["silvered"])
+    assert "Silver" in ov["name"] and "material" not in ov

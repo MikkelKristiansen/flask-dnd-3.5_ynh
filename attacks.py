@@ -7,6 +7,7 @@ import dataclasses
 import math
 import re
 
+import items                       # leaf-modul (importerer kun models) → ingen cyklus
 import magic_abilities
 from models import AbilityScores, Attack, InventoryItem
 from refdata import feat_id, feat_weapon
@@ -644,8 +645,13 @@ def proficiency_violations(weapon_prof: dict | None, armor_prof: dict | None,
                 bad_weapons.append(item.name or w["name"])
         elif item.state == "worn" and item.ref.startswith("armor/"):
             a = db.get_armor(item.ref.split("/", 1)[1])
-            if a and not armor_proficient(a, armor_prof, allowed_armor):
-                bad_armor.append(item.name or a["name"])
+            if a:
+                # Den EFFEKTIVE række, ikke katalogets rå: mithral tæller som én
+                # kategori lettere, så mithral chainmail kræver kun Light Armor
+                # Proficiency. Uden dette ville materialet ikke slå igennem her.
+                a = items.effective_armor_row(a, item)
+                if not armor_proficient(a, armor_prof, allowed_armor):
+                    bad_armor.append(item.name or a["name"])
     return {"weapons": bad_weapons, "armor": bad_armor}
 
 

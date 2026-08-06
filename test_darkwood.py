@@ -83,20 +83,20 @@ def test_vaegt_halveres_oveni_stoerrelse():
 
 def test_acp_er_2_bedre_end_ordinaer_med_loft_ved_nul():
     rec = db_module.get_armor(LWS)                       # ordinær ACP -1
-    eff = items._effective_armor_row(rec, I(ref=f"armor/{LWS}", material="darkwood"))
+    eff = items.effective_armor_row(rec, I(ref=f"armor/{LWS}", material="darkwood"))
     assert eff["armor_check"] == 0                       # -1 + 2 = 1 → loft 0
 
 
 def test_acp_paa_tower_shield():
     rec = db_module.get_armor("tower_shield")            # ordinær ACP -10
-    eff = items._effective_armor_row(rec, I(ref="armor/tower_shield", material="darkwood"))
+    eff = items.effective_armor_row(rec, I(ref="armor/tower_shield", material="darkwood"))
     assert eff["armor_check"] == -8
 
 
 def test_darkwood_stacker_ikke_med_masterwork():
     """De 2 er målt fra ORDINÆR og erstatter masterworks 1 — ikke -1+1+2."""
     rec = db_module.get_armor("heavy_wooden_shield")     # ordinær ACP -2
-    baade = items._effective_armor_row(
+    baade = items.effective_armor_row(
         rec, I(ref="armor/heavy_wooden_shield", material="darkwood", masterwork=True))
     assert baade["armor_check"] == 0                     # -2 + 2, ikke -2 + 3
 
