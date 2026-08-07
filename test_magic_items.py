@@ -145,3 +145,44 @@ def test_update_bevarer_worn_paa_magisk_genstand(client, tmp_path):
     assert r.status_code == 200
     char = char_module.load_character(str(tmp_path / "tjorn.yaml"))
     assert char.inventory[idx].state == "worn"
+
+
+# ── Butikken: magiske genstande kan købes som hyldevarer ─────────────────────
+
+def test_katalog_indeholder_magiske_genstande():
+    """Wands, eliksirer, ringe og wondrous items står i udrustningsbutikken under
+    fanen 'Magisk'. Navngivne specifics (Flame Tongue m.fl.) gør IKKE — de er
+    unikke fund, ikke hyldevarer, og hører til DM'ens give-loot."""
+    import catalog
+    poster = catalog.build_catalog(db)["items"]
+    mag = [p for p in poster if p["category"] == "magic_items"]
+    assert len(mag) == len(db.get_all_magic_items())
+    assert {p["group"] for p in mag} == {
+        "Wands", "Eliksirer", "Ringe", "Vidunderlige genstande"}
+    assert not [p for p in poster if p["ref"].startswith("specifik/")]
+
+    wand = next(p for p in mag if p["ref"] == "magic_items/wand_of_cure_light_wounds")
+    assert wand["cost_str"] == "750 gp" and wand["proficient"] is True
+    assert "50 ladninger" in wand["detail"]["meta"]
+
+
+def test_koebt_wand_faar_fulde_ladninger(client, tmp_path):
+    """Køb via butikken skal give samme resultat som DM'ens give-loot (dm.py:340):
+    fulde ladninger med det samme, ikke en tom tæller indtil første brug."""
+    import character as char_module
+    _post(client, action="add", ref="magic_items/wand_of_cure_light_wounds")
+    char = char_module.load_character(str(tmp_path / "tjorn.yaml"))
+    wand = next(i for i in char.inventory
+                if i.ref == "magic_items/wand_of_cure_light_wounds")
+    assert wand.charges == 50
+
+
+def test_detail_ruten_kender_magiske_genstande():
+    """Klik på en købt wand i inventaret → detalje-modalen henter stats herfra.
+    Uden magic_item i lookup'et fik man 400 og en tom infoboks."""
+    import app as app_module
+    c = app_module.app.test_client()
+    d = c.get("/api/detail/magic_item/wand_of_fireball").get_json()
+    assert d["caster_level"] == 5 and d["charges_max"] == 50
+    assert d["spell_level"] == 3          # modalen regner save-DC 14 af den
+    assert c.get("/api/detail/magic_item/findes_ikke").status_code == 404

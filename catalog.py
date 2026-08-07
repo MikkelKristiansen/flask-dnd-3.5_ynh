@@ -125,6 +125,41 @@ def _item_entry(it: dict, *, recommended, size) -> dict:
     }
 
 
+def _magic_item_entry(mi: dict, *, recommended, size) -> dict:
+    """Katalog-post for en magisk genstand (wand/potion/ring/wondrous).
+
+    Prisen og vægten er størrelses-uafhængige — en wand er en wand uanset om
+    køberen er gnome eller halvorc, så her bruges rå felter og ikke _row_cost.
+    `group` bliver til underoverskriften i butikken; `category` styrer fanen.
+
+    Navngivne specifics (Flame Tongue m.fl.) er BEVIDST ikke med: de er unikke
+    fund, ikke hyldevarer, og hører til DM'ens give-loot.
+    """
+    GRUPPE = {"wand": "Wands", "potion": "Eliksirer", "ring": "Ringe",
+              "wondrous": "Vidunderlige genstande", "rod": "Scepter",
+              "scroll": "Skriftruller"}
+    cost = int(mi.get("price_cp") or 0)
+    detalje = [f"CL {mi['caster_level']}"] if mi.get("caster_level") else []
+    if mi.get("charges_max"):
+        detalje.append(f"{mi['charges_max']} ladninger")
+    if mi.get("slot"):
+        detalje.append(_humanize(mi["slot"]))
+    return {
+        "ref": f"magic_items/{mi['id']}",
+        "name": mi["name"],
+        "category": "magic_items",
+        "group": GRUPPE.get(mi.get("category"), _humanize(mi.get("category"))),
+        "cost_cp": cost,
+        "cost_str": format_cost(cost),
+        "weight": float(mi.get("weight") or 0),
+        "proficient": True,           # magiske genstande har ingen proficiency
+        "recommended": mi["id"] in recommended,
+        "description": mi.get("description"),
+        "modifiers": [],              # ingen materialevalg på magiske genstande
+        "detail": {"meta": " · ".join(detalje), "aura": mi.get("aura")},
+    }
+
+
 def build_catalog(db, *, weapon_prof=None, armor_prof=None,
                   allowed_weapons=frozenset(), allowed_armor=frozenset(),
                   recommended_ids=frozenset(), str_score: int = 10,
@@ -150,6 +185,8 @@ def build_catalog(db, *, weapon_prof=None, armor_prof=None,
             recommended=recommended_ids, size=size))
     for it in db.get_all_items():
         items.append(_item_entry(it, recommended=recommended_ids, size=size))
+    for mi in db.get_all_magic_items():
+        items.append(_magic_item_entry(mi, recommended=recommended_ids, size=size))
 
     return {"items": items, "enc_limits": carry_limits(str_score, size)}
 

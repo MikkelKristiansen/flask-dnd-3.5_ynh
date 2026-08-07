@@ -93,6 +93,12 @@ def api_inventory():
             record = getter(oid) if getter else None
             if record:
                 kwargs.update(catalog.apply_material_overlay(record, table, data.get("mods")))
+            # Købt forbrugsvare → fulde ladninger, som når DM'en giver den som loot
+            # (dm.py:340). Uden det ville en wand stå uden tæller indtil første brug.
+            if table == "magic_items":
+                mi = db.get_magic_item(oid)
+                if mi and mi.get("spell_id") and mi.get("charges_max"):
+                    kwargs["charges"] = int(mi["charges_max"])
             inventory.append(char_module.InventoryItem(**kwargs))
             _enforce_armor_slots(inventory, len(inventory) - 1, db)
         else:

@@ -20,6 +20,7 @@ window.EquipmentPicker = (function () {
     { key: "weapons", label: "⚔ Våben" },
     { key: "armor",   label: "🛡 Rustning" },
     { key: "items",   label: "🎒 Udstyr" },
+    { key: "magic_items", label: "✨ Magisk" },
   ];
 
   const ENC_LABEL = { Light: "Let", Medium: "Middel", Heavy: "Tung", Overloaded: "Overbelastet" };
@@ -141,6 +142,10 @@ window.EquipmentPicker = (function () {
       if (d.max_dex != null) parts.push(`maks Dex ${d.max_dex}`);
       if (d.check) parts.push(`ACP ${d.check}`);
       return parts.join(" · ");
+    }
+    if (it.category === "magic_items") {
+      // "CL 5 · 50 ladninger · Faint evocation" — nok til at vælge på hylden.
+      return [d.meta, d.aura].filter(Boolean).join(" · ");
     }
     return it.group || "";
   }

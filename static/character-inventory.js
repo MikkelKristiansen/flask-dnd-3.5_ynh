@@ -74,6 +74,16 @@ function itemInfoHtml(d, dtype) {
     r("Rustnings-tjekstraf", d.armor_check);
     r("Type", d.type);
     r("Vægt", d.weight + " lb"); r("Pris", formatCost(d.cost_cp));
+  } else if (dtype === "magic_item") {
+    r("Type", d.category);
+    r("Slot", d.slot || "slotløs");
+    r("Caster level", d.caster_level);
+    r("Aura", d.aura);
+    if (d.charges_max) r("Ladninger", d.charges_max + " ved fund");
+    // Save-DC'en er genstandens egen (10 + spell-niveau + min-evne-modifier) —
+    // ikke bærerens. Den står her, så den kan slås op uden at bruge en ladning.
+    if (d.spell_level != null) r("Save-DC", 10 + d.spell_level + Math.floor(d.spell_level / 2));
+    r("Vægt", d.weight + " lb"); r("Pris", formatCost(d.price_cp));
   } else {
     r("Kategori", d.category);
     const bundle = d.bundle || 1;
@@ -118,7 +128,8 @@ function openItemDetail(idx) {
   infoBox.innerHTML = "";
   if (item.is_ref && item.ref) {
     const [tbl, cid] = item.ref.split("/");
-    const dtype = {weapons: "weapon", armor: "armor", items: "item"}[tbl];
+    const dtype = {weapons: "weapon", armor: "armor", items: "item",
+                   magic_items: "magic_item"}[tbl];
     if (dtype)
       fetch(BASE + `/api/detail/${dtype}/${cid}`)
         .then(r => r.json())
@@ -392,7 +403,11 @@ function addItem() {
 // karakterens kontekst + send de valgte items til den eksisterende /api/inventory.
 // Tilstanden udledes af kategori (våben=wielded, rustning=worn, gear=backpack);
 // finjuster bagefter i detalje-modalen.
-const SHOP_STATE_BY_CATEGORY = {weapons: "wielded", armor: "worn", items: "backpack"};
+// Magiske genstande sendes som "worn", fordi en kappe/ring KUN giver sine
+// modifiers når den bæres. Serveren coercer selv til "backpack" for dem der ikke
+// kan bæres (wands, eliksirer) — se _wearable i routes_inventory.py.
+const SHOP_STATE_BY_CATEGORY = {weapons: "wielded", armor: "worn", items: "backpack",
+                                magic_items: "worn"};
 
 function addSelectedFromShop() {
   const sel = EquipmentPicker.getSelected();
