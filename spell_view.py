@@ -18,6 +18,20 @@ import refdata
 import spells_known_active
 
 
+# Save-etiketter — modulniveau, fordi routes_inventory bygger den samme tekst for
+# et spell kastet fra en wand ("Refleks DC 14 (halv)"). Én kilde til ordlyden.
+SAVE_NAMES = {"reflex": "Refleks", "fortitude": "Fysik", "will": "Vilje"}
+SAVE_FX = {"half": "halv", "negates": "negerer", "partial": "delvis"}
+
+
+def save_label(save_type: str, save_effect: str, dc: int | None) -> str:
+    """"Refleks DC 14 (halv)" — DC udelades når den ikke kendes."""
+    navn = SAVE_NAMES.get(save_type, (save_type or "").capitalize())
+    tekst = f"{navn} DC {dc}" if dc is not None else navn
+    fx = SAVE_FX.get(save_effect, save_effect)
+    return f"{tekst} ({fx})" if fx else tekst
+
+
 def _build_summon_catalog(spells_by_level: dict, can_sacrifice: bool, db) -> dict:
     """Summon-picker-katalog {niveau: [{id, template, name, count, …}]} ud fra en
     {niveau: [spell_ids]}-kilde. Delt af forberedte (spells_prepared) og spontane
@@ -267,8 +281,6 @@ def build_spell_view(char, db) -> dict:
     # onclick-streng. Save-cast (kategori E) bygges her (kræver cast_mod), men KUN
     # hvis rækken ikke allerede er three_state — et vedvarende spell bruger toggle
     # + Spell-effekter i stedet for en engangs-knap.
-    _SAVE_NAMES = {"reflex": "Refleks", "fortitude": "Fysik", "will": "Vilje"}
-    _SAVE_FX = {"half": "halv", "negates": "negerer", "partial": "delvis"}
     for lvl, entries in spell_data.items():
         for entry in entries:
             c = entry["cast"]
@@ -279,9 +291,9 @@ def build_spell_view(char, db) -> dict:
                     school = (entry["spell"] or {}).get("school", "")
                     focus = char_module.spell_focus_bonus(char.feats, school)
                     c["dc"] = char_module.spell_save_dc(lvl, cast_mod, focus)
-                    c["save_name"] = _SAVE_NAMES.get(
+                    c["save_name"] = SAVE_NAMES.get(
                         c["save_type"], c["save_type"].capitalize())
-                    c["save_fx_label"] = _SAVE_FX.get(c["save_effect"], c["save_effect"])
+                    c["save_fx_label"] = SAVE_FX.get(c["save_effect"], c["save_effect"])
                     entry["cast"] = c
             if not c:
                 continue

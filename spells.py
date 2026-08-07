@@ -576,6 +576,23 @@ def spell_save_dc(spell_level: int, cast_modifier: int, focus_bonus: int = 0) ->
     return 10 + spell_level + cast_modifier + focus_bonus
 
 
+def magic_item_save_dc(spell_level: int) -> int:
+    """Save-DC mod et spell fra en magisk genstand — uafhængigt af hvem der bruger den.
+
+    En wand har ingen caster, så SRD bruger en fast erstatning for caster-evnen:
+    10 + spell-niveau + modifieren af den MINDSTE evne der kræves for at kaste det
+    niveau (magic-items-i-basics-and-creation.md:95). Den mindste evne er 10 +
+    spell-niveau, så modifieren er spell_level // 2.
+
+      Wand of Fireball (3. niv.) → 10 + 3 + 1 = DC 14
+
+    Derfor er en wand svagere end det samme spell fra et karakterark, hvor DC'en
+    bygger på casterens egen Int/Wis/Cha (spell_save_dc). Staffs er SRD's eneste
+    undtagelse — de bruger bærerens evne — og vi har ingen staffs.
+    """
+    return 10 + spell_level + spell_level // 2
+
+
 def spell_like_dc(spell_level: int, cha_modifier: int, extra: int = 0) -> int:
     """Save-DC for en spell-like ability: 10 + spell level + Cha-modifier.
 

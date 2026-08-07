@@ -262,6 +262,10 @@ function useConsumable(idx) {
     if (u.buff_added) { location.reload(); return; }   // buff ændrer stats → genindlæs
     if (u.roll_expr && typeof quickRoll === "function")
       quickRoll(u.roll_expr, u.roll_label || item.name, 1);
+    else if (u.save_label)
+      // Save-spells uden skade (Hold Person, Web): intet at rulle, men DM'en skal
+      // stadig have DC'en. Genstandens DC — ikke brugerens, en wand har ingen caster.
+      alert(item.name + "\n\n" + u.save_label);
     updateInventoryDisplay(data);                       // ladninger/fjernelse live
   });
 }

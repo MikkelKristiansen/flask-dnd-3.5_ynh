@@ -100,6 +100,35 @@ def test_wand_med_save_spell_ruller_skade(use_client):
     assert used["save_type"] == "reflex" and used["save_effect"] == "half"
 
 
+def test_wand_save_dc_er_genstandens_ikke_brugerens(use_client):
+    """SRD: DC mod en magisk genstands spell er 10 + spell-niveau + modifieren af
+    den mindste evne der kræves — ikke brugerens evne. Wand of Fireball er derfor
+    DC 14, hvor den samme fireball fra et wizard-ark kan være DC 17+."""
+    make, _ = use_client
+    client = make([{"ref": "magic_items/wand_of_fireball", "state": "backpack", "charges": 50}])
+    used = _use(client, 0)["used"]
+    assert used["save_dc"] == 14                       # 10 + 3 + 1
+    assert used["save_label"] == "Refleks DC 14 (halv)"
+
+
+def test_wand_dc_er_uafhaengig_af_caster_level(use_client):
+    """CL 10-varianten rammer hårdere (10d6 mod 5d6), men er lige så let at
+    undvige: caster level skalerer skaden, spell-niveauet sætter DC'en."""
+    make, _ = use_client
+    client = make([{"ref": "magic_items/wand_of_fireball_cl10", "state": "backpack", "charges": 50}])
+    used = _use(client, 0)["used"]
+    assert used["roll_expr"] == "10d6" and used["save_dc"] == 14
+
+
+def test_heightened_wand_har_hoejere_dc(use_client):
+    """Det er hele pointen med en heightened wand: samme spell, hævet niveau, så
+    både prisen og DC'en følger det hævede niveau (10 + 4 + 2 = 16, mod 13)."""
+    make, _ = use_client
+    client = make([{"ref": "magic_items/wand_of_hold_person_heightened_4th",
+                    "state": "backpack", "charges": 50}])
+    assert _use(client, 0)["used"]["save_dc"] == 16
+
+
 def test_wand_cl_variant_skalerer(use_client):
     """CL-varianterne har hver sin række, og caster_level styrer skaleringen —
     det er GENSTANDENS CL, ikke brugerens niveau. Karakteren her er 1. niveau;

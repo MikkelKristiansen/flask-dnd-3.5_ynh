@@ -7,6 +7,7 @@ from flask import Blueprint, jsonify, request
 import catalog
 import character as char_module
 import db
+import spell_view
 from character_view import _inv_row
 
 inventory_bp = Blueprint("inventory", __name__)
@@ -194,6 +195,16 @@ def api_inventory():
                 if info.get("save_type"):
                     used["save_type"] = info["save_type"]
                     used["save_effect"] = info.get("save_effect") or ""
+                    # DC'en er genstandens, ikke brugerens: en wand har ingen
+                    # caster-evne at bygge på. Uden spell_level udelades DC'en
+                    # hellere end at gættes — save_label klarer None.
+                    dc = (char_module.magic_item_save_dc(int(mi["spell_level"]))
+                          if mi.get("spell_level") is not None else None)
+                    used["save_dc"] = dc
+                    used["save_label"] = spell_view.save_label(
+                        info["save_type"], info.get("save_effect") or "", dc)
+                    # Samme ordlyd som ⚡ Kast på arket: "… · Refleks DC 14 (halv)"
+                    used["roll_label"] = f'{mi["name"]} · {used["save_label"]}'
 
         cur -= 1
         if cur <= 0 and int(mi.get("charges_max") or 1) <= 1:

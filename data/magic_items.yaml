@@ -283,6 +283,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: cure_light_wounds
+  spell_level: 1
   charges_max: 1
   description: "Drik for at helbrede 1d8+1 skade (kaster Cure Light Wounds på dig selv)."
 - id: potion_of_cure_moderate_wounds
@@ -295,6 +296,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: cure_moderate_wounds
+  spell_level: 2
   charges_max: 1
   description: "Drik for at helbrede 2d8+3 skade."
 - id: potion_of_bulls_strength
@@ -307,6 +309,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: bull_strength
+  spell_level: 2
   charges_max: 1
   description: "Drik for +4 enhancement-bonus til Styrke (aktiv buff indtil den fjernes)."
 - id: potion_of_cats_grace
@@ -319,6 +322,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: cat_grace
+  spell_level: 2
   charges_max: 1
   description: "Drik for +4 enhancement-bonus til Behændighed."
 - id: potion_of_bears_endurance
@@ -331,6 +335,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: bear_endurance
+  spell_level: 2
   charges_max: 1
   description: "Drik for +4 enhancement-bonus til Kropsbygning."
 - id: potion_of_mage_armor
@@ -343,6 +348,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: mage_armor
+  spell_level: 1
   charges_max: 1
   description: "Drik for +4 armor-bonus til AC (aktiv buff indtil den fjernes)."
 - id: potion_of_shield_of_faith
@@ -355,6 +361,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: shield_of_faith
+  spell_level: 1
   charges_max: 1
   description: "Drik for +2 deflection-bonus til AC (aktiv buff indtil den fjernes)."
 
@@ -372,6 +379,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: acid_arrow
+  spell_level: 2
   charges_max: 50
   description: "Ranged touch: 2d4 syreskade nu og igen hvert af de følgende runder (1 runde pr. 3 CL)."
 - id: wand_of_bear_endurance
@@ -384,6 +392,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: bear_endurance
+  spell_level: 2
   charges_max: 50
   description: "Aktivér for +4 enhancement til Constitution i 1 min./CL."
 - id: wand_of_bull_strength
@@ -396,6 +405,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: bull_strength
+  spell_level: 2
   charges_max: 50
   description: "Aktivér for +4 enhancement til Strength i 1 min./CL."
 - id: wand_of_burning_hands
@@ -408,6 +418,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: burning_hands
+  spell_level: 1
   charges_max: 50
   description: "Vifte af ild i en 15-fods kegle: 1d4 pr. CL (maks. 5d4) ildskade, Ref halv."
 - id: wand_of_call_lightning
@@ -420,6 +431,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: call_lightning
+  spell_level: 3
   charges_max: 50
   description: "Kald ét lyn pr. runde ned fra himlen: 3d6 elektricitetsskade, Ref halv. Kræver frit udsyn til himlen."
 - id: wand_of_call_lightning_cl8
@@ -432,6 +444,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: call_lightning
+  spell_level: 3
   charges_max: 50
   description: "Kald ét lyn pr. runde ned fra himlen: 3d6 elektricitetsskade, Ref halv. Kræver frit udsyn til himlen."
 - id: wand_of_cat_grace
@@ -444,6 +457,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: cat_grace
+  spell_level: 2
   charges_max: 50
   description: "Aktivér for +4 enhancement til Dexterity i 1 min./CL."
 - id: wand_of_chaos_hammer
@@ -456,6 +470,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  spell_level: 4
   charges_max: 50
   description: "Kaos-eksplosion i en 20-fods sfære: 1d8 pr. 2 CL (maks. 5d8) mod lovlige væsner, plus 1 runde forvirret. Will halv + ingen forvirring. Kaotiske væsner rammes ikke."
 - id: wand_of_charm_animal
@@ -468,6 +483,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: charm_animal
+  spell_level: 1
   charges_max: 50
   description: "Charmér ét dyr: det ser dig som en betroet ven i 1 time pr. CL. Will negerer."
 - id: wand_of_charm_monster
@@ -480,6 +496,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: charm_monster
+  spell_level: 4
   charges_max: 50
   description: "Charmér ét levende væsen uanset type: det ser dig som en betroet ven i 1 dag pr. CL. Will negerer."
 - id: wand_of_charm_person
@@ -492,6 +509,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: charm_person
+  spell_level: 1
   charges_max: 50
   description: "Charmér én humanoid: den ser dig som en betroet ven i 1 time pr. CL. Will negerer."
 - id: wand_of_charm_person_heightened_3rd
@@ -504,6 +522,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: charm_person
+  spell_level: 3
   charges_max: 50
   description: "Charmér én humanoid: den ser dig som en betroet ven i 1 time pr. CL. Will negerer."
 - id: wand_of_color_spray
@@ -516,6 +535,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: color_spray
+  spell_level: 1
   charges_max: 50
   description: "Farvekegle på 15 fod: bevidstløs, forblindet og lamslået efter HD. Will negerer."
 - id: wand_of_contagion
@@ -528,6 +548,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: contagion
+  spell_level: 3
   charges_max: 50
   description: "Melee touch: offeret pådrager sig en sygdom efter dit valg, uden inkubationstid. Fort negerer."
 - id: wand_of_cure_critical_wounds
@@ -540,6 +561,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: cure_critical_wounds
+  spell_level: 4
   charges_max: 50
   description: "Aktivér for at helbrede 4d8+CL skade ved berøring."
 - id: wand_of_cure_light_wounds
@@ -552,6 +574,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: cure_light_wounds
+  spell_level: 1
   charges_max: 50
   description: "Aktivér for at helbrede 1d8+1 skade."
 - id: wand_of_cure_moderate_wounds
@@ -564,6 +587,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: cure_moderate_wounds
+  spell_level: 2
   charges_max: 50
   description: "Aktivér for at helbrede 2d8+CL skade ved berøring."
 - id: wand_of_cure_serious_wounds
@@ -576,6 +600,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: cure_serious_wounds
+  spell_level: 3
   charges_max: 50
   description: "Aktivér for at helbrede 3d8+CL skade ved berøring."
 - id: wand_of_darkness
@@ -588,6 +613,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: darkness
+  spell_level: 2
   charges_max: 50
   description: "Slukker alt lys i en 20-fods radius om en berørt genstand: skyggefuldt, i 10 min./CL."
 - id: wand_of_daylight
@@ -600,6 +626,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: daylight
+  spell_level: 2
   charges_max: 50
   description: "Berørt genstand lyser som dagslys i 60 fods radius i 10 min./CL."
 - id: wand_of_delay_poison
@@ -612,6 +639,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: delay_poison
+  spell_level: 2
   charges_max: 50
   description: "Berørt væsen er immun over for giftens virkning i 1 time pr. CL. Fjerner ikke giften — udskyder den."
 - id: wand_of_detect_magic
@@ -624,6 +652,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: detect_magic
+  spell_level: 0
   charges_max: 50
   description: "Afsøg en 60-fods kegle for magiske auraer: styrke og skole efter 3 runders koncentration."
 - id: wand_of_detect_secret_doors
@@ -636,6 +665,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: detect_secret_doors
+  spell_level: 1
   charges_max: 50
   description: "Afsøg en 60-fods kegle for skjulte døre og rum i op til 3 runders koncentration."
 - id: wand_of_dimensional_anchor
@@ -648,6 +678,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: dimensional_anchor
+  spell_level: 4
   charges_max: 50
   description: "Ranged touch: låser målet fast i planet i 1 min./CL — ingen teleport, blink eller planeskift."
 - id: wand_of_dispel_magic
@@ -660,6 +691,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: dispel_magic
+  spell_level: 3
   charges_max: 50
   description: "Ophæv magi: slå 1d20 + CL (maks. +10) mod 11 + modstanderens CL, pr. effekt."
 - id: wand_of_dispel_magic_cl10
@@ -672,6 +704,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: dispel_magic
+  spell_level: 3
   charges_max: 50
   description: "Ophæv magi: slå 1d20 + CL (maks. +10) mod 11 + modstanderens CL, pr. effekt."
 - id: wand_of_eagles_splendor
@@ -684,6 +717,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: eagles_splendor
+  spell_level: 2
   charges_max: 50
   description: "Aktivér for +4 enhancement til Charisma i 1 min./CL."
 - id: wand_of_enlarge_person
@@ -696,6 +730,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: enlarge_person
+  spell_level: 1
   charges_max: 50
   description: "Berørt humanoid vokser en størrelseskategori i 1 min./CL: +2 Str, -2 Dex, -1 på angreb og AC."
 - id: wand_of_false_life
@@ -708,6 +743,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: false_life
+  spell_level: 2
   charges_max: 50
   description: "Giver dig 1d10+CL (maks. +10) midlertidige hitpoints i 1 time pr. CL."
 - id: wand_of_fear
@@ -720,6 +756,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: fear
+  spell_level: 4
   charges_max: 50
   description: "30-fods kegle: alle væsner flygter panisk i 1 runde pr. CL. Will negerer (rystede i 1 runde i stedet)."
 - id: wand_of_fireball
@@ -732,6 +769,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: fireball
+  spell_level: 3
   charges_max: 50
   description: "Eksplosion i en 20-fods radius på op til lang afstand: 1d6 pr. CL (maks. 10d6) ildskade, Ref halv."
 - id: wand_of_fireball_cl6
@@ -744,6 +782,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: fireball
+  spell_level: 3
   charges_max: 50
   description: "Eksplosion i en 20-fods radius på op til lang afstand: 1d6 pr. CL (maks. 10d6) ildskade, Ref halv."
 - id: wand_of_fireball_cl8
@@ -756,6 +795,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: fireball
+  spell_level: 3
   charges_max: 50
   description: "Eksplosion i en 20-fods radius på op til lang afstand: 1d6 pr. CL (maks. 10d6) ildskade, Ref halv."
 - id: wand_of_fireball_cl10
@@ -768,6 +808,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: fireball
+  spell_level: 3
   charges_max: 50
   description: "Eksplosion i en 20-fods radius på op til lang afstand: 1d6 pr. CL (maks. 10d6) ildskade, Ref halv."
 - id: wand_of_foxs_cunning
@@ -780,6 +821,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: foxs_cunning
+  spell_level: 2
   charges_max: 50
   description: "Aktivér for +4 enhancement til Intelligence i 1 min./CL."
 - id: wand_of_ghoul_touch
@@ -792,6 +834,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: ghoul_touch
+  spell_level: 2
   charges_max: 50
   description: "Melee touch: offeret lammes i 1d6+2 runder og udsender en kvalmende stank. Fort negerer."
 - id: wand_of_hold_person
@@ -804,6 +847,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: hold_person
+  spell_level: 2
   charges_max: 50
   description: "Lammer én humanoid i 1 runde pr. CL. Will negerer, ny redning hver runde."
 - id: wand_of_hold_person_heightened_4th
@@ -816,6 +860,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: hold_person
+  spell_level: 4
   charges_max: 50
   description: "Lammer én humanoid i 1 runde pr. CL. Will negerer, ny redning hver runde."
 - id: wand_of_holy_smite
@@ -828,6 +873,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  spell_level: 4
   charges_max: 50
   description: "Hellig eksplosion i en 20-fods sfære: 1d8 pr. 2 CL (maks. 5d8) mod onde væsner, plus 1 runde blændet. Will halv + ingen blænding. Gode væsner rammes ikke."
 - id: wand_of_ice_storm
@@ -840,6 +886,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: ice_storm
+  spell_level: 4
   charges_max: 50
   description: "Hagl over en 20-fods cylinder: 3d6 stumpskade + 2d6 kuldeskade, ingen redning. Halverer bevægelse i området."
 - id: wand_of_inflict_critical_wounds
@@ -852,6 +899,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: inflict_critical_wounds
+  spell_level: 4
   charges_max: 50
   description: "Melee touch: 4d8+CL negativ energi-skade. Will halv. Helbreder udøde."
 - id: wand_of_invisibility
@@ -864,6 +912,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: invisibility
+  spell_level: 2
   charges_max: 50
   description: "Berørt væsen bliver usynligt i 1 min./CL — bryder ved angreb."
 - id: wand_of_invisibility_greater
@@ -876,6 +925,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: invisibility_greater
+  spell_level: 4
   charges_max: 50
   description: "Berørt væsen bliver usynligt i 1 runde pr. CL — og forbliver det selv ved angreb."
 - id: wand_of_keen_edge
@@ -888,6 +938,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: keen_edge
+  spell_level: 3
   charges_max: 50
   description: "Fordobler et skærende våbens trusselsområde i 10 min./CL. Stacker ikke med Improved Critical."
 - id: wand_of_knock
@@ -900,6 +951,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: knock
+  spell_level: 2
   charges_max: 50
   description: "Åbner én låst, spærret eller fastkilet dør, kiste eller lås på afstand. Virker ikke på arcane lock uden CL-tjek."
 - id: wand_of_levitate
@@ -912,6 +964,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: levitate
+  spell_level: 2
   charges_max: 50
   description: "Berørt væsen eller genstand svæver lodret op og ned, 20 fod pr. runde, i 10 min./CL."
 - id: wand_of_light
@@ -924,6 +977,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: light
+  spell_level: 0
   charges_max: 50
   description: "Berørt genstand lyser som en fakkel (20 fods radius) i 10 min./CL."
 - id: wand_of_lightning_bolt
@@ -936,6 +990,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: lightning_bolt
+  spell_level: 3
   charges_max: 50
   description: "Lynstråle 120 fod frem: 1d6 pr. CL (maks. 10d6) elektricitetsskade til alle i linjen, Ref halv."
 - id: wand_of_lightning_bolt_cl6
@@ -948,6 +1003,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: lightning_bolt
+  spell_level: 3
   charges_max: 50
   description: "Lynstråle 120 fod frem: 1d6 pr. CL (maks. 10d6) elektricitetsskade til alle i linjen, Ref halv."
 - id: wand_of_lightning_bolt_cl8
@@ -960,6 +1016,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: lightning_bolt
+  spell_level: 3
   charges_max: 50
   description: "Lynstråle 120 fod frem: 1d6 pr. CL (maks. 10d6) elektricitetsskade til alle i linjen, Ref halv."
 - id: wand_of_lightning_bolt_cl10
@@ -972,6 +1029,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: lightning_bolt
+  spell_level: 3
   charges_max: 50
   description: "Lynstråle 120 fod frem: 1d6 pr. CL (maks. 10d6) elektricitetsskade til alle i linjen, Ref halv."
 - id: wand_of_magic_missile
@@ -984,6 +1042,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: magic_missile
+  spell_level: 1
   charges_max: 50
   description: "Peg og aktivér: affyr én missil for 1d4+1 kraftskade (rammer automatisk)."
 - id: wand_of_magic_missile_cl3
@@ -996,6 +1055,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: magic_missile
+  spell_level: 1
   charges_max: 50
   description: "Peg og aktivér: affyr én missil for 1d4+1 kraftskade (rammer automatisk)."
 - id: wand_of_magic_missile_cl5
@@ -1008,6 +1068,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: magic_missile
+  spell_level: 1
   charges_max: 50
   description: "Peg og aktivér: affyr én missil for 1d4+1 kraftskade (rammer automatisk)."
 - id: wand_of_magic_missile_cl7
@@ -1020,6 +1081,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: magic_missile
+  spell_level: 1
   charges_max: 50
   description: "Peg og aktivér: affyr én missil for 1d4+1 kraftskade (rammer automatisk)."
 - id: wand_of_magic_missile_cl9
@@ -1032,6 +1094,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: magic_missile
+  spell_level: 1
   charges_max: 50
   description: "Peg og aktivér: affyr én missil for 1d4+1 kraftskade (rammer automatisk)."
 - id: wand_of_major_image
@@ -1044,6 +1107,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: major_image
+  spell_level: 3
   charges_max: 50
   description: "Illusion med lyd, lugt og varme, som du kan styre ved at koncentrere dig. Will afslører ved undersøgelse."
 - id: wand_of_mirror_image
@@ -1056,6 +1120,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: mirror_image
+  spell_level: 2
   charges_max: 50
   description: "1d4+1 pr. 3 CL (maks. 8) spejlbilleder omgiver dig i 1 min./CL og opsuger angreb."
 - id: wand_of_neutralize_poison
@@ -1068,6 +1133,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: neutralize_poison
+  spell_level: 4
   charges_max: 50
   description: "Fjerner al gift i et berørt væsen eller gør en portion gift ufarlig, permanent."
 - id: wand_of_orders_wrath
@@ -1080,6 +1146,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  spell_level: 4
   charges_max: 50
   description: "Lovens kraft i en 20-fods terning: 1d8 pr. 2 CL (maks. 5d8) mod kaotiske væsner, plus 1 runde omtåget. Will halv. Lovlige væsner rammes ikke."
 - id: wand_of_owl_wisdom
@@ -1092,6 +1159,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: owl_wisdom
+  spell_level: 2
   charges_max: 50
   description: "Aktivér for +4 enhancement til Wisdom i 1 min./CL."
 - id: wand_of_poison
@@ -1104,6 +1172,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: poison
+  spell_level: 4
   charges_max: 50
   description: "Melee touch: 1d10 Con nu og igen efter 1 minut. Fort negerer begge gange."
 - id: wand_of_polymorph
@@ -1116,6 +1185,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: polymorph
+  spell_level: 4
   charges_max: 50
   description: "Forvandler et villigt væsen til en anden skabning (op til CL HD) i 1 min./CL. Beholder mentale evner og hitpoints."
 - id: wand_of_ray_of_enfeeblement_heightened_4th
@@ -1128,6 +1198,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: ray_of_enfeeblement
+  spell_level: 4
   charges_max: 50
   description: "Ranged touch: 1d6+1 pr. 2 CL (maks. +5) Strength-straf i 1 min./CL. Kan ikke sænke Str under 1."
 - id: wand_of_restoration
@@ -1140,6 +1211,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  spell_level: 4
   charges_max: 50
   description: "Fjerner permanent evnetab, negative niveauer og udmattelse. Kræver 100 gp diamantstøv pr. brug."
 - id: wand_of_searing_light
@@ -1152,6 +1224,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  spell_level: 4
   charges_max: 50
   description: "Ranged touch: 1d8 pr. 2 CL (maks. 5d8) skade. Mod udøde 1d6 pr. CL, mod lys-sårbare 1d8 pr. CL."
 - id: wand_of_shatter
@@ -1164,6 +1237,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: shatter
+  spell_level: 2
   charges_max: 50
   description: "Sprænger skøre genstande i en 5-fods sfære, eller én genstand på op til 1 pund pr. CL. Will negerer."
 - id: wand_of_shocking_grasp
@@ -1176,6 +1250,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: shocking_grasp
+  spell_level: 1
   charges_max: 50
   description: "Melee touch: 1d6 pr. CL (maks. 5d6) elektricitetsskade. +3 på angrebet mod mål i metalrustning."
 - id: wand_of_silence
@@ -1188,6 +1263,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: silence
+  spell_level: 2
   charges_max: 50
   description: "Total stilhed i en 20-fods radius i 1 runde pr. CL — ingen verbale komponenter, ingen lyd ud eller ind."
 - id: wand_of_slow
@@ -1200,6 +1276,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: slow
+  spell_level: 3
   charges_max: 50
   description: "Ét væsen pr. CL bevæger sig og handler halvt så hurtigt i 1 runde pr. CL: -1 angreb, AC og Ref. Will negerer."
 - id: wand_of_stoneskin
@@ -1212,6 +1289,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: stoneskin
+  spell_level: 4
   charges_max: 50
   description: "Berørt væsen får skadereduktion 10/adamantine, indtil 10 point pr. CL er absorberet (maks. 150). Kræver 250 gp diamantstøv pr. brug."
 - id: wand_of_suggestion
@@ -1224,6 +1302,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: suggestion
+  spell_level: 3
   charges_max: 50
   description: "Plant et fornuftigt klingende forslag hos ét væsen i 1 time pr. CL. Will negerer."
 - id: wand_of_suggestion_heightened_4th
@@ -1236,6 +1315,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: suggestion
+  spell_level: 4
   charges_max: 50
   description: "Plant et fornuftigt klingende forslag hos ét væsen i 1 time pr. CL. Will negerer."
 - id: wand_of_summon_monster_i
@@ -1248,6 +1328,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: summon_monster_i
+  spell_level: 1
   charges_max: 50
   description: "Tilkalder ét væsen fra SM I-listen; det kæmper for dig i 1 runde pr. CL."
 - id: wand_of_summon_monster_ii
@@ -1260,6 +1341,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: summon_monster_ii
+  spell_level: 2
   charges_max: 50
   description: "Tilkalder ét væsen fra SM II-listen; det kæmper for dig i 1 runde pr. CL."
 - id: wand_of_summon_monster_iii
@@ -1272,6 +1354,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: summon_monster_iii
+  spell_level: 3
   charges_max: 50
   description: "Tilkalder ét væsen fra SM III-listen; det kæmper for dig i 1 runde pr. CL."
 - id: wand_of_summon_monster_iv
@@ -1284,6 +1367,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: summon_monster_iv
+  spell_level: 4
   charges_max: 50
   description: "Tilkalder ét væsen fra SM IV-listen; det kæmper for dig i 1 runde pr. CL."
 - id: wand_of_unholy_blight
@@ -1296,6 +1380,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  spell_level: 4
   charges_max: 50
   description: "Vanhellig eksplosion i en 20-fods sfære: 1d8 pr. 2 CL (maks. 5d8) mod gode væsner, plus 1 runde kvalm. Will halv. Onde væsner rammes ikke."
 - id: wand_of_wall_of_fire
@@ -1308,6 +1393,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: wall_of_fire
+  spell_level: 4
   charges_max: 50
   description: "Ildmur, 20 fod lang pr. CL: 2d6+CL skade ved gennemgang, 2d4 inden for 10 fod. Varer koncentration + 1 runde pr. CL."
 - id: wand_of_wall_of_ice
@@ -1320,6 +1406,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: wall_of_ice
+  spell_level: 4
   charges_max: 50
   description: "Ismur eller -kuppel, 1 tomme tyk pr. CL. Skal hugges igennem (3 hp pr. tomme pr. CL)."
 - id: wand_of_web
@@ -1332,6 +1419,7 @@
   weight: 0
   modifiers: '[]'
   spell_id: web
+  spell_level: 2
   charges_max: 50
   description: "Klæbrigt spind fylder en 20-fods radius i 10 min./CL. Ref negerer, ellers fastholdt; Str- eller Escape Artist-tjek for at slippe fri."
 

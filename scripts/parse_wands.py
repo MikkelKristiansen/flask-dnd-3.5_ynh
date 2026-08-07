@@ -55,8 +55,8 @@ MANGLER_SPELL = {
 }
 
 # SRD-fodnoter: materialkomponenter lagt oveni prisen, så prisformlen rammer forbi.
-# Restoration 21.000 + 5.000, Stoneskin 21.000 + 12.500 — begge CL 7.
-CL_OVERRIDE = {"restoration": 7, "stoneskin": 7}
+# Restoration 21.000 + 5.000, Stoneskin 21.000 + 12.500 — begge 4.-niveau, CL 7.
+NIVEAU_OVERRIDE = {"restoration": (4, 7), "stoneskin": (4, 7)}
 
 # Danske beskrivelser. Kort og konkret: hvad wanden gør ved bordet. For de fem uden
 # spell_id skal teksten være fyldig nok til at DM'en kan køre effekten manuelt.
@@ -240,22 +240,26 @@ def main() -> None:
             # genstande Title Case ("Wand of Cure Light Wounds").
             visningsnavn, skole = spell["name"], spell["school"]
 
-        # caster_level: udled af prisen, med SRD-fodnoterne som undtagelse.
-        if nøgle in CL_OVERRIDE:
-            cl = CL_OVERRIDE[nøgle]
+        # spell_level + caster_level: udled af prisen, med SRD-fodnoterne som undtagelse.
+        # spell_level er det niveau genstanden er BYGGET på — det sætter save-DC'en.
+        if nøgle in NIVEAU_OVERRIDE:
+            sl, cl = NIVEAU_OVERRIDE[nøgle]
         elif heightened:
-            # Prisen følger det HÆVEDE niveau, ikke spellets eget.
-            if pris_gp % (750 * heightened):
+            # Prisen følger det HÆVEDE niveau, ikke spellets eget — og DC'en gør
+            # det samme. Det er hele pointen med en heightened wand.
+            sl = heightened
+            if pris_gp % (750 * sl):
                 sys.exit(f"FEJL: heightened {grundnavn} {pris_gp} gp går ikke op")
-            cl = pris_gp // (750 * heightened)
+            cl = pris_gp // (750 * sl)
         elif spell is None:
             # Uden spell-række kender vi ikke niveauet; alle seks er 4.-niveau-
             # spells i SRD, og CL står i navnets parentes hvor den afviger.
+            sl = 4
             m = re.search(r"\((\d+)(?:st|nd|rd|th)\)", navn)
-            cl = int(m.group(1)) if m else pris_gp // (750 * 4)
+            cl = int(m.group(1)) if m else pris_gp // (750 * sl)
         else:
             try:
-                _, cl = niveau_og_cl(spell, pris_gp)
+                sl, cl = niveau_og_cl(spell, pris_gp)
             except ValueError as e:
                 sys.exit(f"FEJL: {grundnavn}: {e}")
 
@@ -289,6 +293,7 @@ def main() -> None:
             "  modifiers: '[]'",
             f"  spell_id: {sid}" if sid
             else "  spell_id: null   # TODO: spellet mangler i data/spells.yaml",
+            f"  spell_level: {sl}",
             "  charges_max: 50",
             f'  description: "{beskrivelse}"',
         ]

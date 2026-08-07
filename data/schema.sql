@@ -377,9 +377,16 @@ CREATE TABLE magic_items (
     weight       REAL NOT NULL DEFAULT 0,    -- vægt i pund
     modifiers    TEXT NOT NULL DEFAULT '[]', -- JSON: liste af modifier-objekter (som effects.modifiers)
     spell_id     TEXT,                       -- forbrugsvarer (B2): spellet der kastes ved brug
+    spell_level  INTEGER,                    -- forbrugsvarer: spell-niveauet genstanden er BYGGET på (heightened
+                                             --   wands afviger fra spellets eget) — sætter save-DC'en, se nedenfor
     charges_max  INTEGER,                    -- forbrugsvarer (B2): fulde ladninger (wand=50, potion/scroll=1)
     description  TEXT                         -- SRD/OGL-forklaring
 );
+-- Save-DC mod en magisk genstands spell er IKKE casterens (genstanden har ingen):
+-- 10 + spell_level + modifieren af den mindste evne der kræves for det niveau
+-- (magic-items-i-basics-and-creation.md:95). Derfor er spell_level et eget felt og
+-- ikke udledt af spell_id — en heightened wand er bygget på et højere niveau end
+-- spellet selv. Staffs er SRD's undtagelse (de bruger bærerens evne); vi har ingen.
 
 -- Navngivne "specifics" (Del C): færdige magiske våben/rustninger/skjolde (Flame
 -- Tongue, Rhino Hide, Nine Lives Stealer …). Et preset for Del A's give-loot:

@@ -62,7 +62,8 @@ from spells import (  # noqa: F401
     spell_cast_info, spell_save_cast_info, spell_heal_cast_info,
     spell_duration, spell_is_utility, spell_is_sustained_combat, derive_active_utility,
     spell_duration_snapshot, dur_unit_label,
-    wis_bonus_spells, spell_slots_total, spell_save_dc, spell_like_dc)
+    wis_bonus_spells, spell_slots_total, spell_save_dc, spell_like_dc,
+    magic_item_save_dc)
 from persistence import (  # noqa: E402,F401
     SNAPSHOT_KEEP, load_character, save_character, write_character_file,
     restore_snapshot, snapshot_dir, list_snapshots, delete_character)
