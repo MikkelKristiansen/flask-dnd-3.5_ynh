@@ -203,7 +203,7 @@ spell_charges: {}
 buffs: []
 companion:
   name: Varg
-  animal: wolf
+  animal: riding_dog
   hp_current: 26
   tricks:
   - Attack

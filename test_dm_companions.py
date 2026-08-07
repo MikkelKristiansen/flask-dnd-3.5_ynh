@@ -32,7 +32,7 @@ def test_companion_kind_defaults_when_missing():
 
 
 def test_real_druid_companion_enters_party(monkeypatch):
-    # defaults/tjorn.yaml er en level-3 druide med companion "Varg" (ulv).
+    # defaults/tjorn.yaml er en level-3 druide med companion "Varg" (riding dog).
     monkeypatch.setattr(dm_party, "CHARACTERS_DIR", Path("defaults"))
     comps = dm_party.party_companions(["tjorn"], db)
     assert len(comps) == 1

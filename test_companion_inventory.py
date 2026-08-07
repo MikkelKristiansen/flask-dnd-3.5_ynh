@@ -24,9 +24,17 @@ DEFAULTS = pathlib.Path(__file__).parent / "defaults"
 
 @pytest.fixture
 def varg_client(tmp_path, monkeypatch):
-    """Tjørn (druide 3) med Varg (ulv). Returnerer (client, sti)."""
+    """Tjørn (druide 3) med en ULV som ledsager. Returnerer (client, sti).
+
+    Dyret pinnes bevidst til `wolf` i stedet for at arve det fra defaults/tjorn.yaml.
+    Tallene længere nede (AC, vægtgrænser, Overloaded-tærskler) er regnet i hånden
+    ud fra ulvens Str 13 og natural armor 2, så de knækker hvis eksempel-karakteren
+    skifter dyr — hvilket den gjorde, da Varg blev rettet til riding dog. Testene
+    her handler om barding og bæreevne, ikke om hvad Tjørn tilfældigvis har med.
+    """
     monkeypatch.setattr(app_module, "CHARACTERS_DIR", tmp_path)
     data = YAML_SAFE.load((DEFAULTS / "tjorn.yaml").read_text())
+    data["companion"]["animal"] = "wolf"
     with (tmp_path / "tjorn.yaml").open("w") as f:
         YAML_SAFE.dump(data, f)
     return app_module.app.test_client(), tmp_path
