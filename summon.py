@@ -165,7 +165,12 @@ def build_summon_stat(animal: dict, db, active_modifiers: list | None = None,
     attacks = []
     for atk in attack_list:
         secondary = atk.get("group") == "secondary"
-        hit_mod = dex_mod if finesse else str_mod
+        # Weapon Finesse siger "you MAY use your Dexterity modifier INSTEAD of your
+        # Strength modifier" — det er et valg pr. angreb, ikke en tvang. Væsenet
+        # tager naturligvis den bedste. Det betyder noget så snart en buff hæver Str
+        # over Dex: en augmenteret Small Fire Elemental (Str 14/Dex 13) slår med Str.
+        use_dex = finesse and dex_mod > str_mod
+        hit_mod = dex_mod if use_dex else str_mod
         focus = 1 if _has_feat(feats, f"weapon focus ({atk['name'].lower()})") else 0
         to_hit = (bab + size_m + hit_mod + focus
                   + (-5 if secondary else 0) + attack_extra)
@@ -173,7 +178,7 @@ def build_summon_stat(animal: dict, db, active_modifiers: list | None = None,
         # attack_to_hit_breakdown). Augment Summoning ligger inde i STR/DEX-modet,
         # da det hæver scoren — præcis som effekter på hovedkarakteren.
         hit_parts = [{"label": "BAB", "value": bab},
-                     {"label": "DEX" if finesse else "STR", "value": hit_mod}]
+                     {"label": "DEX" if use_dex else "STR", "value": hit_mod}]
         if size_m:
             hit_parts.append({"label": "størrelse", "value": size_m})
         if focus:
@@ -231,10 +236,13 @@ def build_summon_stat(animal: dict, db, active_modifiers: list | None = None,
         "attacks": attacks,
         # Struktureret + klikbart: hvert token beriges med katalog-forklaring, så
         # skabelonen kan vise tooltips (Trip, scent, low-light vision, …).
+        # hd + scores sendes med, så save-DC'er (burn/whirlwind/vortex/poison)
+        # genberegnes fra de EFFEKTIVE scores — ellers ville Augment Summoning
+        # hæve Con uden at hæve burn-DC'en der er Con-baseret.
         "special_attacks": special_abilities.describe_ability_list(
-            animal.get("special_attacks"), "attack", db),
+            animal.get("special_attacks"), "attack", db, hd, scores),
         "special_qualities": special_abilities.describe_ability_list(
-            animal.get("special_qualities"), "quality", db),
+            animal.get("special_qualities"), "quality", db, hd, scores),
         "skills": skills,
         "feats": feats,
         "effect_flags": riders.get("flags", []),

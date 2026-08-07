@@ -223,13 +223,17 @@ def advance_companion(animal: dict, deltas: dict, db,
     attacks = []
     for atk in attack_list:
         secondary = atk.get("group") == "secondary"
-        hit_mod = dex_mod if finesse else str_mod
+        # Weapon Finesse er et VALG ("may use Dex instead of Str"), ikke en tvang —
+        # samme regel som hovedkarakteren i attacks.attack_total. Betyder noget så
+        # snart en buff (Bull's Strength) hæver Str over Dex.
+        use_dex = finesse and dex_mod > str_mod
+        hit_mod = dex_mod if use_dex else str_mod
         focus = 1 if _has_feat(feats, f"weapon focus ({atk['name'].lower()})") else 0
         to_hit = (bab + size_m + hit_mod + focus
                   + (-5 if secondary else 0) + attack_extra)
         # Til-hit-opdeling til hover (samme format som hovedkarakteren).
         hit_parts = [{"label": "BAB", "value": bab},
-                     {"label": "DEX" if finesse else "STR", "value": hit_mod}]
+                     {"label": "DEX" if use_dex else "STR", "value": hit_mod}]
         if size_m:
             hit_parts.append({"label": "størrelse", "value": size_m})
         if focus:

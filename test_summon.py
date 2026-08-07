@@ -212,11 +212,14 @@ def test_djinni_outsider_all_three_good_saves():
 
 def test_arrowhawk_elder_str_over_dex():
     # Elder Arrowhawk: Weapon Finesse men Str(+6) > Dex(+5) → Str bruges til-hit.
+    # (Testen stod før på 20, fordi den både glemte Weapon Focus i regnestykket OG
+    # afspejlede en bug hvor finesse tvang Dex igennem. De to fejl gik lige op.)
     s = stat("arrowhawk_elder")
     assert s["hp_max"] == 112                       # 15×4.5 + 15×3 (Con) = 67+45=112
     assert s["saves"] == {"fort": 12, "ref": 14, "will": 10}
     bite = s["attacks"][0]
-    assert bite["to_hit"] == 20                     # bab15 + Str6 − size1 = 20
+    assert bite["to_hit"] == 21                     # bab15 + Str6 − size1 + focus1 = 21
+    assert bite["hit_parts"][1]["label"] == "STR"   # opdelingen skal vise STR, ikke DEX
 
 
 def test_pixie_fey_half_bab():
