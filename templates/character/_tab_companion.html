@@ -161,7 +161,8 @@
 
     <div id="comp-inv-list">
       {% for row in companion_inv.rows %}
-      <div class="inv-row">
+      {# Fem kolonner: ledsagerens rækker har både ↩ og × (karakterens har kun ×). #}
+      <div class="inv-row inv-row-comp">
         <div class="inv-c1">
           <span>{{ row.name }}</span>
           {% if row.state != 'backpack' %}
@@ -177,8 +178,9 @@
           {% endif %}
         </span>
         <span class="inv-weight">{{ row.total_weight }} lbs</span>
-        <button class="inv-step" onclick="compInvGiveBack({{ row.index }})"
-                title="Giv tilbage til {{ char.name }}" style="margin-right:.2rem">↩</button>
+        <button class="inv-step" onclick="compInvGiveBack({{ row.index }}, {{ row.qty if row.splittable else 1 }})"
+                title="Giv tilbage til {{ char.name }}{{ ' (spørger hvor mange)' if row.splittable }}"
+                style="margin-right:.2rem">↩</button>
         <button class="inv-remove" onclick="compInvRemove({{ row.index }})" title="Fjern">×</button>
       </div>
       {% endfor %}

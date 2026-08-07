@@ -97,15 +97,34 @@ function itemInfoHtml(d, dtype) {
   return `<div class="item-info">${rows.join("")}</div>`;
 }
 
+// Vis hvad man selv beholder, mens man skruer på antallet.
+function visGiveRest() {
+  const felt = document.getElementById("item-modal-give-qty");
+  const rest = document.getElementById("item-modal-give-rest");
+  if (!felt || !rest) return;
+  const total = parseInt(felt.max, 10);
+  const n = parseInt(felt.value, 10);
+  rest.textContent = (isNaN(n) || n >= total) ? "(hele stakken)"
+                                              : `(du beholder ${total - n})`;
+}
+
 // Giv den åbne genstand til ledsageren. Serveren flytter den mellem de to
 // inventarer i ét gem, så den aldrig kan ligge to steder — eller ingen steder.
+// Er antal-feltet fremme, gives kun en del af stakken; resten bliver hos ejeren.
 function giveItemToCompanion() {
   const idx = parseInt(document.getElementById("item-modal-idx").value, 10);
   if (isNaN(idx)) return;
+  const body = {char: CHAR, action: "transfer", index: idx, to_companion: true};
+  const qtyRow = document.getElementById("item-modal-give-qty-row");
+  if (qtyRow && qtyRow.style.display !== "none") {
+    const n = parseInt(document.getElementById("item-modal-give-qty").value, 10);
+    if (isNaN(n) || n < 1) { alert("Angiv et antal på mindst 1."); return; }
+    body.qty = n;
+  }
   fetch(BASE + "/api/companion_inventory", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({char: CHAR, action: "transfer", index: idx, to_companion: true})
+    body: JSON.stringify(body)
   })
   .then(r => r.json())
   .then(data => {
@@ -183,6 +202,15 @@ function openItemDetail(idx) {
     btn.textContent = kanGives
       ? `🐾 Giv til ${D.compName}`
       : `🐾 Tag den af først (${item.state === "wielded" ? "i hånden" : "båret"})`;
+    // Antal-felt kun for stakke. Ladninger hører til ÉN genstand (en wand med 42
+    // ladninger kan ikke blive til to rækker à 42), så de deles aldrig.
+    const qtyRow = document.getElementById("item-modal-give-qty-row");
+    const qtyFelt = document.getElementById("item-modal-give-qty");
+    const kanDeles = kanGives && item.qty > 1 && item.charges == null;
+    qtyRow.style.display = kanDeles ? "flex" : "none";
+    qtyFelt.max = item.qty;
+    qtyFelt.value = item.qty;
+    visGiveRest();
   }
   // Våben-felter (bonus/Str-mult) kun for våben i kataloget
   const isWeapon = (item.ref || "").startsWith("weapons/");

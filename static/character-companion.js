@@ -228,8 +228,20 @@ function compInvPost(body) {
 }
 
 function compInvRemove(index) { compInvPost({action: "remove", index}); }
-function compInvGiveBack(index) {
-  compInvPost({action: "transfer", index, to_companion: false});
+
+// Giv tilbage til ejeren. `antal` > 1 betyder at rækken er en stak der KAN deles
+// (serveren afgør det — forbrugsvarer med ladninger sendes altid hele). Så
+// spørges der hvor mange; ellers flytter ét klik bare genstanden.
+function compInvGiveBack(index, antal) {
+  const body = {action: "transfer", index, to_companion: false};
+  if (antal > 1) {
+    const svar = prompt(`Hvor mange af de ${antal} skal tilbage?`, antal);
+    if (svar === null) return;                  // Annuller
+    const n = parseInt(svar, 10);
+    if (isNaN(n) || n < 1) return;
+    body.qty = Math.min(n, antal);
+  }
+  compInvPost(body);
 }
 function compInvState(index, state) { compInvPost({action: "update", index, state}); }
 

@@ -259,6 +259,83 @@ def test_overfoersel_nulstiller_tilstanden(varg_client):
     assert r["rows"][0]["state"] == "backpack"
 
 
+def test_delvis_afgivelse_lader_giveren_beholde_resten(varg_client):
+    """Tjørn har 4 rationer og giver Varg 2 — han beholder selv de 2 sidste."""
+    client, tmp_path = varg_client
+    idx = _find(_tjorn(tmp_path).inventory, "rations_trail_per_day")
+    assert _tjorn(tmp_path).inventory[idx].qty == 4
+
+    r = _post(client, action="transfer", index=idx, to_companion=True, qty=2)
+    assert r["rows"][0]["qty"] == 2
+    hos_tjorn = _tjorn(tmp_path).inventory[idx]
+    assert hos_tjorn.ref.endswith("rations_trail_per_day") and hos_tjorn.qty == 2
+
+
+def test_delvis_tilbagelevering(varg_client):
+    client, tmp_path = varg_client
+    idx = _find(_tjorn(tmp_path).inventory, "rations_trail_per_day")
+    _post(client, action="transfer", index=idx, to_companion=True)      # alle 4
+
+    r = _post(client, action="transfer", index=0, to_companion=False, qty=3)
+    assert r["rows"][0]["qty"] == 1          # Varg beholder den sidste
+    tilbage = [i for i in _tjorn(tmp_path).inventory
+               if (i.ref or "").endswith("rations_trail_per_day")]
+    assert [i.qty for i in tilbage] == [3]
+
+
+def test_fortrudt_afgivelse_samler_stakken_igen(varg_client):
+    """Giv 2 af 4 og fortryd: Tjørn skal have ÉN række med 4 igen — ikke to à 2."""
+    client, tmp_path = varg_client
+    idx = _find(_tjorn(tmp_path).inventory, "rations_trail_per_day")
+    _post(client, action="transfer", index=idx, to_companion=True, qty=2)
+    _post(client, action="transfer", index=0, to_companion=False)
+
+    rationer = [i for i in _tjorn(tmp_path).inventory
+                if (i.ref or "").endswith("rations_trail_per_day")]
+    assert [i.qty for i in rationer] == [4]
+
+
+def test_stakke_med_forskellige_noter_slaas_ikke_sammen(varg_client):
+    """Sammenlægning må kun ske når ALT andet end antallet er ens."""
+    client, tmp_path = varg_client
+    idx = _find(_tjorn(tmp_path).inventory, "rations_trail_per_day")
+    _post(client, action="transfer", index=idx, to_companion=True, qty=2)
+    _post(client, action="update", index=0, notes="Vargs nødration")
+    _post(client, action="transfer", index=_find(_tjorn(tmp_path).inventory,
+                                                 "rations_trail_per_day"),
+          to_companion=True, qty=1)
+
+    r = _post(client, action="add", ref="items/torch")   # tvinger et frisk build
+    stakke = sorted(row["qty"] for row in r["rows"]
+                    if (row["ref"] or "").endswith("rations_trail_per_day"))
+    assert stakke == [1, 2]
+
+
+def test_forbrugsvare_med_ladninger_deles_aldrig(varg_client):
+    """En wand med 42 ladninger må ikke blive til to rækker à 42."""
+    client, tmp_path = varg_client
+    client.post("/api/inventory", json={
+        "char": "tjorn", "action": "add", "qty": 2,
+        "ref": "magic_items/wand_of_cure_light_wounds"})
+    idx = _find(_tjorn(tmp_path).inventory, "wand_of_cure_light_wounds")
+    client.post("/api/inventory", json={"char": "tjorn", "action": "use", "index": idx})
+
+    r = _post(client, action="transfer", index=idx, to_companion=True, qty=1)
+    assert r["rows"][0]["qty"] == 2 and r["rows"][0]["splittable"] is False
+    assert not any((i.ref or "").endswith("wand_of_cure_light_wounds")
+                   for i in _tjorn(tmp_path).inventory)
+
+
+def test_afgivelse_uden_antal_flytter_hele_stakken(varg_client):
+    """Bagudkompatibilitet: gamle kald uden qty opfører sig som før."""
+    client, tmp_path = varg_client
+    idx = _find(_tjorn(tmp_path).inventory, "rations_trail_per_day")
+    r = _post(client, action="transfer", index=idx, to_companion=True)
+    assert r["rows"][0]["qty"] == 4
+    assert not any((i.ref or "").endswith("rations_trail_per_day")
+                   for i in _tjorn(tmp_path).inventory)
+
+
 def test_overfoersel_af_ugyldigt_indeks_afvises(varg_client):
     client, _ = varg_client
     assert _post(client, action="transfer", index=999, to_companion=True)["error"]

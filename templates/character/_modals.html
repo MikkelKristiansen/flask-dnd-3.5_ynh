@@ -178,6 +178,14 @@
     </div>
     {# Giv til ledsageren. Skjules af JS når karakteren ingen companion har. #}
     <div id="item-modal-give-row" style="display:none;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border)">
+      {# Antal vises kun for stakke (fx 4 rationer). Feltet starter på hele stakken,
+         så et enkelt klik opfører sig præcis som før. #}
+      <div id="item-modal-give-qty-row" style="display:none;align-items:center;gap:.5rem;margin-bottom:.45rem">
+        <span style="color:var(--muted);font-size:.8rem">Antal at give</span>
+        <input class="form-input" id="item-modal-give-qty" type="number" min="1" step="1"
+               style="width:5rem" oninput="visGiveRest()">
+        <span id="item-modal-give-rest" style="color:var(--muted);font-size:.78rem"></span>
+      </div>
       <button class="add-btn" style="width:100%" onclick="giveItemToCompanion()"
               id="item-modal-give-btn">🐾 Giv til ledsager</button>
     </div>

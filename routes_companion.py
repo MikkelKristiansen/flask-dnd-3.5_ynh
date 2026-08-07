@@ -137,7 +137,16 @@ def api_companion_inventory():
         kilde, modtager = (ejer, inv) if til_dyret else (inv, ejer)
         if not (0 <= idx < len(kilde)):
             return jsonify({"error": "bad index"}), 400
-        modtager.append(companion_inventory_module.transfer(kilde.pop(idx), til_dyret))
+        # Uden "qty" flytter hele stakken (som før). Med "qty" beholder giveren
+        # resten: 4 rationer − 2 til Varg = 2 tilbage hos Tjørn. Modtageren lægger
+        # det oveni en identisk række, så en fortrudt afgivelse samles igen.
+        rest, afgivet = companion_inventory_module.split(kilde[idx], data.get("qty"))
+        if rest is None:
+            kilde.pop(idx)
+        else:
+            kilde[idx] = rest
+        companion_inventory_module.merge_into(
+            modtager, companion_inventory_module.transfer(afgivet, til_dyret))
         char_module.save_character(str(path), {"inventory": ejer,
                                                "companion_inventory": inv})
         char = char_module.load_character(str(path))

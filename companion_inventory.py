@@ -122,6 +122,63 @@ def transfer(item: InventoryItem, til_dyret: bool) -> InventoryItem:
     return replace(item, state="backpack", off_hand=False, double=False)
 
 
+def splittable(item: InventoryItem) -> bool:
+    """Kan stakken deles? Kun hvis der er mere end én — og ingen ladninger.
+
+    En forbrugsvare tæller ladninger på RÆKKEN, ikke pr. styk (routes_inventory
+    fjerner hele rækken når en engangs-potion når 0). To rækker med hver sin
+    kopi af den samme tæller ville tælle forkert ned, så de deles aldrig.
+    """
+    return item.qty > 1 and item.charges is None
+
+
+def split(item: InventoryItem, antal=None) -> tuple[InventoryItem | None, InventoryItem]:
+    """Del en stak i (det giveren beholder, det der gives væk).
+
+    `antal` = None/tom eller ≥ hele stakken → hele genstanden skifter hænder, og
+    giveren beholder ingenting (rest = None). Det er den gamle opførsel, så et
+    kald uden `antal` virker som før.
+    """
+    from dataclasses import replace
+    if antal in (None, ""):
+        return None, item
+    antal = max(1, int(antal))
+    if not splittable(item) or antal >= item.qty:
+        return None, item
+    return replace(item, qty=item.qty - antal), replace(item, qty=antal)
+
+
+def _samme_stak(a: InventoryItem, b: InventoryItem) -> bool:
+    """Er de to rækker den samme slags ting, så antallet kan lægges sammen?
+
+    Sammenligner hele dataclassen med antallet sat til nul frem for en håndholdt
+    feltliste: kommer der et nyt felt på InventoryItem (som `material` og
+    `enhancement` gjorde), tæller det automatisk med, og to ting der ligner
+    hinanden kan ikke smelte sammen ved et uheld. Ladninger hører til ÉN
+    genstand — de stakkes aldrig (se splittable).
+    """
+    from dataclasses import replace
+    if a.charges is not None or b.charges is not None:
+        return False
+    return replace(a, qty=0) == replace(b, qty=0)
+
+
+def merge_into(inventar: list[InventoryItem], item: InventoryItem) -> list[InventoryItem]:
+    """Læg `item` i inventaret — slået sammen med en identisk række hvis der er en.
+
+    Uden sammenlægning ville "giv 2 rationer, fortryd" efterlade Tjørn med to
+    rækker à 2 i stedet for de 4 han startede med. Listen ændres på stedet og
+    returneres, så kaldestedet kan læse den videre.
+    """
+    from dataclasses import replace
+    for i, other in enumerate(inventar):
+        if _samme_stak(other, item):
+            inventar[i] = replace(other, qty=other.qty + item.qty)
+            return inventar
+    inventar.append(item)
+    return inventar
+
+
 def build(companion: dict, db) -> dict:
     """Vargs udstyrs-visning: rækker, vægt, bæregrænser, belastning, advarsler.
 
@@ -139,6 +196,12 @@ def build(companion: dict, db) -> dict:
         r = _resolve(item, db, size)
         if r["carried"]:
             vægt += r["weight"]
+        # En uåbnet potion har charges=None og falder tilbage på katalogets
+        # charges_max ved brug — splittable() kan ikke se det på genstanden alene,
+        # så forbrugsvarer sorteres fra her, hvor kataloget er slået op. Samme
+        # prøve som character_view._inv_row bruger til sit "consumable"-flag.
+        forbrugsvare = (r.get("source") == "magic_items"
+                        and bool((r.get("record") or {}).get("spell_id")))
         # Egen rækkebygger frem for character_view._inv_row: den fil importerer
         # companion (cirkulær import), og Vargs rækker har ikke brug for våben-
         # felterne (off_hand, mighty, str_mult) — et dyr svinger ikke våben.
@@ -153,6 +216,9 @@ def build(companion: dict, db) -> dict:
             "ref": item.ref,
             "is_armor": r.get("source") == "armor",
             "carried": r["carried"],
+            # Styrer om ↩ spørger "hvor mange?" — UI'en skal ikke selv gætte på
+            # ladninger og antal.
+            "splittable": splittable(item) and not forbrugsvare,
         })
 
     grænser = carry_limits(str_score, size, animal_id)
