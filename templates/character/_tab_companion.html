@@ -146,6 +146,68 @@
     {% endif %}
   </div>
 
+  {# Ledsagerens eget udstyr. Barding tæller i AC'en ovenfor; vægten måles mod
+     dyrets egen bæreevne (firbenede bærer ×1,5 af en tobenet med samme Str). #}
+  {% if companion_inv %}
+  <div class="section">
+    <div class="section-title">{{ cp.name }}s udstyr
+      <span style="color:var(--muted);font-size:.7rem;font-style:italic">
+        ({{ companion_inv.weight }} af {{ companion_inv.limits.light }} lb let last)</span>
+    </div>
+
+    {% for w in companion_inv.warnings %}
+    <div class="buff-reminder" style="display:block;margin-bottom:.5rem">⚠ {{ w }}</div>
+    {% endfor %}
+
+    <div id="comp-inv-list">
+      {% for row in companion_inv.rows %}
+      <div class="inv-row">
+        <div class="inv-c1">
+          <span>{{ row.name }}</span>
+          {% if row.state != 'backpack' %}
+          <span class="inv-state st-{{ row.state }}">{{ 'båret' if row.state == 'worn' else row.state }}</span>
+          {% endif %}
+        </div>
+        <span class="inv-qty-stepper">
+          {% if row.is_armor %}
+          <button class="inv-step" onclick="compInvState({{ row.index }}, '{{ 'backpack' if row.state == 'worn' else 'worn' }}')"
+                  title="{{ 'Tag barding af' if row.state == 'worn' else 'Tag barding på' }}">{{ '↓ af' if row.state == 'worn' else '↑ på' }}</button>
+          {% else %}
+          <span class="inv-qty">×{{ row.qty }}</span>
+          {% endif %}
+        </span>
+        <span class="inv-weight">{{ row.total_weight }} lbs</span>
+        <button class="inv-remove" onclick="compInvRemove({{ row.index }})" title="Fjern">×</button>
+      </div>
+      {% endfor %}
+      {% if not companion_inv.rows %}
+      <p style="color:var(--muted);font-size:.85rem;font-style:italic;padding:.3rem 0">
+        {{ cp.name }} bærer ikke noget.</p>
+      {% endif %}
+    </div>
+
+    <div class="stat-row" style="margin-top:.5rem">
+      <span class="stat-label">Belastning</span>
+      <span class="stat-val">{{ {'Light':'Let','Medium':'Middel','Heavy':'Tung','Overloaded':'Overbelastet'}[companion_inv.enc] }}
+        <span style="color:var(--muted);font-size:.75rem">
+          (let {{ companion_inv.limits.light }} / middel {{ companion_inv.limits.medium }} / tung {{ companion_inv.limits.heavy }} lb{{ ' · firbenet ×1,5' if companion_inv.quadruped }})</span>
+      </span>
+    </div>
+
+    <div style="margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--border)">
+      <div style="color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">
+        Køb til {{ cp.name }}</div>
+      <div style="color:var(--muted);font-size:.78rem;margin-bottom:.5rem">
+        Rustning sælges som barding — dobbelt pris for en Medium skabning (SRD).
+        Våben er udeladt: {{ cp.name }} kæmper med tænder og kløer.
+      </div>
+      <select class="form-input" id="comp-shop-select" style="width:100%"></select>
+      <button class="add-btn" style="width:100%;margin-top:.4rem" onclick="compInvBuy()">
+        + Tilføj til {{ cp.name }}s udstyr</button>
+    </div>
+  </div>
+  {% endif %}
+
   <div class="section">
     <div class="section-title">Skilles ad</div>
     <div style="color:var(--muted);font-size:.82rem;margin-bottom:.5rem">

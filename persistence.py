@@ -558,6 +558,17 @@ def save_character(path: str, updates: dict) -> None:
         if isinstance(comp, dict):
             comp["tricks"] = [str(t) for t in updates["companion_tricks"]]
 
+    if "companion_inventory" in updates:
+        comp = data.get("companion")
+        if isinstance(comp, dict):
+            # Samme serialisering som karakterens eget inventar — kun afvigelser
+            # fra default skrives, så YAML'en forbliver læsbar i hånden.
+            rows = [i if isinstance(i, InventoryItem) else InventoryItem(**i)
+                    for i in updates["companion_inventory"]]
+            comp["inventory"] = [_serialize_inventory_item(i) for i in rows]
+            if not comp["inventory"]:
+                comp.pop("inventory")
+
     # Hele companion-referencen sættes (tilkald) eller ryddes (afsked). Tom dict
     # fjerner feltet helt → build_companion giver None, og fanen forsvinder.
     if "familiar_lost" in updates:

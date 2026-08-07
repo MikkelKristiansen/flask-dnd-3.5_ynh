@@ -9,6 +9,7 @@ Den gyldne regel: Python ejer reglerne. Dette modul REGNER ingen 3.5-regler selv
 `rules.py`. Her samles og formateres kun, så JS bagefter blot kan lægge sammen.
 """
 
+import companion_inventory
 import rules
 from attacks import weapon_proficient, armor_proficient
 import items
@@ -163,7 +164,9 @@ def _magic_item_entry(mi: dict, *, recommended, size) -> dict:
 def build_catalog(db, *, weapon_prof=None, armor_prof=None,
                   allowed_weapons=frozenset(), allowed_armor=frozenset(),
                   recommended_ids=frozenset(), str_score: int = 10,
-                  size: str = "medium", include_magic: bool = True) -> dict:
+                  size: str = "medium", include_magic: bool = True,
+                  companion_size: str | None = None,
+                  companion_animal: str = "") -> dict:
     """Byg det berigede katalog som UI'et tegnes ud fra.
 
     Parametre (ikke en karakter — også brugt under generering hvor den ikke findes):
@@ -171,6 +174,10 @@ def build_catalog(db, *, weapon_prof=None, armor_prof=None,
       allowed_weapons / _armor   ekstra tilladte id'er (fx race-våben)
       recommended_ids            id'er der markeres 'anbefalet' (fra starting_kits)
       str_score / size           til bæreevne-grænserne (enc_limits)
+      companion_size             sat = byg butikken for et DYR i den størrelse
+                                 (Vargs udstyr): rustning bliver til barding med
+                                 nonhumanoid-pris/-vægt, våben ryger ud
+      companion_animal           dyrets id — afgør quadruped-bæreevnen (×1,5)
       include_magic              magiske genstande med? False under karakter-
                                  generering: en 1.-niveaus karakters startguld
                                  rækker aldrig til en wand, og butikkens budget
@@ -194,7 +201,44 @@ def build_catalog(db, *, weapon_prof=None, armor_prof=None,
         for mi in db.get_all_magic_items():
             items.append(_magic_item_entry(mi, recommended=recommended_ids, size=size))
 
-    return {"items": items, "enc_limits": carry_limits(str_score, size)}
+    if companion_size:
+        items = _as_companion_catalog(items, db, companion_size)
+
+    limits = (companion_inventory.carry_limits(str_score, companion_size, companion_animal)
+              if companion_size else carry_limits(str_score, size))
+    return {"items": items, "enc_limits": limits}
+
+
+def _as_companion_catalog(items: list[dict], db, size: str) -> list[dict]:
+    """Omskriv kataloget til en butik for et DYR (Vargs udstyr).
+
+    To ting ændrer sig, begge fra SRD's tabel for usædvanlige skabninger
+    (kolonnen "Nonhumanoid"):
+
+      - Rustning kan vælges som barding: prisen fordobles for en Medium, og
+        vægten følger dyrets størrelse i stedet for køberens.
+      - Våben ryger ud. Et dyr angriber med tænder og kløer — der findes ingen
+        SRD-regel for at give en ulv en langbue, og en liste man ikke kan bruge
+        er værre end ingen liste.
+    """
+    ud = []
+    for post in items:
+        if post["category"] == "weapons":
+            continue
+        if post["category"] == "armor":
+            rec = db.get_armor(post["ref"].partition("/")[2])
+            mod = companion_inventory.barding_modifier(rec, size)
+            if not mod:                       # skjolde kan ikke bardes
+                continue
+            post = {**post,
+                    "cost_cp": post["cost_cp"] + mod["delta_cp"],
+                    "cost_str": format_cost(post["cost_cp"] + mod["delta_cp"]),
+                    "weight": companion_inventory.barding_weight(rec, size),
+                    "name": f"{post['name']} Barding",
+                    "group": "Barding",
+                    "modifiers": [m for m in post["modifiers"] if m["key"] != "barding"]}
+        ud.append(post)
+    return ud
 
 
 def apply_material_overlay(record: dict, table: str, mods) -> dict:

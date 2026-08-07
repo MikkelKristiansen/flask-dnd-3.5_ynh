@@ -243,6 +243,8 @@ def api_catalog():
         str_score=str_score,
         size=size,
         include_magic=request.args.get("magic") != "0",
+        companion_size=(request.args.get("companion_size") or "").strip() or None,
+        companion_animal=(request.args.get("companion_animal") or "").strip(),
     )
     return jsonify(data)
 

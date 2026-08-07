@@ -20,7 +20,9 @@ from character import (AbilityScores, armor_class, size_mod_attack,
                        size_mod_grapple, effective_ability_scores,
                        resolve_modifiers, resolve_ac_bonuses,
                        save_effect_bonus, skill_effect_bonus)
+import companion_inventory
 from effects import collect_active_effects, collect_riders
+from models import InventoryItem
 from special_abilities import slug_from_label
 
 
@@ -144,7 +146,8 @@ def _str_damage(str_mod: int, mult: float) -> int:
 
 def advance_companion(animal: dict, deltas: dict, db,
                       active_modifiers: list | None = None,
-                      riders: dict | None = None) -> dict:
+                      riders: dict | None = None,
+                      worn_armor: dict | None = None) -> dict:
     """Udregn det fulde ledsager-statblok fra et basis-dyr + et avancements-delta.
 
     `deltas` er normaliseret (companion_deltas/mount_deltas), så samme motor dækker
@@ -153,6 +156,11 @@ def advance_companion(animal: dict, deltas: dict, db,
     pr. HD + Con; AC = 10 + størrelse + Dex + naturlig rustning. Angreb bruger Dex ved
     Weapon Finesse, ellers Str; sekundære angreb får −5 og ½ Str; et ENESTE primært
     angreb får ×1,5 Str.
+
+    worn_armor: barding dyret har på (en armor-række) → armor-bonus, max Dex og
+    ACP i AC'en, præcis som båret rustning på en spillerkarakter. Vægten og prisen
+    følger nonhumanoid-tabellen og hører i companion_inventory; her bruges kun
+    rustningens AC-tal, som er de samme uanset hvem der har den på.
 
     active_modifiers/riders: aktive effekter (samme motor som hovedkarakteren).
     Ability-ændringer kaskaderer via effektive scores; direkte bonusser (attack/
@@ -192,7 +200,8 @@ def advance_companion(animal: dict, deltas: dict, db,
     ac_bonuses = resolve_ac_bonuses(
         {"natural": natural, "deflection": 0, "dodge": 0, "misc": 0},
         [m for m in active_modifiers if m.get("target") == "ac"])
-    ac = armor_class(scores, size, lose_dex=riders.get("lose_dex", False), **ac_bonuses)
+    ac = armor_class(scores, size, armor=worn_armor,
+                     lose_dex=riders.get("lose_dex", False), **ac_bonuses)
     grapple = bab + str_mod + size_mod_grapple(size)
     initiative = (dex_mod + (4 if _has_feat(feats, "improved initiative") else 0)
                   + net.get("init", 0))
@@ -326,7 +335,13 @@ def build_companion(char, db) -> dict | None:
     active_modifiers, sources = collect_active_effects(
         comp.get("buffs"), comp.get("conditions"), db)
     riders = collect_riders(sources)
-    stat = advance_companion(animal, deltas, db, active_modifiers, riders)
+    # Barding: den rustning dyret har på, tæller i AC'en. Slås op FØR statblokken
+    # bygges, fordi armor_class har brug for den.
+    inventory = [i if isinstance(i, InventoryItem) else InventoryItem(**i)
+                 for i in (comp.get("inventory") or [])]
+    stat = advance_companion(animal, deltas, db, active_modifiers, riders,
+                             worn_armor=companion_inventory.worn_armor(inventory, db))
+    stat["inventory"] = list(comp.get("inventory") or [])
     stat["kind"] = comp.get("kind") or "companion"
     stat["name"] = comp.get("name") or animal["name"]
     stat["tricks"] = list(comp.get("tricks") or [])

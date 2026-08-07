@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify, request
 
 import character as char_module
 import companion as companion_module
+import companion_inventory as companion_inventory_module
 import db
 import familiar as familiar_module
 import refdata
@@ -54,6 +55,87 @@ def api_companion_tricks():
             tricks.append(name)
     char_module.save_character(str(path), {"companion_tricks": tricks})
     return jsonify({"tricks": tricks})
+
+@companion_bp.route("/api/companion_inventory", methods=["POST"])
+def api_companion_inventory():
+    """Vargs udstyr: tilføj/fjern/opdatér. Samme handlinger som karakterens eget
+    inventar (routes_inventory), men mod companion["inventory"].
+
+    Bevidst uden "use": et dyr drikker ikke eliksirer og aktiverer ikke wands.
+    """
+    from app import _char_path
+    data = request.get_json()
+    path = _char_path(data.get("char"))
+    if not path.exists():
+        return jsonify({"error": "not found"}), 404
+    char = char_module.load_character(str(path))
+    if not char.companion:
+        return jsonify({"error": "no companion"}), 400
+
+    raw = list((char.companion or {}).get("inventory") or [])
+    inv = [i if isinstance(i, char_module.InventoryItem)
+           else char_module.InventoryItem(**i) for i in raw]
+    action = data.get("action")
+
+    if action == "add":
+        ref = str(data.get("ref") or "").strip()
+        state = str(data.get("state") or "backpack").lower()
+        if state not in char_module.INVENTORY_STATES:
+            state = "backpack"
+        if ref:
+            # Ukendt ref afvises frem for at blive en navnløs 0-lb-række. Karakter-
+            # inventaret slipper afsted med at være mildere, fordi dets refs kommer
+            # fra butikkens egen liste; her kaldes ruten også direkte.
+            table, _, oid = ref.partition("/")
+            getter = {"armor": db.get_armor, "weapons": db.get_weapon,
+                      "items": db.get_item, "magic_items": db.get_magic_item}.get(table)
+            if not getter or not getter(oid):
+                return jsonify({"error": f"ukendt genstand: {ref}"}), 400
+            # Kun ÉN rustning kan sidde på dyret ad gangen — som _enforce_armor_slots
+            # for spillerkarakterer. Ny barding skubber den gamle i "rygsækken".
+            if ref.startswith("armor/") and state == "worn":
+                for other in inv:
+                    if (other.ref or "").startswith("armor/") and other.state == "worn":
+                        other.state = "backpack"
+            inv.append(char_module.InventoryItem(
+                ref=ref, state=state, qty=max(1, int(data.get("qty") or 1)),
+                notes=str(data.get("notes") or "")))
+        else:
+            name = str(data.get("name") or "").strip()
+            if not name:
+                return jsonify({"error": "name required"}), 400
+            inv.append(char_module.InventoryItem(
+                name=name, weight=float(data.get("weight") or 0),
+                qty=max(1, int(data.get("qty") or 1)), state=state,
+                notes=str(data.get("notes") or "")))
+    elif action == "remove":
+        idx = int(data.get("index", -1))
+        if 0 <= idx < len(inv):
+            inv.pop(idx)
+    elif action == "update":
+        idx = int(data.get("index", -1))
+        if 0 <= idx < len(inv):
+            it = inv[idx]
+            it.qty = max(0, int(data.get("qty", it.qty)))
+            it.notes = str(data.get("notes", it.notes))
+            if "state" in data:
+                st = str(data["state"]).lower()
+                if st in char_module.INVENTORY_STATES:
+                    if st == "worn" and (it.ref or "").startswith("armor/"):
+                        for j, other in enumerate(inv):
+                            if (j != idx and other.state == "worn"
+                                    and (other.ref or "").startswith("armor/")):
+                                other.state = "backpack"
+                    it.state = st
+    else:
+        return jsonify({"error": "unknown action"}), 400
+
+    char_module.save_character(str(path), {"companion_inventory": inv})
+    char = char_module.load_character(str(path))
+    comp = companion_module.build_companion(char, db)
+    return jsonify({**companion_inventory_module.build(comp, db),
+                    "ac": comp["ac"]})
+
 
 @companion_bp.route("/api/companion", methods=["POST"])
 def api_companion():

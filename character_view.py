@@ -14,6 +14,7 @@ import character as char_module
 import class_features as class_features_module
 import combat_options as combat_options_module
 import companion as companion_module
+import companion_inventory
 import familiar as familiar_module
 import effects
 import refdata
@@ -628,6 +629,10 @@ def build_character_view(char, db):
     return {
         "class_feature_rows": class_feature_rows,
         "companion": companion,
+        # Ledsagerens eget udstyr (vægt, bæreevne, barding-advarsler). None for
+        # familiars — de er Tiny og bærer ikke last.
+        "companion_inv": (companion_inventory.build(companion, db)
+                          if companion and companion.get("kind") != "familiar" else None),
         "can_summon_companion": can_summon_companion,
         "companion_animals": companion_animals,
         "companion_noun": companion_noun,

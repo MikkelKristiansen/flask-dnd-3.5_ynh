@@ -208,3 +208,62 @@ function toggleWildAbility(slug) {
   .then(d => { if (d.ok) window.location.reload(); else alert(d.error || "Fejl"); });
 }
 
+
+
+// ── Ledsagerens udstyr ────────────────────────────────────────────────────
+// Barding tæller i dyrets AC, og vægten måles mod dyrets EGEN bæreevne (firbenede
+// bærer ×1,5). Serveren regner alt; her sendes handlingen og siden genindlæses,
+// fordi AC'en i statblokken ovenfor kan have ændret sig.
+function compInvPost(body) {
+  return fetch(BASE + "/api/companion_inventory", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, ...body})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { alert("Kunne ikke: " + data.error); return; }
+    location.reload();     // barding ændrer AC → hele statblokken skal gentegnes
+  });
+}
+
+function compInvRemove(index) { compInvPost({action: "remove", index}); }
+function compInvState(index, state) { compInvPost({action: "update", index, state}); }
+
+function compInvBuy() {
+  const sel = document.getElementById("comp-shop-select");
+  if (!sel || !sel.value) return;
+  // Barding sendes som "worn" — det er hele pointen med at købe den. Alt andet
+  // i rygsækken. Serveren skubber selv en tidligere barding af.
+  const state = sel.value.startsWith("armor/") ? "worn" : "backpack";
+  compInvPost({action: "add", ref: sel.value, state});
+}
+
+// Butikslisten hentes fra /api/catalog med companion-parametrene, så priser og
+// vægte er dyrets (barding-kolonnen), ikke Tjørns.
+(function loadCompShop() {
+  const sel = document.getElementById("comp-shop-select");
+  if (!sel || !D.compSize) return;
+  const q = new URLSearchParams({
+    str: D.compStr || 10, size: D.compSize, magic: "0",
+    companion_size: D.compSize, companion_animal: D.compAnimal || "",
+  });
+  fetch(BASE + "/api/catalog?" + q.toString())
+    .then(r => r.json())
+    .then(data => {
+      const grupper = {};
+      for (const it of data.items || []) (grupper[it.group] ||= []).push(it);
+      sel.innerHTML = '<option value="">— vælg —</option>';
+      for (const navn of Object.keys(grupper).sort()) {
+        const og = document.createElement("optgroup");
+        og.label = navn;
+        for (const it of grupper[navn]) {
+          const o = document.createElement("option");
+          o.value = it.ref;
+          o.textContent = `${it.name} — ${it.cost_str}, ${it.weight} lb`;
+          og.appendChild(o);
+        }
+        sel.appendChild(og);
+      }
+    });
+})();
