@@ -358,6 +358,12 @@ CREATE TABLE special_abilities (
     rider_type  TEXT,              -- engangs-angrebsrytter: extra_attacks | two_hit |
                                    -- on_charge | on_hit | on_grapple | trample (NULL = ingen)
     rider_count INTEGER,           -- antal ekstra angreb (extra_attacks, fx rake = 2)
+    dc_ability  TEXT,              -- str | dex | con | int | wis | cha: hvilken ability
+                                   -- evnens save-DC skaleres af (SRD "The save DC is
+                                   -- X-based"). Sat → DC'en GENBEREGNES som
+                                   -- 10 + ½HD + mod, så buffs (Augment Summoning,
+                                   -- Bull's Strength) slår igennem. NULL = DC'en står
+                                   -- fast som skrevet i væsenets fritekst.
     description TEXT               -- SRD/OGL-forklaring
 );
 

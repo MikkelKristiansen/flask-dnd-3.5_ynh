@@ -76,14 +76,46 @@ def slug_from_label(label: str) -> str:
     return _slug(label)
 
 
-def _entry(token: str, source: str, db) -> dict:
-    """Byg én struktureret evne ud fra et fritekst-token (beriget fra kataloget)."""
+def ability_dc(hd: int, ability_mod: int) -> int:
+    """Save-DC for en medfødt special-evne (SRD): 10 + ½ HD + ability-modifier.
+
+    Gælder Ex/Su-evner hvis DC står som "X-based" (burn er Con-, whirlwind Str-
+    baseret). Formlen er verificeret mod SRD-printet for alle væsner i kataloget
+    der har en markeret dc_ability — se test_special_ability_dc.py.
+    """
+    return 10 + hd // 2 + ability_mod
+
+
+def _retarget_dc(label: str, new_dc: int) -> str:
+    """Skriv en ny DC ind i et fritekst-evne-token (kun selve tallet ændres).
+
+    'Burn (1d4 fire, Reflex DC 11)' → 'Burn (1d4 fire, Reflex DC 13)'.
+    Skade-terninger og resten af teksten røres ikke — kun tallet efter "DC".
+    """
+    return re.sub(r"(DC\s*)(\d+)", lambda m: f"{m.group(1)}{new_dc}", label,
+                  count=1, flags=re.IGNORECASE)
+
+
+def _entry(token: str, source: str, db, hd: int | None = None,
+           scores=None) -> dict:
+    """Byg én struktureret evne ud fra et fritekst-token (beriget fra kataloget).
+
+    Er BÅDE hd og scores givet, og har evnen en dc_ability i kataloget, bliver
+    save-DC'en i labelen GENBEREGNET fra de (evt. buffede) ability scores. Uden
+    dem vises DC'en præcis som skrevet i væsenets data — det rå SRD-print.
+    """
     slug = _slug(token)
     rec = db.get_special_ability(slug) if slug else None
     rec = rec or {}
+    label = token
+    dc_ability = rec.get("dc_ability")
+    dc = None
+    if dc_ability and hd is not None and scores is not None:
+        dc = ability_dc(hd, scores.modifier(dc_ability))
+        label = _retarget_dc(label, dc)
     return {
         "slug": slug,
-        "label": token,                              # form-specifik (beholder tal/DC)
+        "label": label,                              # form-specifik (beholder tal/DC)
         "name": rec.get("name") or token,
         "kind": rec.get("kind"),                     # ex | su | sp | None (ukendt)
         "category": rec.get("category"),
@@ -91,11 +123,14 @@ def _entry(token: str, source: str, db) -> dict:
         "buff_id": rec.get("buff_id"),
         "rider_type": rec.get("rider_type"),         # engangs-angrebsrytter (eller None)
         "rider_count": rec.get("rider_count"),
+        "dc_ability": dc_ability,                    # str/con/… (None = fast DC)
+        "dc": dc,                                    # genberegnet DC (None = ikke beregnet)
         "source": source,                            # 'attack' | 'quality'
     }
 
 
-def describe_ability_list(text, source: str, db) -> list:
+def describe_ability_list(text, source: str, db, hd: int | None = None,
+                          scores=None) -> list:
     """Parse en fritekst-evneliste til strukturerede, katalog-berigede tokens.
 
     Genbruges af summon.py/companion for at gøre et væsens special_attacks/
@@ -103,10 +138,16 @@ def describe_ability_list(text, source: str, db) -> list:
     (samme form som gained/reference i resolve_form_abilities). Ukendte evner (ikke
     i kataloget) får description=None og vises som ren tekst uden tooltip.
 
+    hd + scores (valgfri): væsenets hit dice og EFFEKTIVE ability scores. Gives de,
+    genberegnes save-DC'er for evner med en dc_ability, så en buff der hæver Str/Con
+    (Augment Summoning, Bull's Strength) også hæver DC'en — ellers ville statblokken
+    vise en Con 14-krop med en Con 10-DC. Udelades de, er adfærden som før: DC'en
+    står som skrevet i data.
+
     Til forskel fra resolve_form_abilities gælder INGEN polymorph-overførselsregel
     her — et summonet/companion-væsen ER selve skabningen og har alle sine evner.
     """
-    return [_entry(tok, source, db) for tok in _split_tokens(text)]
+    return [_entry(tok, source, db, hd, scores) for tok in _split_tokens(text)]
 
 
 def resolve_form_abilities(special_attacks, special_qualities, form_type, db) -> dict:
