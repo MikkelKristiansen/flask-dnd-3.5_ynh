@@ -2,7 +2,7 @@
 
 Kør: python -m pytest test_special_ability_dc.py   (fra repo-roden)
 
-To ting sikres:
+Tre ting sikres:
 
   1. DC-formlen 10 + ½HD + ability-mod reproducerer SRD-printet for HVER evne i
      kataloget der er markeret med en dc_ability. Det er vagten mod en forkert
@@ -12,9 +12,14 @@ To ting sikres:
   2. En buff der hæver Str/Con (Augment Summoning) slår igennem BÅDE på DC'en og
      på til-hit — det var to konkrete fejl: en augmenteret Small Fire Elemental
      viste Con 14 sammen med en Con 10-DC, og slog med Dex selv om Str var højere.
+
+  3. Companion-fanen regner på samme måde. Her flytter DC'en sig af TO grunde:
+     druide-niveauet giver bonus-HD (½HD-leddet stiger), og dyret kan være buffet
+     (Bear's Endurance på en vipers Con-baserede gift).
 """
 import re
 
+import companion
 import db
 import special_abilities as sa
 import summon
@@ -119,7 +124,49 @@ def test_unmarked_ability_keeps_its_printed_dc():
     assert _dc_in(aura["label"]) == 17          # uændret fra animals.yaml
 
 
-# ── 3. Weapon Finesse er et valg, ikke en tvang ─────────────────────────────
+# ── 3. Companion: DC'en følger bonus-HD OG buffs ────────────────────────────
+
+def _companion(creature_id, bonus_hd=0, modifiers=None):
+    """Byg et ledsager-statblok direkte fra et basis-dyr (uden karakter-lag)."""
+    deltas = {"bonus_hd": bonus_hd, "na_bonus": 0, "bonus_tricks": 0,
+              "specials": [], "str_bonus": 0, "dex_bonus": 0,
+              "int_set": None, "level_label": "test"}
+    return companion.advance_companion(
+        db.get_animal(creature_id), deltas, db, modifiers or [])
+
+
+def test_companion_dc_matches_srd_at_base():
+    """Uden bonus-HD og buffs skal en Medium Viper vise SRD's Fort DC 11."""
+    s = _companion("viper_medium")
+    assert s["total_hd"] == 2
+    assert _dc_in(s["special_attacks"][0]["label"]) == 11
+
+
+def test_companion_dc_follows_bonus_hd():
+    """Companion-bonus-HD hæver DC'en: 2 → 4 HD giver ½HD 1 → 2, altså DC 11 → 12."""
+    s = _companion("viper_medium", bonus_hd=2)
+    assert s["total_hd"] == 4
+    assert _dc_in(s["special_attacks"][0]["label"]) == 12
+
+
+def test_companion_dc_follows_con_buff():
+    """Bear's Endurance (+4 Con) hæver den Con-baserede gift-DC med 2."""
+    bear = [{"target": "con", "type": "enhancement", "value": 4}]
+    s = _companion("viper_medium", bonus_hd=2, modifiers=bear)
+    assert s["abilities"]["con"] == 15
+    assert _dc_in(s["special_attacks"][0]["label"]) == 14      # 10 + 2 + 2
+
+
+def test_companion_abilities_are_structured_like_summon():
+    """Companion-fanen skal have samme klikbare form som summon-fanen."""
+    s = _companion("viper_medium")
+    entry = s["special_attacks"][0]
+    assert entry["slug"] == "poison"
+    assert entry["description"]                    # katalog-tekst → tooltip
+    assert isinstance(s["special_qualities"], list)
+
+
+# ── 4. Weapon Finesse er et valg, ikke en tvang ─────────────────────────────
 
 def test_finesse_creature_switches_to_str_when_augmented():
     """Small Fire Elemental (Dex 13): uden augment slås med Dex, med augment Str.

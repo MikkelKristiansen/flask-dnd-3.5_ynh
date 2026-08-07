@@ -23,6 +23,7 @@ from character import (AbilityScores, armor_class, size_mod_attack,
 import companion_inventory
 from effects import collect_active_effects, collect_riders
 from models import InventoryItem
+import special_abilities
 from special_abilities import slug_from_label
 
 
@@ -296,8 +297,14 @@ def advance_companion(animal: dict, deltas: dict, db,
         "saves": saves,
         "speed": animal["speed"],
         "attacks": attacks,
-        "special_attacks": animal.get("special_attacks"),
-        "special_qualities": animal.get("special_qualities"),
+        # Struktureret + klikbart, præcis som summon-fanen: hvert token beriges
+        # fra kataloget (tooltip), og save-DC'er genberegnes fra total_hd + de
+        # EFFEKTIVE scores. En companion har både bonus-HD fra druide-niveauet og
+        # kan være buffet, og begge dele flytter DC'en på fx en vipers gift.
+        "special_attacks": special_abilities.describe_ability_list(
+            animal.get("special_attacks"), "attack", db, total_hd, scores),
+        "special_qualities": special_abilities.describe_ability_list(
+            animal.get("special_qualities"), "quality", db, total_hd, scores),
         "skills": skills,
         "feats": feats,
         "specials": specials,

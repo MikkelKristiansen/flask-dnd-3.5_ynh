@@ -102,8 +102,10 @@
       </span>
     </div>
     {% endfor %}
-    {% if cp.special_attacks %}<div class="stat-row"><span class="stat-label">Special-angreb</span><span class="stat-val" style="font-size:.8rem">{{ cp.special_attacks }}</span></div>{% endif %}
-    {% if cp.special_qualities %}<div class="stat-row"><span class="stat-label">Kvaliteter</span><span class="stat-val" style="font-size:.8rem">{{ cp.special_qualities }}</span></div>{% endif %}
+    {% if cp.special_attacks %}<div class="stat-row"><span class="stat-label">Special-angreb</span><span class="stat-val" style="font-size:.8rem">
+      {% for ab in cp.special_attacks %}<span {% if ab.description %}class="ws-abil" onclick="showDetail('ability','{{ ab.slug }}')" title="Tryk for forklaring"{% endif %}>{{ ab.label }}</span>{{ " · " if not loop.last }}{% endfor %}</span></div>{% endif %}
+    {% if cp.special_qualities %}<div class="stat-row"><span class="stat-label">Kvaliteter</span><span class="stat-val" style="font-size:.8rem">
+      {% for ab in cp.special_qualities %}<span {% if ab.description %}class="ws-abil" onclick="showDetail('ability','{{ ab.slug }}')" title="Tryk for forklaring"{% endif %}>{{ ab.label }}</span>{{ " · " if not loop.last }}{% endfor %}</span></div>{% endif %}
   </div>
 
   {% if cp.skills %}
