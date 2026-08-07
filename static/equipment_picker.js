@@ -59,6 +59,7 @@ window.EquipmentPicker = (function () {
     const q = new URLSearchParams({ str: state.str, size: state.size });
     if (state.cls)  q.set("cls", state.cls);
     if (state.race) q.set("race", state.race);
+    if (!state.magic) q.set("magic", "0");   // generering: uden magiske genstande
     const res = await fetch(`${state.base}/api/catalog?${q.toString()}`);
     if (!res.ok) throw new Error(`/api/catalog: ${res.status}`);
     const data = await res.json();
@@ -106,8 +107,12 @@ window.EquipmentPicker = (function () {
   // ── Rendering ─────────────────────────────────────────────────────────────
   function renderTabs() {
     const box = $("eqp-tabs");
+    // Vis kun faner der har varer ("alle" altid) — så generatorens butik ikke
+    // får en tom ✨ Magisk-fane at klikke på.
+    const findes = new Set(state.items.map((it) => it.category));
     box.innerHTML = "";
     for (const t of TABS) {
+      if (t.key !== "alle" && !findes.has(t.key)) continue;
       const b = el("button", "eqp-tab" + (state.category === t.key ? " active" : ""), t.label);
       b.type = "button";
       b.onclick = () => { state.category = t.key; renderTabs(); renderList(); };
@@ -327,6 +332,9 @@ window.EquipmentPicker = (function () {
       base: opts.base || "", cls: opts.cls || "", str: opts.str || 10,
       size: opts.size || "medium", race: opts.race || "",
       budgetCp: opts.budgetCp || 0, baseWeight: opts.baseWeight || 0,
+      // Magiske genstande med? Default ja (karakterarkets butik). Generatoren
+      // sender false — startguldet rækker aldrig, og budgettet er kun vejledende.
+      magic: opts.magic !== false,
       onChange: opts.onChange || null,
     });
     // Bind filter-kontroller.

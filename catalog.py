@@ -163,7 +163,7 @@ def _magic_item_entry(mi: dict, *, recommended, size) -> dict:
 def build_catalog(db, *, weapon_prof=None, armor_prof=None,
                   allowed_weapons=frozenset(), allowed_armor=frozenset(),
                   recommended_ids=frozenset(), str_score: int = 10,
-                  size: str = "medium") -> dict:
+                  size: str = "medium", include_magic: bool = True) -> dict:
     """Byg det berigede katalog som UI'et tegnes ud fra.
 
     Parametre (ikke en karakter — også brugt under generering hvor den ikke findes):
@@ -171,6 +171,11 @@ def build_catalog(db, *, weapon_prof=None, armor_prof=None,
       allowed_weapons / _armor   ekstra tilladte id'er (fx race-våben)
       recommended_ids            id'er der markeres 'anbefalet' (fra starting_kits)
       str_score / size           til bæreevne-grænserne (enc_limits)
+      include_magic              magiske genstande med? False under karakter-
+                                 generering: en 1.-niveaus karakters startguld
+                                 rækker aldrig til en wand, og butikkens budget
+                                 er kun vejledende, så listen ville mest være
+                                 fristelser. Købes senere fra karakterarket.
 
     Returnerer {"items": [...], "enc_limits": {light, medium, heavy}}.
     """
@@ -185,8 +190,9 @@ def build_catalog(db, *, weapon_prof=None, armor_prof=None,
             recommended=recommended_ids, size=size))
     for it in db.get_all_items():
         items.append(_item_entry(it, recommended=recommended_ids, size=size))
-    for mi in db.get_all_magic_items():
-        items.append(_magic_item_entry(mi, recommended=recommended_ids, size=size))
+    if include_magic:
+        for mi in db.get_all_magic_items():
+            items.append(_magic_item_entry(mi, recommended=recommended_ids, size=size))
 
     return {"items": items, "enc_limits": carry_limits(str_score, size)}
 

@@ -221,6 +221,8 @@ def api_catalog():
       str   styrke-score → bæreevne-grænser (default 10)
       size  small/medium/large → størrelses-justeret vægt (default medium)
       race  race-id → ekstra våben-proficiency (fx elv: longsword) (valgfri)
+      magic "0" → udelad magiske genstande (karaktergenereringen sender den;
+            en 1.-niveaus karakter kan ikke købe en wand for sit startguld)
 
     Python regner alle regel-afledte tal; JS lægger kun sammen. Se catalog.py.
     """
@@ -240,6 +242,7 @@ def api_catalog():
         recommended_ids=refdata.starting_kit_ids(cls) if cls else frozenset(),
         str_score=str_score,
         size=size,
+        include_magic=request.args.get("magic") != "0",
     )
     return jsonify(data)
 

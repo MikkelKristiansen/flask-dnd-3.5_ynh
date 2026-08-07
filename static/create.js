@@ -465,4 +465,9 @@ document.getElementById('score_str').addEventListener('input', syncPickerContext
 buildSkillList();
 onUpdate();
 rollBio();
-EquipmentPicker.init({ base: GEN.SCRIPT_ROOT, ...pickerCtx(), budgetCp: budgetCp() });
+// magic: false — startudrustning er almindeligt grej. En 1.-niveaus karakters
+// startguld rækker ikke til en wand til 750 gp, og butikkens budget er kun
+// vejledende, så listen ville mest være fristelser. Magiske genstande købes
+// senere fra karakterarkets butik.
+EquipmentPicker.init({ base: GEN.SCRIPT_ROOT, ...pickerCtx(), budgetCp: budgetCp(),
+                       magic: false });

@@ -186,3 +186,18 @@ def test_detail_ruten_kender_magiske_genstande():
     assert d["caster_level"] == 5 and d["charges_max"] == 50
     assert d["spell_level"] == 3          # modalen regner save-DC 14 af den
     assert c.get("/api/detail/magic_item/findes_ikke").status_code == 404
+
+
+def test_generering_faar_katalog_uden_magi():
+    """Karaktergenereringen sender magic=0: startguldet rækker aldrig til en wand,
+    og butikkens budget er kun vejledende, så listen ville mest være fristelser.
+    Karakterarkets butik (default) har dem."""
+    import app as app_module
+    c = app_module.app.test_client()
+    med = c.get("/api/catalog?str=10&size=medium").get_json()["items"]
+    uden = c.get("/api/catalog?str=10&size=medium&magic=0").get_json()["items"]
+    assert [i for i in med if i["category"] == "magic_items"]
+    assert not [i for i in uden if i["category"] == "magic_items"]
+    # Resten af butikken er uændret — kun den ene kategori forsvinder.
+    assert ({i["ref"] for i in med} - {i["ref"] for i in uden}
+            == {i["ref"] for i in med if i["category"] == "magic_items"})
