@@ -357,6 +357,623 @@
   spell_id: shield_of_faith
   charges_max: 1
   description: "Drik for +2 deflection-bonus til AC (aktiv buff indtil den fjernes)."
+
+# ── Wands (SRD's wand-tabel, magic-items-iv). Altid slot: null, modifiers: '[]' ──
+# ── og charges_max: 50 — en wand er ren opbevaring for ét spell. caster_level  ──
+# ── er udledt af SRD-prisen (spell_level × CL × 750 gp) og styrer skaleringen.  ──
+# ── Genereret af scripts/parse_wands.py; ret dér og kør igen frem for i hånden. ──
+- id: wand_of_acid_arrow
+  name: Wand of Acid Arrow
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint conjuration (creation)
+  weight: 0
+  modifiers: '[]'
+  spell_id: acid_arrow
+  charges_max: 50
+  description: "Ranged touch: 2d4 syreskade nu og igen hvert af de følgende runder (1 runde pr. 3 CL)."
+- id: wand_of_bear_endurance
+  name: Wand of Bear's Endurance
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: bear_endurance
+  charges_max: 50
+  description: "Aktivér for +4 enhancement til Constitution i 1 min./CL."
+- id: wand_of_bull_strength
+  name: Wand of Bull's Strength
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: bull_strength
+  charges_max: 50
+  description: "Aktivér for +4 enhancement til Strength i 1 min./CL."
+- id: wand_of_burning_hands
+  name: Wand of Burning Hands
+  category: wand
+  slot: null
+  price_cp: 75000
+  caster_level: 1
+  aura: Faint evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: burning_hands
+  charges_max: 50
+  description: "Vifte af ild i en 15-fods kegle: 1d4 pr. CL (maks. 5d4) ildskade, Ref halv."
+- id: wand_of_call_lightning
+  name: Wand of Call Lightning
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: call_lightning
+  charges_max: 50
+  description: "Kald ét lyn pr. runde ned fra himlen: 3d6 elektricitetsskade, Ref halv. Kræver frit udsyn til himlen."
+- id: wand_of_call_lightning_cl8
+  name: Wand of Call Lightning (CL 8)
+  category: wand
+  slot: null
+  price_cp: 1800000
+  caster_level: 8
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: call_lightning
+  charges_max: 50
+  description: "Kald ét lyn pr. runde ned fra himlen: 3d6 elektricitetsskade, Ref halv. Kræver frit udsyn til himlen."
+- id: wand_of_cat_grace
+  name: Wand of Cat's Grace
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: cat_grace
+  charges_max: 50
+  description: "Aktivér for +4 enhancement til Dexterity i 1 min./CL."
+- id: wand_of_chaos_hammer
+  name: Wand of Chaos Hammer
+  category: wand
+  slot: null
+  price_cp: 2400000
+  caster_level: 8
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  charges_max: 50
+  description: "Kaos-eksplosion i en 20-fods sfære: 1d8 pr. 2 CL (maks. 5d8) mod lovlige væsner, plus 1 runde forvirret. Will halv + ingen forvirring. Kaotiske væsner rammes ikke."
+- id: wand_of_charm_animal
+  name: Wand of Charm Animal
+  category: wand
+  slot: null
+  price_cp: 75000
+  caster_level: 1
+  aura: Faint enchantment (charm)
+  weight: 0
+  modifiers: '[]'
+  spell_id: charm_animal
+  charges_max: 50
+  description: "Charmér ét dyr: det ser dig som en betroet ven i 1 time pr. CL. Will negerer."
+- id: wand_of_charm_monster
+  name: Wand of Charm Monster
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate enchantment (charm)
+  weight: 0
+  modifiers: '[]'
+  spell_id: charm_monster
+  charges_max: 50
+  description: "Charmér ét levende væsen uanset type: det ser dig som en betroet ven i 1 dag pr. CL. Will negerer."
+- id: wand_of_charm_person
+  name: Wand of Charm Person
+  category: wand
+  slot: null
+  price_cp: 75000
+  caster_level: 1
+  aura: Faint enchantment (charm)
+  weight: 0
+  modifiers: '[]'
+  spell_id: charm_person
+  charges_max: 50
+  description: "Charmér én humanoid: den ser dig som en betroet ven i 1 time pr. CL. Will negerer."
+- id: wand_of_charm_person_heightened_3rd
+  name: Wand of Charm Person (heightened 3rd)
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint enchantment (charm)
+  weight: 0
+  modifiers: '[]'
+  spell_id: charm_person
+  charges_max: 50
+  description: "Charmér én humanoid: den ser dig som en betroet ven i 1 time pr. CL. Will negerer."
+- id: wand_of_color_spray
+  name: Wand of Color Spray
+  category: wand
+  slot: null
+  price_cp: 75000
+  caster_level: 1
+  aura: Faint illusion (pattern)
+  weight: 0
+  modifiers: '[]'
+  spell_id: color_spray
+  charges_max: 50
+  description: "Farvekegle på 15 fod: bevidstløs, forblindet og lamslået efter HD. Will negerer."
+- id: wand_of_contagion
+  name: Wand of Contagion
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint necromancy
+  weight: 0
+  modifiers: '[]'
+  spell_id: contagion
+  charges_max: 50
+  description: "Melee touch: offeret pådrager sig en sygdom efter dit valg, uden inkubationstid. Fort negerer."
+- id: wand_of_cure_critical_wounds
+  name: Wand of Cure Critical Wounds
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate conjuration (healing)
+  weight: 0
+  modifiers: '[]'
+  spell_id: cure_critical_wounds
+  charges_max: 50
+  description: "Aktivér for at helbrede 4d8+CL skade ved berøring."
+- id: wand_of_cure_light_wounds
+  name: Wand of Cure Light Wounds
+  category: wand
+  slot: null
+  price_cp: 75000
+  caster_level: 1
+  aura: Faint conjuration (healing)
+  weight: 0
+  modifiers: '[]'
+  spell_id: cure_light_wounds
+  charges_max: 50
+  description: "Aktivér for at helbrede 1d8+1 skade."
+- id: wand_of_cure_moderate_wounds
+  name: Wand of Cure Moderate Wounds
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint conjuration (healing)
+  weight: 0
+  modifiers: '[]'
+  spell_id: cure_moderate_wounds
+  charges_max: 50
+  description: "Aktivér for at helbrede 2d8+CL skade ved berøring."
+- id: wand_of_cure_serious_wounds
+  name: Wand of Cure Serious Wounds
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint conjuration (healing)
+  weight: 0
+  modifiers: '[]'
+  spell_id: cure_serious_wounds
+  charges_max: 50
+  description: "Aktivér for at helbrede 3d8+CL skade ved berøring."
+- id: wand_of_darkness
+  name: Wand of Darkness
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: darkness
+  charges_max: 50
+  description: "Slukker alt lys i en 20-fods radius om en berørt genstand: skyggefuldt, i 10 min./CL."
+- id: wand_of_daylight
+  name: Wand of Daylight
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: daylight
+  charges_max: 50
+  description: "Berørt genstand lyser som dagslys i 60 fods radius i 10 min./CL."
+- id: wand_of_delay_poison
+  name: Wand of Delay Poison
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint conjuration (healing)
+  weight: 0
+  modifiers: '[]'
+  spell_id: delay_poison
+  charges_max: 50
+  description: "Berørt væsen er immun over for giftens virkning i 1 time pr. CL. Fjerner ikke giften — udskyder den."
+- id: wand_of_detect_magic
+  name: Wand of Detect Magic
+  category: wand
+  slot: null
+  price_cp: 37500
+  caster_level: 1
+  aura: Faint divination
+  weight: 0
+  modifiers: '[]'
+  spell_id: detect_magic
+  charges_max: 50
+  description: "Afsøg en 60-fods kegle for magiske auraer: styrke og skole efter 3 runders koncentration."
+- id: wand_of_detect_secret_doors
+  name: Wand of Detect Secret Doors
+  category: wand
+  slot: null
+  price_cp: 75000
+  caster_level: 1
+  aura: Faint divination
+  weight: 0
+  modifiers: '[]'
+  spell_id: detect_secret_doors
+  charges_max: 50
+  description: "Afsøg en 60-fods kegle for skjulte døre og rum i op til 3 runders koncentration."
+- id: wand_of_dimensional_anchor
+  name: Wand of Dimensional Anchor
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate abjuration
+  weight: 0
+  modifiers: '[]'
+  spell_id: dimensional_anchor
+  charges_max: 50
+  description: "Ranged touch: låser målet fast i planet i 1 min./CL — ingen teleport, blink eller planeskift."
+- id: wand_of_dispel_magic
+  name: Wand of Dispel Magic
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint abjuration
+  weight: 0
+  modifiers: '[]'
+  spell_id: dispel_magic
+  charges_max: 50
+  description: "Ophæv magi: slå 1d20 + CL (maks. +10) mod 11 + modstanderens CL, pr. effekt."
+- id: wand_of_dispel_magic_cl10
+  name: Wand of Dispel Magic (CL 10)
+  category: wand
+  slot: null
+  price_cp: 2250000
+  caster_level: 10
+  aura: Moderate abjuration
+  weight: 0
+  modifiers: '[]'
+  spell_id: dispel_magic
+  charges_max: 50
+  description: "Ophæv magi: slå 1d20 + CL (maks. +10) mod 11 + modstanderens CL, pr. effekt."
+- id: wand_of_eagles_splendor
+  name: Wand of Eagle’s Splendor
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: eagles_splendor
+  charges_max: 50
+  description: "Aktivér for +4 enhancement til Charisma i 1 min./CL."
+- id: wand_of_enlarge_person
+  name: Wand of Enlarge Person
+  category: wand
+  slot: null
+  price_cp: 75000
+  caster_level: 1
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: enlarge_person
+  charges_max: 50
+  description: "Berørt humanoid vokser en størrelseskategori i 1 min./CL: +2 Str, -2 Dex, -1 på angreb og AC."
+- id: wand_of_false_life
+  name: Wand of False Life
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint necromancy
+  weight: 0
+  modifiers: '[]'
+  spell_id: false_life
+  charges_max: 50
+  description: "Giver dig 1d10+CL (maks. +10) midlertidige hitpoints i 1 time pr. CL."
+- id: wand_of_fear
+  name: Wand of Fear
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate necromancy
+  weight: 0
+  modifiers: '[]'
+  spell_id: fear
+  charges_max: 50
+  description: "30-fods kegle: alle væsner flygter panisk i 1 runde pr. CL. Will negerer (rystede i 1 runde i stedet)."
+- id: wand_of_fireball
+  name: Wand of Fireball
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: fireball
+  charges_max: 50
+  description: "Eksplosion i en 20-fods radius på op til lang afstand: 1d6 pr. CL (maks. 10d6) ildskade, Ref halv."
+- id: wand_of_fireball_cl6
+  name: Wand of Fireball (CL 6)
+  category: wand
+  slot: null
+  price_cp: 1350000
+  caster_level: 6
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: fireball
+  charges_max: 50
+  description: "Eksplosion i en 20-fods radius på op til lang afstand: 1d6 pr. CL (maks. 10d6) ildskade, Ref halv."
+- id: wand_of_fireball_cl8
+  name: Wand of Fireball (CL 8)
+  category: wand
+  slot: null
+  price_cp: 1800000
+  caster_level: 8
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: fireball
+  charges_max: 50
+  description: "Eksplosion i en 20-fods radius på op til lang afstand: 1d6 pr. CL (maks. 10d6) ildskade, Ref halv."
+- id: wand_of_fireball_cl10
+  name: Wand of Fireball (CL 10)
+  category: wand
+  slot: null
+  price_cp: 2250000
+  caster_level: 10
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: fireball
+  charges_max: 50
+  description: "Eksplosion i en 20-fods radius på op til lang afstand: 1d6 pr. CL (maks. 10d6) ildskade, Ref halv."
+- id: wand_of_foxs_cunning
+  name: Wand of Fox’s Cunning
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: foxs_cunning
+  charges_max: 50
+  description: "Aktivér for +4 enhancement til Intelligence i 1 min./CL."
+- id: wand_of_ghoul_touch
+  name: Wand of Ghoul Touch
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint necromancy
+  weight: 0
+  modifiers: '[]'
+  spell_id: ghoul_touch
+  charges_max: 50
+  description: "Melee touch: offeret lammes i 1d6+2 runder og udsender en kvalmende stank. Fort negerer."
+- id: wand_of_hold_person
+  name: Wand of Hold Person
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint enchantment (compulsion)
+  weight: 0
+  modifiers: '[]'
+  spell_id: hold_person
+  charges_max: 50
+  description: "Lammer én humanoid i 1 runde pr. CL. Will negerer, ny redning hver runde."
+- id: wand_of_hold_person_heightened_4th
+  name: Wand of Hold Person (heightened 4th)
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate enchantment (compulsion)
+  weight: 0
+  modifiers: '[]'
+  spell_id: hold_person
+  charges_max: 50
+  description: "Lammer én humanoid i 1 runde pr. CL. Will negerer, ny redning hver runde."
+- id: wand_of_holy_smite
+  name: Wand of Holy Smite
+  category: wand
+  slot: null
+  price_cp: 2400000
+  caster_level: 8
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  charges_max: 50
+  description: "Hellig eksplosion i en 20-fods sfære: 1d8 pr. 2 CL (maks. 5d8) mod onde væsner, plus 1 runde blændet. Will halv + ingen blænding. Gode væsner rammes ikke."
+- id: wand_of_ice_storm
+  name: Wand of Ice Storm
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: ice_storm
+  charges_max: 50
+  description: "Hagl over en 20-fods cylinder: 3d6 stumpskade + 2d6 kuldeskade, ingen redning. Halverer bevægelse i området."
+- id: wand_of_inflict_critical_wounds
+  name: Wand of Inflict Critical Wounds
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate necromancy
+  weight: 0
+  modifiers: '[]'
+  spell_id: inflict_critical_wounds
+  charges_max: 50
+  description: "Melee touch: 4d8+CL negativ energi-skade. Will halv. Helbreder udøde."
+- id: wand_of_invisibility
+  name: Wand of Invisibility
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint illusion (glamer)
+  weight: 0
+  modifiers: '[]'
+  spell_id: invisibility
+  charges_max: 50
+  description: "Berørt væsen bliver usynligt i 1 min./CL — bryder ved angreb."
+- id: wand_of_invisibility_greater
+  name: Wand of Invisibility, Greater
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate illusion (glamer)
+  weight: 0
+  modifiers: '[]'
+  spell_id: invisibility_greater
+  charges_max: 50
+  description: "Berørt væsen bliver usynligt i 1 runde pr. CL — og forbliver det selv ved angreb."
+- id: wand_of_keen_edge
+  name: Wand of Keen Edge
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: keen_edge
+  charges_max: 50
+  description: "Fordobler et skærende våbens trusselsområde i 10 min./CL. Stacker ikke med Improved Critical."
+- id: wand_of_knock
+  name: Wand of Knock
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: knock
+  charges_max: 50
+  description: "Åbner én låst, spærret eller fastkilet dør, kiste eller lås på afstand. Virker ikke på arcane lock uden CL-tjek."
+- id: wand_of_levitate
+  name: Wand of Levitate
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: levitate
+  charges_max: 50
+  description: "Berørt væsen eller genstand svæver lodret op og ned, 20 fod pr. runde, i 10 min./CL."
+- id: wand_of_light
+  name: Wand of Light
+  category: wand
+  slot: null
+  price_cp: 37500
+  caster_level: 1
+  aura: Faint evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: light
+  charges_max: 50
+  description: "Berørt genstand lyser som en fakkel (20 fods radius) i 10 min./CL."
+- id: wand_of_lightning_bolt
+  name: Wand of Lightning Bolt
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: lightning_bolt
+  charges_max: 50
+  description: "Lynstråle 120 fod frem: 1d6 pr. CL (maks. 10d6) elektricitetsskade til alle i linjen, Ref halv."
+- id: wand_of_lightning_bolt_cl6
+  name: Wand of Lightning Bolt (CL 6)
+  category: wand
+  slot: null
+  price_cp: 1350000
+  caster_level: 6
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: lightning_bolt
+  charges_max: 50
+  description: "Lynstråle 120 fod frem: 1d6 pr. CL (maks. 10d6) elektricitetsskade til alle i linjen, Ref halv."
+- id: wand_of_lightning_bolt_cl8
+  name: Wand of Lightning Bolt (CL 8)
+  category: wand
+  slot: null
+  price_cp: 1800000
+  caster_level: 8
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: lightning_bolt
+  charges_max: 50
+  description: "Lynstråle 120 fod frem: 1d6 pr. CL (maks. 10d6) elektricitetsskade til alle i linjen, Ref halv."
+- id: wand_of_lightning_bolt_cl10
+  name: Wand of Lightning Bolt (CL 10)
+  category: wand
+  slot: null
+  price_cp: 2250000
+  caster_level: 10
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: lightning_bolt
+  charges_max: 50
+  description: "Lynstråle 120 fod frem: 1d6 pr. CL (maks. 10d6) elektricitetsskade til alle i linjen, Ref halv."
 - id: wand_of_magic_missile
   name: Wand of Magic Missile
   category: wand
@@ -369,18 +986,354 @@
   spell_id: magic_missile
   charges_max: 50
   description: "Peg og aktivér: affyr én missil for 1d4+1 kraftskade (rammer automatisk)."
-- id: wand_of_cure_light_wounds
-  name: Wand of Cure Light Wounds
+- id: wand_of_magic_missile_cl3
+  name: Wand of Magic Missile (CL 3)
+  category: wand
+  slot: null
+  price_cp: 225000
+  caster_level: 3
+  aura: Faint evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: magic_missile
+  charges_max: 50
+  description: "Peg og aktivér: affyr én missil for 1d4+1 kraftskade (rammer automatisk)."
+- id: wand_of_magic_missile_cl5
+  name: Wand of Magic Missile (CL 5)
+  category: wand
+  slot: null
+  price_cp: 375000
+  caster_level: 5
+  aura: Faint evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: magic_missile
+  charges_max: 50
+  description: "Peg og aktivér: affyr én missil for 1d4+1 kraftskade (rammer automatisk)."
+- id: wand_of_magic_missile_cl7
+  name: Wand of Magic Missile (CL 7)
+  category: wand
+  slot: null
+  price_cp: 525000
+  caster_level: 7
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: magic_missile
+  charges_max: 50
+  description: "Peg og aktivér: affyr én missil for 1d4+1 kraftskade (rammer automatisk)."
+- id: wand_of_magic_missile_cl9
+  name: Wand of Magic Missile (CL 9)
+  category: wand
+  slot: null
+  price_cp: 675000
+  caster_level: 9
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: magic_missile
+  charges_max: 50
+  description: "Peg og aktivér: affyr én missil for 1d4+1 kraftskade (rammer automatisk)."
+- id: wand_of_major_image
+  name: Wand of Major Image
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint illusion (figment)
+  weight: 0
+  modifiers: '[]'
+  spell_id: major_image
+  charges_max: 50
+  description: "Illusion med lyd, lugt og varme, som du kan styre ved at koncentrere dig. Will afslører ved undersøgelse."
+- id: wand_of_mirror_image
+  name: Wand of Mirror Image
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint illusion (figment)
+  weight: 0
+  modifiers: '[]'
+  spell_id: mirror_image
+  charges_max: 50
+  description: "1d4+1 pr. 3 CL (maks. 8) spejlbilleder omgiver dig i 1 min./CL og opsuger angreb."
+- id: wand_of_neutralize_poison
+  name: Wand of Neutralize Poison
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate conjuration (healing)
+  weight: 0
+  modifiers: '[]'
+  spell_id: neutralize_poison
+  charges_max: 50
+  description: "Fjerner al gift i et berørt væsen eller gør en portion gift ufarlig, permanent."
+- id: wand_of_orders_wrath
+  name: Wand of Order’s Wrath
+  category: wand
+  slot: null
+  price_cp: 2400000
+  caster_level: 8
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  charges_max: 50
+  description: "Lovens kraft i en 20-fods terning: 1d8 pr. 2 CL (maks. 5d8) mod kaotiske væsner, plus 1 runde omtåget. Will halv. Lovlige væsner rammes ikke."
+- id: wand_of_owl_wisdom
+  name: Wand of Owl's Wisdom
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: owl_wisdom
+  charges_max: 50
+  description: "Aktivér for +4 enhancement til Wisdom i 1 min./CL."
+- id: wand_of_poison
+  name: Wand of Poison
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate necromancy
+  weight: 0
+  modifiers: '[]'
+  spell_id: poison
+  charges_max: 50
+  description: "Melee touch: 1d10 Con nu og igen efter 1 minut. Fort negerer begge gange."
+- id: wand_of_polymorph
+  name: Wand of Polymorph
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: polymorph
+  charges_max: 50
+  description: "Forvandler et villigt væsen til en anden skabning (op til CL HD) i 1 min./CL. Beholder mentale evner og hitpoints."
+- id: wand_of_ray_of_enfeeblement_heightened_4th
+  name: Wand of Ray of Enfeeblement (heightened 4th)
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate necromancy
+  weight: 0
+  modifiers: '[]'
+  spell_id: ray_of_enfeeblement
+  charges_max: 50
+  description: "Ranged touch: 1d6+1 pr. 2 CL (maks. +5) Strength-straf i 1 min./CL. Kan ikke sænke Str under 1."
+- id: wand_of_restoration
+  name: Wand of Restoration
+  category: wand
+  slot: null
+  price_cp: 2600000
+  caster_level: 7
+  aura: Moderate conjuration
+  weight: 0
+  modifiers: '[]'
+  spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  charges_max: 50
+  description: "Fjerner permanent evnetab, negative niveauer og udmattelse. Kræver 100 gp diamantstøv pr. brug."
+- id: wand_of_searing_light
+  name: Wand of Searing Light
+  category: wand
+  slot: null
+  price_cp: 1350000
+  caster_level: 6
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  charges_max: 50
+  description: "Ranged touch: 1d8 pr. 2 CL (maks. 5d8) skade. Mod udøde 1d6 pr. CL, mod lys-sårbare 1d8 pr. CL."
+- id: wand_of_shatter
+  name: Wand of Shatter
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: shatter
+  charges_max: 50
+  description: "Sprænger skøre genstande i en 5-fods sfære, eller én genstand på op til 1 pund pr. CL. Will negerer."
+- id: wand_of_shocking_grasp
+  name: Wand of Shocking Grasp
   category: wand
   slot: null
   price_cp: 75000
   caster_level: 1
-  aura: Faint conjuration
+  aura: Faint evocation
   weight: 0
   modifiers: '[]'
-  spell_id: cure_light_wounds
+  spell_id: shocking_grasp
   charges_max: 50
-  description: "Aktivér for at helbrede 1d8+1 skade."
+  description: "Melee touch: 1d6 pr. CL (maks. 5d6) elektricitetsskade. +3 på angrebet mod mål i metalrustning."
+- id: wand_of_silence
+  name: Wand of Silence
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint illusion (glamer)
+  weight: 0
+  modifiers: '[]'
+  spell_id: silence
+  charges_max: 50
+  description: "Total stilhed i en 20-fods radius i 1 runde pr. CL — ingen verbale komponenter, ingen lyd ud eller ind."
+- id: wand_of_slow
+  name: Wand of Slow
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint transmutation
+  weight: 0
+  modifiers: '[]'
+  spell_id: slow
+  charges_max: 50
+  description: "Ét væsen pr. CL bevæger sig og handler halvt så hurtigt i 1 runde pr. CL: -1 angreb, AC og Ref. Will negerer."
+- id: wand_of_stoneskin
+  name: Wand of Stoneskin
+  category: wand
+  slot: null
+  price_cp: 3350000
+  caster_level: 7
+  aura: Moderate abjuration
+  weight: 0
+  modifiers: '[]'
+  spell_id: stoneskin
+  charges_max: 50
+  description: "Berørt væsen får skadereduktion 10/adamantine, indtil 10 point pr. CL er absorberet (maks. 150). Kræver 250 gp diamantstøv pr. brug."
+- id: wand_of_suggestion
+  name: Wand of Suggestion
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint enchantment (compulsion)
+  weight: 0
+  modifiers: '[]'
+  spell_id: suggestion
+  charges_max: 50
+  description: "Plant et fornuftigt klingende forslag hos ét væsen i 1 time pr. CL. Will negerer."
+- id: wand_of_suggestion_heightened_4th
+  name: Wand of Suggestion (heightened 4th)
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate enchantment (compulsion)
+  weight: 0
+  modifiers: '[]'
+  spell_id: suggestion
+  charges_max: 50
+  description: "Plant et fornuftigt klingende forslag hos ét væsen i 1 time pr. CL. Will negerer."
+- id: wand_of_summon_monster_i
+  name: Wand of Summon Monster I
+  category: wand
+  slot: null
+  price_cp: 75000
+  caster_level: 1
+  aura: Faint conjuration (summoning)
+  weight: 0
+  modifiers: '[]'
+  spell_id: summon_monster_i
+  charges_max: 50
+  description: "Tilkalder ét væsen fra SM I-listen; det kæmper for dig i 1 runde pr. CL."
+- id: wand_of_summon_monster_ii
+  name: Wand of Summon Monster II
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint conjuration (summoning)
+  weight: 0
+  modifiers: '[]'
+  spell_id: summon_monster_ii
+  charges_max: 50
+  description: "Tilkalder ét væsen fra SM II-listen; det kæmper for dig i 1 runde pr. CL."
+- id: wand_of_summon_monster_iii
+  name: Wand of Summon Monster III
+  category: wand
+  slot: null
+  price_cp: 1125000
+  caster_level: 5
+  aura: Faint conjuration (summoning)
+  weight: 0
+  modifiers: '[]'
+  spell_id: summon_monster_iii
+  charges_max: 50
+  description: "Tilkalder ét væsen fra SM III-listen; det kæmper for dig i 1 runde pr. CL."
+- id: wand_of_summon_monster_iv
+  name: Wand of Summon Monster IV
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate conjuration (summoning)
+  weight: 0
+  modifiers: '[]'
+  spell_id: summon_monster_iv
+  charges_max: 50
+  description: "Tilkalder ét væsen fra SM IV-listen; det kæmper for dig i 1 runde pr. CL."
+- id: wand_of_unholy_blight
+  name: Wand of Unholy Blight
+  category: wand
+  slot: null
+  price_cp: 2400000
+  caster_level: 8
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: null   # TODO: spellet mangler i data/spells.yaml
+  charges_max: 50
+  description: "Vanhellig eksplosion i en 20-fods sfære: 1d8 pr. 2 CL (maks. 5d8) mod gode væsner, plus 1 runde kvalm. Will halv. Onde væsner rammes ikke."
+- id: wand_of_wall_of_fire
+  name: Wand of Wall of Fire
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: wall_of_fire
+  charges_max: 50
+  description: "Ildmur, 20 fod lang pr. CL: 2d6+CL skade ved gennemgang, 2d4 inden for 10 fod. Varer koncentration + 1 runde pr. CL."
+- id: wand_of_wall_of_ice
+  name: Wand of Wall of Ice
+  category: wand
+  slot: null
+  price_cp: 2100000
+  caster_level: 7
+  aura: Moderate evocation
+  weight: 0
+  modifiers: '[]'
+  spell_id: wall_of_ice
+  charges_max: 50
+  description: "Ismur eller -kuppel, 1 tomme tyk pr. CL. Skal hugges igennem (3 hp pr. tomme pr. CL)."
+- id: wand_of_web
+  name: Wand of Web
+  category: wand
+  slot: null
+  price_cp: 450000
+  caster_level: 3
+  aura: Faint conjuration (creation)
+  weight: 0
+  modifiers: '[]'
+  spell_id: web
+  charges_max: 50
+  description: "Klæbrigt spind fylder en 20-fods radius i 10 min./CL. Ref negerer, ellers fastholdt; Str- eller Escape Artist-tjek for at slippe fri."
 
 # ── Utility: slotløse genstande hvis effekt IKKE beregnes af appen. Hverken ──
 # ── modifiers (ingen numerisk bonus) eller spell_id (kaster ikke et spell) — ──
