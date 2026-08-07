@@ -127,6 +127,23 @@ def api_companion_inventory():
                                     and (other.ref or "").startswith("armor/")):
                                 other.state = "backpack"
                     it.state = st
+    elif action == "transfer":
+        # Flyt en genstand mellem Tjørn og Varg. Begge inventarer skrives i ÉT
+        # save_character-kald, så en fejl undervejs ikke kan efterlade genstanden
+        # to steder — eller ingen steder.
+        til_dyret = bool(data.get("to_companion"))
+        idx = int(data.get("index", -1))
+        ejer = list(char.inventory)
+        kilde, modtager = (ejer, inv) if til_dyret else (inv, ejer)
+        if not (0 <= idx < len(kilde)):
+            return jsonify({"error": "bad index"}), 400
+        modtager.append(companion_inventory_module.transfer(kilde.pop(idx), til_dyret))
+        char_module.save_character(str(path), {"inventory": ejer,
+                                               "companion_inventory": inv})
+        char = char_module.load_character(str(path))
+        comp = companion_module.build_companion(char, db)
+        return jsonify({**companion_inventory_module.build(comp, db),
+                        "ac": comp["ac"], "reload": True})
     else:
         return jsonify({"error": "unknown action"}), 400
 

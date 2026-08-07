@@ -176,6 +176,11 @@
                 placeholder="Frihåndsbeskrivelse — egenskaber, DM-noter, historik…"
                 style="min-height:90px;margin-top:0"></textarea>
     </div>
+    {# Giv til ledsageren. Skjules af JS når karakteren ingen companion har. #}
+    <div id="item-modal-give-row" style="display:none;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border)">
+      <button class="add-btn" style="width:100%" onclick="giveItemToCompanion()"
+              id="item-modal-give-btn">🐾 Giv til ledsager</button>
+    </div>
     <div class="notes-action-row" style="margin-top:.6rem">
       <button class="notes-save-btn" style="flex:1" onclick="saveItemDetail()">Gem</button>
       <button class="notes-cancel-btn" onclick="document.getElementById('item-modal-overlay').classList.remove('open')">Annuller</button>

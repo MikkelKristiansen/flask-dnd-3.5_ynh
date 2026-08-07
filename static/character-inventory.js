@@ -97,6 +97,26 @@ function itemInfoHtml(d, dtype) {
   return `<div class="item-info">${rows.join("")}</div>`;
 }
 
+// Giv den åbne genstand til ledsageren. Serveren flytter den mellem de to
+// inventarer i ét gem, så den aldrig kan ligge to steder — eller ingen steder.
+function giveItemToCompanion() {
+  const idx = parseInt(document.getElementById("item-modal-idx").value, 10);
+  if (isNaN(idx)) return;
+  fetch(BASE + "/api/companion_inventory", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({char: CHAR, action: "transfer", index: idx, to_companion: true})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { alert("Kunne ikke give: " + data.error); return; }
+    if (data.enc === "Overloaded" || data.enc === "Heavy")
+      alert(`${D.compName} er nu ${data.enc === "Heavy" ? "tungt lastet" : "overbelastet"} `
+            + `(${data.weight} lb af ${data.limits.light} lb let last).`);
+    location.reload();     // begge inventarer + begges vægt har ændret sig
+  });
+}
+
 // Ammo-strip på Oversigt: ammunition fra inventaret med −/+ (styrer samme qty
 // som Udstyr, så de to faner deler tæller).
 function renderAmmo() {
@@ -151,6 +171,19 @@ function openItemDetail(idx) {
   let startState = item.state || "backpack";
   if (startState === "worn" && !item.wearable) startState = "backpack";  // ryd gammel ulovlig tilstand
   document.getElementById("item-modal-state").value = startState;
+  // "Giv til ledsager" kun når der ER en ledsager, og kun for ting den kan holde
+  // på: en genstand der sidder fast på Tjørn (wielded/worn) skal tages af først,
+  // ellers ville den lydløst skifte tilstand undervejs.
+  const giveRow = document.getElementById("item-modal-give-row");
+  if (giveRow) {
+    const kanGives = !!D.compName && item.state !== "wielded" && item.state !== "worn";
+    giveRow.style.display = D.compName ? "block" : "none";
+    const btn = document.getElementById("item-modal-give-btn");
+    btn.disabled = !kanGives;
+    btn.textContent = kanGives
+      ? `🐾 Giv til ${D.compName}`
+      : `🐾 Tag den af først (${item.state === "wielded" ? "i hånden" : "båret"})`;
+  }
   // Våben-felter (bonus/Str-mult) kun for våben i kataloget
   const isWeapon = (item.ref || "").startsWith("weapons/");
   document.getElementById("item-modal-weapon").style.display = isWeapon ? "flex" : "none";

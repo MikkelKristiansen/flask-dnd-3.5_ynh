@@ -194,3 +194,84 @@ def test_fjern_barding_saenker_ac_igen(varg_client):
     assert r["weight"] == 25.0          # den ligger der stadig, bare ikke på
     r = _post(client, action="remove", index=0)
     assert r["weight"] == 0.0 and not r["rows"]
+
+
+# ── Overførsel mellem ejer og dyr ───────────────────────────────────────────
+
+def _tjorn(tmp_path):
+    return char_module.load_character(str(tmp_path / "tjorn.yaml"))
+
+
+def _find(inv, brudstykke):
+    return next(n for n, i in enumerate(inv) if brudstykke in (i.ref or ""))
+
+
+def test_giv_til_varg_flytter_genstanden(varg_client):
+    client, tmp_path = varg_client
+    før = _tjorn(tmp_path).inventory
+    idx = _find(før, "blanket_winter")
+    r = _post(client, action="transfer", index=idx, to_companion=True)
+
+    efter = _tjorn(tmp_path)
+    assert len(efter.inventory) == len(før) - 1
+    assert not [i for i in efter.inventory if "blanket_winter" in (i.ref or "")]
+    assert r["weight"] == 3.0
+    assert [row["name"] for row in r["rows"]] == ["Blanket, winter"]
+
+
+def test_tag_tilbage_fra_varg(varg_client):
+    client, tmp_path = varg_client
+    idx = _find(_tjorn(tmp_path).inventory, "blanket_winter")
+    _post(client, action="transfer", index=idx, to_companion=True)
+    antal = len(_tjorn(tmp_path).inventory)
+
+    r = _post(client, action="transfer", index=0, to_companion=False)
+    assert r["weight"] == 0.0 and not r["rows"]
+    assert len(_tjorn(tmp_path).inventory) == antal + 1
+
+
+def test_overfoersel_bevarer_genstandens_egenskaber(varg_client):
+    """Det er den SAMME ting der skifter hænder — ladninger, noter og magisk
+    bonus må ikke gå tabt undervejs."""
+    client, tmp_path = varg_client
+    client.post("/api/inventory", json={
+        "char": "tjorn", "action": "add",
+        "ref": "magic_items/wand_of_cure_light_wounds", "notes": "Vargs nødhjælp"})
+    idx = _find(_tjorn(tmp_path).inventory, "wand_of_cure_light_wounds")
+    client.post("/api/inventory", json={"char": "tjorn", "action": "use", "index": idx})
+
+    _post(client, action="transfer", index=idx, to_companion=True)
+    hos_varg = _tjorn(tmp_path).companion["inventory"][0]
+    assert hos_varg["ref"] == "magic_items/wand_of_cure_light_wounds"
+    assert hos_varg["charges"] == 49            # den brugte ladning fulgte med
+    assert hos_varg["notes"] == "Vargs nødhjælp"
+
+
+def test_overfoersel_nulstiller_tilstanden(varg_client):
+    """De to sider har ikke de samme tilstande: et dyr svinger ikke et våben, og
+    'haversack' er ejerens taske. Alt lander i 'backpack' hos modtageren."""
+    client, tmp_path = varg_client
+    inv = _tjorn(tmp_path).inventory
+    idx = _find(inv, "healer_s_kit")
+    client.post("/api/inventory", json={"char": "tjorn", "action": "update",
+                                        "index": idx, "state": "haversack"})
+    r = _post(client, action="transfer", index=idx, to_companion=True)
+    assert r["rows"][0]["state"] == "backpack"
+
+
+def test_overfoersel_af_ugyldigt_indeks_afvises(varg_client):
+    client, _ = varg_client
+    assert _post(client, action="transfer", index=999, to_companion=True)["error"]
+    assert _post(client, action="transfer", index=0, to_companion=False)["error"]
+
+
+def test_genstanden_ligger_praecis_et_sted(varg_client):
+    """Begge inventarer skrives i ét save_character-kald. Var det to, kunne en
+    fejl midtvejs efterlade genstanden begge steder — eller ingen af dem."""
+    client, tmp_path = varg_client
+    før = _tjorn(tmp_path)
+    i_alt = len(før.inventory) + len((før.companion or {}).get("inventory") or [])
+    _post(client, action="transfer", index=_find(før.inventory, "blanket_winter"),
+          to_companion=True)
+    efter = _tjorn(tmp_path)
+    assert len(efter.inventory) + len(efter.companion["inventory"]) == i_alt

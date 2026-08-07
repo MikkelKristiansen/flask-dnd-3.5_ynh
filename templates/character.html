@@ -171,6 +171,7 @@ window.DND = {
   compHpMax: {{ companion.hp_max if companion else 0 }},
   compTricks: {{ (companion.tricks if companion else [])|tojson }},
   {# Ledsagerens udstyrsbutik: dyrets størrelse og Str afgør barding-pris og bæreevne #}
+  compName: {{ (companion.name if companion_inv else "")|tojson }},
   compSize: {{ (companion.size if companion_inv else "")|tojson }},
   compStr: {{ (companion.abilities.str if companion_inv else 10)|tojson }},
   compAnimal: {{ (companion.animal_id if companion_inv else "")|tojson }},

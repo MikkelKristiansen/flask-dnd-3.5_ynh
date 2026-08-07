@@ -177,6 +177,8 @@
           {% endif %}
         </span>
         <span class="inv-weight">{{ row.total_weight }} lbs</span>
+        <button class="inv-step" onclick="compInvGiveBack({{ row.index }})"
+                title="Giv tilbage til {{ char.name }}" style="margin-right:.2rem">↩</button>
         <button class="inv-remove" onclick="compInvRemove({{ row.index }})" title="Fjern">×</button>
       </div>
       {% endfor %}

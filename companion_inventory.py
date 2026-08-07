@@ -109,6 +109,19 @@ def worn_armor(inventory: list[InventoryItem], db) -> dict | None:
     return None
 
 
+def transfer(item: InventoryItem, til_dyret: bool) -> InventoryItem:
+    """Flyt én genstand mellem ejer og dyr — samme genstand, ny tilstand.
+
+    Alt bevares (ref, antal, noter, ladninger, materiale, magisk bonus): det er
+    den SAMME ting, den skifter bare hænder. Kun `state` nulstilles til
+    "backpack", fordi de to sider ikke har de samme tilstande: et dyr svinger
+    ikke et våben ("wielded"), og "haversack" hører til ejerens taske, ikke
+    dyrets ryg. Barding tages på bagefter — modtageren vælger selv.
+    """
+    from dataclasses import replace
+    return replace(item, state="backpack", off_hand=False, double=False)
+
+
 def build(companion: dict, db) -> dict:
     """Vargs udstyrs-visning: rækker, vægt, bæregrænser, belastning, advarsler.
 

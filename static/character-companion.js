@@ -228,6 +228,9 @@ function compInvPost(body) {
 }
 
 function compInvRemove(index) { compInvPost({action: "remove", index}); }
+function compInvGiveBack(index) {
+  compInvPost({action: "transfer", index, to_companion: false});
+}
 function compInvState(index, state) { compInvPost({action: "update", index, state}); }
 
 function compInvBuy() {
