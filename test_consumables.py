@@ -89,6 +89,17 @@ def test_non_consumable_rejected(use_client):
 
 # ── Wand-kataloget (SRD's wand-tabel) ────────────────────────────────────────
 
+def test_wand_med_save_spell_ruller_skade(use_client):
+    """Område/save-spells er den tredje kast-gren. Den blev ikke kaldt af use-ruten,
+    så en Wand of Fireball talte ned uden at rulle noget — usynligt dengang kataloget
+    kun havde magic missile (angreb) og cure light wounds (heal)."""
+    make, _ = use_client
+    client = make([{"ref": "magic_items/wand_of_fireball", "state": "backpack", "charges": 50}])
+    used = _use(client, 0)["used"]
+    assert used["roll_expr"] == "5d6"          # CL 5 → 5d6
+    assert used["save_type"] == "reflex" and used["save_effect"] == "half"
+
+
 def test_wand_cl_variant_skalerer(use_client):
     """CL-varianterne har hver sin række, og caster_level styrer skaleringen —
     det er GENSTANDENS CL, ikke brugerens niveau. Karakteren her er 1. niveau;

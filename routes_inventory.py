@@ -176,12 +176,24 @@ def api_inventory():
             extra["buffs"] = buffs
             used["buff_added"] = eff["name"]
         else:
+            # Alle TRE kast-grene, som på karakterarket (spell_view.py:277): angreb,
+            # healing og område/save. Uden den sidste tæller en Wand of Fireball ned
+            # uden at rulle noget — den mangel var usynlig da kataloget kun havde
+            # magic missile og cure light wounds.
             info = (char_module.spell_cast_info(sid, cl, db)
-                    or char_module.spell_heal_cast_info(sid, cl, db))
+                    or char_module.spell_heal_cast_info(sid, cl, db)
+                    or char_module.spell_save_cast_info(sid, cl, db))
             if info:
-                used["roll_expr"] = info["roll_expr"]
-                used["roll_label"] = mi["name"]
                 used["kind"] = info.get("kind")
+                # Save-grenen har ingen roll_expr — den har skade + save-type, og
+                # skaden er tom for rene save-effekter (Sleep, Charm person).
+                udtryk = info.get("roll_expr") or info.get("damage") or ""
+                if udtryk:
+                    used["roll_expr"] = udtryk
+                    used["roll_label"] = mi["name"]
+                if info.get("save_type"):
+                    used["save_type"] = info["save_type"]
+                    used["save_effect"] = info.get("save_effect") or ""
 
         cur -= 1
         if cur <= 0 and int(mi.get("charges_max") or 1) <= 1:
