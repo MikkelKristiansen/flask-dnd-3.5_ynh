@@ -173,7 +173,7 @@
         </div>
         <span class="inv-qty-stepper">
           {% if row.is_armor %}
-          <button class="inv-step" onclick="compInvState({{ row.index }}, '{{ 'backpack' if row.state == 'worn' else 'worn' }}')"
+          <button class="inv-worn-toggle" onclick="compInvState({{ row.index }}, '{{ 'backpack' if row.state == 'worn' else 'worn' }}')"
                   title="{{ 'Tag barding af' if row.state == 'worn' else 'Tag barding på' }}">{{ '↓ af' if row.state == 'worn' else '↑ på' }}</button>
           {% else %}
           <span class="inv-qty">×{{ row.qty }}</span>
